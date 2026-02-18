@@ -60,13 +60,17 @@ export function Navbar() {
   }, [supabase.auth])
 
   const handleSignIn = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+  await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback?next=/`,
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
       },
-    })
-  }
+    },
+  })
+}
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
