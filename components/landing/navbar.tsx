@@ -63,7 +63,7 @@ export function Navbar() {
   await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: "http://localhost:3000/auth/callback",
+      redirectTo: "https://fabely.ai/auth/callback",
     },
   })
 }
