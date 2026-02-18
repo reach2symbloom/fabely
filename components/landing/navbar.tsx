@@ -59,14 +59,19 @@ export function Navbar() {
     return () => subscription.unsubscribe()
   }, [supabase.auth])
 
-  const handleSignIn = async () => {
-  await supabase.auth.signInWithOAuth({
+const handleSignIn = async () => {
+  const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: "https://fabely.ai/auth/callback",
+      redirectTo: `${window.location.origin}/auth/callback`,
     },
   })
+
+  if (error) {
+    console.error("OAuth error:", error.message)
+  }
 }
+
   
   const handleSignOut = async () => {
     await supabase.auth.signOut()
