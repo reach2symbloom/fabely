@@ -9,62 +9,86 @@ export interface DriveFile {
   modifiedTime?: string
 }
 
+/**
+ * GET /api/drive
+ * Fetches specific file types from the user's Google Drive 
+ * using the provider token managed by Supabase.
+ */
 export async function GET() {
   const supabase = await createClient()
+  
+  // 1. Get the session to retrieve the Google Provider Token
   const {
     data: { session },
+    error: sessionError,
   } = await supabase.auth.getSession()
 
-  if (!session?.provider_token) {
+  if (sessionError || !session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  // Supabase stores the Google Access Token in 'provider_token'
+  const accessToken = session.provider_token
+
+  if (!accessToken) {
     return NextResponse.json(
-      { error: "Not authenticated with Google, or Drive scope not granted" },
+      { 
+        error: "Missing Google Provider Token",
+        details: "Ensure you requested 'https://www.googleapis.com/auth/drive.readonly' during sign-in."
+      },
       { status: 401 }
     )
   }
 
-  const accessToken = session.provider_token
-
-  // Query for txt, pdf, and Google Docs
-  // mimeType: text/plain, application/pdf, application/vnd.google-apps.document
-  const mimeQuery = [
-    "mimeType='text/plain'",
-    "mimeType='application/pdf'",
-    "mimeType='application/vnd.google-apps.document'",
-  ].join(" or ")
-
+  // 2. Construct the Google Drive API Query
+  const mimeTypes = [
+    "text/plain",
+    "application/pdf",
+    "application/vnd.google-apps.document"
+  ]
+  
+  const mimeQuery = mimeTypes.map(type => `mimeType='${type}'`).join(" or ")
   const q = `(${mimeQuery}) and trashed=false`
+
   const params = new URLSearchParams({
     q,
-    fields: "files(id,name,mimeType,webViewLink,modifiedTime)",
+    fields: "files(id, name, mimeType, webViewLink, modifiedTime)",
     orderBy: "modifiedTime desc",
-    pageSize: "100",
+    pageSize: "50", // Adjusted for better performance
   })
 
-  const response = await fetch(
-    `https://www.googleapis.com/drive/v3/files?${params}`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  )
-
-  if (!response.ok) {
-    const err = await response.text()
-    console.error("Google Drive API error:", response.status, err)
-    return NextResponse.json(
+  // 3. Fetch from Google Drive REST API
+  try {
+    const driveResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files?${params}`,
       {
-        error: "Failed to fetch Drive files",
-        details: response.status === 403 ? "Drive scope may not be granted. Sign out and sign in again." : err,
-      },
-      { status: response.status }
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
     )
-  }
 
-  const data = (await response.json()) as {
-    files?: DriveFile[]
-  }
-  const files = data.files ?? []
+    if (!driveResponse.ok) {
+      const errorData = await driveResponse.json()
+      console.error("Google Drive API Error:", errorData)
+      
+      return NextResponse.json(
+        { 
+          error: "Google Drive fetch failed", 
+          details: errorData.error?.message || "Unknown error" 
+        },
+        { status: driveResponse.status }
+      )
+    }
 
-  return NextResponse.json({ files })
+    const data = await driveResponse.json()
+    const files: DriveFile[] = data.files ?? []
+
+    return NextResponse.json({ files })
+
+  } catch (error) {
+    console.error("Internal Server Error:", error)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+  }
 }
