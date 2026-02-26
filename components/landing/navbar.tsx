@@ -70,9 +70,6 @@ export function Navbar() {
           access_type: "offline",
           prompt: "consent",
           scope: [
-            "openid",
-            "email",
-            "profile",
             "https://www.googleapis.com/auth/drive.readonly",
           ].join(" "),
         },
