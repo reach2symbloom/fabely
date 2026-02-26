@@ -1,15 +1,30 @@
 const footerLinks = [
   {
     title: "Product",
-    links: ["Features", "Pricing", "Changelog", "Roadmap"],
+    links: [
+      { label: "Features", href: "#" },
+      { label: "Pricing", href: "#" },
+      { label: "Changelog", href: "#" },
+      { label: "Roadmap", href: "#" },
+    ],
   },
   {
     title: "Resources",
-    links: ["Documentation", "Blog", "Community", "Support"],
+    links: [
+      { label: "Documentation", href: "#" },
+      { label: "Blog", href: "#" },
+      { label: "Community", href: "#" },
+      { label: "Support", href: "#" },
+    ],
   },
   {
     title: "Company",
-    links: ["About", "Careers", "Privacy", "Terms"],
+    links: [
+      { label: "About", href: "#" },
+      { label: "Careers", href: "#" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/termsofservices" },
+    ],
   },
 ]
 
@@ -17,7 +32,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border px-6 py-16">
       <div className="mx-auto max-w-7xl">
-        <div className="grid gap-12 md:grid-cols-4">
+        <div className="grid gap-12 md:grid-cols-5">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2">
@@ -44,18 +59,35 @@ export function Footer() {
               </p>
               <ul className="mt-4 flex flex-col gap-2.5">
                 {section.links.map((link) => (
-                  <li key={link}>
+                  <li key={link.label}>
                     <a
-                      href="#"
+                      href={link.href}
                       className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
-                      {link}
+                      {link.label}
                     </a>
                   </li>
                 ))}
               </ul>
             </div>
           ))}
+
+          {/* Contact Us */}
+          <div>
+            <p className="text-sm font-semibold text-foreground">
+              Contact Us
+            </p>
+            <ul className="mt-4 flex flex-col gap-2.5">
+              <li>
+                <a
+                  href="mailto:reach2symbloom@gmail.com"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  reach2symbloom@gmail.com
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Bottom bar */}
