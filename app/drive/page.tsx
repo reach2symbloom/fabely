@@ -11,26 +11,33 @@ export default function DrivePage() {
 
   const supabase = createClient()
 
-  const fetchFiles = async () => {
+  const fetchFabelyFiles = async () => {
   const { data: { session } } = await supabase.auth.getSession();
-  
-  // This is the specific token for Google, NOT the Supabase JWT
-  const googleToken = session?.provider_token; 
+  const token = session?.provider_token;
 
-  if (!googleToken) {
-    console.error("No Google token found. Try logging in again.");
-    return;
-  }
+  // The 'q' parameter must use these specific MIME types
+  const mimeTypes = [
+    "application/pdf",                                          // PDF
+    "text/plain",                                              // TXT
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // DOCX
+    "application/vnd.google-apps.document",                    // Google Doc
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // PPTX
+    "application/vnd.google-apps.presentation"                 // Google Slides
+  ];
 
-  const response = await fetch("https://www.googleapis.com/drive/v3/files", {
-    headers: {
-      Authorization: `Bearer ${googleToken}`, // Must be the provider_token
-    },
-  });
-  
-  if (response.status === 401) {
-    console.log("Token is unauthorized. Scopes might be missing.");
-  }
+  // Join them with "or" for the Google query
+  const query = mimeTypes.map(type => `mimeType = '${type}'`).join(' or ');
+
+  const response = await fetch(
+    `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id, name, mimeType, iconLink)`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+
+  const data = await response.json();
+  console.log("Files found:", data.files);
+  return data.files;
 };
 
   useEffect(() => {
