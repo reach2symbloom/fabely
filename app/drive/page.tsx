@@ -12,22 +12,26 @@ export default function DrivePage() {
   const supabase = createClient()
 
   const fetchFiles = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const res = await fetch("/api/drive/files")
-      const data = await res.json()
-      if (!res.ok) {
-        throw new Error(data.error || data.details || "Failed to fetch files")
-      }
-      setFiles(data.files ?? [])
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load files")
-      setFiles([])
-    } finally {
-      setLoading(false)
-    }
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  // This is the specific token for Google, NOT the Supabase JWT
+  const googleToken = session?.provider_token; 
+
+  if (!googleToken) {
+    console.error("No Google token found. Try logging in again.");
+    return;
   }
+
+  const response = await fetch("https://www.googleapis.com/drive/v3/files", {
+    headers: {
+      Authorization: `Bearer ${googleToken}`, // Must be the provider_token
+    },
+  });
+  
+  if (response.status === 401) {
+    console.log("Token is unauthorized. Scopes might be missing.");
+  }
+};
 
   useEffect(() => {
     fetchFiles()
