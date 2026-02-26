@@ -63,25 +63,14 @@ export function Navbar() {
 
   const handleSignIn = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
+      provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: {
-          access_type: "offline",
-          prompt: "consent",
-          scope: [
-            "openid",
-            "email",
-            "profile",
-            "https://www.googleapis.com/auth/drive.readonly",
-          ].join(" "),
-        },
+        scopes: 'https://www.googleapis.com/auth/drive.readonly',
+        queryParams: { access_type: 'offline', prompt: 'consent' },
       },
-    })
-
-    if (error) {
-      console.error("OAuth error:", error.message)
-    }
+    });
+    if (error) console.error("Login Error:", error.message);
+  };
   }
 
   
