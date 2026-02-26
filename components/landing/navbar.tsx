@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { Menu, X, LogOut, HardDrive } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
@@ -20,6 +21,7 @@ export function Navbar() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [driveDialogOpen, setDriveDialogOpen] = useState(false)
+  const router = useRouter()
 
   const supabase = createClient()
 
@@ -156,10 +158,10 @@ export function Navbar() {
                 variant="outline"
                 size="sm"
                 className="text-muted-foreground hover:text-foreground gap-2"
-                onClick={() => setDriveDialogOpen(true)}
+                onClick={() => router.push('/drive')}
               >
                 <HardDrive className="h-4 w-4" />
-                Import Google Drive Manuscripts
+                Open Drive
               </Button>
             </>
           ) : (

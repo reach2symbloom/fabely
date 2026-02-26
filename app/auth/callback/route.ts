@@ -22,6 +22,6 @@ export async function GET(request: Request) {
     }
   }
 
-  // Redirect to home page after successful login
-  return NextResponse.redirect(new URL("/", requestUrl.origin))
+  // Redirect to drive page after successful login
+  return NextResponse.redirect(new URL("/drive", requestUrl.origin))
 }
