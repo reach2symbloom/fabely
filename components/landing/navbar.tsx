@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Menu, X, LogOut } from "lucide-react"
+import { Menu, X, LogOut, HardDrive } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
+import { DriveFilesDialog } from "@/components/landing/drive-files-dialog"
 import type { User } from "@supabase/supabase-js"
 
 const navLinks = [
@@ -18,6 +19,7 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [driveDialogOpen, setDriveDialogOpen] = useState(false)
 
   const supabase = createClient()
 
@@ -59,18 +61,28 @@ export function Navbar() {
     return () => subscription.unsubscribe()
   }, [supabase.auth])
 
-const handleSignIn = async () => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: '${window.location.origin}/auth/callback',
-    },
-  })
+  const handleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+          scope: [
+            "openid",
+            "email",
+            "profile",
+            "https://www.googleapis.com/auth/drive.readonly",
+          ].join(" "),
+        },
+      },
+    })
 
-  if (error) {
-    console.error("OAuth error:", error.message)
+    if (error) {
+      console.error("OAuth error:", error.message)
+    }
   }
-}
 
   
   const handleSignOut = async () => {
@@ -143,9 +155,27 @@ const handleSignIn = async () => {
                 <LogOut className="h-4 w-4" />
                 Sign Out
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground gap-2"
+                onClick={() => setDriveDialogOpen(true)}
+              >
+                <HardDrive className="h-4 w-4" />
+                Import Google Drive Manuscripts
+              </Button>
             </>
           ) : (
             <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground gap-2"
+                onClick={handleSignIn}
+              >
+                <HardDrive className="h-4 w-4" />
+                Import Google Drive Manuscripts
+              </Button>
               <Button
                 variant="ghost"
                 size="sm"
@@ -179,6 +209,8 @@ const handleSignIn = async () => {
         </button>
       </nav>
 
+      <DriveFilesDialog open={driveDialogOpen} onOpenChange={setDriveDialogOpen} />
+
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="border-t border-border bg-background/95 backdrop-blur-xl md:hidden">
@@ -198,6 +230,18 @@ const handleSignIn = async () => {
                 <div className="h-9 w-full animate-pulse rounded-md bg-secondary" />
               ) : user ? (
                 <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-start text-muted-foreground gap-2"
+                    onClick={() => {
+                      setDriveDialogOpen(true)
+                      setMobileOpen(false)
+                    }}
+                  >
+                    <HardDrive className="h-4 w-4" />
+                    Import Google Drive Manuscripts
+                  </Button>
                   <div className="flex items-center gap-3 px-3 py-2">
                     {user.user_metadata?.avatar_url && (
                       <img
@@ -223,6 +267,15 @@ const handleSignIn = async () => {
                 </>
               ) : (
                 <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-start text-muted-foreground gap-2"
+                    onClick={handleSignIn}
+                  >
+                    <HardDrive className="h-4 w-4" />
+                    Import Google Drive Manuscripts
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
