@@ -35,14 +35,16 @@ export default function DrivePage() {
     }
   );
 
+    useEffect(() => {
+    fetchFabelyFiles()
+  }, [])
+
   const data = await response.json();
   console.log("Files found:", data.files);
-  return data.files;
+  return <button onClick={fetchFabelyFiles}>Refresh</button>;
 };
 
-  useEffect(() => {
-    fetchFiles()
-  }, [])
+
 
   return (
     <div className="flex h-screen">
