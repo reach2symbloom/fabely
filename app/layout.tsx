@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
+import { Analytics } from '@vercel analytics/next'
+import { AuthListener } from '@/components/auth-listener' // <-- Import the listener
 import './globals.css'
 
 const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -9,7 +10,7 @@ const _playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playf
 export const metadata: Metadata = {
   title: 'Fabely — Where Manuscripts Attract Meaning',
   description:
-    'Fabely is an AI-powered writing environment that unifies research, notes, and manuscript writing through a semantic pattern engine. Write fiction and non-fiction with intelligence that surfaces exactly when you need it.',
+    'Fabely is an AI-powered writing environment that unifies research, notes, and manuscript writing through a semantic pattern engine.',
   keywords: ['writing tool', 'manuscript', 'AI writing', 'novel writing', 'semantic engine', 'fiction writing'],
   openGraph: {
     title: 'Fabely — Where Manuscripts Attract Meaning',
@@ -31,6 +32,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${_inter.variable} ${_playfair.variable}`}>
       <body className="font-sans antialiased">
+        {/* The AuthListener runs in the background on every page */}
+        <AuthListener /> 
+        
         {children}
         <Analytics />
       </body>
