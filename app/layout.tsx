@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { AuthListener } from '@/components/auth-listener' // <-- Import the listener
+import { AuthListener } from '../components/auth-listener' // <-- Import the listener
 import './globals.css'
 
 const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
