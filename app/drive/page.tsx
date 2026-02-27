@@ -25,30 +25,20 @@ export default function DrivePage() {
         throw new Error("No Google access token found. Please sign in again.");
       }
 
-      const mimeTypes = [
-        "application/pdf",
-        "text/plain",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "application/vnd.google-apps.document",
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        "application/vnd.google-apps.presentation"
-      ];
-
-      const query = mimeTypes.map(type => `mimeType = '${type}'`).join(' or ');
-
-      const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id, name, mimeType, iconLink, webViewLink)`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || "Failed to fetch files");
-      }
+      // CHANGE: Now we fetch from our internal NEXT.JS API instead of calling Google directly
+      const response = await fetch('/api/drive', {
+        headers: { 
+          // We pass the Google token to our own server, which then talks to Google
+          'Authorization': `Bearer ${token}` 
+        },
+      });
 
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.details || data.error || "Failed to fetch files");
+      }
+      
       setFiles(data.files || []);
       
     } catch (err: any) {
@@ -59,11 +49,9 @@ export default function DrivePage() {
     }
   };
 
-  // Logic to handle copying a file to Fabely
   const handleCopyFile = (file: DriveFile) => {
     console.log(`Copying ${file.name} to Fabely Drive...`);
-    // This is where you will later add the fetch call to download from Google 
-    // and upload to Supabase Storage.
+    // Logic for downloading/syncing will go here next
     alert(`Coming soon: ${file.name} will be synced to your Fabely workspace.`);
   };
 
@@ -85,7 +73,7 @@ export default function DrivePage() {
       {/* Right side: Drive listing */}
       <div className="w-1/2 border-l border-border overflow-auto p-6 bg-slate-50/50">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold font-playfair">Google Drive Resources</h2>
+          <h2 className="text-xl font-semibold font-playfair text-slate-800">Google Drive Resources</h2>
           <button 
             onClick={fetchFabelyFiles}
             className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity"
@@ -100,28 +88,31 @@ export default function DrivePage() {
           </div>
         ) : error ? (
           <div className="p-4 border border-destructive/50 rounded-lg bg-destructive/10">
-            <p className="text-destructive text-sm">{error}</p>
+            <p className="text-destructive text-sm font-medium">Error: {error}</p>
             <button 
               onClick={() => window.location.reload()} 
-              className="text-xs underline mt-2"
+              className="text-xs underline mt-2 text-destructive hover:no-underline"
             >
-              Re-authenticate
+              Re-authenticate and try again
             </button>
           </div>
         ) : files.length === 0 ? (
-          <div className="text-center p-12 border border-dashed rounded-lg">
-            <p className="text-muted-foreground">No manuscripts or notes found in your Drive.</p>
+          <div className="text-center p-12 border border-dashed rounded-lg bg-white">
+            <p className="text-muted-foreground">No compatible manuscripts or notes found.</p>
           </div>
         ) : (
           <ul className="space-y-3">
             {files.map((file) => (
               <li 
                 key={file.id} 
-                className="group flex items-center justify-between p-3 border border-border bg-card rounded-lg hover:shadow-sm transition-all"
+                className="group flex items-center justify-between p-3 border border-border bg-card rounded-lg hover:shadow-md transition-all border-slate-200"
               >
                 <div className="flex items-center gap-3 overflow-hidden">
-                  <img src={file.iconLink} alt="icon" className="w-5 h-5 flex-shrink-0" />
-                  <span className="truncate text-sm font-medium">{file.name}</span>
+                  <span className="text-xl">📄</span> {/* Fallback icon if iconLink is missing */}
+                  <div className="flex flex-col">
+                    <span className="truncate text-sm font-semibold text-slate-700">{file.name}</span>
+                    <span className="text-[10px] uppercase text-slate-400 font-bold">{file.mimeType.split('.').pop()}</span>
+                  </div>
                 </div>
                 
                 <div className="flex gap-2">
@@ -129,13 +120,13 @@ export default function DrivePage() {
                     href={file.webViewLink || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 text-xs text-muted-foreground hover:text-primary"
+                    className="p-2 text-xs font-medium text-slate-500 hover:text-primary transition-colors"
                   >
-                    View
+                    Preview
                   </a>
                   <button 
                     onClick={() => handleCopyFile(file)}
-                    className="px-3 py-1 text-xs bg-secondary text-secondary-foreground rounded hover:bg-secondary/80"
+                    className="px-3 py-1 text-xs font-semibold bg-slate-900 text-white rounded-md hover:bg-slate-800 transition-colors"
                   >
                     Copy to Fabely
                   </button>
