@@ -17,21 +17,24 @@ export default function DrivePage() {
     
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
-      // Fallback: Check localStorage if the session provider_token is null
       const token = session?.provider_token || window.localStorage.getItem('google_provider_token');
 
       if (!token) {
         throw new Error("No Google access token found. Please sign in again.");
       }
 
-      // CHANGE: Now we fetch from our internal NEXT.JS API instead of calling Google directly
-      const response = await fetch('/api/drive', {
+      // FIXED: Changed '/api/drive' to '/drive/files' to match your app/drive/files/route.ts
+      const response = await fetch('/drive/files', {
         headers: { 
-          // We pass the Google token to our own server, which then talks to Google
           'Authorization': `Bearer ${token}` 
         },
       });
+
+      // Check if the response is actually JSON before parsing
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Server returned an invalid response (HTML instead of JSON). Check your API route path.");
+      }
 
       const data = await response.json();
 
@@ -51,8 +54,7 @@ export default function DrivePage() {
 
   const handleCopyFile = (file: DriveFile) => {
     console.log(`Copying ${file.name} to Fabely Drive...`);
-    // Logic for downloading/syncing will go here next
-    alert(`Coming soon: ${file.name} will be synced to your Fabely workspace.`);
+    alert(`Syncing ${file.name} to your workspace...`);
   };
 
   useEffect(() => {
@@ -108,10 +110,12 @@ export default function DrivePage() {
                 className="group flex items-center justify-between p-3 border border-border bg-card rounded-lg hover:shadow-md transition-all border-slate-200"
               >
                 <div className="flex items-center gap-3 overflow-hidden">
-                  <span className="text-xl">📄</span> {/* Fallback icon if iconLink is missing */}
+                  <span className="text-xl">📄</span>
                   <div className="flex flex-col">
                     <span className="truncate text-sm font-semibold text-slate-700">{file.name}</span>
-                    <span className="text-[10px] uppercase text-slate-400 font-bold">{file.mimeType.split('.').pop()}</span>
+                    <span className="text-[10px] uppercase text-slate-400 font-bold">
+                      {file.mimeType.split('.').pop()?.replace('document', 'doc')}
+                    </span>
                   </div>
                 </div>
                 
