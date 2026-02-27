@@ -9,32 +9,23 @@ export interface DriveFile {
   modifiedTime?: string
 }
 
-/**
- * GET /api/drive
- * Fetches specific file types from the user's Google Drive 
- * using the provider token managed by Supabase.
- */
-export async function GET() {
-  const supabase = await createClient()
-  
-  // 1. Get the session to retrieve the Google Provider Token
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession()
+export async function GET(request: Request) {
+  // 1. Check for the Google Access Token in the request headers
+  const authHeader = request.headers.get("Authorization");
+  let accessToken = authHeader?.split(" ")[1]; // Grabs the token from "Bearer <token>"
 
-  if (sessionError || !session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  // Fallback: If not in header, try to get from server session (less reliable)
+  if (!accessToken) {
+    const supabase = await createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    accessToken = session?.provider_token || undefined
   }
-
-  // Supabase stores the Google Access Token in 'provider_token'
-  const accessToken = session.provider_token
 
   if (!accessToken) {
     return NextResponse.json(
       { 
         error: "Missing Google Provider Token",
-        details: "Ensure you requested 'https://www.googleapis.com/auth/drive.readonly' during sign-in."
+        details: "The API did not receive a valid Google Access Token from the client."
       },
       { status: 401 }
     )
@@ -44,7 +35,9 @@ export async function GET() {
   const mimeTypes = [
     "text/plain",
     "application/pdf",
-    "application/vnd.google-apps.document"
+    "application/vnd.google-apps.document",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // Added DOCX
+    "application/vnd.google-apps.presentation" // Added Slides
   ]
   
   const mimeQuery = mimeTypes.map(type => `mimeType='${type}'`).join(" or ")
@@ -52,9 +45,9 @@ export async function GET() {
 
   const params = new URLSearchParams({
     q,
-    fields: "files(id, name, mimeType, webViewLink, modifiedTime)",
+    fields: "files(id, name, mimeType, webViewLink, modifiedTime, iconLink)",
     orderBy: "modifiedTime desc",
-    pageSize: "50", // Adjusted for better performance
+    pageSize: "50",
   })
 
   // 3. Fetch from Google Drive REST API
@@ -71,24 +64,16 @@ export async function GET() {
 
     if (!driveResponse.ok) {
       const errorData = await driveResponse.json()
-      console.error("Google Drive API Error:", errorData)
-      
       return NextResponse.json(
-        { 
-          error: "Google Drive fetch failed", 
-          details: errorData.error?.message || "Unknown error" 
-        },
+        { error: "Google Drive fetch failed", details: errorData.error?.message },
         { status: driveResponse.status }
       )
     }
 
     const data = await driveResponse.json()
-    const files: DriveFile[] = data.files ?? []
-
-    return NextResponse.json({ files })
+    return NextResponse.json({ files: data.files ?? [] })
 
   } catch (error) {
-    console.error("Internal Server Error:", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { AuthListener } from '../components/auth-listener' // <-- Import the listener
+import { AuthListener } from '../components/auth-listener' 
 import './globals.css'
 
 const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -32,7 +32,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${_inter.variable} ${_playfair.variable}`}>
       <body className="font-sans antialiased">
-        {/* The AuthListener runs in the background on every page */}
+        {/* CRITICAL: The AuthListener must be here to catch the 
+           Google provider_token on the initial redirect.
+        */}
         <AuthListener /> 
         
         {children}

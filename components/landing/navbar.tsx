@@ -64,19 +64,17 @@ export function Navbar() {
   }, [supabase.auth])
 
   const handleSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: {
-          access_type: "offline",
-          prompt: "consent",
-          scope: [
-            "https://www.googleapis.com/auth/drive.readonly",
-          ].join(" "),
-        },
-      },
-    })
+    const { data, error } = await supabase.auth.signInWithOAuth({
+  provider: 'google',
+  options: {
+    scopes: 'https://www.googleapis.com/auth/drive.readonly',
+    queryParams: {
+      access_type: 'offline',
+      prompt: 'consent', // THIS IS THE KEY: It forces Google to show the Drive checkbox again
+    },
+    redirectTo: window.location.origin + '/auth/callback'
+  },
+})
 
     if (error) {
       console.error("OAuth error:", error.message)
