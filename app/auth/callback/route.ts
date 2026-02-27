@@ -1,27 +1,17 @@
-import { NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
+import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
-  const requestUrl = new URL(request.url)
-  const code = requestUrl.searchParams.get("code")
+  const { searchParams, origin } = new URL(request.url)
+  const code = searchParams.get('code')
 
   if (code) {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-
-    // Exchange the auth code for a session
+    const supabase = await createClient()
+    // This converts the Google code into a Supabase session
     const { error } = await supabase.auth.exchangeCodeForSession(code)
-
-    if (error) {
-      console.error("Error exchanging code:", error.message)
-      return NextResponse.redirect(
-        new URL("/auth/error", requestUrl.origin)
-      )
+    if (!error) {
+      return NextResponse.redirect(`${origin}/drive`) // Send user to your Drive page
     }
   }
-
-  // Redirect to drive page after successful login
-  return NextResponse.redirect(new URL("/drive", requestUrl.origin))
+  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
 }
