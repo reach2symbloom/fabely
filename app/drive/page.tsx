@@ -138,7 +138,9 @@ export default function DrivePage() {
       {/* Left pane: Read-only Fabely Drive */}
       <div className="w-1/2 p-6 flex flex-col border-r border-border">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold">Fabely Drive</h2>
+          <button className="px-4 py-2 rounded-md bg-primary text-primary-foreground font-medium hover:opacity-90">
+            Save In Fabely Storage
+          </button>
           <p className="text-sm text-muted-foreground">{copiedFiles.length} item(s)</p>
         </div>
 
