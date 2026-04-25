@@ -12,6 +12,9 @@ export default function DrivePage() {
   const [loading, setLoading] = useState(false)
   const [loadingContent, setLoadingContent] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [chatgptData, setChatgptData] = useState<any[]>([])
+  const [loadingChatgpt, setLoadingChatgpt] = useState(false)
+  const [chatgptError, setChatgptError] = useState<string | null>(null)
 
   const supabase = createClient()
 
@@ -49,6 +52,41 @@ export default function DrivePage() {
   useEffect(() => {
     fetchDriveFiles()
   }, [])
+
+  const handleIntegrateChatGPT = async () => {
+    setLoadingChatgpt(true)
+    setChatgptError(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.user) {
+        throw new Error("You must be logged in to integrate ChatGPT")
+      }
+
+      const response = await fetch('/api/chatgpt/import', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: session.user.id,
+        }),
+      })
+
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to import ChatGPT data')
+      }
+
+      setChatgptData(data.conversations || [])
+    } catch (e: any) {
+      setChatgptError(e.message || 'Failed to integrate ChatGPT')
+      console.error('ChatGPT integration error:', e)
+    } finally {
+      setLoadingChatgpt(false)
+    }
+  }
 
   const handleCopyToFabely = (file: DriveFile) => {
     // Move file from right list to left "Fabely" list (client-side)
@@ -215,7 +253,9 @@ export default function DrivePage() {
           <h2 className="text-xl font-semibold">Google Drive Resources</h2>
           <div className="flex gap-2">
             <button onClick={fetchDriveFiles} className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm">Refresh Drive</button>
-            <button className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm">Integrate chatgpt</button>
+            <button onClick={handleIntegrateChatGPT} disabled={loadingChatgpt} className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 disabled:opacity-50">
+              {loadingChatgpt ? 'Integrating...' : 'Integrate ChatGPT'}
+            </button>
           </div>
         </div>
 
@@ -251,6 +291,36 @@ export default function DrivePage() {
               </li>
             ))}
           </ul>
+        )}
+
+        {/* ChatGPT Data Section */}
+        {chatgptData.length > 0 && (
+          <div className="mt-8 pt-6 border-t border-border">
+            <h3 className="text-lg font-semibold mb-4">ChatGPT Conversations</h3>
+            <div className="space-y-3">
+              {chatgptData.map((conversation, index) => (
+                <div key={index} className="p-4 border border-border rounded-md bg-card hover:shadow-sm transition">
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl">💬</span>
+                    <div className="flex-1 overflow-hidden">
+                      <h4 className="font-medium truncate">{conversation.title || `Conversation ${index + 1}`}</h4>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{conversation.summary || conversation.messages?.[0]?.content || 'No content available'}</p>
+                      <div className="flex gap-2 mt-2 text-xs text-muted-foreground">
+                        <span>📅 {new Date(conversation.created_at || Date.now()).toLocaleDateString()}</span>
+                        <span>💬 {conversation.message_count || 0} messages</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {chatgptError && (
+          <div className="mt-4 p-4 border border-destructive/50 rounded-lg bg-destructive/10">
+            <p className="text-destructive text-sm font-medium">ChatGPT Error: {chatgptError}</p>
+          </div>
         )}
       </div>
     </div>
