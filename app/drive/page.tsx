@@ -215,6 +215,7 @@ export default function DrivePage() {
           <h2 className="text-xl font-semibold">Google Drive Resources</h2>
           <div className="flex gap-2">
             <button onClick={fetchDriveFiles} className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm">Refresh Drive</button>
+            <button className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm">Integrate chatgpt</button>
           </div>
         </div>
 
