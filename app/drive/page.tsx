@@ -258,56 +258,22 @@ export default function DrivePage() {
         </div>
       </div>
 
-      {/* Right pane: Drive listing (source) */}
+      {/* Right pane: ChatGPT and Drive listing (source) */}
       <div className="w-1/2 border-l border-border overflow-auto p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Google Drive Resources</h2>
-          <div className="flex gap-2">
-            <button onClick={fetchDriveFiles} className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm">Refresh Drive</button>
+        {/* ChatGPT Data Section - TOP */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">ChatGPT Conversations</h2>
             <button onClick={handleIntegrateChatGPT} disabled={loadingChatgpt} className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 disabled:opacity-50">
               {loadingChatgpt ? 'Integrating...' : 'Integrate ChatGPT'}
             </button>
           </div>
-        </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center h-32">
-             <p className="text-muted-foreground animate-pulse">Scanning your Drive...</p>
-          </div>
-        ) : error ? (
-          <div className="p-4 border border-destructive/50 rounded-lg bg-destructive/10">
-            <p className="text-destructive text-sm font-medium">Error: {error}</p>
-            <button onClick={() => window.location.reload()} className="text-xs underline mt-2 text-destructive hover:no-underline">Re-authenticate and try again</button>
-          </div>
-        ) : files.length === 0 ? (
-          <div className="text-center p-12 border border-dashed rounded-lg bg-white">
-            <p className="text-muted-foreground">No compatible files found in your Drive.</p>
-          </div>
-        ) : (
-          <ul className="space-y-3">
-            {files.map((file) => (
-              <li key={file.id} className="flex items-center justify-between p-3 border border-border rounded-md bg-card">
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <span className="text-xl">📄</span>
-                  <div className="flex flex-col">
-                    <div className="truncate font-medium">{file.name}</div>
-                    <div className="text-xs text-muted-foreground">{file.mimeType}</div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <a href={file.webViewLink || '#'} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary">Preview</a>
-                  <button onClick={() => handleCopyToFabely(file)} className="px-3 py-1 rounded-md bg-slate-900 text-white text-sm">Copy to Fabely</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {/* ChatGPT Data Section */}
-        {chatgptData.length > 0 && (
-          <div className="mt-8 pt-6 border-t border-border">
-            <h3 className="text-lg font-semibold mb-4">ChatGPT Conversations</h3>
+          {loadingChatgpt ? (
+            <div className="flex items-center justify-center h-32">
+              <p className="text-muted-foreground animate-pulse">Importing ChatGPT conversations...</p>
+            </div>
+          ) : chatgptData.length > 0 ? (
             <div className="space-y-3">
               {chatgptData.map((conversation, index) => (
                 <div key={index} className="p-4 border border-border rounded-md bg-card hover:shadow-sm transition">
@@ -325,14 +291,63 @@ export default function DrivePage() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="p-6 border border-dashed rounded-lg bg-white text-center">
+              <p className="text-muted-foreground text-sm">No ChatGPT conversations imported yet. Click "Integrate ChatGPT" to import.</p>
+            </div>
+          )}
 
-        {chatgptError && (
-          <div className="mt-4 p-4 border border-destructive/50 rounded-lg bg-destructive/10">
-            <p className="text-destructive text-sm font-medium">ChatGPT Error: {chatgptError}</p>
+          {chatgptError && (
+            <div className="mt-4 p-4 border border-destructive/50 rounded-lg bg-destructive/10">
+              <p className="text-destructive text-sm font-medium">ChatGPT Error: {chatgptError}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-border my-8"></div>
+
+        {/* Google Drive Resources Section - BOTTOM */}
+        <div>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">Google Drive Resources</h2>
+            <button onClick={fetchDriveFiles} className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm">Refresh Drive</button>
           </div>
-        )}
+
+          {loading ? (
+            <div className="flex items-center justify-center h-32">
+               <p className="text-muted-foreground animate-pulse">Scanning your Drive...</p>
+            </div>
+          ) : error ? (
+            <div className="p-4 border border-destructive/50 rounded-lg bg-destructive/10">
+              <p className="text-destructive text-sm font-medium">Error: {error}</p>
+              <button onClick={() => window.location.reload()} className="text-xs underline mt-2 text-destructive hover:no-underline">Re-authenticate and try again</button>
+            </div>
+          ) : files.length === 0 ? (
+            <div className="text-center p-12 border border-dashed rounded-lg bg-white">
+              <p className="text-muted-foreground">No compatible files found in your Drive.</p>
+            </div>
+          ) : (
+            <ul className="space-y-3">
+              {files.map((file) => (
+                <li key={file.id} className="flex items-center justify-between p-3 border border-border rounded-md bg-card">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <span className="text-xl">📄</span>
+                    <div className="flex flex-col">
+                      <div className="truncate font-medium">{file.name}</div>
+                      <div className="text-xs text-muted-foreground">{file.mimeType}</div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <a href={file.webViewLink || '#'} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary">Preview</a>
+                    <button onClick={() => handleCopyToFabely(file)} className="px-3 py-1 rounded-md bg-slate-900 text-white text-sm">Copy to Fabely</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   )
