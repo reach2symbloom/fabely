@@ -2,14 +2,29 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await request.json()
+    console.log('[ChatGPT API] Request received')
+    
+    let userId: string | null = null
+    try {
+      const body = await request.json()
+      userId = body.userId
+    } catch (parseError) {
+      console.error('[ChatGPT API] Failed to parse request body:', parseError)
+      return NextResponse.json(
+        { error: 'Invalid request body' },
+        { status: 400 }
+      )
+    }
 
     if (!userId) {
+      console.error('[ChatGPT API] Missing userId')
       return NextResponse.json(
         { error: 'Missing userId' },
         { status: 400 }
       )
     }
+
+    console.log('[ChatGPT API] Processing request for userId:', userId)
 
     // TODO: Implement actual ChatGPT API integration
     // This would typically involve:
@@ -64,6 +79,8 @@ export async function POST(request: NextRequest) {
       }
     ]
 
+    console.log('[ChatGPT API] Returning', mockConversations.length, 'conversations')
+    
     return NextResponse.json({
       success: true,
       conversations: mockConversations,
@@ -71,7 +88,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('ChatGPT import error:', error)
+    console.error('[ChatGPT API] Unexpected error:', error)
     return NextResponse.json(
       { error: error.message || 'Failed to import ChatGPT data' },
       { status: 500 }

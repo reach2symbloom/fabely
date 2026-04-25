@@ -57,12 +57,16 @@ export default function DrivePage() {
     setLoadingChatgpt(true)
     setChatgptError(null)
     try {
+      console.log('Starting ChatGPT integration...')
+      
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('Session retrieved:', !!session?.user)
       
       if (!session?.user) {
         throw new Error("You must be logged in to integrate ChatGPT")
       }
 
+      console.log('Calling ChatGPT import API...')
       const response = await fetch('/api/chatgpt/import', {
         method: 'POST',
         headers: {
@@ -73,16 +77,23 @@ export default function DrivePage() {
         }),
       })
 
-      const data = await response.json()
+      console.log('Response status:', response.status)
       
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to import ChatGPT data')
+        const errorText = await response.text()
+        console.error('API error response:', errorText)
+        throw new Error(`API returned ${response.status}: ${errorText}`)
       }
 
+      const data = await response.json()
+      console.log('ChatGPT data received:', data)
+      
       setChatgptData(data.conversations || [])
+      console.log('ChatGPT integration successful')
     } catch (e: any) {
-      setChatgptError(e.message || 'Failed to integrate ChatGPT')
-      console.error('ChatGPT integration error:', e)
+      const errorMsg = e.message || 'Failed to integrate ChatGPT'
+      console.error('ChatGPT integration error:', errorMsg, e)
+      setChatgptError(errorMsg)
     } finally {
       setLoadingChatgpt(false)
     }
