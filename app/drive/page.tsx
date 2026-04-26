@@ -15,6 +15,9 @@ export default function DrivePage() {
   const [chatgptData, setChatgptData] = useState<any[]>([])
   const [loadingChatgpt, setLoadingChatgpt] = useState(false)
   const [chatgptError, setChatgptError] = useState<string | null>(null)
+  const [showKeyModal, setShowKeyModal] = useState(false)
+  const [apiKeyInput, setApiKeyInput] = useState('')
+  const [storedApiKey, setStoredApiKey] = useState<string | null>(null)
 
   const supabase = createClient()
 
@@ -53,20 +56,35 @@ export default function DrivePage() {
     fetchDriveFiles()
   }, [])
 
-  const handleIntegrateChatGPT = async () => {
+  const handleIntegrateChatGPT = () => {
+    // Show the API key modal popup
+    setShowKeyModal(true)
+    setChatgptError(null)
+  }
+
+  const handleSubmitApiKey = async () => {
+    if (!apiKeyInput.trim()) {
+      setChatgptError('Please enter a valid API key')
+      return
+    }
+
     setLoadingChatgpt(true)
     setChatgptError(null)
+    
     try {
-      console.log('Starting ChatGPT integration...')
+      // Store the API key in session
+      setStoredApiKey(apiKeyInput)
+      
+      console.log('[ChatGPT Integration] Starting ChatGPT integration with provided API key...')
       
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('Session retrieved:', !!session?.user)
+      console.log('[ChatGPT Integration] Session retrieved:', !!session?.user)
       
       if (!session?.user) {
         throw new Error("You must be logged in to integrate ChatGPT")
       }
 
-      console.log('Calling ChatGPT import API...')
+      console.log('[ChatGPT Integration] Calling ChatGPT import API with provided key...')
       const response = await fetch('/api/chatgpt/import', {
         method: 'POST',
         headers: {
@@ -74,29 +92,37 @@ export default function DrivePage() {
         },
         body: JSON.stringify({
           userId: session.user.id,
+          apiKey: apiKeyInput,
         }),
       })
 
-      console.log('Response status:', response.status)
+      console.log('[ChatGPT Integration] Response status:', response.status)
       
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('API error response:', errorText)
+        console.error('[ChatGPT Integration] API error response:', errorText)
         throw new Error(`API returned ${response.status}: ${errorText}`)
       }
 
       const data = await response.json()
-      console.log('ChatGPT data received:', data)
+      console.log('[ChatGPT Integration] ChatGPT data received:', data)
       
       setChatgptData(data.conversations || [])
-      console.log('ChatGPT integration successful')
+      setShowKeyModal(false)
+      setApiKeyInput('')
+      console.log('[ChatGPT Integration] Integration successful, modal closed')
     } catch (e: any) {
       const errorMsg = e.message || 'Failed to integrate ChatGPT'
-      console.error('ChatGPT integration error:', errorMsg, e)
+      console.error('[ChatGPT Integration] Error:', errorMsg, e)
       setChatgptError(errorMsg)
     } finally {
       setLoadingChatgpt(false)
     }
+  }
+
+  const handleCloseKeyModal = () => {
+    setShowKeyModal(false)
+    setApiKeyInput('')
   }
 
   const handleCopyToFabely = (file: DriveFile) => {
@@ -349,6 +375,49 @@ export default function DrivePage() {
           )}
         </div>
       </div>
+
+      {/* API Key Modal */}
+      {showKeyModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-background border border-border rounded-lg shadow-lg p-6 w-96">
+            <h2 className="text-xl font-semibold mb-4">Enter Your OpenAI API Key</h2>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Enter your Open AI Key</label>
+              <input
+                type="password"
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                placeholder="sk-proj-..."
+                className="w-full px-3 py-2 border border-border rounded-md bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            {chatgptError && (
+              <div className="mb-4 p-3 border border-destructive/50 rounded-md bg-destructive/10">
+                <p className="text-destructive text-sm">{chatgptError}</p>
+              </div>
+            )}
+
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={handleCloseKeyModal}
+                disabled={loadingChatgpt}
+                className="px-4 py-2 rounded-md border text-sm hover:bg-card disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitApiKey}
+                disabled={loadingChatgpt || !apiKeyInput.trim()}
+                className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 disabled:opacity-50"
+              >
+                {loadingChatgpt ? 'Submitting...' : 'Submit Key'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
