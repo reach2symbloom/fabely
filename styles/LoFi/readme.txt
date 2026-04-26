@@ -1,0 +1,1 @@
+Christian to copy all LoFi work under styles/LoFi folder
