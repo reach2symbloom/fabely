@@ -17,40 +17,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No API Key found' }, { status: 401 })
     }
 
-    const openai = new OpenAI({ apiKey: openaiApiKey })
     let remoteItems: any[] = []
-    let assistantCount = -1
     let fileCount = -1
 
     try {
-      // IMPORT ASSISTANTS (Saved custom agents/prompts)
-      const assistants = await openai.beta.assistants.list({ limit: 20 })
-      console.log('Assistants API response:', JSON.stringify(assistants, null, 2))
-      assistantCount = assistants.data.length
-      assistants.data.forEach((asst: any) => {
-        remoteItems.push({
-          id: asst.id,
-          title: `🤖 Assistant: ${asst.name || 'Unnamed'}`,
-          summary: `Model: ${asst.model} | Saved Prompt/Instructions`,
-          content: asst.instructions || 'No instructions provided.',
-          created_at: new Date(asst.created_at * 1000).toISOString(),
-          source: 'openai-assistant'
-        })
+      // IMPORT FILES using direct HTTP request
+      const fileRes = await fetch('https://api.openai.com/v1/files', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${openaiApiKey}`,
+          'Content-Type': 'application/json',
+        },
       })
-
-      // IMPORT FILES (Documents uploaded for RAG or Fine-tuning)
-      const files = await openai.files.list()
-      fileCount = files.data.length
-      files.data.forEach((f: any) => {
-        remoteItems.push({
-          id: f.id,
-          title: `📄 Cloud File: ${f.filename}`,
-          summary: `Purpose: ${f.purpose} | Size: ${f.bytes} bytes`,
-          content: `File ID: ${f.id}\nDownload this file via the OpenAI dashboard or Files API.`,
-          created_at: new Date(f.created_at * 1000).toISOString(),
-          source: 'openai-file'
+      const files = await fileRes.json()
+      console.log('Files API response:', JSON.stringify(files, null, 2))
+      fileCount = Array.isArray(files.data) ? files.data.length : 0
+      if (Array.isArray(files.data)) {
+        files.data.forEach((f: any) => {
+          remoteItems.push({
+            id: f.id,
+            title: `📄 Cloud File: ${f.filename}`,
+            summary: `Purpose: ${f.purpose} | Size: ${f.bytes} bytes`,
+            content: `File ID: ${f.id}\nDownload this file via the OpenAI dashboard or Files API.`,
+            created_at: new Date(f.created_at * 1000).toISOString(),
+            source: 'openai-file'
+          })
         })
-      })
+      }
 
     } catch (apiErr: any) {
       console.error('OpenAI Fetch Error:', apiErr.message)
@@ -62,11 +55,10 @@ export async function POST(request: NextRequest) {
       {
         id: 'header-id',
         title: '🌐 OpenAI Cloud Sync Complete',
-        summary: `Imported ${assistantCount} assistant(s) and ${fileCount} file(s) from your OpenAI account.`,
+        summary: `Imported ${fileCount} file(s) from your OpenAI account.`,
         created_at: new Date().toISOString(),
         source: 'system',
         details: {
-          assistants: assistantCount,
           files: fileCount
         }
       },
@@ -76,10 +68,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       total_found: remoteItems.length,
-      assistants: assistantCount,
       files: fileCount,
       conversations,
-      message: `Imported ${assistantCount} assistant(s) and ${fileCount} file(s) from your OpenAI account. Only these types of objects are available for import via the OpenAI API.`
+      message: `Imported ${fileCount} file(s) from your OpenAI account. Only files are available for import via the OpenAI API.`
     })
 
   } catch (error: any) {
