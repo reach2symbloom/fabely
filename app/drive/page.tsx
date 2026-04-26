@@ -1,10 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { DriveFile } from "@/components/landing/drive-files-dialog"
 
 export default function DrivePage() {
+  const router = useRouter()
   const [files, setFiles] = useState<DriveFile[]>([])
   const [copiedFiles, setCopiedFiles] = useState<DriveFile[]>([])
   const [activeFileId, setActiveFileId] = useState<string | null>(null)
@@ -294,7 +296,7 @@ export default function DrivePage() {
               <button onClick={handleIntegrateChatGPT} disabled={loadingChatgpt} className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 disabled:opacity-50">
                 {loadingChatgpt ? 'Integrating...' : 'Integrate ChatGPT'}
               </button>
-              <button className="px-3 py-1 rounded-md bg-secondary text-secondary-foreground text-sm hover:opacity-90">
+              <button onClick={() => router.push('/christian-screen')} className="px-3 py-1 rounded-md bg-secondary text-secondary-foreground text-sm hover:opacity-90">
                 Christian's Screen
               </button>
             </div>
