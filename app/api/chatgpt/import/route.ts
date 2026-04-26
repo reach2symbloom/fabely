@@ -5,52 +5,44 @@ import path from 'path'
 
 /**
  * Recursively reads the workspace directory.
- * Filters out heavy/binary folders to prevent API timeouts or memory crashes.
  */
 function getWorkspaceContents(dir: string, fileList: any[] = []) {
   try {
     const files = fs.readdirSync(dir)
-
     files.forEach((file) => {
       const filePath = path.join(dir, file)
-      
-      // Exclude system/build folders for security and performance
       const excludedNames = ['node_modules', '.next', '.git', 'dist', 'out', '.vercel']
       if (excludedNames.includes(file)) return
 
       const stat = fs.statSync(filePath)
-      
       if (stat.isDirectory()) {
         getWorkspaceContents(filePath, fileList)
       } else {
-        // Only read text-based files to avoid binary corruption errors
         const ext = path.extname(file).toLowerCase()
         const allowedExts = ['.ts', '.tsx', '.js', '.jsx', '.json', '.txt', '.md', '.css']
         
         if (allowedExts.includes(ext)) {
           const content = fs.readFileSync(filePath, 'utf8')
           fileList.push({
-            id: `file-${Math.random().toString(36).substr(2, 9)}`,
+            id: `local-${Math.random().toString(36).substr(2, 9)}`,
             title: file,
-            path: filePath.replace(process.cwd(), ''), // Relative path for UI
-            summary: `Content from ${file}`,
+            path: filePath.replace(process.cwd(), ''),
+            summary: `Local file: ${file}`,
             content: content,
             created_at: new Date().toISOString(),
-            message_count: 0
+            source: 'local'
           })
         }
       }
     })
   } catch (err) {
-    console.error('Error reading directory:', dir, err)
+    console.error('Error reading directory:', err)
   }
   return fileList
 }
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('[ChatGPT API] Request received')
-    
     const body = await request.json()
     const { userId, apiKey } = body
 
@@ -59,57 +51,71 @@ export async function POST(request: NextRequest) {
     }
 
     const openaiApiKey = apiKey || process.env.OPENAI_API_KEY1
-    
-    // 1. Fetch Workspace Content
-    // This allows the "Import" to actually have data to show
-    const rootPath = process.cwd()
-    const workspaceFiles = getWorkspaceContents(rootPath)
+    const workspaceFiles = getWorkspaceContents(process.cwd())
+    let remoteProjects: any[] = []
 
-    // 2. Prepare the Conversations array
-    // We combine a "Success" message with the actual files found in the workspace
-    let conversations = [
-      {
-        id: 'status-header',
-        title: '✅ System Scan Complete',
-        summary: `Found ${workspaceFiles.length} files in the workspace.`,
-        created_at: new Date().toISOString(),
-        message_count: workspaceFiles.length,
-      },
-      ...workspaceFiles // Merging files into the main conversation list for the UI
-    ]
-
-    // 3. OpenAI Verification (Optional step if key is provided)
-    let source = 'local-workspace'
+    // 1. Fetch Remote Projects/Prompts from OpenAI
     if (openaiApiKey) {
       const openai = new OpenAI({ apiKey: openaiApiKey })
+      
       try {
-        await openai.chat.completions.create({
-          model: 'gpt-3.5-turbo',
-          messages: [{ role: 'user', content: 'ping' }],
-          max_tokens: 5,
+        // Fetching Projects (For OpenAI Organizations/Teams)
+        // Note: This requires the API key to have Project Management permissions
+        const projectsResponse = await openai.projects.list()
+        
+        for (const project of projectsResponse.data) {
+          remoteProjects.push({
+            id: project.id,
+            title: `🚀 Project: ${project.name}`,
+            summary: `OpenAI Project - Status: ${project.status}`,
+            created_at: new Date(project.created_at * 1000).toISOString(),
+            content: `Project ID: ${project.id}\nOrganization ID: ${project.organization_id}`,
+            source: 'openai-project'
+          })
+        }
+
+        // Fetching Files uploaded to OpenAI (Used in Prompts/Assistants)
+        const filesResponse = await openai.files.list()
+        filesResponse.data.forEach(file => {
+          remoteProjects.push({
+            id: file.id,
+            title: `☁️ Remote: ${file.filename}`,
+            summary: `OpenAI Hosted File (${file.purpose})`,
+            created_at: new Date(file.created_at * 1000).toISOString(),
+            content: `Remote file ID: ${file.id}`,
+            source: 'openai-file'
+          })
         })
-        source = 'openai-workspace-mix'
+
       } catch (authError: any) {
-        console.error('OpenAI Key provided but invalid:', authError.message)
-        // We continue anyway so the workspace files still show up
+        console.error('OpenAI Remote Fetch Error:', authError.message)
       }
     }
 
-    console.log(`[ChatGPT API] Success: Returning ${conversations.length} items`)
+    // 2. Consolidate everything
+    const conversations = [
+      {
+        id: 'status-header',
+        title: '📊 Import Dashboard',
+        summary: `Imported ${workspaceFiles.length} local files and ${remoteProjects.length} OpenAI objects.`,
+        created_at: new Date().toISOString(),
+        message_count: workspaceFiles.length + remoteProjects.length,
+        source: 'system'
+      },
+      ...workspaceFiles,
+      ...remoteProjects
+    ]
 
     return NextResponse.json({
       success: true,
-      conversations, // The frontend usually maps over this field
-      workspace: workspaceFiles,
-      message: 'Integration successful. Workspace data imported.',
-      source: source,
+      conversations,
+      stats: {
+        local: workspaceFiles.length,
+        remote: remoteProjects.length
+      }
     })
 
   } catch (error: any) {
-    console.error('[ChatGPT API] Unexpected error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Failed to import data' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
