@@ -290,9 +290,14 @@ export default function DrivePage() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">ChatGPT Conversations</h2>
-            <button onClick={handleIntegrateChatGPT} disabled={loadingChatgpt} className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 disabled:opacity-50">
-              {loadingChatgpt ? 'Integrating...' : 'Integrate ChatGPT'}
-            </button>
+            <div className="flex gap-2">
+              <button onClick={handleIntegrateChatGPT} disabled={loadingChatgpt} className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 disabled:opacity-50">
+                {loadingChatgpt ? 'Integrating...' : 'Integrate ChatGPT'}
+              </button>
+              <button className="px-3 py-1 rounded-md bg-secondary text-secondary-foreground text-sm hover:opacity-90">
+                Christian's Screen
+              </button>
+            </div>
           </div>
 
           {loadingChatgpt ? (
