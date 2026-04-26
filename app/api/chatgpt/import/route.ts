@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
 
     const openai = new OpenAI({ apiKey: openaiApiKey })
     let remoteItems: any[] = []
-    let assistantCount = 0
-    let fileCount = 0
+    let assistantCount = -1
+    let fileCount = -1
 
     try {
       // IMPORT ASSISTANTS (Saved custom agents/prompts)
