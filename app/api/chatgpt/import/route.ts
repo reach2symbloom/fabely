@@ -19,10 +19,14 @@ export async function POST(request: NextRequest) {
 
     const openai = new OpenAI({ apiKey: openaiApiKey })
     let remoteItems: any[] = []
+    let projectCount = 0
+    let assistantCount = 0
+    let fileCount = 0
 
     try {
       // 1. IMPORT PROJECTS (Enterprise/Team Workspace structures)
       const projects = await openai.projects.list()
+      projectCount = projects.data.length
       projects.data.forEach((p: any) => {
         remoteItems.push({
           id: p.id,
@@ -36,6 +40,7 @@ export async function POST(request: NextRequest) {
 
       // 2. IMPORT ASSISTANTS (Saved custom agents/prompts)
       const assistants = await openai.beta.assistants.list({ limit: 20 })
+      assistantCount = assistants.data.length
       assistants.data.forEach((asst: any) => {
         remoteItems.push({
           id: asst.id,
@@ -49,6 +54,7 @@ export async function POST(request: NextRequest) {
 
       // 3. IMPORT FILES (Documents uploaded for RAG or Fine-tuning)
       const files = await openai.files.list()
+      fileCount = files.data.length
       files.data.forEach((f: any) => {
         remoteItems.push({
           id: f.id,
@@ -70,9 +76,14 @@ export async function POST(request: NextRequest) {
       {
         id: 'header-id',
         title: '🌐 OpenAI Cloud Sync Complete',
-        summary: `Imported ${remoteItems.length} objects from your OpenAI account.`,
+        summary: `Imported ${projectCount} project(s), ${assistantCount} assistant(s), and ${fileCount} file(s) from your OpenAI account.`,
         created_at: new Date().toISOString(),
-        source: 'system'
+        source: 'system',
+        details: {
+          projects: projectCount,
+          assistants: assistantCount,
+          files: fileCount
+        }
       },
       ...remoteItems
     ]
@@ -80,7 +91,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       total_found: remoteItems.length,
+      projects: projectCount,
+      assistants: assistantCount,
+      files: fileCount,
       conversations,
+      message: `Imported ${projectCount} project(s), ${assistantCount} assistant(s), and ${fileCount} file(s) from your OpenAI account. Only these types of objects are available for import via the OpenAI API.`
     })
 
   } catch (error: any) {
