@@ -6,18 +6,17 @@
  * is literal. Only the color layer aliases the existing Themes/Alpha tokens
  * (colors.css) — no new colors are introduced here.
  *
- * Every step in the scale (2xs, xs, sm, md, lg, xl, 2xl) and every
- * directional token (upper, right, left) is published as a -black and a
- * -white variant, sharing identical geometry and differing only in which
+ * Shadow Polarity: every step in the scale (2xs, xs, sm, md, lg, xl, 2xl) and
+ * every directional token (upper, right, left) is published as a -black and
+ * a -white variant, sharing identical geometry and differing only in which
  * existing no-switch Alpha color they reference:
  *   - {name}-black -> --theme-alpha-black-no-switch-{step}
  *   - {name}-white -> --theme-alpha-white-no-switch-{step}
- * Names describe the underlying shadow color (black/white), not a Light/Dark
- * theme — shadow polarity is a component decision, not theme-driven
- * behavior. No -switch shadow variants are introduced here: components pick
- * -black or -white explicitly rather than a token that flips automatically
- * with the active theme. `upper` and `left` are Fabely additions (not
- * original Obra/Figma tokens) and follow this same rule like every other
+ * This intentionally separates shadow geometry from shadow color, so
+ * components explicitly choose the polarity appropriate for their surface
+ * instead of a token that flips automatically with the active theme.
+ * `upper` and `left` are Fabely additions (not original Obra/Figma tokens)
+ * and follow this same rule like every other
  * token here.
  */
 

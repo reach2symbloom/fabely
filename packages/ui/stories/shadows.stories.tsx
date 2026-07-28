@@ -51,16 +51,17 @@ export const AllTokens: Story = {
         <code>colors.css</code>) — no new colors are introduced here.
         <br />
         <br />
-        Every token is published as a <strong>-black</strong> and a <strong>-white</strong>{' '}
-        variant with identical geometry, differing only in which existing no-switch Alpha color
-        they reference. These names describe the underlying shadow color, not a Light/Dark theme:{' '}
-        <strong>shadow polarity is an explicit component decision</strong>, not theme-driven
-        behavior — no token here automatically flips with the active theme. Components choose
-        <code>-black</code> or <code>-white</code> directly, the same way they'd choose any other
-        explicit prop. This one rule applies to every token in the foundation, including{' '}
-        <code>upper</code>, <code>right</code>, and <code>left</code> — Fabely additions to the
-        scale rather than original Obra tokens, so they follow the same architecture as everything
-        else here rather than a special case.
+        <strong>Shadow Polarity.</strong> Each shadow geometry is available in{' '}
+        <strong>-black</strong> and <strong>-white</strong> variants. This intentionally separates
+        shadow geometry from shadow color, allowing components to explicitly choose the
+        appropriate polarity for their surface. Shadow tokens always reference the existing
+        no-switch Alpha tokens and do not automatically change with the active theme.
+        <br />
+        <br />
+        This one rule applies to every token in the foundation, including <code>upper</code>,{' '}
+        <code>right</code>, and <code>left</code> — Fabely additions to the scale rather than
+        original Obra tokens, so they follow the same architecture as everything else here rather
+        than a special case.
       </PendingNotice>
 
       <SectionHeading>shadows / scale</SectionHeading>
