@@ -11,24 +11,19 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const deviationNote =
-  "Figma's color reference is the *switch* Alpha token (black in Light, white in Dark) — built here from the no-switch black/white pair at the same alpha step instead, per the explicit-polarity architecture above.";
-
-function pair(name: string, step: string, note?: string): ShadowToken[] {
+function pair(name: string, step: string): ShadowToken[] {
   return [
     {
       name: `${name}-black`,
       cssVar: `--shadow-${name}-black`,
       reference: `--theme-alpha-black-no-switch-${step}`,
       polarity: 'black',
-      note,
     },
     {
       name: `${name}-white`,
       cssVar: `--shadow-${name}-white`,
       reference: `--theme-alpha-white-no-switch-${step}`,
       polarity: 'white',
-      note,
     },
   ];
 }
@@ -43,11 +38,7 @@ const scale: ShadowToken[] = [
   ...pair('2xl', '15'),
 ];
 
-const directional: ShadowToken[] = [
-  ...pair('upper', '10', deviationNote),
-  ...pair('right', '10'),
-  ...pair('left', '10', deviationNote),
-];
+const directional: ShadowToken[] = [...pair('upper', '10'), ...pair('right', '10'), ...pair('left', '10')];
 
 export const AllTokens: Story = {
   render: () => (
@@ -66,14 +57,10 @@ export const AllTokens: Story = {
         <strong>shadow polarity is an explicit component decision</strong>, not theme-driven
         behavior — no token here automatically flips with the active theme. Components choose
         <code>-black</code> or <code>-white</code> directly, the same way they'd choose any other
-        explicit prop.
-        <br />
-        <br />
-        <strong>Deviation from literal Figma color references:</strong> Figma's{' '}
-        <code>upper</code> and <code>left</code> tokens reference the switch Alpha color rather
-        than a fixed no-switch one — flagged on the affected rows below. Per the black/white-only
-        architecture, both are instead built from the no-switch pair at the same alpha step
-        Figma specifies (10%), exactly like every other token here.
+        explicit prop. This one rule applies to every token in the foundation, including{' '}
+        <code>upper</code>, <code>right</code>, and <code>left</code> — Fabely additions to the
+        scale rather than original Obra tokens, so they follow the same architecture as everything
+        else here rather than a special case.
       </PendingNotice>
 
       <SectionHeading>shadows / scale</SectionHeading>
