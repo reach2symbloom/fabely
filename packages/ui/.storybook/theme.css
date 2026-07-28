@@ -1,0 +1,15 @@
+/*
+ * Storybook preview chrome — applies the semantic --background/--text tokens
+ * (see src/foundations/colors.css) to the preview iframe itself, so every
+ * story (and its documentation text) is legible in both Light and Dark
+ * regardless of what an individual story does or doesn't style explicitly.
+ */
+
+html,
+body,
+#storybook-root,
+#storybook-docs {
+  background-color: var(--background);
+  color: var(--text);
+  min-height: 100%;
+}
