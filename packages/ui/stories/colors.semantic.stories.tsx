@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ColorSwatchTable, SectionHeading, PendingNotice, type ColorToken } from './ColorSwatchTable';
 
 const meta = {
-  title: 'Design System/Foundations/Colors/Semantic Colors',
+  title: 'Design System/Foundations/Colors/Semantic',
   tags: ['ai-generated'],
   parameters: { layout: 'padded' },
 } satisfies Meta;
@@ -77,10 +77,10 @@ export const AllTokens: Story = {
   render: () => (
     <div>
       <PendingNotice>
-        Source: Figma "shadcn colors" collection (general / focus / sidebar groups). Aliases
-        only — every token resolves to an existing <code>tw-raw</code>, <code>theme-neutrals</code>,{' '}
-        <code>Neutrals (New)</code>, or <code>theme-alpha</code> value via <code>var()</code>; no
-        new literal color values are introduced at this layer.
+        Semantic layer. Source: Figma "shadcn colors" collection (general / focus / sidebar
+        groups). Aliases only — every token resolves to an existing Raw, Neutrals theme, Neutrals
+        (Migration Layer), or Alpha theme value via <code>var()</code>; no new literal color
+        values are introduced at this layer.
         <br />
         <br />
         Use the <strong>Theme</strong> toolbar toggle above to switch Light/Dark and see the

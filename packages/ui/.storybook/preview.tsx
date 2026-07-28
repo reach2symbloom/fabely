@@ -52,7 +52,29 @@ const preview: Preview = {
       // 'error' - fail CI on a11y violations
       // 'off' - skip a11y checks entirely
       test: 'todo'
-    }
+    },
+
+    options: {
+      // Every Foundations category follows the same conceptual reading order:
+      // Raw (primitives) -> Themes (theme-dependent layers, where applicable)
+      // -> Semantic (what components actually consume). Add new categories'
+      // sub-pages here in that order so the sidebar keeps teaching the same
+      // mental model instead of falling back to alphabetical/discovery order.
+      storySort: {
+        order: [
+          'Design System',
+          [
+            'Foundations',
+            [
+              'Colors',
+              ['Raw', 'Themes', ['Neutrals', 'Neutrals (Migration Layer)', 'Alpha'], 'Semantic'],
+              'Spacing',
+              ['Raw', 'Semantic'],
+            ],
+          ],
+        ],
+      },
+    },
   },
 };
 

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ColorSwatchTable, SectionHeading, PendingNotice, type ColorToken } from './ColorSwatchTable';
 
 const meta = {
-  title: 'Design System/Foundations/Colors/theme-alpha',
+  title: 'Design System/Foundations/Colors/Themes/Alpha',
   tags: ['ai-generated'],
   parameters: { layout: 'padded' },
 } satisfies Meta;
@@ -60,10 +60,11 @@ export const AllTokens: Story = {
   render: () => (
     <div>
       <PendingNotice>
-        Source: Figma "theme-alpha" collection. Every opacity step is aliased from{' '}
-        <code>tw-raw-white</code> / <code>tw-raw-black</code> via <code>color-mix()</code> — no
-        literal hex/rgba values — so tw-raw remains the single source of truth for the underlying
-        color. <strong>switch</strong> groups flip their base color between Light and Dark;{' '}
+        Themes — Alpha. Source: Figma "theme-alpha" collection. Every opacity step is aliased
+        from <code>--tw-raw-white</code> / <code>--tw-raw-black</code> via{' '}
+        <code>color-mix()</code> — no literal hex/rgba values — so the Raw layer remains the
+        single source of truth for the underlying color. <strong>switch</strong> groups flip
+        their base color between Light and Dark;{' '}
         <strong>no-switch</strong> groups keep the same base color in both modes. Both behaviors
         are intentional per Figma and preserved exactly.
         <br />
