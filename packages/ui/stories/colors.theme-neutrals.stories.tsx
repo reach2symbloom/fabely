@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ColorSwatchTable, type ColorToken } from './ColorSwatchTable';
 
 const meta = {
-  title: 'Design System/Foundations/Colors/theme-neutrals',
+  title: 'Design System/Foundations/Colors/Themes/Neutrals',
   tags: ['ai-generated'],
   parameters: { layout: 'padded' },
 } satisfies Meta;
@@ -33,9 +33,9 @@ export const AllTokens: Story = {
   render: () => (
     <div>
       <p style={{ fontFamily: 'ui-sans-serif, system-ui, sans-serif', opacity: 0.75 }}>
-        Layer 2 — theme-neutrals, the canonical theme palette. Source: Figma "theme-neutrals"
-        collection. Every step aliases tw-raw via var() — the "Resolved Value" column is read
-        live from the browser, so it doubles as proof the alias chain actually resolves.
+        Themes — Neutrals, the canonical theme palette. Source: Figma "theme-neutrals"
+        collection. Every step aliases the Raw layer via var() — the "Resolved Value" column is
+        read live from the browser, so it doubles as proof the alias chain actually resolves.
       </p>
       <ColorSwatchTable tokens={tokens} referenceLabel="Aliases (tw-raw)" />
     </div>

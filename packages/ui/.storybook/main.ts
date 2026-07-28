@@ -12,6 +12,18 @@ const config: StorybookConfig = {
     "@storybook/addon-docs",
     "@storybook/addon-mcp"
   ],
+  "staticDirs": ["./public"],
+  "core": {
+    // Hides the default "What's new in Storybook" sidebar/update panel so the
+    // Fabely-branded chrome isn't sharing space with Storybook's own promo UI.
+    "disableWhatsNewNotifications": true
+  },
+  "features": {
+    // Hides the default "Get started" onboarding checklist card above the
+    // sidebar (Add stories / Controls / Share feedback) — same reasoning as
+    // disableWhatsNewNotifications above.
+    "sidebarOnboardingChecklist": false
+  },
   "framework": "@storybook/react-vite"
 };
 export default config;

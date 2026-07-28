@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ColorSwatchTable, PendingNotice, type ColorToken } from './ColorSwatchTable';
 
 const meta = {
-  title: 'Design System/Foundations/Colors/Neutrals (New)',
+  title: 'Design System/Foundations/Colors/Themes/Neutrals (Migration Layer)',
   tags: ['ai-generated'],
   parameters: { layout: 'padded' },
 } satisfies Meta;
@@ -37,11 +37,11 @@ export const AllTokens: Story = {
   render: () => (
     <div>
       <PendingNotice>
-        <strong>Temporary compatibility layer.</strong> <code>Neutrals (New)</code> is a
-        parallel, accidental duplicate of <code>theme-neutrals</code> (technical debt — see
-        project notes). Every step below aliases <code>tw-raw/neutral</code> directly, flipping
-        which step it aliases between Light and Dark. This collection will be removed once
-        components migrate back to a single canonical palette.
+        <strong>Temporary migration layer.</strong> This is a parallel, accidental duplicate of
+        the <strong>Neutrals</strong> theme (technical debt — see project notes; the CSS variable
+        prefix is still <code>--neutrals-new-*</code>). Every step below aliases the Raw layer's
+        neutral scale directly, flipping which step it aliases between Light and Dark. This
+        collection will be removed once components migrate back to a single canonical palette.
         <br />
         <br />
         Use the <strong>Theme</strong> toolbar toggle above to switch Light/Dark and see the

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ColorSwatchTable, SectionHeading, type ColorToken } from './ColorSwatchTable';
 
 const meta = {
-  title: 'Design System/Foundations/Colors/tw-raw',
+  title: 'Design System/Foundations/Colors/Raw',
   tags: ['ai-generated'],
   parameters: { layout: 'padded' },
 } satisfies Meta;
