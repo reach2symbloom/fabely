@@ -32,20 +32,29 @@ const steps: { step: string; label: string }[] = [
   { step: '100', label: '100%' },
 ];
 
-function group(prefix: string, referenceVar: string): ColorToken[] {
+// "switch" groups flip base color between Light and Dark — reference documents
+// both; the Resolved Value column reflects whichever mode is active.
+function switchGroup(prefix: string, lightVar: string, darkVar: string): ColorToken[] {
   return steps.map(({ step, label }) => ({
     name: `alpha-${step}`,
     cssVar: `--theme-alpha-${prefix}-${step}`,
-    reference: `${referenceVar} @ ${label}`,
+    reference: `${lightVar} (Light) ↔ ${darkVar} (Dark) @ ${label}`,
   }));
 }
 
-const whiteSwitchLight = group('white-switch', '--tw-raw-white');
-const whiteSwitchDark = group('white-switch', '--tw-raw-black');
-const whiteNoSwitch = group('white-no-switch', '--tw-raw-white');
-const blackSwitchLight = group('black-switch', '--tw-raw-black');
-const blackSwitchDark = group('black-switch', '--tw-raw-white');
-const blackNoSwitch = group('black-no-switch', '--tw-raw-black');
+// "no-switch" groups keep the same base color in both modes.
+function noSwitchGroup(prefix: string, baseVar: string): ColorToken[] {
+  return steps.map(({ step, label }) => ({
+    name: `alpha-${step}`,
+    cssVar: `--theme-alpha-${prefix}-${step}`,
+    reference: `${baseVar} (Light & Dark) @ ${label}`,
+  }));
+}
+
+const whiteSwitch = switchGroup('white-switch', '--tw-raw-white', '--tw-raw-black');
+const whiteNoSwitch = noSwitchGroup('white-no-switch', '--tw-raw-white');
+const blackSwitch = switchGroup('black-switch', '--tw-raw-black', '--tw-raw-white');
+const blackNoSwitch = noSwitchGroup('black-no-switch', '--tw-raw-black');
 
 export const AllTokens: Story = {
   render: () => (
@@ -57,43 +66,23 @@ export const AllTokens: Story = {
         color. <strong>switch</strong> groups flip their base color between Light and Dark;{' '}
         <strong>no-switch</strong> groups keep the same base color in both modes. Both behaviors
         are intentional per Figma and preserved exactly.
+        <br />
+        <br />
+        Use the <strong>Theme</strong> toolbar toggle above to switch Light/Dark and see the
+        Resolved Value column update.
       </PendingNotice>
 
       <SectionHeading>alpha / white / switch</SectionHeading>
-      <p style={{ fontFamily: 'ui-sans-serif, system-ui, sans-serif', opacity: 0.75 }}>
-        Light: tw-raw/white base. Dark: flips to tw-raw/black at the same opacity.
-      </p>
-      <SectionHeading>Light</SectionHeading>
-      <ColorSwatchTable tokens={whiteSwitchLight} referenceLabel="Alias @ Opacity" />
-      <SectionHeading>Dark</SectionHeading>
-      <ColorSwatchTable tokens={whiteSwitchDark} referenceLabel="Alias @ Opacity" dark />
+      <ColorSwatchTable tokens={whiteSwitch} referenceLabel="Aliases (tw-raw)" />
 
       <SectionHeading>alpha / white / no-switch</SectionHeading>
-      <p style={{ fontFamily: 'ui-sans-serif, system-ui, sans-serif', opacity: 0.75 }}>
-        tw-raw/white base in both Light and Dark — does not flip.
-      </p>
-      <SectionHeading>Light</SectionHeading>
-      <ColorSwatchTable tokens={whiteNoSwitch} referenceLabel="Alias @ Opacity" />
-      <SectionHeading>Dark</SectionHeading>
-      <ColorSwatchTable tokens={whiteNoSwitch} referenceLabel="Alias @ Opacity" dark />
+      <ColorSwatchTable tokens={whiteNoSwitch} referenceLabel="Aliases (tw-raw)" />
 
       <SectionHeading>alpha / black / switch</SectionHeading>
-      <p style={{ fontFamily: 'ui-sans-serif, system-ui, sans-serif', opacity: 0.75 }}>
-        Light: tw-raw/black base. Dark: flips to tw-raw/white at the same opacity.
-      </p>
-      <SectionHeading>Light</SectionHeading>
-      <ColorSwatchTable tokens={blackSwitchLight} referenceLabel="Alias @ Opacity" />
-      <SectionHeading>Dark</SectionHeading>
-      <ColorSwatchTable tokens={blackSwitchDark} referenceLabel="Alias @ Opacity" dark />
+      <ColorSwatchTable tokens={blackSwitch} referenceLabel="Aliases (tw-raw)" />
 
       <SectionHeading>alpha / black / no-switch</SectionHeading>
-      <p style={{ fontFamily: 'ui-sans-serif, system-ui, sans-serif', opacity: 0.75 }}>
-        tw-raw/black base in both Light and Dark — does not flip.
-      </p>
-      <SectionHeading>Light</SectionHeading>
-      <ColorSwatchTable tokens={blackNoSwitch} referenceLabel="Alias @ Opacity" />
-      <SectionHeading>Dark</SectionHeading>
-      <ColorSwatchTable tokens={blackNoSwitch} referenceLabel="Alias @ Opacity" dark />
+      <ColorSwatchTable tokens={blackNoSwitch} referenceLabel="Aliases (tw-raw)" />
     </div>
   ),
 };

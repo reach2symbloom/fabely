@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 
 export type ColorToken = {
   /** Display name as it appears in Figma (e.g. "600 (main)") */
   name: string;
   /** CSS custom property that holds this token, without var(), e.g. "--tw-raw-neutral-600" */
   cssVar: string;
-  /** For aliased tokens: the CSS custom property this one references */
+  /** For aliased tokens: the CSS custom property (or properties) this one references */
   reference?: string;
   /** Free-form note, e.g. "12% opacity per Figma" or a TODO */
   note?: string;
@@ -13,27 +13,31 @@ export type ColorToken = {
   pending?: boolean;
 };
 
-function useResolvedValue(cssVar: string, scopeRef: RefObject<HTMLElement | null> | undefined, pending?: boolean) {
+/**
+ * Reads the token's live value off the document root. Re-resolves whenever
+ * cssVar changes; a theme change remounts the whole story tree (see
+ * .storybook/preview.tsx), which reruns this effect and picks up the new value.
+ */
+function useResolvedValue(cssVar: string, pending?: boolean) {
   const [value, setValue] = useState('');
   useEffect(() => {
     if (pending) return;
-    const scopeEl = scopeRef?.current ?? document.documentElement;
-    const v = getComputedStyle(scopeEl).getPropertyValue(cssVar).trim();
+    const v = getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim();
     setValue(v);
-  }, [cssVar, pending, scopeRef]);
+  }, [cssVar, pending]);
   return value;
 }
 
 const cellStyle: CSSProperties = {
   padding: '8px 12px',
-  borderBottom: '1px solid #33333333',
+  borderBottom: '1px solid var(--border)',
   fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
   fontSize: 13,
   verticalAlign: 'middle',
 };
 
-function Row({ token, scopeRef }: { token: ColorToken; scopeRef?: RefObject<HTMLElement | null> }) {
-  const resolved = useResolvedValue(token.cssVar, scopeRef, token.pending);
+function Row({ token }: { token: ColorToken }) {
+  const resolved = useResolvedValue(token.cssVar, token.pending);
   return (
     <tr style={token.pending ? { opacity: 0.6 } : undefined}>
       <td style={cellStyle}>
@@ -43,7 +47,7 @@ function Row({ token, scopeRef }: { token: ColorToken; scopeRef?: RefObject<HTML
               width: 28,
               height: 28,
               borderRadius: 6,
-              border: '1px dashed #888',
+              border: '1px dashed var(--border)',
             }}
             title="Not yet declared"
           />
@@ -53,7 +57,7 @@ function Row({ token, scopeRef }: { token: ColorToken; scopeRef?: RefObject<HTML
               width: 28,
               height: 28,
               borderRadius: 6,
-              border: '1px solid #00000022',
+              border: '1px solid var(--border)',
               background: `var(${token.cssVar})`,
             }}
           />
@@ -71,15 +75,11 @@ function Row({ token, scopeRef }: { token: ColorToken; scopeRef?: RefObject<HTML
 export function ColorSwatchTable({
   tokens,
   referenceLabel = 'References',
-  dark = false,
 }: {
   tokens: ColorToken[];
   referenceLabel?: string;
-  /** Render inside a scoped `.dark` wrapper so tokens resolve their dark-mode value. */
-  dark?: boolean;
 }) {
-  const scopeRef = useRef<HTMLDivElement | null>(null);
-  const table = (
+  return (
     <table style={{ borderCollapse: 'collapse', width: '100%', marginBottom: 24 }}>
       <thead>
         <tr>
@@ -93,18 +93,10 @@ export function ColorSwatchTable({
       </thead>
       <tbody>
         {tokens.map((t) => (
-          <Row key={t.cssVar} token={t} scopeRef={dark ? scopeRef : undefined} />
+          <Row key={t.cssVar} token={t} />
         ))}
       </tbody>
     </table>
-  );
-
-  if (!dark) return table;
-
-  return (
-    <div ref={scopeRef} className="dark" style={{ padding: 16, borderRadius: 8, background: 'var(--tw-raw-black)' }}>
-      {table}
-    </div>
   );
 }
 
@@ -116,7 +108,7 @@ export function PendingNotice({ children }: { children: ReactNode }) {
   return (
     <div
       style={{
-        border: '1px dashed #888',
+        border: '1px dashed var(--border)',
         borderRadius: 8,
         padding: 16,
         fontFamily: 'ui-sans-serif, system-ui, sans-serif',
