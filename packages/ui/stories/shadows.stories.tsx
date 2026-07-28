@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useEffect, useState, type CSSProperties } from 'react';
 import { PendingNotice, SectionHeading } from './ColorSwatchTable';
+import { ShadowSwatchTable, type ShadowToken } from './ShadowSwatchTable';
 
 const meta = {
   title: 'Design System/Foundations/Shadows',
@@ -11,126 +11,76 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function useResolvedValue(cssVar: string) {
-  const [value, setValue] = useState('');
-  useEffect(() => {
-    setValue(getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim());
-  }, [cssVar]);
-  return value;
+const deviationNote =
+  "Figma's color reference is the *switch* Alpha token (black in Light, white in Dark) — built here from the no-switch black/white pair at the same alpha step instead, per the explicit-polarity architecture above.";
+
+function pair(name: string, step: string, note?: string): ShadowToken[] {
+  return [
+    {
+      name: `${name}-black`,
+      cssVar: `--shadow-${name}-black`,
+      reference: `--theme-alpha-black-no-switch-${step}`,
+      polarity: 'black',
+      note,
+    },
+    {
+      name: `${name}-white`,
+      cssVar: `--shadow-${name}-white`,
+      reference: `--theme-alpha-white-no-switch-${step}`,
+      polarity: 'white',
+      note,
+    },
+  ];
 }
 
-const cellStyle: CSSProperties = {
-  padding: '8px 12px',
-  borderBottom: '1px solid var(--border)',
-  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-  fontSize: 13,
-  verticalAlign: 'top',
-};
+const scale: ShadowToken[] = [
+  ...pair('2xs', '5'),
+  ...pair('xs', '5'),
+  ...pair('sm', '10'),
+  ...pair('md', '10'),
+  ...pair('lg', '10'),
+  ...pair('xl', '333'),
+  ...pair('2xl', '15'),
+];
 
-// Each variant previews against a fixed background matching the surface it's
-// designed for (light card for sm-light, dark card for sm-dark) — regardless
-// of the page's active Light/Dark toggle — so both polarities are visible
-// side by side for comparison, which is the whole point of this POC.
-function PolarityCard({
-  label,
-  cssVar,
-  cardBg,
-  cardText,
-}: {
-  label: string;
-  cssVar: string;
-  cardBg: string;
-  cardText: string;
-}) {
-  const resolved = useResolvedValue(cssVar);
-  return (
-    <tr>
-      <td style={cellStyle}>
-        <div
-          style={{
-            width: 160,
-            height: 100,
-            background: cardBg,
-            borderRadius: 8,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <div
-            style={{
-              width: 96,
-              height: 56,
-              borderRadius: 6,
-              background: cardBg,
-              color: cardText,
-              boxShadow: `var(${cssVar})`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 11,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-            }}
-          >
-            {label}
-          </div>
-        </div>
-      </td>
-      <td style={cellStyle}>{label}</td>
-      <td style={cellStyle}>{cssVar}</td>
-      <td style={cellStyle}>{resolved || '…'}</td>
-    </tr>
-  );
-}
+const directional: ShadowToken[] = [
+  ...pair('upper', '10', deviationNote),
+  ...pair('right', '10'),
+  ...pair('left', '10', deviationNote),
+];
 
-export const ShadowSmPoc: Story = {
-  name: 'sm (POC)',
+export const AllTokens: Story = {
   render: () => (
     <div>
       <PendingNotice>
-        <strong>Proof of concept — sm only.</strong> Figma's "sm" shadow token specifies one
-        Light-mode color (<code>--theme-alpha-black-no-switch-10</code>) applied to both of its
-        shadow layers. This POC splits <code>sm</code> into two semantic variants —{' '}
-        <code>sm-light</code> and <code>sm-dark</code> — that share the exact same geometry (two
-        stacked layers: <code>0 1px 3px 0</code> and <code>0 1px 2px -1px</code>) and differ{' '}
-        <strong>only</strong> in which existing Alpha color they reference:
-        <code>--theme-alpha-black-no-switch-10</code> for light,{' '}
-        <code>--theme-alpha-white-no-switch-10</code> for dark. Neither is a new color — both
-        already exist in the Alpha theme layer. Preview cards below render against a fixed
-        light/dark background (not the page's Light/Dark toggle) so both polarities are visible
-        at once for review.
+        Source: Figma "shadows" variable collection (66 entries) — composite, multi-layer
+        elevation tokens. Like Stroke, Figma defines no separate unpublished primitive collection
+        for Shadows — geometry (x/y/blur/spread) is literal, preserved exactly from Figma. Only
+        the color layer aliases the existing Alpha theme tokens via <code>var()</code> (see{' '}
+        <code>colors.css</code>) — no new colors are introduced here.
         <br />
         <br />
-        Not yet implemented, pending review of this pattern: <code>2xs</code>, <code>xs</code>,{' '}
-        <code>md</code>, <code>lg</code>, <code>xl</code>, <code>2xl</code>, <code>upper</code>,{' '}
-        <code>left</code>, <code>right</code>.
+        Every token is published as a <strong>-black</strong> and a <strong>-white</strong>{' '}
+        variant with identical geometry, differing only in which existing no-switch Alpha color
+        they reference. These names describe the underlying shadow color, not a Light/Dark theme:{' '}
+        <strong>shadow polarity is an explicit component decision</strong>, not theme-driven
+        behavior — no token here automatically flips with the active theme. Components choose
+        <code>-black</code> or <code>-white</code> directly, the same way they'd choose any other
+        explicit prop.
+        <br />
+        <br />
+        <strong>Deviation from literal Figma color references:</strong> Figma's{' '}
+        <code>upper</code> and <code>left</code> tokens reference the switch Alpha color rather
+        than a fixed no-switch one — flagged on the affected rows below. Per the black/white-only
+        architecture, both are instead built from the no-switch pair at the same alpha step
+        Figma specifies (10%), exactly like every other token here.
       </PendingNotice>
 
-      <SectionHeading>shadows / sm</SectionHeading>
-      <table style={{ borderCollapse: 'collapse', width: '100%', marginBottom: 24 }}>
-        <thead>
-          <tr>
-            <th style={{ ...cellStyle, textAlign: 'left' }}>Preview</th>
-            <th style={{ ...cellStyle, textAlign: 'left' }}>Token</th>
-            <th style={{ ...cellStyle, textAlign: 'left' }}>CSS Variable</th>
-            <th style={{ ...cellStyle, textAlign: 'left' }}>Resolved Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <PolarityCard
-            label="sm-light"
-            cssVar="--shadow-sm-light"
-            cardBg="var(--tw-raw-white)"
-            cardText="var(--tw-raw-black)"
-          />
-          <PolarityCard
-            label="sm-dark"
-            cssVar="--shadow-sm-dark"
-            cardBg="var(--tw-raw-black)"
-            cardText="var(--tw-raw-white)"
-          />
-        </tbody>
-      </table>
+      <SectionHeading>shadows / scale</SectionHeading>
+      <ShadowSwatchTable tokens={scale} />
+
+      <SectionHeading>shadows / directional</SectionHeading>
+      <ShadowSwatchTable tokens={directional} />
     </div>
   ),
 };

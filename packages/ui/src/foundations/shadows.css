@@ -6,29 +6,83 @@
  * is literal. Only the color layer aliases the existing Themes/Alpha tokens
  * (colors.css) — no new colors are introduced here.
  *
- * PROOF OF CONCEPT — `sm` only, pending review before the rest of the scale
- * (2xs, xs, md, lg, xl, 2xl, upper, left, right) is implemented the same way.
+ * Every step in the scale (2xs, xs, sm, md, lg, xl, 2xl) and every
+ * directional token (upper, right, left) is published as a -black and a
+ * -white variant, sharing identical geometry and differing only in which
+ * existing no-switch Alpha color they reference:
+ *   - {name}-black -> --theme-alpha-black-no-switch-{step}
+ *   - {name}-white -> --theme-alpha-white-no-switch-{step}
+ * Names describe the underlying shadow color (black/white), not a Light/Dark
+ * theme — shadow polarity is a component decision, not theme-driven
+ * behavior. No -switch shadow variants are introduced here: components pick
+ * -black or -white explicitly rather than a token that flips automatically
+ * with the active theme.
  *
- * Figma's "sm" token specifies one Light-mode color
- * (--theme-alpha-black-no-switch-10) applied to both of its shadow layers.
- * To validate that geometry and "polarity" (which base color a shadow reads
- * against) can be separated without touching the existing alpha token
- * architecture, this splits `sm` into two semantic variants that share the
- * exact same geometry and differ ONLY in which existing alpha color they
- * reference:
- *   - sm-light: --theme-alpha-black-no-switch-10 — Figma's literal spec, a
- *     shadow that reads as a darkening (for surfaces on light backgrounds).
- *   - sm-dark: --theme-alpha-white-no-switch-10 — the alpha-10 white
- *     counterpart, already defined in the Alpha theme layer, a shadow that
- *     reads as a lightening (for surfaces on dark backgrounds).
- * Neither is a new color — both already exist in colors.css.
+ * Deviation from literal Figma color references: Figma's `upper` and `left`
+ * tokens reference the *switch* Alpha color (which itself resolves to black
+ * in Light and white in Dark), not a fixed no-switch color. Per the
+ * black/white-only architecture above, both are instead built from the
+ * no-switch black/white pair at the same alpha step as Figma's `upper`/
+ * `left` (10%), exactly like every other token here. Geometry (x/y/blur/
+ * spread) is preserved exactly from Figma either way.
  */
 
 :root {
-  --shadow-sm-light:
+  /* 2xs — Figma: color alpha-5, single layer (0 1 0 0) */
+  --shadow-2xs-black: 0px 1px 0px 0px var(--theme-alpha-black-no-switch-5);
+  --shadow-2xs-white: 0px 1px 0px 0px var(--theme-alpha-white-no-switch-5);
+
+  /* xs — Figma: color alpha-5, single layer (0 1 2 0) */
+  --shadow-xs-black: 0px 1px 2px 0px var(--theme-alpha-black-no-switch-5);
+  --shadow-xs-white: 0px 1px 2px 0px var(--theme-alpha-white-no-switch-5);
+
+  /* sm — Figma: color alpha-10, shadow 1 (0 1 3 0) + shadow 2 (0 1 2 -1) */
+  --shadow-sm-black:
     0px 1px 3px 0px var(--theme-alpha-black-no-switch-10),
     0px 1px 2px -1px var(--theme-alpha-black-no-switch-10);
-  --shadow-sm-dark:
+  --shadow-sm-white:
     0px 1px 3px 0px var(--theme-alpha-white-no-switch-10),
     0px 1px 2px -1px var(--theme-alpha-white-no-switch-10);
+
+  /* md — Figma: color alpha-10, shadow 1 (0 4 6 -1) + shadow 2 (0 2 4 -2) */
+  --shadow-md-black:
+    0px 4px 6px -1px var(--theme-alpha-black-no-switch-10),
+    0px 2px 4px -2px var(--theme-alpha-black-no-switch-10);
+  --shadow-md-white:
+    0px 4px 6px -1px var(--theme-alpha-white-no-switch-10),
+    0px 2px 4px -2px var(--theme-alpha-white-no-switch-10);
+
+  /* lg — Figma: color alpha-10, shadow 1 (0 10 15 -3) + shadow 2 (0 4 6 -4) */
+  --shadow-lg-black:
+    0px 10px 15px -3px var(--theme-alpha-black-no-switch-10),
+    0px 4px 6px -4px var(--theme-alpha-black-no-switch-10);
+  --shadow-lg-white:
+    0px 10px 15px -3px var(--theme-alpha-white-no-switch-10),
+    0px 4px 6px -4px var(--theme-alpha-white-no-switch-10);
+
+  /* xl — Figma: color alpha-333, shadow 1 (0 20 25 -5) + shadow 2 (0 8 10 -6) */
+  --shadow-xl-black:
+    0px 20px 25px -5px var(--theme-alpha-black-no-switch-333),
+    0px 8px 10px -6px var(--theme-alpha-black-no-switch-333);
+  --shadow-xl-white:
+    0px 20px 25px -5px var(--theme-alpha-white-no-switch-333),
+    0px 8px 10px -6px var(--theme-alpha-white-no-switch-333);
+
+  /* 2xl — Figma: color alpha-15, single layer (0 25 50 -12) */
+  --shadow-2xl-black: 0px 25px 50px -12px var(--theme-alpha-black-no-switch-15);
+  --shadow-2xl-white: 0px 25px 50px -12px var(--theme-alpha-white-no-switch-15);
+
+  /* upper — Figma: color alpha-10 (switch — see deviation note above),
+     single layer (0 -12 48 -4) */
+  --shadow-upper-black: 0px -12px 48px -4px var(--theme-alpha-black-no-switch-10);
+  --shadow-upper-white: 0px -12px 48px -4px var(--theme-alpha-white-no-switch-10);
+
+  /* right — Figma: color alpha-10 (no-switch), single layer (16 0 68 -4) */
+  --shadow-right-black: 16px 0px 68px -4px var(--theme-alpha-black-no-switch-10);
+  --shadow-right-white: 16px 0px 68px -4px var(--theme-alpha-white-no-switch-10);
+
+  /* left — Figma: color alpha-10 (switch — see deviation note above),
+     single layer (-16 0 68 -4) */
+  --shadow-left-black: -16px 0px 68px -4px var(--theme-alpha-black-no-switch-10);
+  --shadow-left-white: -16px 0px 68px -4px var(--theme-alpha-white-no-switch-10);
 }
