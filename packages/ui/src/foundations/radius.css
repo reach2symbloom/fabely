@@ -1,8 +1,45 @@
 /*
  * Foundations / Radius
- * Source of truth: Figma variables (Obra kit, customized).
- * Populate from the Figma export.
+ * Architecture: tw-raw (primitive) -> radius (published scale). Mirrors the
+ * spacing architecture (tw-raw-spacing -> spacing).
+ *
+ * Layer 1: Primitive (Raw)
+ * Source: Figma "border radii (absolute, unpublished)" variable collection
+ * (10 entries) — the canonical source-of-truth pixel values. Variable names
+ * match Figma's own names exactly (do not rename/infer additional values).
+ * Theme-independent — do not reference these from each other.
  */
 
 :root {
+  --tw-raw-radius-2: 2px;
+  --tw-raw-radius-5: 5px;
+  --tw-raw-radius-8: 8px;
+  --tw-raw-radius-12: 12px;
+  --tw-raw-radius-16: 16px;
+  --tw-raw-radius-20: 20px;
+  --tw-raw-radius-28: 28px;
+  --tw-raw-radius-32: 32px;
+  --tw-raw-radius-48: 48px;
+  --tw-raw-radius-round: 9999px;
+}
+
+/*
+ * Foundations / Radius — Layer 2: border radii (published scale)
+ * Source: Figma "border radii" variable collection (10 entries) — the scale
+ * designers/components consume. Every token aliases a Layer 1 primitive by
+ * name via var(), except `rounded-none`, which Figma defines as a literal 0
+ * (there is no primitive to alias — no raw radius token equals 0).
+ */
+
+:root {
+  --rounded-none: 0px;
+  --rounded-xs: var(--tw-raw-radius-2);
+  --rounded-sm: var(--tw-raw-radius-5);
+  --rounded-md: var(--tw-raw-radius-8);
+  --rounded-lg: var(--tw-raw-radius-12);
+  --radius: var(--tw-raw-radius-16);
+  --rounded-xl: var(--tw-raw-radius-20);
+  --rounded-2xl: var(--tw-raw-radius-28);
+  --rounded-3xl: var(--tw-raw-radius-32);
+  --rounded-full: var(--tw-raw-radius-round);
 }
