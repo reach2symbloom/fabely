@@ -1,8 +1,102 @@
 /*
  * Foundations / Spacing
- * Source of truth: Figma variables (Obra kit, customized).
- * Populate from the Figma export.
+ * Architecture: tw-raw (primitive) -> spacing (published scale). Mirrors the
+ * color architecture (raw tailwind colors -> shadcn colors).
+ *
+ * Layer 1: Primitive (Raw)
+ * Source: Figma "spacing (absolute, unpublished)" variable collection (45
+ * entries) — the canonical source-of-truth pixel values. Variable names
+ * match Figma's own names exactly (do not rename/infer additional values);
+ * they happen to follow Tailwind's spacing-scale numbering, but these are
+ * Fabely's own Figma-authored primitives, not substituted from Tailwind.
+ * Theme-independent — do not reference these from each other.
  */
 
 :root {
+  --tw-raw-spacing-0: 0px;
+  --tw-raw-spacing-0-5: 2px;
+  --tw-raw-spacing-0-75: 3px;
+  --tw-raw-spacing-1: 4px;
+  --tw-raw-spacing-1-25: 5px;
+  --tw-raw-spacing-1-375: 5.5px;
+  --tw-raw-spacing-1-5: 6px;
+  --tw-raw-spacing-1-75: 7px;
+  --tw-raw-spacing-1-875: 7.5px;
+  --tw-raw-spacing-2: 8px;
+  --tw-raw-spacing-2-125: 8.5px;
+  --tw-raw-spacing-2-25: 9px;
+  --tw-raw-spacing-2-375: 9.5px;
+  --tw-raw-spacing-2-5: 10px;
+  --tw-raw-spacing-3: 12px;
+  --tw-raw-spacing-3-5: 14px;
+  --tw-raw-spacing-3-875: 15.5px;
+  --tw-raw-spacing-4: 16px;
+  --tw-raw-spacing-5: 20px;
+  --tw-raw-spacing-6: 24px;
+  --tw-raw-spacing-7: 28px;
+  --tw-raw-spacing-8: 32px;
+  --tw-raw-spacing-9: 36px;
+  --tw-raw-spacing-10: 40px;
+  --tw-raw-spacing-11: 44px;
+  --tw-raw-spacing-12: 48px;
+  --tw-raw-spacing-13: 52px;
+  --tw-raw-spacing-14: 56px;
+  --tw-raw-spacing-16: 64px;
+  --tw-raw-spacing-20: 80px;
+  --tw-raw-spacing-24: 96px;
+  --tw-raw-spacing-28: 112px;
+  --tw-raw-spacing-32: 128px;
+  --tw-raw-spacing-36: 144px;
+  --tw-raw-spacing-40: 160px;
+  --tw-raw-spacing-44: 176px;
+  --tw-raw-spacing-48: 192px;
+  --tw-raw-spacing-52: 208px;
+  --tw-raw-spacing-56: 224px;
+  --tw-raw-spacing-60: 240px;
+  --tw-raw-spacing-64: 256px;
+  --tw-raw-spacing-72: 288px;
+  --tw-raw-spacing-80: 320px;
+  --tw-raw-spacing-96: 384px;
+  --tw-raw-spacing-infinite: 9999px;
+}
+
+/*
+ * Foundations / Spacing — Layer 2: spacing (published scale)
+ * Source: Figma "spacing" variable collection (27 entries) — the scale
+ * designers/components consume. Every token aliases a Layer 1 primitive by
+ * name via var() — never a literal value duplicated here.
+ */
+
+:root {
+  /* spacing / scale */
+  --spacing-3xs: var(--tw-raw-spacing-0-5);
+  --spacing-2xs: var(--tw-raw-spacing-1);
+  --spacing-xs: var(--tw-raw-spacing-2);
+  --spacing-sm: var(--tw-raw-spacing-3);
+  --spacing-md: var(--tw-raw-spacing-4);
+  --spacing-lg: var(--tw-raw-spacing-5);
+  --spacing-xl: var(--tw-raw-spacing-6);
+  --spacing-2xl: var(--tw-raw-spacing-8);
+  --spacing-3xl: var(--tw-raw-spacing-10);
+  --spacing-4xl: var(--tw-raw-spacing-12);
+  --spacing-5xl: var(--tw-raw-spacing-16);
+  --spacing-6xl: var(--tw-raw-spacing-20);
+  --spacing-7xl: var(--tw-raw-spacing-24);
+  --spacing-8xl: var(--tw-raw-spacing-28);
+  --spacing-9xl: var(--tw-raw-spacing-32);
+  --spacing-10xl: var(--tw-raw-spacing-36);
+
+  /* spacing / odd — supplemental values; each token is named after its own
+     numeric value, and (per Figma) aliases the identically-named primitive */
+  --spacing-0-75: var(--tw-raw-spacing-0-75);
+  --spacing-1-375: var(--tw-raw-spacing-1-375);
+  --spacing-1-5: var(--tw-raw-spacing-1-5);
+  --spacing-1-75: var(--tw-raw-spacing-1-75);
+  --spacing-1-875: var(--tw-raw-spacing-1-875);
+  --spacing-2-125: var(--tw-raw-spacing-2-125);
+  --spacing-2-25: var(--tw-raw-spacing-2-25);
+  --spacing-2-375: var(--tw-raw-spacing-2-375);
+  --spacing-2-5: var(--tw-raw-spacing-2-5);
+  --spacing-3-5: var(--tw-raw-spacing-3-5);
+  --spacing-3-875: var(--tw-raw-spacing-3-875);
 }
