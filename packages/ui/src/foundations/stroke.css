@@ -1,0 +1,18 @@
+/*
+ * Foundations / Stroke
+ * Source: Figma "stroke" variable collection (6 entries) — border-width
+ * scale designers/components consume. Unlike Colors/Spacing/Radius, Figma
+ * defines no separate unpublished primitive collection for Stroke — this is
+ * a single published layer of literal values, not aliases. Variable names
+ * match Figma's own names exactly. Theme-independent — these values do not
+ * change between Light and Dark.
+ */
+
+:root {
+  --stroke-hairline: 0.5px;
+  --stroke-thin: 1px;
+  --stroke-regular: 2px;
+  --stroke-medium: 3px;
+  --stroke-thick: 4px;
+  --stroke-bold: 6px;
+}

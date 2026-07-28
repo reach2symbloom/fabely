@@ -72,6 +72,7 @@ const preview: Preview = {
               ['Raw', 'Semantic'],
               'Radius',
               ['Raw', 'Semantic'],
+              'Stroke',
             ],
           ],
         ],
