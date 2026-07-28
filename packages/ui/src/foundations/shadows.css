@@ -1,8 +1,34 @@
 /*
  * Foundations / Shadows
- * Source of truth: Figma variables (Obra kit, customized).
- * Elevation/shadow tokens — populate from the Figma export.
+ * Source: Figma "shadows" variable collection (66 entries) — composite,
+ * multi-layer elevation tokens. Like Stroke, Figma defines no separate
+ * unpublished primitive collection for Shadows — geometry (x/y/blur/spread)
+ * is literal. Only the color layer aliases the existing Themes/Alpha tokens
+ * (colors.css) — no new colors are introduced here.
+ *
+ * PROOF OF CONCEPT — `sm` only, pending review before the rest of the scale
+ * (2xs, xs, md, lg, xl, 2xl, upper, left, right) is implemented the same way.
+ *
+ * Figma's "sm" token specifies one Light-mode color
+ * (--theme-alpha-black-no-switch-10) applied to both of its shadow layers.
+ * To validate that geometry and "polarity" (which base color a shadow reads
+ * against) can be separated without touching the existing alpha token
+ * architecture, this splits `sm` into two semantic variants that share the
+ * exact same geometry and differ ONLY in which existing alpha color they
+ * reference:
+ *   - sm-light: --theme-alpha-black-no-switch-10 — Figma's literal spec, a
+ *     shadow that reads as a darkening (for surfaces on light backgrounds).
+ *   - sm-dark: --theme-alpha-white-no-switch-10 — the alpha-10 white
+ *     counterpart, already defined in the Alpha theme layer, a shadow that
+ *     reads as a lightening (for surfaces on dark backgrounds).
+ * Neither is a new color — both already exist in colors.css.
  */
 
 :root {
+  --shadow-sm-light:
+    0px 1px 3px 0px var(--theme-alpha-black-no-switch-10),
+    0px 1px 2px -1px var(--theme-alpha-black-no-switch-10);
+  --shadow-sm-dark:
+    0px 1px 3px 0px var(--theme-alpha-white-no-switch-10),
+    0px 1px 2px -1px var(--theme-alpha-white-no-switch-10);
 }
