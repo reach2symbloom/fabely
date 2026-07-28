@@ -1,8 +1,13 @@
 /*
- * Foundations / Colors — Layer 1: Primitive (Raw)
+ * Foundations / Colors
+ * Architecture: tw-raw (primitive) -> theme-neutrals (canonical theme palette)
+ * -> shadcn semantic tokens -> components. `Neutrals (New)` is a separate,
+ * parallel collection (accidental technical debt) reproduced on its own,
+ * never merged with theme-neutrals.
+ *
+ * Layer 1: Primitive (Raw)
  * Source: Figma "shadcn-raw" variable collection (tw-raw/* group), light values only.
- * Theme-independent. Do not reference these from each other; do not add a Layer 2
- * (semantic) mapping here — that comes in a later step.
+ * Theme-independent — do not reference these from each other.
  * shadcn-dark-raw was intentionally NOT extracted yet — out of scope for this step.
  */
 
@@ -132,4 +137,300 @@
   /* tw-raw / scene-desk */
   --tw-raw-scene-desk-ghost: #9DACEA; /* 12% opacity per Figma */
   --tw-raw-scene-desk-500: #9DACEA; /* main */
+}
+
+/*
+ * Foundations / Colors — Layer 2: theme-neutrals (canonical theme palette)
+ * Source: Figma "theme-neutrals" collection. Aliases tw-raw — every step below
+ * must resolve via var(), never duplicate a raw hex value.
+ * `Neutrals (New)` is a separate, parallel collection (accidental technical debt),
+ * reproduced further below as its own distinct group.
+ */
+
+:root {
+  --theme-neutrals-50: var(--tw-raw-neutral-50);
+  --theme-neutrals-100: var(--tw-raw-neutral-100);
+  --theme-neutrals-200: var(--tw-raw-neutral-200);
+  --theme-neutrals-300: var(--tw-raw-neutral-300);
+  --theme-neutrals-400: var(--tw-raw-neutral-400);
+  --theme-neutrals-500: var(--tw-raw-neutral-500);
+  --theme-neutrals-600: var(--tw-raw-neutral-600); /* main */
+  --theme-neutrals-700: var(--tw-raw-neutral-700);
+  --theme-neutrals-800: var(--tw-raw-neutral-800);
+  --theme-neutrals-900: var(--tw-raw-neutral-900); /* dark mode background, per Figma */
+  --theme-neutrals-950: var(--tw-raw-neutral-950);
+}
+
+/*
+ * Foundations / Colors — Neutrals (New)
+ * TEMPORARY compatibility layer / accidental technical debt (see project notes).
+ * Revised in Figma to alias tw-raw/neutral directly (light + dark), not
+ * theme-neutrals. Do not merge with theme-neutrals; will be removed once every
+ * component has migrated back to a single canonical palette.
+ */
+
+:root {
+  --neutrals-new-50: var(--tw-raw-neutral-50);
+  --neutrals-new-100: var(--tw-raw-neutral-100);
+  --neutrals-new-150: var(--tw-raw-neutral-150);
+  --neutrals-new-200: var(--tw-raw-neutral-200);
+  --neutrals-new-300: var(--tw-raw-neutral-300);
+  --neutrals-new-400: var(--tw-raw-neutral-400);
+  --neutrals-new-500: var(--tw-raw-neutral-500);
+  --neutrals-new-600: var(--tw-raw-neutral-600); /* main */
+  --neutrals-new-700: var(--tw-raw-neutral-700);
+  --neutrals-new-800: var(--tw-raw-neutral-800);
+  --neutrals-new-900: var(--tw-raw-neutral-900);
+  --neutrals-new-950: var(--tw-raw-neutral-950);
+}
+
+.dark {
+  --neutrals-new-50: var(--tw-raw-neutral-950);
+  --neutrals-new-100: var(--tw-raw-neutral-900);
+  --neutrals-new-150: var(--tw-raw-neutral-850);
+  --neutrals-new-200: var(--tw-raw-neutral-800);
+  --neutrals-new-300: var(--tw-raw-neutral-700);
+  --neutrals-new-400: var(--tw-raw-neutral-600);
+  --neutrals-new-500: var(--tw-raw-neutral-500);
+  --neutrals-new-600: var(--tw-raw-neutral-400); /* dark: 600 (main) -> tw-raw/neutral/400 */
+  --neutrals-new-700: var(--tw-raw-neutral-300);
+  --neutrals-new-800: var(--tw-raw-neutral-200);
+  --neutrals-new-900: var(--tw-raw-neutral-100);
+  --neutrals-new-950: var(--tw-raw-neutral-50);
+}
+
+/*
+ * Foundations / Colors — theme-alpha
+ * Source: Figma "theme-alpha" collection — alpha/white/switch, alpha/white/no-switch,
+ * alpha/black/switch, alpha/black/no-switch groups. Base colors alias tw-raw/white and
+ * tw-raw/black via color-mix() — no literal hex/rgba values — so tw-raw stays the single
+ * source of truth for the underlying color.
+ *
+ * "switch" tokens flip their base color between Light and Dark (per Figma, this is
+ * intentional, not a mistake — do not "simplify" to one color for both modes).
+ * "no-switch" tokens keep the same base color in both modes.
+ */
+
+:root {
+  /* alpha / white / switch — Light: tw-raw/white base (flips to tw-raw/black in Dark, see .dark below) */
+  --theme-alpha-white-switch-0: color-mix(in srgb, var(--tw-raw-white) 0%, transparent);
+  --theme-alpha-white-switch-001: color-mix(in srgb, var(--tw-raw-white) 0.01%, transparent);
+  --theme-alpha-white-switch-333: color-mix(in srgb, var(--tw-raw-white) 3.33%, transparent);
+  --theme-alpha-white-switch-5: color-mix(in srgb, var(--tw-raw-white) 5%, transparent);
+  --theme-alpha-white-switch-10: color-mix(in srgb, var(--tw-raw-white) 10%, transparent);
+  --theme-alpha-white-switch-15: color-mix(in srgb, var(--tw-raw-white) 15%, transparent);
+  --theme-alpha-white-switch-20: color-mix(in srgb, var(--tw-raw-white) 20%, transparent);
+  --theme-alpha-white-switch-25: color-mix(in srgb, var(--tw-raw-white) 25%, transparent);
+  --theme-alpha-white-switch-30: color-mix(in srgb, var(--tw-raw-white) 30%, transparent);
+  --theme-alpha-white-switch-40: color-mix(in srgb, var(--tw-raw-white) 40%, transparent);
+  --theme-alpha-white-switch-50: color-mix(in srgb, var(--tw-raw-white) 50%, transparent);
+  --theme-alpha-white-switch-60: color-mix(in srgb, var(--tw-raw-white) 60%, transparent);
+  --theme-alpha-white-switch-70: color-mix(in srgb, var(--tw-raw-white) 70%, transparent);
+  --theme-alpha-white-switch-75: color-mix(in srgb, var(--tw-raw-white) 75%, transparent);
+  --theme-alpha-white-switch-80: color-mix(in srgb, var(--tw-raw-white) 80%, transparent);
+  --theme-alpha-white-switch-85: color-mix(in srgb, var(--tw-raw-white) 85%, transparent);
+  --theme-alpha-white-switch-90: color-mix(in srgb, var(--tw-raw-white) 90%, transparent);
+  --theme-alpha-white-switch-95: color-mix(in srgb, var(--tw-raw-white) 95%, transparent);
+  --theme-alpha-white-switch-100: color-mix(in srgb, var(--tw-raw-white) 100%, transparent);
+
+  /* alpha / white / no-switch — tw-raw/white base in both Light and Dark */
+  --theme-alpha-white-no-switch-0: color-mix(in srgb, var(--tw-raw-white) 0%, transparent);
+  --theme-alpha-white-no-switch-001: color-mix(in srgb, var(--tw-raw-white) 0.01%, transparent);
+  --theme-alpha-white-no-switch-333: color-mix(in srgb, var(--tw-raw-white) 3.33%, transparent);
+  --theme-alpha-white-no-switch-5: color-mix(in srgb, var(--tw-raw-white) 5%, transparent);
+  --theme-alpha-white-no-switch-10: color-mix(in srgb, var(--tw-raw-white) 10%, transparent);
+  --theme-alpha-white-no-switch-15: color-mix(in srgb, var(--tw-raw-white) 15%, transparent);
+  --theme-alpha-white-no-switch-20: color-mix(in srgb, var(--tw-raw-white) 20%, transparent);
+  --theme-alpha-white-no-switch-25: color-mix(in srgb, var(--tw-raw-white) 25%, transparent);
+  --theme-alpha-white-no-switch-30: color-mix(in srgb, var(--tw-raw-white) 30%, transparent);
+  --theme-alpha-white-no-switch-40: color-mix(in srgb, var(--tw-raw-white) 40%, transparent);
+  --theme-alpha-white-no-switch-50: color-mix(in srgb, var(--tw-raw-white) 50%, transparent);
+  --theme-alpha-white-no-switch-60: color-mix(in srgb, var(--tw-raw-white) 60%, transparent);
+  --theme-alpha-white-no-switch-70: color-mix(in srgb, var(--tw-raw-white) 70%, transparent);
+  --theme-alpha-white-no-switch-75: color-mix(in srgb, var(--tw-raw-white) 75%, transparent);
+  --theme-alpha-white-no-switch-80: color-mix(in srgb, var(--tw-raw-white) 80%, transparent);
+  --theme-alpha-white-no-switch-85: color-mix(in srgb, var(--tw-raw-white) 85%, transparent);
+  --theme-alpha-white-no-switch-90: color-mix(in srgb, var(--tw-raw-white) 90%, transparent);
+  --theme-alpha-white-no-switch-95: color-mix(in srgb, var(--tw-raw-white) 95%, transparent);
+  --theme-alpha-white-no-switch-100: color-mix(in srgb, var(--tw-raw-white) 100%, transparent);
+
+  /* alpha / black / switch — Light: tw-raw/black base (flips to tw-raw/white in Dark, see .dark below) */
+  --theme-alpha-black-switch-0: color-mix(in srgb, var(--tw-raw-black) 0%, transparent);
+  --theme-alpha-black-switch-001: color-mix(in srgb, var(--tw-raw-black) 0.01%, transparent);
+  --theme-alpha-black-switch-333: color-mix(in srgb, var(--tw-raw-black) 3.33%, transparent);
+  --theme-alpha-black-switch-5: color-mix(in srgb, var(--tw-raw-black) 5%, transparent);
+  --theme-alpha-black-switch-10: color-mix(in srgb, var(--tw-raw-black) 10%, transparent);
+  --theme-alpha-black-switch-15: color-mix(in srgb, var(--tw-raw-black) 15%, transparent);
+  --theme-alpha-black-switch-20: color-mix(in srgb, var(--tw-raw-black) 20%, transparent);
+  --theme-alpha-black-switch-25: color-mix(in srgb, var(--tw-raw-black) 25%, transparent);
+  --theme-alpha-black-switch-30: color-mix(in srgb, var(--tw-raw-black) 30%, transparent);
+  --theme-alpha-black-switch-40: color-mix(in srgb, var(--tw-raw-black) 40%, transparent);
+  --theme-alpha-black-switch-50: color-mix(in srgb, var(--tw-raw-black) 50%, transparent);
+  --theme-alpha-black-switch-60: color-mix(in srgb, var(--tw-raw-black) 60%, transparent);
+  --theme-alpha-black-switch-70: color-mix(in srgb, var(--tw-raw-black) 70%, transparent);
+  --theme-alpha-black-switch-75: color-mix(in srgb, var(--tw-raw-black) 75%, transparent);
+  --theme-alpha-black-switch-80: color-mix(in srgb, var(--tw-raw-black) 80%, transparent);
+  --theme-alpha-black-switch-85: color-mix(in srgb, var(--tw-raw-black) 85%, transparent);
+  --theme-alpha-black-switch-90: color-mix(in srgb, var(--tw-raw-black) 90%, transparent);
+  --theme-alpha-black-switch-95: color-mix(in srgb, var(--tw-raw-black) 95%, transparent);
+  --theme-alpha-black-switch-100: color-mix(in srgb, var(--tw-raw-black) 100%, transparent);
+
+  /* alpha / black / no-switch — tw-raw/black base in both Light and Dark */
+  --theme-alpha-black-no-switch-0: color-mix(in srgb, var(--tw-raw-black) 0%, transparent);
+  --theme-alpha-black-no-switch-001: color-mix(in srgb, var(--tw-raw-black) 0.01%, transparent);
+  --theme-alpha-black-no-switch-333: color-mix(in srgb, var(--tw-raw-black) 3.33%, transparent);
+  --theme-alpha-black-no-switch-5: color-mix(in srgb, var(--tw-raw-black) 5%, transparent);
+  --theme-alpha-black-no-switch-10: color-mix(in srgb, var(--tw-raw-black) 10%, transparent);
+  --theme-alpha-black-no-switch-15: color-mix(in srgb, var(--tw-raw-black) 15%, transparent);
+  --theme-alpha-black-no-switch-20: color-mix(in srgb, var(--tw-raw-black) 20%, transparent);
+  --theme-alpha-black-no-switch-25: color-mix(in srgb, var(--tw-raw-black) 25%, transparent);
+  --theme-alpha-black-no-switch-30: color-mix(in srgb, var(--tw-raw-black) 30%, transparent);
+  --theme-alpha-black-no-switch-40: color-mix(in srgb, var(--tw-raw-black) 40%, transparent);
+  --theme-alpha-black-no-switch-50: color-mix(in srgb, var(--tw-raw-black) 50%, transparent);
+  --theme-alpha-black-no-switch-60: color-mix(in srgb, var(--tw-raw-black) 60%, transparent);
+  --theme-alpha-black-no-switch-70: color-mix(in srgb, var(--tw-raw-black) 70%, transparent);
+  --theme-alpha-black-no-switch-75: color-mix(in srgb, var(--tw-raw-black) 75%, transparent);
+  --theme-alpha-black-no-switch-80: color-mix(in srgb, var(--tw-raw-black) 80%, transparent);
+  --theme-alpha-black-no-switch-85: color-mix(in srgb, var(--tw-raw-black) 85%, transparent);
+  --theme-alpha-black-no-switch-90: color-mix(in srgb, var(--tw-raw-black) 90%, transparent);
+  --theme-alpha-black-no-switch-95: color-mix(in srgb, var(--tw-raw-black) 95%, transparent);
+  --theme-alpha-black-no-switch-100: color-mix(in srgb, var(--tw-raw-black) 100%, transparent);
+}
+
+.dark {
+  /* alpha / white / switch — Dark: flips to tw-raw/black base at the same opacity steps */
+  --theme-alpha-white-switch-0: color-mix(in srgb, var(--tw-raw-black) 0%, transparent);
+  --theme-alpha-white-switch-001: color-mix(in srgb, var(--tw-raw-black) 0.01%, transparent);
+  --theme-alpha-white-switch-333: color-mix(in srgb, var(--tw-raw-black) 3.33%, transparent);
+  --theme-alpha-white-switch-5: color-mix(in srgb, var(--tw-raw-black) 5%, transparent);
+  --theme-alpha-white-switch-10: color-mix(in srgb, var(--tw-raw-black) 10%, transparent);
+  --theme-alpha-white-switch-15: color-mix(in srgb, var(--tw-raw-black) 15%, transparent);
+  --theme-alpha-white-switch-20: color-mix(in srgb, var(--tw-raw-black) 20%, transparent);
+  --theme-alpha-white-switch-25: color-mix(in srgb, var(--tw-raw-black) 25%, transparent);
+  --theme-alpha-white-switch-30: color-mix(in srgb, var(--tw-raw-black) 30%, transparent);
+  --theme-alpha-white-switch-40: color-mix(in srgb, var(--tw-raw-black) 40%, transparent);
+  --theme-alpha-white-switch-50: color-mix(in srgb, var(--tw-raw-black) 50%, transparent);
+  --theme-alpha-white-switch-60: color-mix(in srgb, var(--tw-raw-black) 60%, transparent);
+  --theme-alpha-white-switch-70: color-mix(in srgb, var(--tw-raw-black) 70%, transparent);
+  --theme-alpha-white-switch-75: color-mix(in srgb, var(--tw-raw-black) 75%, transparent);
+  --theme-alpha-white-switch-80: color-mix(in srgb, var(--tw-raw-black) 80%, transparent);
+  --theme-alpha-white-switch-85: color-mix(in srgb, var(--tw-raw-black) 85%, transparent);
+  --theme-alpha-white-switch-90: color-mix(in srgb, var(--tw-raw-black) 90%, transparent);
+  --theme-alpha-white-switch-95: color-mix(in srgb, var(--tw-raw-black) 95%, transparent);
+  --theme-alpha-white-switch-100: color-mix(in srgb, var(--tw-raw-black) 100%, transparent);
+
+  /* alpha / black / switch — Dark: flips to tw-raw/white base at the same opacity steps */
+  --theme-alpha-black-switch-0: color-mix(in srgb, var(--tw-raw-white) 0%, transparent);
+  --theme-alpha-black-switch-001: color-mix(in srgb, var(--tw-raw-white) 0.01%, transparent);
+  --theme-alpha-black-switch-333: color-mix(in srgb, var(--tw-raw-white) 3.33%, transparent);
+  --theme-alpha-black-switch-5: color-mix(in srgb, var(--tw-raw-white) 5%, transparent);
+  --theme-alpha-black-switch-10: color-mix(in srgb, var(--tw-raw-white) 10%, transparent);
+  --theme-alpha-black-switch-15: color-mix(in srgb, var(--tw-raw-white) 15%, transparent);
+  --theme-alpha-black-switch-20: color-mix(in srgb, var(--tw-raw-white) 20%, transparent);
+  --theme-alpha-black-switch-25: color-mix(in srgb, var(--tw-raw-white) 25%, transparent);
+  --theme-alpha-black-switch-30: color-mix(in srgb, var(--tw-raw-white) 30%, transparent);
+  --theme-alpha-black-switch-40: color-mix(in srgb, var(--tw-raw-white) 40%, transparent);
+  --theme-alpha-black-switch-50: color-mix(in srgb, var(--tw-raw-white) 50%, transparent);
+  --theme-alpha-black-switch-60: color-mix(in srgb, var(--tw-raw-white) 60%, transparent);
+  --theme-alpha-black-switch-70: color-mix(in srgb, var(--tw-raw-white) 70%, transparent);
+  --theme-alpha-black-switch-75: color-mix(in srgb, var(--tw-raw-white) 75%, transparent);
+  --theme-alpha-black-switch-80: color-mix(in srgb, var(--tw-raw-white) 80%, transparent);
+  --theme-alpha-black-switch-85: color-mix(in srgb, var(--tw-raw-white) 85%, transparent);
+  --theme-alpha-black-switch-90: color-mix(in srgb, var(--tw-raw-white) 90%, transparent);
+  --theme-alpha-black-switch-95: color-mix(in srgb, var(--tw-raw-white) 95%, transparent);
+  --theme-alpha-black-switch-100: color-mix(in srgb, var(--tw-raw-white) 100%, transparent);
+
+  /* alpha / white / no-switch and alpha / black / no-switch: unchanged in Dark (no override) */
+}
+
+/*
+ * Foundations / Colors — semantic
+ * Source: Figma "shadcn colors" collection — general, focus, and sidebar groups.
+ * Aliases only — every token below resolves to an existing tw-raw, theme-neutrals,
+ * Neutrals (New), or theme-alpha value via var(). No new literal color values are
+ * introduced at this layer.
+ *
+ * NOTE: --sidebar-primary-foreground's shadcn-dark value in Figma is a BROKEN
+ * reference ("shadcn/neutral/1") — it does not resolve to any token in tw-raw,
+ * theme-neutrals, Neutrals (New), or theme-alpha. Left undeclared in .dark rather
+ * than guessed; see Storybook page for the flagged row. Needs a fix in Figma.
+ */
+
+:root {
+  /* shadcn colors / general */
+  --background: var(--tw-raw-neutral-200);
+  --foreground: var(--tw-raw-black);
+  --primary: var(--theme-neutrals-600); /* main */
+  --primary-hover: var(--theme-neutrals-700);
+  --primary-foreground: var(--tw-raw-white);
+  --secondary: var(--theme-neutrals-200);
+  --secondary-hover: var(--theme-neutrals-300);
+  --secondary-foreground: var(--theme-neutrals-900);
+  --accent: var(--tw-raw-secondary-ghost); /* same in Light and Dark */
+  --accent-foreground: var(--tw-raw-white);
+  --muted: var(--theme-neutrals-100);
+  --muted-foreground: var(--theme-alpha-black-switch-50); /* switch token — flips automatically in .dark */
+  --text: var(--theme-alpha-black-no-switch-75);
+  --destructive: var(--tw-raw-error-500);
+  --border: var(--theme-neutrals-300);
+  --input: var(--theme-neutrals-200);
+  --card: var(--theme-alpha-white-switch-100);
+  --card-foreground: var(--theme-neutrals-950);
+  --popover: var(--tw-raw-white);
+  --popover-foreground: var(--tw-raw-neutral-950);
+
+  /* shadcn colors / focus */
+  --ring: var(--theme-neutrals-300);
+  --ring-primary: var(--tw-raw-neutral-400);
+  --ring-error: var(--tw-raw-error-100);
+  --ring-success: var(--tw-raw-success-ghost);
+  --ring-alert: var(--tw-raw-alert-100);
+
+  /* shadcn colors / sidebar */
+  --sidebar: var(--theme-neutrals-50);
+  --sidebar-foreground: var(--theme-neutrals-700);
+  --sidebar-accent: var(--theme-alpha-black-switch-333); /* switch token — flips automatically in .dark */
+  --sidebar-accent-foreground: var(--theme-neutrals-900);
+  --sidebar-primary: var(--neutrals-new-400);
+  --sidebar-primary-foreground: var(--tw-raw-white); /* Dark value is a broken Figma reference — see note above */
+  --sidebar-border: var(--theme-neutrals-200);
+  --sidebar-ring: var(--theme-neutrals-300);
+}
+
+.dark {
+  /* shadcn colors / general */
+  --background: var(--tw-raw-neutral-900);
+  --foreground: var(--tw-raw-white);
+  --primary: var(--theme-neutrals-500);
+  --primary-hover: var(--theme-alpha-black-switch-333);
+  --primary-foreground: var(--theme-neutrals-950);
+  --secondary: var(--theme-neutrals-800);
+  --secondary-hover: var(--theme-neutrals-700);
+  --secondary-foreground: var(--theme-neutrals-100);
+  --accent-foreground: var(--theme-neutrals-100);
+  --muted: var(--theme-neutrals-900);
+  --text: var(--theme-alpha-white-no-switch-75);
+  --destructive: var(--tw-raw-error-300);
+  --border: var(--theme-neutrals-700);
+  --input: var(--theme-neutrals-800);
+  --card: var(--theme-neutrals-900);
+  --card-foreground: var(--theme-alpha-white-switch-100);
+  --popover: var(--tw-raw-neutral-950);
+  --popover-foreground: var(--tw-raw-white);
+
+  /* shadcn colors / focus */
+  --ring: var(--theme-neutrals-700);
+  --ring-primary: var(--theme-neutrals-700);
+  --ring-error: var(--tw-raw-error-ghost);
+  --ring-success: var(--tw-raw-success-700);
+  --ring-alert: var(--tw-raw-alert-700);
+
+  /* shadcn colors / sidebar */
+  --sidebar: var(--theme-neutrals-950);
+  --sidebar-foreground: var(--theme-neutrals-300);
+  --sidebar-accent-foreground: var(--theme-neutrals-100);
+  --sidebar-primary: var(--neutrals-new-300);
+  /* --sidebar-primary-foreground intentionally NOT overridden — see broken-reference note above */
+  --sidebar-border: var(--theme-neutrals-800);
+  --sidebar-ring: var(--theme-neutrals-700);
 }
