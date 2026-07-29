@@ -74,7 +74,7 @@ const preview: Preview = {
               ['Raw', 'Semantic'],
               'Stroke',
               'Shadows',
-              ['All Tokens', 'Semantic'],
+              ['Base', 'Semantic'],
               'Typography',
               [
                 'Font Definitions',

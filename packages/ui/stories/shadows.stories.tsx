@@ -40,7 +40,7 @@ const scale: ShadowToken[] = [
 
 const directional: ShadowToken[] = [...pair('upper', '10'), ...pair('right', '10'), ...pair('left', '10')];
 
-export const AllTokens: Story = {
+export const Base: Story = {
   render: () => (
     <div>
       <PendingNotice>
