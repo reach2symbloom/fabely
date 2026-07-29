@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useEffect, useState, type CSSProperties } from 'react';
-import { PendingNotice, SectionHeading } from './ColorSwatchTable';
+import { useEffect, useState } from 'react';
+import { TypographyNotice, TypographySectionHeading, uiCellStyle, codeCellStyle } from './TypographyDocChrome';
 
 const meta = {
   title: 'Design System/Foundations/Typography/Font Definitions',
@@ -18,14 +18,6 @@ function useResolvedValue(cssVar: string) {
   }, [cssVar]);
   return value;
 }
-
-const cellStyle: CSSProperties = {
-  padding: '10px 12px',
-  borderBottom: '1px solid var(--border)',
-  verticalAlign: 'middle',
-};
-
-const monoCell: CSSProperties = { ...cellStyle, fontFamily: 'ui-monospace, monospace', fontSize: 13 };
 
 type FamilyRow = { name: string; cssVar: string; family: string; reference?: string };
 const families: FamilyRow[] = [
@@ -50,11 +42,14 @@ function FamilyRowView({ row }: { row: FamilyRow }) {
   const resolved = useResolvedValue(row.cssVar);
   return (
     <tr>
-      <td style={{ ...cellStyle, fontFamily: row.family, fontSize: 22 }}>The quick brown fox — 0123456789</td>
-      <td style={monoCell}>{row.name}</td>
-      <td style={monoCell}>{row.cssVar}</td>
-      <td style={monoCell}>{row.reference ?? '—'}</td>
-      <td style={monoCell}>{resolved || '…'}</td>
+      {/* Specimen renders the real family being documented — the one place
+          Sharp Serif is expected to appear on this page (the Serif/Headings
+          rows) — not documentation chrome. */}
+      <td style={{ ...uiCellStyle, fontFamily: row.family, fontSize: 22 }}>The quick brown fox — 0123456789</td>
+      <td style={uiCellStyle}>{row.name}</td>
+      <td style={codeCellStyle}>{row.cssVar}</td>
+      <td style={codeCellStyle}>{row.reference ?? '—'}</td>
+      <td style={codeCellStyle}>{resolved || '…'}</td>
     </tr>
   );
 }
@@ -82,13 +77,13 @@ function WeightRowView({ row }: { row: WeightRow }) {
   const resolved = useResolvedValue(row.cssVar);
   return (
     <tr>
-      <td style={{ ...cellStyle, fontFamily: row.family, fontWeight: `var(${row.cssVar})`, fontSize: 22 }}>
+      <td style={{ ...uiCellStyle, fontFamily: row.family, fontWeight: `var(${row.cssVar})`, fontSize: 22 }}>
         The quick brown fox — 0123456789
       </td>
-      <td style={monoCell}>{row.name}</td>
-      <td style={monoCell}>{row.cssVar}</td>
-      <td style={monoCell}>{resolved || '…'}</td>
-      <td style={{ ...cellStyle, opacity: 0.75, fontSize: 13 }}>{row.implFace}</td>
+      <td style={uiCellStyle}>{row.name}</td>
+      <td style={codeCellStyle}>{row.cssVar}</td>
+      <td style={codeCellStyle}>{resolved || '…'}</td>
+      <td style={{ ...uiCellStyle, opacity: 0.75, fontSize: 13 }}>{row.implFace}</td>
     </tr>
   );
 }
@@ -98,11 +93,11 @@ function FamilyTable({ rows }: { rows: FamilyRow[] }) {
     <table style={{ borderCollapse: 'collapse', width: '100%', marginBottom: 24 }}>
       <thead>
         <tr>
-          <th style={{ ...cellStyle, textAlign: 'left' }}>Specimen</th>
-          <th style={{ ...cellStyle, textAlign: 'left', width: 100 }}>Token</th>
-          <th style={{ ...cellStyle, textAlign: 'left', width: 180 }}>CSS Variable</th>
-          <th style={{ ...cellStyle, textAlign: 'left', width: 140 }}>Aliases</th>
-          <th style={{ ...cellStyle, textAlign: 'left', width: 160 }}>Resolved Value</th>
+          <th style={{ ...uiCellStyle, textAlign: 'left' }}>Specimen</th>
+          <th style={{ ...uiCellStyle, textAlign: 'left', width: 100 }}>Token</th>
+          <th style={{ ...uiCellStyle, textAlign: 'left', width: 180 }}>CSS Variable</th>
+          <th style={{ ...uiCellStyle, textAlign: 'left', width: 140 }}>Aliases</th>
+          <th style={{ ...uiCellStyle, textAlign: 'left', width: 160 }}>Resolved Value</th>
         </tr>
       </thead>
       <tbody>
@@ -119,11 +114,11 @@ function WeightTable({ rows }: { rows: WeightRow[] }) {
     <table style={{ borderCollapse: 'collapse', width: '100%', marginBottom: 24 }}>
       <thead>
         <tr>
-          <th style={{ ...cellStyle, textAlign: 'left' }}>Specimen</th>
-          <th style={{ ...cellStyle, textAlign: 'left', width: 100 }}>Token</th>
-          <th style={{ ...cellStyle, textAlign: 'left', width: 220 }}>CSS Variable</th>
-          <th style={{ ...cellStyle, textAlign: 'left', width: 90 }}>Resolved</th>
-          <th style={{ ...cellStyle, textAlign: 'left', width: 160 }}>Implementation Face</th>
+          <th style={{ ...uiCellStyle, textAlign: 'left' }}>Specimen</th>
+          <th style={{ ...uiCellStyle, textAlign: 'left', width: 100 }}>Token</th>
+          <th style={{ ...uiCellStyle, textAlign: 'left', width: 220 }}>CSS Variable</th>
+          <th style={{ ...uiCellStyle, textAlign: 'left', width: 90 }}>Resolved</th>
+          <th style={{ ...uiCellStyle, textAlign: 'left', width: 160 }}>Implementation Face</th>
         </tr>
       </thead>
       <tbody>
@@ -138,7 +133,7 @@ function WeightTable({ rows }: { rows: WeightRow[] }) {
 export const FontDefinitions: Story = {
   render: () => (
     <div>
-      <PendingNotice>
+      <TypographyNotice>
         <strong>Layer 1 — Font Definitions.</strong> The reusable typography primitives used
         throughout the design system: font families and semantic font weights. These are the
         public API — components reference <code>--font-family-*</code> and{' '}
@@ -162,18 +157,18 @@ export const FontDefinitions: Story = {
         <strong>Layer 2 — Typography Styles</strong> (complete text styles: family + weight + size
         + line-height + paragraph-spacing + letter-spacing) builds on. See{' '}
         <em>Typography Styles</em> for that layer.
-      </PendingNotice>
+      </TypographyNotice>
 
-      <SectionHeading>Font Definitions / families</SectionHeading>
+      <TypographySectionHeading>Font Definitions / families</TypographySectionHeading>
       <FamilyTable rows={families} />
 
-      <SectionHeading>Font Definitions / weights — Sans (Gellix)</SectionHeading>
+      <TypographySectionHeading>Font Definitions / weights — Sans (Gellix)</TypographySectionHeading>
       <WeightTable rows={sansWeights} />
 
-      <SectionHeading>Font Definitions / weights — Serif (Sharp Serif)</SectionHeading>
+      <TypographySectionHeading>Font Definitions / weights — Serif (Sharp Serif)</TypographySectionHeading>
       <WeightTable rows={serifWeights} />
 
-      <SectionHeading>Font Definitions / weights — Monospace (Fira Mono)</SectionHeading>
+      <TypographySectionHeading>Font Definitions / weights — Monospace (Fira Mono)</TypographySectionHeading>
       <WeightTable rows={monoWeights} />
     </div>
   ),

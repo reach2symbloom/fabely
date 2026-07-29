@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useState, type CSSProperties } from 'react';
-import { PendingNotice, SectionHeading } from './ColorSwatchTable';
+import {
+  TypographyNotice,
+  TypographySectionHeading,
+  TypographySubHeading,
+  uiCellStyle,
+  codeCellStyle,
+} from './TypographyDocChrome';
 
 type Weight = 'Regular' | 'Medium' | 'Bold';
 type WeightArgs = { weight: Weight };
@@ -12,11 +18,13 @@ const meta = {
 } satisfies Meta;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
-type WeightStory = StoryObj<Meta<WeightArgs>>;
+type Story = StoryObj<Meta<WeightArgs>>;
 
+// "Bold" is the public semantic name (Figma + Storybook); it resolves to the
+// Gellix Semibold face via --font-weight-paragraph-bold, but "Semibold" is
+// never surfaced in the control or the documentation UI.
 const weightArgType = {
-  control: { type: 'radio' },
+  control: { type: 'inline-radio' },
   options: ['Regular', 'Medium', 'Bold'],
 } as const;
 
@@ -39,16 +47,9 @@ function useStyleValues(slug: string) {
   };
 }
 
-const cellStyle: CSSProperties = {
-  padding: '10px 12px',
-  borderBottom: '1px solid var(--border)',
-  verticalAlign: 'middle',
-};
-const monoCell: CSSProperties = { ...cellStyle, fontFamily: 'ui-monospace, monospace', fontSize: 12 };
-
 function specimenStyle(slug: string): CSSProperties {
   return {
-    ...cellStyle,
+    ...uiCellStyle,
     fontFamily: `var(--text-${slug}-font-family)`,
     fontWeight: `var(--text-${slug}-font-weight)`,
     fontSize: `var(--text-${slug}-font-size)`,
@@ -61,21 +62,32 @@ function tableHead(extraCols: string[] = []) {
   return (
     <thead>
       <tr>
-        <th style={{ ...cellStyle, textAlign: 'left' }}>Specimen</th>
-        <th style={{ ...cellStyle, textAlign: 'left' }}>Style</th>
-        <th style={{ ...cellStyle, textAlign: 'left' }}>Font Family</th>
-        <th style={{ ...cellStyle, textAlign: 'left' }}>Weight</th>
-        <th style={{ ...cellStyle, textAlign: 'left' }}>Size</th>
-        <th style={{ ...cellStyle, textAlign: 'left' }}>Line Height</th>
-        <th style={{ ...cellStyle, textAlign: 'left' }}>Para. Spacing</th>
-        <th style={{ ...cellStyle, textAlign: 'left' }}>Letter Spacing</th>
+        <th style={{ ...uiCellStyle, textAlign: 'left' }}>Specimen</th>
+        <th style={{ ...uiCellStyle, textAlign: 'left' }}>Style</th>
+        <th style={{ ...uiCellStyle, textAlign: 'left' }}>Font Family</th>
+        <th style={{ ...uiCellStyle, textAlign: 'left' }}>Weight</th>
+        <th style={{ ...uiCellStyle, textAlign: 'left' }}>Size</th>
+        <th style={{ ...uiCellStyle, textAlign: 'left' }}>Line Height</th>
+        <th style={{ ...uiCellStyle, textAlign: 'left' }}>Para. Spacing</th>
+        <th style={{ ...uiCellStyle, textAlign: 'left' }}>Letter Spacing</th>
         {extraCols.map((c) => (
-          <th key={c} style={{ ...cellStyle, textAlign: 'left' }}>
+          <th key={c} style={{ ...uiCellStyle, textAlign: 'left' }}>
             {c}
           </th>
         ))}
       </tr>
     </thead>
+  );
+}
+
+/** Semantic weight label + resolved numeric value, e.g. "Light (300)" — label in Gellix, the resolved number in a small monospace span since it's quoting a literal computed value. */
+function WeightCell({ label, resolved }: { label: string; resolved: string }) {
+  return (
+    <td style={uiCellStyle}>
+      {label}
+      <br />
+      <span style={{ fontFamily: codeCellStyle.fontFamily, fontSize: 12, opacity: 0.75 }}>({resolved || '…'})</span>
+    </td>
   );
 }
 
@@ -88,17 +100,14 @@ function FixedRow({ style }: { style: FixedStyle }) {
   return (
     <tr>
       <td style={specimenStyle(style.slug)}>The quick brown fox jumps</td>
-      <td style={monoCell}>{style.name}</td>
-      <td style={monoCell}>{v.fontFamily || '…'}</td>
-      <td style={monoCell}>
-        {style.weightLabel}
-        <br />({v.fontWeight || '…'})
-      </td>
-      <td style={monoCell}>{v.fontSize || '…'}</td>
-      <td style={monoCell}>{v.lineHeight || '…'}</td>
-      <td style={monoCell}>{v.paragraphSpacing || '…'}</td>
-      <td style={monoCell}>{v.letterSpacing || '…'}</td>
-      <td style={{ ...cellStyle, opacity: 0.75, fontSize: 12, maxWidth: 200 }}>{style.note ?? ''}</td>
+      <td style={uiCellStyle}>{style.name}</td>
+      <td style={codeCellStyle}>{v.fontFamily || '…'}</td>
+      <WeightCell label={style.weightLabel} resolved={v.fontWeight} />
+      <td style={codeCellStyle}>{v.fontSize || '…'}</td>
+      <td style={codeCellStyle}>{v.lineHeight || '…'}</td>
+      <td style={codeCellStyle}>{v.paragraphSpacing || '…'}</td>
+      <td style={codeCellStyle}>{v.letterSpacing || '…'}</td>
+      <td style={{ ...uiCellStyle, opacity: 0.75, fontSize: 13, maxWidth: 220 }}>{style.note ?? ''}</td>
     </tr>
   );
 }
@@ -159,8 +168,10 @@ const captions: FixedStyle[] = [
   },
 ];
 
-/* ---------- Variant styles (Weight is a Storybook Arg, mirroring the Figma
-   variant property): Paragraph, Paragraph Serif ---------- */
+/* ---------- Variant styles: Paragraph, Paragraph Serif — one shared "weight"
+   Args control (Regular/Medium/Bold) drives every row; nothing here hardcodes
+   a raw numeric weight — the slug just selects which --text-*-{weight}-*
+   namespace to read, and CSS resolves the actual number. ---------- */
 
 function weightSlug(weight: Weight) {
   return weight.toLowerCase();
@@ -172,16 +183,13 @@ function VariantRow({ name, baseSlug, weight }: { name: string; baseSlug: string
   return (
     <tr>
       <td style={specimenStyle(slug)}>The quick brown fox jumps</td>
-      <td style={monoCell}>{name}</td>
-      <td style={monoCell}>{v.fontFamily || '…'}</td>
-      <td style={monoCell}>
-        {weight}
-        <br />({v.fontWeight || '…'})
-      </td>
-      <td style={monoCell}>{v.fontSize || '…'}</td>
-      <td style={monoCell}>{v.lineHeight || '…'}</td>
-      <td style={monoCell}>{v.paragraphSpacing || '…'}</td>
-      <td style={monoCell}>{v.letterSpacing || '…'}</td>
+      <td style={uiCellStyle}>{name}</td>
+      <td style={codeCellStyle}>{v.fontFamily || '…'}</td>
+      <WeightCell label={weight} resolved={v.fontWeight} />
+      <td style={codeCellStyle}>{v.fontSize || '…'}</td>
+      <td style={codeCellStyle}>{v.lineHeight || '…'}</td>
+      <td style={codeCellStyle}>{v.paragraphSpacing || '…'}</td>
+      <td style={codeCellStyle}>{v.letterSpacing || '…'}</td>
     </tr>
   );
 }
@@ -208,100 +216,69 @@ const paragraphSizes: { name: string; slug: string }[] = [
   { name: 'Paragraph Mini', slug: 'paragraph-mini' },
 ];
 
-const paragraphSerifSizes: { name: string; slug: string }[] = [{ name: 'Paragraph Serif', slug: 'paragraph-serif' }];
+// Documentation label is "Sharp Serif" (the current concrete implementation),
+// nested under the "Manuscript" semantic section below — the underlying slug
+// (and its --text-paragraph-serif-* CSS variables) is unchanged, preserving
+// Figma's naming; only how it's presented in Storybook changes.
+const manuscriptSizes: { name: string; slug: string }[] = [{ name: 'Sharp Serif', slug: 'paragraph-serif' }];
 
-/* ---------- Stories ---------- */
-
-export const Headings: Story = {
-  render: () => (
-    <div>
-      <PendingNotice>
-        <strong>Layer 2 — Typography Styles.</strong> Complete, Figma-sourced text styles — each
-        one owns its full definition (font family, weight, size, line-height, paragraph-spacing,
-        letter-spacing) as a single <code>--text-{'{style}'}-*</code> namespace. There are no
-        reusable raw font-size/line-height/paragraph-spacing/letter-spacing tokens: those values
-        only have meaning as part of a complete style.
-        <br />
-        <br />
-        Headings, Caption, and Monospaced have no weight variants — each is a single fixed style.
-        Paragraph and Paragraph Serif do have weight variants (Regular/Medium/Bold); see those
-        pages for a live <strong>Weight</strong> control mirroring Figma's variant model, where
-        weight is a property of the style rather than a separate top-level style.
-      </PendingNotice>
-
-      <SectionHeading>Typography Styles / Headings</SectionHeading>
-      <FixedTable rows={headings} />
-    </div>
-  ),
-};
-
-export const Paragraph: WeightStory = {
+export const AllStyles: Story = {
   argTypes: { weight: weightArgType },
   args: { weight: 'Regular' },
   render: (args) => {
     const weight = args.weight;
     return (
       <div>
-        <PendingNotice>
-          <strong>Paragraph</strong> (Gellix). 6 sizes (XXL/XL/Large/Regular/Small/Mini), each
-          available in 3 weights per Figma's Styles panel — Regular, Medium, and Bold (the Bold
-          variant is implemented with the Gellix <em>Semibold</em> face, 600, not the file
-          literally named Bold). Use the <strong>Weight</strong> control below to switch all six
-          specimens at once, mirroring Figma's variant property (weight is a property of the
-          style, not a separate style). Font-size, line-height, paragraph-spacing, and
-          letter-spacing are identical across a size's three weight siblings — only font-weight
-          changes.
-        </PendingNotice>
+        <TypographyNotice>
+          <strong>Layer 2 — Typography Styles.</strong> Complete, Figma-sourced text styles — each
+          one owns its full definition (font family, weight, size, line-height,
+          paragraph-spacing, letter-spacing) as a single <code>--text-{'{style}'}-*</code>{' '}
+          namespace. There are no reusable raw font-size/line-height/paragraph-spacing/
+          letter-spacing tokens: those values only have meaning as part of a complete style.
+          <br />
+          <br />
+          Headings, Caption, and Monospaced have no weight variants — each is a single fixed
+          style. <strong>Paragraph</strong> and <strong>Manuscript</strong> do have weight
+          variants (Regular/Medium/Bold) — use the <strong>Weight</strong> control below to switch
+          every Paragraph/Manuscript specimen at once, mirroring Figma's variant property (weight
+          is a property of the style, not a separate top-level style). Font-family, size,
+          line-height, paragraph-spacing, and letter-spacing stay fixed per style — only
+          font-weight changes with the control. "Bold" is implemented by the Gellix{' '}
+          <em>Semibold</em> face (600) for Paragraph, and Sharp Serif's real Bold face (700, no
+          substitution) for Manuscript — the control only ever shows the semantic name Bold.
+        </TypographyNotice>
 
-        <SectionHeading>Typography Styles / Paragraph</SectionHeading>
+        <TypographySectionHeading>Typography Styles / Headings</TypographySectionHeading>
+        <FixedTable rows={headings} />
+
+        <TypographySectionHeading>Typography Styles / Paragraph</TypographySectionHeading>
         <VariantTable rows={paragraphSizes} weight={weight} />
+
+        <TypographySectionHeading>Typography Styles / Manuscript</TypographySectionHeading>
+        <TypographyNotice>
+          Sharp Serif is the only manuscript font today, but this section is organized so more can
+          be added later: <strong>Manuscript</strong> is the stable semantic layer, and individual
+          fonts (currently just Sharp Serif) are interchangeable implementations nested beneath
+          it. A single size — 22px / 31px line-height, matching Paragraph XL's metric exactly.
+          paragraph-spacing (20px) and letter-spacing (0px) aren't independently visible for this
+          style in Figma's Styles panel (which only shows size/line-height) — carried over from
+          Paragraph XL's already-confirmed values, since the font-size/line-height match exactly.
+          <br />
+          <br />
+          <strong>TODO:</strong> Expand the Manuscript section to support multiple
+          user-selectable manuscript fonts (e.g. Sharp Serif, Garamond, Baskerville, etc.). The
+          Manuscript semantic layer should remain stable while individual manuscript font families
+          become interchangeable implementations beneath it.
+        </TypographyNotice>
+        <TypographySubHeading>Sharp Serif</TypographySubHeading>
+        <VariantTable rows={manuscriptSizes} weight={weight} />
+
+        <TypographySectionHeading>Typography Styles / Caption</TypographySectionHeading>
+        <FixedTable rows={captions} />
+
+        <TypographySectionHeading>Typography Styles / Monospaced</TypographySectionHeading>
+        <FixedTable rows={monospaced} />
       </div>
     );
   },
-};
-
-export const ParagraphSerif: WeightStory = {
-  argTypes: { weight: weightArgType },
-  args: { weight: 'Regular' },
-  render: (args) => {
-    const weight = args.weight;
-    return (
-      <div>
-        <PendingNotice>
-          <strong>Paragraph Serif</strong> (Sharp Serif). A single size — 22px / 31px line-height,
-          matching Paragraph XL's metric exactly — available in 3 weights per Figma's Styles
-          panel: Regular, Medium, and Bold (Sharp Serif's real Bold face, 700 — no substitution
-          needed, unlike Paragraph's Gellix Bold). Use the <strong>Weight</strong> control below
-          to switch the specimen, mirroring Figma's variant property.
-          <br />
-          <br />
-          <strong>Inference flagged:</strong> paragraph-spacing (20px) and letter-spacing (0px)
-          aren't independently visible for this style in Figma's Styles panel (which only shows
-          size/line-height) — carried over from Paragraph XL's already-confirmed values, since the
-          font-size/line-height match exactly.
-        </PendingNotice>
-
-        <SectionHeading>Typography Styles / Paragraph Serif</SectionHeading>
-        <VariantTable rows={paragraphSerifSizes} weight={weight} />
-      </div>
-    );
-  },
-};
-
-export const Caption: Story = {
-  render: () => (
-    <div>
-      <SectionHeading>Typography Styles / Caption</SectionHeading>
-      <FixedTable rows={captions} />
-    </div>
-  ),
-};
-
-export const Monospaced: Story = {
-  render: () => (
-    <div>
-      <SectionHeading>Typography Styles / Monospaced</SectionHeading>
-      <FixedTable rows={monospaced} />
-    </div>
-  ),
 };
