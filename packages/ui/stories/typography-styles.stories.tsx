@@ -12,6 +12,10 @@ import {
 
 type Weight = 'Regular' | 'Medium' | 'Bold';
 type WeightArgs = { weight: Weight };
+type HeadingLevel = '1' | '2' | '3' | '4';
+type HeadingArgs = { level: HeadingLevel };
+type CaptionSize = 'mini' | 'sm' | 'md' | 'lg';
+type CaptionArgs = { size: CaptionSize };
 
 const meta = {
   title: 'Design System/Foundations/Typography/Typography Styles',
@@ -20,15 +24,29 @@ const meta = {
 } satisfies Meta;
 
 export default meta;
-type Story = StoryObj<Meta<WeightArgs>>;
+type Story = StoryObj<typeof meta>;
+type WeightStory = StoryObj<Meta<WeightArgs>>;
+type HeadingsStory = StoryObj<Meta<HeadingArgs>>;
+type CaptionsStory = StoryObj<Meta<CaptionArgs>>;
 
 // "Bold" is the public semantic name (Figma + Storybook); it resolves to the
-// Gellix Semibold face via --font-weight-paragraph-bold (Sharp Serif's real
-// Bold face for Manuscript), but "Semibold" is never surfaced in the control
-// or the documentation UI.
+// Gellix Semibold face via --font-weight-paragraph-bold (Sharp Serif's own
+// Bold face for Manuscript — see the header note on --font-weight-paragraph-
+// serif-* in typography.css), but "Semibold" is never surfaced in the
+// control or the documentation UI.
 const weightArgType = {
   control: { type: 'inline-radio' },
   options: ['Regular', 'Medium', 'Bold'],
+} as const;
+
+const headingLevelArgType = {
+  control: { type: 'inline-radio', labels: { '1': 'H1', '2': 'H2', '3': 'H3', '4': 'H4' } },
+  options: ['1', '2', '3', '4'],
+} as const;
+
+const captionSizeArgType = {
+  control: { type: 'inline-radio', labels: { mini: 'Mini', sm: 'Sm', md: 'Md', lg: 'Lg' } },
+  options: ['mini', 'sm', 'md', 'lg'],
 } as const;
 
 function useResolvedValue(cssVar: string) {
@@ -99,15 +117,25 @@ function WeightCell({ label, resolved }: { label: string; resolved: string }) {
 }
 
 /** Clickable inline control (not just the native Controls addon) so the
- * primary documentation experience exposes the weight choice directly on the
- * page. Syncs with Storybook's args store via useArgs, so it and the native
- * Controls panel radio always agree. */
-function InteractiveWeightControl({ weight, onChange }: { weight: Weight; onChange: (w: Weight) => void }) {
-  const options: Weight[] = ['Regular', 'Medium', 'Bold'];
+ * primary documentation experience exposes the relevant choice directly on
+ * the page. Syncs with Storybook's args store via useArgs (in each story's
+ * render), so it and the native Controls panel always agree. Generic so
+ * Weight, Heading level, and Caption size all reuse the same component. */
+function InlineSegmentedControl<T extends string>({
+  value,
+  options,
+  onChange,
+  ariaLabel,
+}: {
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (v: T) => void;
+  ariaLabel: string;
+}) {
   return (
     <div
       role="radiogroup"
-      aria-label="Weight"
+      aria-label={ariaLabel}
       style={{
         display: 'inline-flex',
         gap: 4,
@@ -117,13 +145,13 @@ function InteractiveWeightControl({ weight, onChange }: { weight: Weight; onChan
         marginBottom: 16,
       }}
     >
-      {options.map((w) => (
+      {options.map((opt) => (
         <button
-          key={w}
+          key={opt.value}
           type="button"
           role="radio"
-          aria-checked={weight === w}
-          onClick={() => onChange(w)}
+          aria-checked={value === opt.value}
+          onClick={() => onChange(opt.value)}
           style={{
             fontFamily: 'var(--font-family-sans)',
             fontWeight: 'var(--font-weight-sans-regular)',
@@ -132,16 +160,36 @@ function InteractiveWeightControl({ weight, onChange }: { weight: Weight; onChan
             borderRadius: 6,
             border: 'none',
             cursor: 'pointer',
-            background: weight === w ? 'var(--primary)' : 'transparent',
-            color: weight === w ? 'var(--primary-foreground)' : 'inherit',
+            background: value === opt.value ? 'var(--primary)' : 'transparent',
+            color: value === opt.value ? 'var(--primary-foreground)' : 'inherit',
           }}
         >
-          {w}
+          {opt.label}
         </button>
       ))}
     </div>
   );
 }
+
+const weightOptions: { value: Weight; label: string }[] = [
+  { value: 'Regular', label: 'Regular' },
+  { value: 'Medium', label: 'Medium' },
+  { value: 'Bold', label: 'Bold' },
+];
+
+const headingLevelOptions: { value: HeadingLevel; label: string }[] = [
+  { value: '1', label: 'H1' },
+  { value: '2', label: 'H2' },
+  { value: '3', label: 'H3' },
+  { value: '4', label: 'H4' },
+];
+
+const captionSizeOptions: { value: CaptionSize; label: string }[] = [
+  { value: 'mini', label: 'Mini' },
+  { value: 'sm', label: 'Sm' },
+  { value: 'md', label: 'Md' },
+  { value: 'lg', label: 'Lg' },
+];
 
 /* ---------- Fixed styles (no weight variants): Headings, Caption, Monospaced ---------- */
 
@@ -174,30 +222,6 @@ function FixedTable({ rows }: { rows: FixedStyle[] }) {
         ))}
       </tbody>
     </table>
-  );
-}
-
-/** A live rendered visual block for groups with no weight variants — not a
- * table row, just each style stacked so it reads like a realistic mockup. */
-function LiveSpecimenStack({ rows }: { rows: FixedStyle[] }) {
-  return (
-    <div
-      style={{
-        border: '1px solid var(--border)',
-        borderRadius: 8,
-        padding: '24px 20px',
-        marginBottom: 24,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 16,
-      }}
-    >
-      {rows.map((r) => (
-        <div key={r.slug} style={specimenStyle(r.slug)}>
-          The quick brown fox jumps
-        </div>
-      ))}
-    </div>
   );
 }
 
@@ -304,114 +328,50 @@ const paragraphSizes: { name: string; slug: string }[] = [
 // Figma's naming; only how it's presented in Storybook changes.
 const manuscriptSizes: { name: string; slug: string }[] = [{ name: 'Sharp Serif', slug: 'paragraph-serif' }];
 
-/* ---------- Catalog (All Styles): one row per named style at its default
-   weight — Paragraph/Manuscript's Medium/Bold variants live on their own
-   dedicated pages, not duplicated here. ---------- */
-
-type CatalogStyle = FixedStyle & { group: string };
-
-const catalog: CatalogStyle[] = [
-  ...headings.map((h) => ({ ...h, group: 'Headings' })),
-  ...paragraphSizes.map((s) => ({ name: s.name, slug: `${s.slug}-regular`, weightLabel: 'Body / Regular', group: 'Paragraph' })),
-  ...manuscriptSizes.map((s) => ({
-    name: s.name,
-    slug: `${s.slug}-regular`,
-    weightLabel: 'Manuscript / Regular',
-    group: 'Manuscript',
-  })),
-  ...captions.map((c) => ({ ...c, group: 'Captions' })),
-  ...monospaced.map((m) => ({ ...m, group: 'Monospaced' })),
-];
-
-function CatalogRow({ style }: { style: CatalogStyle }) {
-  const v = useStyleValues(style.slug);
-  return (
-    <tr>
-      <td style={specimenStyle(style.slug)}>The quick brown fox jumps</td>
-      <td style={uiCellStyle}>{style.group}</td>
-      <td style={uiCellStyle}>{style.name}</td>
-      <td style={codeCellStyle}>{v.fontFamily || '…'}</td>
-      <WeightCell label={style.weightLabel} resolved={v.fontWeight} />
-      <td style={codeCellStyle}>{v.fontSize || '…'}</td>
-      <td style={codeCellStyle}>{v.lineHeight || '…'}</td>
-      <td style={codeCellStyle}>{v.paragraphSpacing || '…'}</td>
-      <td style={codeCellStyle}>{v.letterSpacing || '…'}</td>
-    </tr>
-  );
-}
-
-function CatalogTable({ rows }: { rows: CatalogStyle[] }) {
-  return (
-    <table style={{ borderCollapse: 'collapse', width: '100%', marginBottom: 24 }}>
-      <thead>
-        <tr>
-          <th style={{ ...uiCellStyle, textAlign: 'left' }}>Specimen</th>
-          <th style={{ ...uiCellStyle, textAlign: 'left' }}>Group</th>
-          <th style={{ ...uiCellStyle, textAlign: 'left' }}>Style</th>
-          <th style={{ ...uiCellStyle, textAlign: 'left' }}>Font Family</th>
-          <th style={{ ...uiCellStyle, textAlign: 'left' }}>Weight</th>
-          <th style={{ ...uiCellStyle, textAlign: 'left' }}>Size</th>
-          <th style={{ ...uiCellStyle, textAlign: 'left' }}>Line Height</th>
-          <th style={{ ...uiCellStyle, textAlign: 'left' }}>Para. Spacing</th>
-          <th style={{ ...uiCellStyle, textAlign: 'left' }}>Letter Spacing</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <CatalogRow key={r.slug} style={r} />
-        ))}
-      </tbody>
-    </table>
-  );
-}
-
 /* ---------- Pages ---------- */
 
-export const AllStyles: Story = {
-  render: () => (
-    <div>
-      <TypographyPageTitle>All Styles</TypographyPageTitle>
-      <TypographyNotice>
-        <strong>Catalog.</strong> Every Typography Style at a glance. Each style owns a complete
-        definition (font family, weight, size, line-height, paragraph-spacing, letter-spacing) —
-        there are no reusable raw size/line-height/spacing tokens independent of a style.{' '}
-        <strong>Paragraph</strong> and <strong>Manuscript</strong> are shown here at their default
-        Regular weight; visit their dedicated pages for the full Regular/Medium/Bold range and
-        interactive controls.
-      </TypographyNotice>
-      <CatalogTable rows={catalog} />
-    </div>
-  ),
+export const Headings: HeadingsStory = {
+  argTypes: { level: headingLevelArgType },
+  args: { level: '1' },
+  render: () => {
+    const [args, updateArgs] = useArgs<HeadingArgs>();
+    const level: HeadingLevel = args.level ?? '1';
+    const slug = `heading-${level}`;
+    return (
+      <div>
+        <TypographyPageTitle>Headings</TypographyPageTitle>
+        <TypographyNotice>
+          Fabely's display hierarchy — Heading 1 through Heading 4. All four use Sharp Serif at
+          the semantic <strong>Light</strong> weight (aliased via{' '}
+          <code>--font-family-headings</code> / <code>--font-weight-serif-light</code>), sized
+          56/30/24/20px. There are no weight variants — hierarchy comes from size and
+          paragraph-spacing, not boldness.
+        </TypographyNotice>
+
+        <TypographySectionHeading>Interactive Example</TypographySectionHeading>
+        <InlineSegmentedControl
+          value={level}
+          options={headingLevelOptions}
+          onChange={(l) => updateArgs({ level: l })}
+          ariaLabel="Heading level"
+        />
+        <LiveSpecimenPanel slug={slug} />
+
+        <TypographySectionHeading>Reference Table</TypographySectionHeading>
+        <FixedTable rows={headings} />
+
+        <TypographySectionHeading>Architecture Notes</TypographySectionHeading>
+        <TypographyNotice>
+          All four headings share the same font-family and weight — only size, line-height, and
+          paragraph-spacing change across the scale. paragraph-spacing (48/30/20/20px) is the
+          space Figma specifies after each heading before the following content.
+        </TypographyNotice>
+      </div>
+    );
+  },
 };
 
-export const Headings: Story = {
-  render: () => (
-    <div>
-      <TypographyPageTitle>Headings</TypographyPageTitle>
-      <TypographyNotice>
-        Fabely's display hierarchy — Heading 1 through Heading 4. All four use Sharp Serif at the
-        semantic <strong>Light</strong> weight (aliased via <code>--font-family-headings</code> /{' '}
-        <code>--font-weight-serif-light</code>), sized 56/30/24/20px. There are no weight
-        variants — hierarchy comes from size and paragraph-spacing, not boldness.
-      </TypographyNotice>
-
-      <TypographySectionHeading>Interactive Example</TypographySectionHeading>
-      <LiveSpecimenStack rows={headings} />
-
-      <TypographySectionHeading>Reference Table</TypographySectionHeading>
-      <FixedTable rows={headings} />
-
-      <TypographySectionHeading>Architecture Notes</TypographySectionHeading>
-      <TypographyNotice>
-        All four headings share the same font-family and weight — only size, line-height, and
-        paragraph-spacing change across the scale. paragraph-spacing (48/30/20/20px) is the space
-        Figma specifies after each heading before the following content.
-      </TypographyNotice>
-    </div>
-  ),
-};
-
-export const Paragraph: Story = {
+export const Paragraph: WeightStory = {
   argTypes: { weight: weightArgType },
   args: { weight: 'Regular' },
   render: () => {
@@ -427,7 +387,12 @@ export const Paragraph: Story = {
         </TypographyNotice>
 
         <TypographySectionHeading>Interactive Example</TypographySectionHeading>
-        <InteractiveWeightControl weight={weight} onChange={(w) => updateArgs({ weight: w })} />
+        <InlineSegmentedControl
+          value={weight}
+          options={weightOptions}
+          onChange={(w) => updateArgs({ weight: w })}
+          ariaLabel="Weight"
+        />
         <LiveSpecimenPanel slug={`paragraph-regular-${weightSlug(weight)}`} />
 
         <TypographySectionHeading>Reference Table</TypographySectionHeading>
@@ -445,7 +410,7 @@ export const Paragraph: Story = {
   },
 };
 
-export const Manuscript: Story = {
+export const Manuscript: WeightStory = {
   argTypes: { weight: weightArgType },
   args: { weight: 'Regular' },
   render: () => {
@@ -462,7 +427,12 @@ export const Manuscript: Story = {
         </TypographyNotice>
 
         <TypographySectionHeading>Interactive Example</TypographySectionHeading>
-        <InteractiveWeightControl weight={weight} onChange={(w) => updateArgs({ weight: w })} />
+        <InlineSegmentedControl
+          value={weight}
+          options={weightOptions}
+          onChange={(w) => updateArgs({ weight: w })}
+          ariaLabel="Weight"
+        />
         <LiveSpecimenPanel slug={`paragraph-serif-${weightSlug(weight)}`} />
 
         <TypographySectionHeading>Reference Table</TypographySectionHeading>
@@ -475,8 +445,13 @@ export const Manuscript: Story = {
           today's concrete implementation, nested beneath it. paragraph-spacing (20px) and
           letter-spacing (0px) aren't independently visible for this style in Figma's Styles panel
           (which only shows size/line-height) — carried over from Paragraph XL's already-confirmed
-          values, since the font-size/line-height match exactly. Bold is Sharp Serif's real Bold
-          face (700) — no substitution needed, unlike Paragraph's Gellix Semibold.
+          values, since the font-size/line-height match exactly.
+          <br />
+          <br />
+          <strong>Weight mapping under review:</strong> Regular/Medium/Bold currently resolve to
+          Sharp Serif's own Regular (400) / Medium (500) / Bold (700) faces via{' '}
+          <code>--font-weight-paragraph-serif-*</code>. Flagged as unconfirmed pending Figma's
+          exact Manuscript weight-token mapping — see conversation.
           <br />
           <br />
           <strong>TODO:</strong> Expand the Manuscript section to support multiple
@@ -489,23 +464,36 @@ export const Manuscript: Story = {
   },
 };
 
-export const Captions: Story = {
-  render: () => (
-    <div>
-      <TypographyPageTitle>Captions</TypographyPageTitle>
-      <TypographyNotice>
-        Small utility text — timestamps, helper text, meta labels. Four sizes (Mini/Sm/Md/Lg), all
-        Gellix at the semantic <strong>Medium</strong> weight. Md and Lg use a notably wide 5px
-        letter-spacing, distinct from Mini/Sm's 1px — preserved exactly as Figma specifies.
-      </TypographyNotice>
+export const Captions: CaptionsStory = {
+  argTypes: { size: captionSizeArgType },
+  args: { size: 'mini' },
+  render: () => {
+    const [args, updateArgs] = useArgs<CaptionArgs>();
+    const size: CaptionSize = args.size ?? 'mini';
+    const slug = `caption-${size}`;
+    return (
+      <div>
+        <TypographyPageTitle>Captions</TypographyPageTitle>
+        <TypographyNotice>
+          Small utility text — timestamps, helper text, meta labels. Four sizes (Mini/Sm/Md/Lg),
+          all Gellix at the semantic <strong>Medium</strong> weight. Md and Lg use a notably wide
+          5px letter-spacing, distinct from Mini/Sm's 1px — preserved exactly as Figma specifies.
+        </TypographyNotice>
 
-      <TypographySectionHeading>Interactive Example</TypographySectionHeading>
-      <LiveSpecimenStack rows={captions} />
+        <TypographySectionHeading>Interactive Example</TypographySectionHeading>
+        <InlineSegmentedControl
+          value={size}
+          options={captionSizeOptions}
+          onChange={(s) => updateArgs({ size: s })}
+          ariaLabel="Caption size"
+        />
+        <LiveSpecimenPanel slug={slug} />
 
-      <TypographySectionHeading>Reference Table</TypographySectionHeading>
-      <FixedTable rows={captions} />
-    </div>
-  ),
+        <TypographySectionHeading>Reference Table</TypographySectionHeading>
+        <FixedTable rows={captions} />
+      </div>
+    );
+  },
 };
 
 export const Monospaced: Story = {
@@ -514,10 +502,9 @@ export const Monospaced: Story = {
       <TypographyPageTitle>Monospaced</TypographyPageTitle>
       <TypographyNotice>
         A single fixed style for code and technical content — Fira Mono Regular, 16px / 24px.
+        There are no meaningful controls, so a static specimen (in the table below) and reference
+        table are sufficient.
       </TypographyNotice>
-
-      <TypographySectionHeading>Interactive Example</TypographySectionHeading>
-      <LiveSpecimenStack rows={monospaced} />
 
       <TypographySectionHeading>Reference Table</TypographySectionHeading>
       <FixedTable rows={monospaced} />

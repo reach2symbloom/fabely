@@ -78,7 +78,7 @@ const preview: Preview = {
               [
                 'Font Definitions',
                 'Typography Styles',
-                ['All Styles', 'Headings', 'Paragraph', 'Manuscript', 'Captions', 'Monospaced'],
+                ['Headings', 'Paragraph', 'Manuscript', 'Captions', 'Monospaced'],
                 'All Fonts',
               ],
             ],
