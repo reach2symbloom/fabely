@@ -1,8 +1,45 @@
 /*
  * Foundations / Typography
- * Source of truth: Figma variables (Obra kit, customized).
- * Font families, sizes, weights, line-heights — populate from the Figma export.
+ * Fabely's own architecture, not Obra's — two layers:
+ *
+ * Layer 1: Font Definitions
+ * The reusable typography primitives (family + semantic weight names) used
+ * throughout the design system. These are the public API — components
+ * reference --font-family-* / --font-weight-{family}-* rather than a raw
+ * font-family string or a numeric weight. The font assets themselves
+ * (@font-face, .woff2 files) are registered in fonts.css and are NOT
+ * modified here.
+ *
+ * Weight names are semantic and scoped per family, not literal names from
+ * the font files: e.g. Gellix's design-system "Bold" is implemented by the
+ * Semibold face (600), not the file literally named Bold (700) — see the
+ * per-family mapping below. Sharp Serif currently exposes only one weight
+ * (Light); Fira Mono only Regular. No other registered faces are exposed
+ * as tokens here, even though more exist in fonts.css — unused weights are
+ * implementation assets, not part of the design system.
+ *
+ * Layer 2: Typography Styles (pending — see typography.stories.tsx notice)
+ * Complete, Figma-sourced text styles (family + weight + size + line-height
+ * + paragraph-spacing + letter-spacing per style). No raw font-size/
+ * line-height/paragraph-spacing/letter-spacing tokens exist independent of
+ * a style — those values only have meaning as part of a complete style.
  */
 
 :root {
+  /* Font Definitions / families */
+  --font-family-sans: 'Gellix', sans-serif;
+  --font-family-serif: 'Sharp Serif', serif;
+  --font-family-mono: 'Fira Mono', monospace;
+
+  /* Font Definitions / weights — Sans (Gellix) */
+  --font-weight-sans-light: 300;
+  --font-weight-sans-regular: 400;
+  --font-weight-sans-medium: 500;
+  --font-weight-sans-bold: 600; /* Semibold face — see header note */
+
+  /* Font Definitions / weights — Serif (Sharp Serif) */
+  --font-weight-serif-light: 300; /* "Light Unlicensed Trial" face */
+
+  /* Font Definitions / weights — Monospace (Fira Mono) */
+  --font-weight-mono-regular: 400;
 }
