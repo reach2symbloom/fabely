@@ -27,11 +27,23 @@ const cellStyle: CSSProperties = {
 
 const monoCell: CSSProperties = { ...cellStyle, fontFamily: 'ui-monospace, monospace', fontSize: 13 };
 
-type FamilyRow = { name: string; cssVar: string; family: string };
+type FamilyRow = { name: string; cssVar: string; family: string; reference?: string };
 const families: FamilyRow[] = [
   { name: 'Sans', cssVar: '--font-family-sans', family: 'var(--font-family-sans)' },
   { name: 'Serif', cssVar: '--font-family-serif', family: 'var(--font-family-serif)' },
   { name: 'Monospace', cssVar: '--font-family-mono', family: 'var(--font-family-mono)' },
+  {
+    name: 'Headings',
+    cssVar: '--font-family-headings',
+    family: 'var(--font-family-headings)',
+    reference: '--font-family-serif',
+  },
+  {
+    name: 'Body',
+    cssVar: '--font-family-body',
+    family: 'var(--font-family-body)',
+    reference: '--font-family-sans',
+  },
 ];
 
 function FamilyRowView({ row }: { row: FamilyRow }) {
@@ -41,6 +53,7 @@ function FamilyRowView({ row }: { row: FamilyRow }) {
       <td style={{ ...cellStyle, fontFamily: row.family, fontSize: 22 }}>The quick brown fox — 0123456789</td>
       <td style={monoCell}>{row.name}</td>
       <td style={monoCell}>{row.cssVar}</td>
+      <td style={monoCell}>{row.reference ?? '—'}</td>
       <td style={monoCell}>{resolved || '…'}</td>
     </tr>
   );
@@ -86,8 +99,9 @@ function FamilyTable({ rows }: { rows: FamilyRow[] }) {
       <thead>
         <tr>
           <th style={{ ...cellStyle, textAlign: 'left' }}>Specimen</th>
-          <th style={{ ...cellStyle, textAlign: 'left', width: 110 }}>Token</th>
-          <th style={{ ...cellStyle, textAlign: 'left', width: 200 }}>CSS Variable</th>
+          <th style={{ ...cellStyle, textAlign: 'left', width: 100 }}>Token</th>
+          <th style={{ ...cellStyle, textAlign: 'left', width: 180 }}>CSS Variable</th>
+          <th style={{ ...cellStyle, textAlign: 'left', width: 140 }}>Aliases</th>
           <th style={{ ...cellStyle, textAlign: 'left', width: 160 }}>Resolved Value</th>
         </tr>
       </thead>
@@ -142,9 +156,12 @@ export const FontDefinitions: Story = {
         are implementation assets, not part of the current design system.
         <br />
         <br />
+        <code>--font-family-headings</code> and <code>--font-family-body</code> alias{' '}
+        <code>--font-family-serif</code> and <code>--font-family-sans</code> respectively — these
+        come directly from Figma's own "font definitions" collection, which is what{' '}
         <strong>Layer 2 — Typography Styles</strong> (complete text styles: family + weight + size
-        + line-height + paragraph-spacing + letter-spacing, sourced directly from Figma) is
-        pending — not yet implemented.
+        + line-height + paragraph-spacing + letter-spacing) builds on. See{' '}
+        <em>Typography Styles</em> for that layer.
       </PendingNotice>
 
       <SectionHeading>Font Definitions / families</SectionHeading>

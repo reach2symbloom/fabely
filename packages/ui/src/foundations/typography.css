@@ -18,11 +18,29 @@
  * as tokens here, even though more exist in fonts.css — unused weights are
  * implementation assets, not part of the design system.
  *
- * Layer 2: Typography Styles (pending — see typography.stories.tsx notice)
+ * font-family-headings / font-family-body: Figma's own "font definitions"
+ * collection defines these as aliases (headings -> serif, body -> sans).
+ * An earlier version of this foundation avoided recreating Obra's
+ * font-family-heading/font-family-body under the assumption they were an
+ * Obra-specific pattern — this Figma source shows they're genuinely part
+ * of Fabely's current tokens, so they're implemented here per the Figma
+ * source of truth.
+ *
+ * Layer 2: Typography Styles
  * Complete, Figma-sourced text styles (family + weight + size + line-height
- * + paragraph-spacing + letter-spacing per style). No raw font-size/
+ * + paragraph-spacing + letter-spacing per style) — see
+ * typography-styles.stories.tsx for full documentation. No raw font-size/
  * line-height/paragraph-spacing/letter-spacing tokens exist independent of
- * a style — those values only have meaning as part of a complete style.
+ * a style — those values only have meaning as part of a complete style, so
+ * every property below is scoped to its own --text-{style}-* namespace
+ * rather than shared/reused across styles.
+ *
+ * Two inferences not directly shown in the Figma screenshots (flagged for
+ * confirmation): the `monospaced` style has no explicit font-family
+ * reference — assumed --font-family-mono, the only monospace family. The
+ * four `caption/*` styles likewise have no explicit font-family reference —
+ * assumed --font-family-body (Sans), matching every other non-heading,
+ * non-monospaced style.
  */
 
 :root {
@@ -30,6 +48,8 @@
   --font-family-sans: 'Gellix', sans-serif;
   --font-family-serif: 'Sharp Serif', serif;
   --font-family-mono: 'Fira Mono', monospace;
+  --font-family-headings: var(--font-family-serif);
+  --font-family-body: var(--font-family-sans);
 
   /* Font Definitions / weights — Sans (Gellix) */
   --font-weight-sans-light: 300;
@@ -42,4 +62,122 @@
 
   /* Font Definitions / weights — Monospace (Fira Mono) */
   --font-weight-mono-regular: 400;
+
+  /* Typography Styles / Headings — font-family-headings, weight "Light
+     Unlicensed Trial" (--font-weight-serif-light) for all four */
+  --text-heading-1-font-family: var(--font-family-headings);
+  --text-heading-1-font-weight: var(--font-weight-serif-light);
+  --text-heading-1-font-size: 56px;
+  --text-heading-1-line-height: 64px;
+  --text-heading-1-paragraph-spacing: 48px;
+  --text-heading-1-letter-spacing: 0px;
+
+  --text-heading-2-font-family: var(--font-family-headings);
+  --text-heading-2-font-weight: var(--font-weight-serif-light);
+  --text-heading-2-font-size: 30px;
+  --text-heading-2-line-height: 34px;
+  --text-heading-2-paragraph-spacing: 30px;
+  --text-heading-2-letter-spacing: 0px;
+
+  --text-heading-3-font-family: var(--font-family-headings);
+  --text-heading-3-font-weight: var(--font-weight-serif-light);
+  --text-heading-3-font-size: 24px;
+  --text-heading-3-line-height: 28.8px;
+  --text-heading-3-paragraph-spacing: 20px;
+  --text-heading-3-letter-spacing: 0px;
+
+  --text-heading-4-font-family: var(--font-family-headings);
+  --text-heading-4-font-weight: var(--font-weight-serif-light);
+  --text-heading-4-font-size: 20px;
+  --text-heading-4-line-height: 24px;
+  --text-heading-4-paragraph-spacing: 20px;
+  --text-heading-4-letter-spacing: 0px;
+
+  /* Typography Styles / Monospaced — font-family inferred (see header note) */
+  --text-monospaced-font-family: var(--font-family-mono);
+  --text-monospaced-font-weight: var(--font-weight-mono-regular);
+  --text-monospaced-font-size: 16px;
+  --text-monospaced-line-height: 24px;
+  --text-monospaced-paragraph-spacing: 16px;
+  --text-monospaced-letter-spacing: 0px;
+
+  /* Typography Styles / Caption — font-family inferred (see header note),
+     weight Medium (--font-weight-sans-medium) for all four */
+  --text-caption-mini-font-family: var(--font-family-body);
+  --text-caption-mini-font-weight: var(--font-weight-sans-medium);
+  --text-caption-mini-font-size: 10px;
+  --text-caption-mini-line-height: 14px;
+  --text-caption-mini-paragraph-spacing: 8px;
+  --text-caption-mini-letter-spacing: 1px;
+
+  --text-caption-sm-font-family: var(--font-family-body);
+  --text-caption-sm-font-weight: var(--font-weight-sans-medium);
+  --text-caption-sm-font-size: 12px;
+  --text-caption-sm-line-height: 16px;
+  --text-caption-sm-paragraph-spacing: 8px;
+  --text-caption-sm-letter-spacing: 1px;
+
+  --text-caption-md-font-family: var(--font-family-body);
+  --text-caption-md-font-weight: var(--font-weight-sans-medium);
+  --text-caption-md-font-size: 14px;
+  --text-caption-md-line-height: 18px;
+  --text-caption-md-paragraph-spacing: 8px;
+  --text-caption-md-letter-spacing: 5px;
+
+  --text-caption-lg-font-family: var(--font-family-body);
+  --text-caption-lg-font-weight: var(--font-weight-sans-medium);
+  --text-caption-lg-font-size: 16px;
+  --text-caption-lg-line-height: 20.5px;
+  --text-caption-lg-paragraph-spacing: 8px;
+  --text-caption-lg-letter-spacing: 5px;
+
+  /* Typography Styles / Paragraph — font-family-body, weight Regular
+     (--font-weight-sans-regular) for all six. Figma also defines
+     paragraph-bold-weight (Semibold) and paragraph-medium-weight (Medium)
+     at the group level, matching the existing --font-weight-sans-bold /
+     --font-weight-sans-medium tokens — flagged for confirmation whether
+     these should produce additional bold/medium style variants per size,
+     or are just base-weight references; not yet implemented as separate
+     styles pending that answer. */
+  --text-paragraph-xxl-font-family: var(--font-family-body);
+  --text-paragraph-xxl-font-weight: var(--font-weight-sans-regular);
+  --text-paragraph-xxl-font-size: 24px;
+  --text-paragraph-xxl-line-height: 34px;
+  --text-paragraph-xxl-paragraph-spacing: 20px;
+  --text-paragraph-xxl-letter-spacing: 0px;
+
+  --text-paragraph-xl-font-family: var(--font-family-body);
+  --text-paragraph-xl-font-weight: var(--font-weight-sans-regular);
+  --text-paragraph-xl-font-size: 22px;
+  --text-paragraph-xl-line-height: 31px;
+  --text-paragraph-xl-paragraph-spacing: 20px;
+  --text-paragraph-xl-letter-spacing: 0px;
+
+  --text-paragraph-large-font-family: var(--font-family-body);
+  --text-paragraph-large-font-weight: var(--font-weight-sans-regular);
+  --text-paragraph-large-font-size: 18px;
+  --text-paragraph-large-line-height: 29px;
+  --text-paragraph-large-paragraph-spacing: 18px;
+  --text-paragraph-large-letter-spacing: 0px;
+
+  --text-paragraph-regular-font-family: var(--font-family-body);
+  --text-paragraph-regular-font-weight: var(--font-weight-sans-regular);
+  --text-paragraph-regular-font-size: 16px;
+  --text-paragraph-regular-line-height: 24px;
+  --text-paragraph-regular-paragraph-spacing: 16px;
+  --text-paragraph-regular-letter-spacing: 0px;
+
+  --text-paragraph-small-font-family: var(--font-family-body);
+  --text-paragraph-small-font-weight: var(--font-weight-sans-regular);
+  --text-paragraph-small-font-size: 14px;
+  --text-paragraph-small-line-height: 20px;
+  --text-paragraph-small-paragraph-spacing: 14px;
+  --text-paragraph-small-letter-spacing: 0px;
+
+  --text-paragraph-mini-font-family: var(--font-family-body);
+  --text-paragraph-mini-font-weight: var(--font-weight-sans-regular);
+  --text-paragraph-mini-font-size: 12px;
+  --text-paragraph-mini-line-height: 16px;
+  --text-paragraph-mini-paragraph-spacing: 12px;
+  --text-paragraph-mini-letter-spacing: 0px;
 }
