@@ -5,3 +5,5 @@
 @import './radius.css';
 @import './stroke.css';
 @import './shadows.css';
+@import './effects/glows/glows.css';
+@import './effects/focus-rings/focus-rings.css';

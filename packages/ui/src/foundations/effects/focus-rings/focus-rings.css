@@ -1,0 +1,31 @@
+/*
+ * Foundations / Effects / Focus Rings
+ * Source: Figma effect styles "focus ring {secondary,primary,primary
+ * glow,sidebar,success,alert,error}". Effects represent interaction/
+ * emphasis, not elevation. No Raw/Base layer for Effects — these are
+ * complete, literal values.
+ *
+ * Each ring's color is preserved exactly as Figma binds it. Most reference
+ * an existing semantic color token (--ring, --ring-primary, --sidebar-ring,
+ * --ring-error) — but success and alert reference the raw tw-raw layer
+ * directly (--tw-raw-success-700, --tw-raw-alert-800) rather than their
+ * own semantic --ring-success/--ring-alert tokens, which hold different
+ * values (see colors.css). This is Figma's actual current wiring,
+ * preserved as-is rather than normalized for consistency.
+ *
+ * "primary-glow" is a distinct effect from "primary" — two layers: the
+ * same ring-primary outline, plus a soft --theme-neutrals-600 glow behind
+ * it (spread 0, blur 20).
+ */
+
+:root {
+  --effect-focus-ring-primary: 0px 0px 0px 3px var(--ring-primary);
+  --effect-focus-ring-primary-glow:
+    0px 0px 0px 3px var(--ring-primary),
+    0px 0px 20px 0px var(--theme-neutrals-600);
+  --effect-focus-ring-secondary: 0px 0px 0px 3px var(--ring);
+  --effect-focus-ring-sidebar: 0px 0px 0px 3px var(--sidebar-ring);
+  --effect-focus-ring-success: 0px 0px 0px 3px var(--tw-raw-success-700);
+  --effect-focus-ring-alert: 0px 0px 0px 3px var(--tw-raw-alert-800);
+  --effect-focus-ring-error: 0px 0px 0px 3px var(--ring-error);
+}

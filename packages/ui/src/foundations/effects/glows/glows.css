@@ -1,0 +1,23 @@
+/*
+ * Foundations / Effects / Glows
+ * Source: Figma effect styles "shadow primary-glow-1" / "shadow
+ * primary-glow-2". Effects represent interaction/emphasis, not elevation —
+ * elevation is Shadows' exclusive concern (see ../../shadows.css). These
+ * happen to be implemented as drop-shadow geometry, the same mechanism
+ * Shadows uses, but they are a distinct semantic category: visual
+ * emphasis, not surface elevation. No Raw/Base layer for Effects — these
+ * are complete, literal values.
+ *
+ * primary-glow-2's color is bound in Figma to the "Neutrals (New)"
+ * collection — per instruction, replaced here with the corresponding
+ * --theme-neutrals-* value it duplicates (Neutrals (New) is a temporary
+ * migration-layer duplicate of theme-neutrals, not a source of truth in
+ * its own right). This makes primary-glow-1 and primary-glow-2 resolve to
+ * the same color, differing only in geometry (y-offset) — preserved
+ * exactly as Figma specifies, not normalized away.
+ */
+
+:root {
+  --effect-glow-primary-1: 0px 2px 5px 0px var(--theme-neutrals-600);
+  --effect-glow-primary-2: 0px 0px 5px 0px var(--theme-neutrals-600);
+}

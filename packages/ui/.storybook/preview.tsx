@@ -75,6 +75,8 @@ const preview: Preview = {
               'Stroke',
               'Shadows',
               ['Base', 'Semantic'],
+              'Effects',
+              ['Glows', 'Focus Rings'],
               'Typography',
               [
                 'Font Definitions',
