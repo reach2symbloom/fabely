@@ -420,10 +420,12 @@ export const Manuscript: WeightStory = {
       <div>
         <TypographyPageTitle>Manuscript</TypographyPageTitle>
         <TypographyNotice>
-          Manuscript is the semantic typography layer for long-form serif reading text. Sharp
-          Serif is the current (and so far only) implementation — a single size, 22px / 31px
-          line-height (matching Paragraph XL's metric exactly), in three semantic weights:{' '}
-          <strong>Regular</strong>, <strong>Medium</strong>, and <strong>Bold</strong>.
+          Manuscript represents the semantic typography layer for long-form reading text. Sharp
+          Serif is the current default manuscript implementation. Unlike Paragraph, Manuscript
+          maintains its own semantic weight mappings and documentation. It does not inherit the
+          Paragraph (Gellix) weight definitions or implementation notes. The Manuscript semantic
+          API is intentionally designed to support future user-selectable manuscript font
+          families while remaining stable for components.
         </TypographyNotice>
 
         <TypographySectionHeading>Interactive Example</TypographySectionHeading>
@@ -439,25 +441,53 @@ export const Manuscript: WeightStory = {
         <TypographySubHeading>Sharp Serif</TypographySubHeading>
         <VariantTable rows={manuscriptSizes} weight={weight} />
 
+        <TypographySectionHeading>Manuscript Weight Mapping</TypographySectionHeading>
+        <TypographyNotice>
+          Manuscript typography represents long-form reading text. Its semantic weights are
+          resolved independently of the Paragraph typography. Manuscript does not inherit the
+          Gellix weight mappings or implementation notes. The current implementation uses Sharp
+          Serif, but the Manuscript semantic API is intentionally designed to support future
+          manuscript font families without changing the API consumed by components.
+          <br />
+          <br />
+          Regular, Medium, and Bold currently resolve through <code>
+            --font-weight-paragraph-serif-*
+          </code>{' '}
+          to Sharp Serif's own Regular (400), Medium (500), and Bold (700) faces — a mapping
+          verified against the registered <code>@font-face</code> declarations and the resolved
+          CSS custom properties, independently of any other typography group. This mapping against
+          Figma's exact Manuscript weight-token intent is still unconfirmed pending that source
+          data — flagged for verification, not asserted as final.
+        </TypographyNotice>
+
         <TypographySectionHeading>Architecture Notes</TypographySectionHeading>
         <TypographyNotice>
           <strong>Manuscript</strong> is the stable semantic layer; <strong>Sharp Serif</strong> is
           today's concrete implementation, nested beneath it. paragraph-spacing (20px) and
           letter-spacing (0px) aren't independently visible for this style in Figma's Styles panel
-          (which only shows size/line-height) — carried over from Paragraph XL's already-confirmed
-          values, since the font-size/line-height match exactly.
-          <br />
-          <br />
-          <strong>Weight mapping under review:</strong> Regular/Medium/Bold currently resolve to
-          Sharp Serif's own Regular (400) / Medium (500) / Bold (700) faces via{' '}
-          <code>--font-weight-paragraph-serif-*</code>. Flagged as unconfirmed pending Figma's
-          exact Manuscript weight-token mapping — see conversation.
+          (which only shows size/line-height) — carried over from the already-confirmed Paragraph
+          XL values, since the font-size/line-height happen to match exactly.
           <br />
           <br />
           <strong>TODO:</strong> Expand the Manuscript section to support multiple
           user-selectable manuscript fonts (e.g. Sharp Serif, Garamond, Baskerville, etc.). The
           Manuscript semantic layer should remain stable while individual manuscript font families
           become interchangeable implementations beneath it.
+          <br />
+          <br />
+          <strong>Group-Specific Documentation.</strong> Documentation should describe the
+          semantic group it belongs to. Shared controls (such as a weight selector) do not imply
+          shared semantics. Each typography group should document:
+          <ul style={{ margin: '8px 0', paddingLeft: 20 }}>
+            <li>its purpose</li>
+            <li>its semantic behavior</li>
+            <li>its implementation details (when relevant)</li>
+            <li>its architectural rationale</li>
+          </ul>
+          Paragraph and Manuscript may both expose semantic weight controls, but they represent
+          different typography systems and should evolve independently. Documentation should
+          describe the semantic layer itself rather than inheriting explanations from another
+          implementation.
         </TypographyNotice>
       </div>
     );
