@@ -1,12 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useState, type CSSProperties } from 'react';
 import { useArgs } from 'storybook/preview-api';
-import { PendingNotice, SectionHeading } from './ColorSwatchTable';
+import { EffectsNotice, EffectsSectionHeading, uiCellStyle, codeCellStyle } from './EffectsDocChrome';
 
 type Variant = 'Primary' | 'Primary Glow' | 'Secondary' | 'Sidebar' | 'Success' | 'Alert' | 'Error';
-type Surface = 'Canvas' | 'Card' | 'Sidebar';
 type Control = 'Input' | 'Button';
-type Args = { variant: Variant; surface: Surface; control: Control };
+type Args = { variant: Variant; control: Control };
 
 const meta = {
   title: 'Design System/Foundations/Effects/Focus Rings',
@@ -20,11 +19,6 @@ type Story = StoryObj<Meta<Args>>;
 const variantArgType = {
   control: { type: 'inline-radio' },
   options: ['Primary', 'Primary Glow', 'Secondary', 'Sidebar', 'Success', 'Alert', 'Error'],
-} as const;
-
-const surfaceArgType = {
-  control: { type: 'inline-radio' },
-  options: ['Canvas', 'Card', 'Sidebar'],
 } as const;
 
 const controlArgType = {
@@ -76,14 +70,7 @@ function useResolvedValue(cssVar: string) {
   return value;
 }
 
-const cellStyle: CSSProperties = {
-  padding: '10px 12px',
-  borderBottom: '1px solid var(--border)',
-  verticalAlign: 'middle',
-};
-const monoCell: CSSProperties = { ...cellStyle, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 12 };
-
-/** Generic clickable segmented control, reused for Variant/Surface/Control —
+/** Generic clickable segmented control, reused for Variant and Control —
  * same inline-args pattern established by the Typography stories (synced
  * to Storybook's Controls panel via useArgs, inline is primary). */
 function InlineSegmentedControl<T extends string>({
@@ -99,9 +86,7 @@ function InlineSegmentedControl<T extends string>({
 }) {
   return (
     <div style={{ marginBottom: 12 }}>
-      <div style={{ fontFamily: 'ui-sans-serif, system-ui, sans-serif', fontSize: 12, opacity: 0.7, marginBottom: 6 }}>
-        {label}
-      </div>
+      <div style={{ fontFamily: 'var(--font-family-sans)', fontSize: 12, opacity: 0.7, marginBottom: 6 }}>{label}</div>
       <div
         role="radiogroup"
         aria-label={label}
@@ -115,7 +100,7 @@ function InlineSegmentedControl<T extends string>({
             aria-checked={value === opt}
             onClick={() => onChange(opt)}
             style={{
-              fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+              fontFamily: 'var(--font-family-sans)',
               fontSize: 13,
               padding: '6px 14px',
               borderRadius: 6,
@@ -133,36 +118,26 @@ function InlineSegmentedControl<T extends string>({
   );
 }
 
-/** The surface the control sits on — lets designers evaluate a focus ring
- * in the contexts it actually appears in (bare canvas, a card, or the
- * sidebar itself — relevant since "Sidebar" is a real usage context, not
- * just a color name). */
-function surfaceContainerStyle(surface: Surface): CSSProperties {
-  switch (surface) {
-    case 'Canvas':
-      return { background: 'var(--background)' };
-    case 'Card':
-      return { background: 'var(--card)', border: '1px solid var(--border)' };
-    case 'Sidebar':
-      return { background: 'var(--sidebar)', border: '1px solid var(--sidebar-border)' };
-  }
-}
-
-function FocusRingPreview({ variant, surface, control }: { variant: Variant; surface: Surface; control: Control }) {
+/** Single representative specimen panel — a bordered preview panel rather
+ * than a table row, matching the Typography Interactive Example pattern.
+ * Control (Input/Button) is kept because a focus ring's whole purpose is to
+ * be applied to a focusable control — it isn't an "environmental" option
+ * the way a Surface selector would be. */
+function FocusRingPreview({ variant, control }: { variant: Variant; control: Control }) {
   const token = ringByVariant[variant];
   const shared: CSSProperties = {
     width: control === 'Input' ? 200 : 120,
     height: 40,
     borderRadius: 8,
-    fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+    fontFamily: 'var(--font-family-sans)',
     fontSize: 13,
     boxShadow: `var(${token.cssVar})`,
   };
   return (
     <div
       style={{
-        ...surfaceContainerStyle(surface),
-        borderRadius: 12,
+        border: '1px solid var(--border)',
+        borderRadius: 8,
         padding: 40,
         display: 'flex',
         alignItems: 'center',
@@ -206,7 +181,7 @@ function FocusRingRow({ token }: { token: FocusRingToken }) {
   const resolved = useResolvedValue(token.cssVar);
   return (
     <tr>
-      <td style={cellStyle}>
+      <td style={uiCellStyle}>
         <div
           style={{
             width: 64,
@@ -217,34 +192,33 @@ function FocusRingRow({ token }: { token: FocusRingToken }) {
           }}
         />
       </td>
-      <td style={cellStyle}>{token.name}</td>
-      <td style={monoCell}>{token.cssVar}</td>
-      <td style={monoCell}>{token.reference}</td>
-      <td style={monoCell}>{resolved || '…'}</td>
-      <td style={{ ...cellStyle, opacity: 0.75, fontSize: 13, maxWidth: 260 }}>{token.note ?? ''}</td>
+      <td style={uiCellStyle}>{token.name}</td>
+      <td style={codeCellStyle}>{token.cssVar}</td>
+      <td style={codeCellStyle}>{token.reference}</td>
+      <td style={codeCellStyle}>{resolved || '…'}</td>
+      <td style={{ ...uiCellStyle, opacity: 0.75, fontSize: 13, maxWidth: 260 }}>{token.note ?? ''}</td>
     </tr>
   );
 }
 
 export const Overview: Story = {
-  argTypes: { variant: variantArgType, surface: surfaceArgType, control: controlArgType },
-  args: { variant: 'Primary', surface: 'Canvas', control: 'Button' },
+  argTypes: { variant: variantArgType, control: controlArgType },
+  args: { variant: 'Primary', control: 'Button' },
   render: () => {
     const [args, updateArgs] = useArgs<Args>();
     const variant: Variant = args.variant ?? 'Primary';
-    const surface: Surface = args.surface ?? 'Canvas';
     const control: Control = args.control ?? 'Button';
     return (
       <div>
-        <PendingNotice>
+        <EffectsNotice>
           <strong>Focus Rings</strong> are semantic visual-emphasis effects for focused/active
           interactive elements — not elevation. Each ring's color is preserved exactly as Figma
           binds it: most reference an existing semantic color token; a couple reference the raw
           color layer directly (flagged per-row below) rather than their own semantic ring token,
           which is Figma's actual current wiring, not something normalized away here.
-        </PendingNotice>
+        </EffectsNotice>
 
-        <SectionHeading>Interactive Example</SectionHeading>
+        <EffectsSectionHeading>Interactive Example</EffectsSectionHeading>
         <InlineSegmentedControl
           label="Variant"
           value={variant}
@@ -252,29 +226,23 @@ export const Overview: Story = {
           onChange={(v) => updateArgs({ variant: v })}
         />
         <InlineSegmentedControl
-          label="Surface"
-          value={surface}
-          options={['Canvas', 'Card', 'Sidebar']}
-          onChange={(s) => updateArgs({ surface: s })}
-        />
-        <InlineSegmentedControl
           label="Control"
           value={control}
           options={['Input', 'Button']}
           onChange={(c) => updateArgs({ control: c })}
         />
-        <FocusRingPreview variant={variant} surface={surface} control={control} />
+        <FocusRingPreview variant={variant} control={control} />
 
-        <SectionHeading>Reference Table</SectionHeading>
+        <EffectsSectionHeading>Reference Table</EffectsSectionHeading>
         <table style={{ borderCollapse: 'collapse', width: '100%', marginBottom: 24 }}>
           <thead>
             <tr>
-              <th style={{ ...cellStyle, textAlign: 'left' }}>Preview</th>
-              <th style={{ ...cellStyle, textAlign: 'left' }}>Token</th>
-              <th style={{ ...cellStyle, textAlign: 'left' }}>CSS Variable</th>
-              <th style={{ ...cellStyle, textAlign: 'left' }}>Aliases</th>
-              <th style={{ ...cellStyle, textAlign: 'left' }}>Resolved Value</th>
-              <th style={{ ...cellStyle, textAlign: 'left' }}>Note</th>
+              <th style={{ ...uiCellStyle, textAlign: 'left' }}>Preview</th>
+              <th style={{ ...uiCellStyle, textAlign: 'left' }}>Token</th>
+              <th style={{ ...uiCellStyle, textAlign: 'left' }}>CSS Variable</th>
+              <th style={{ ...uiCellStyle, textAlign: 'left' }}>Aliases</th>
+              <th style={{ ...uiCellStyle, textAlign: 'left' }}>Resolved Value</th>
+              <th style={{ ...uiCellStyle, textAlign: 'left' }}>Note</th>
             </tr>
           </thead>
           <tbody>
@@ -284,8 +252,8 @@ export const Overview: Story = {
           </tbody>
         </table>
 
-        <SectionHeading>Architecture Notes</SectionHeading>
-        <PendingNotice>
+        <EffectsSectionHeading>Architecture Notes</EffectsSectionHeading>
+        <EffectsNotice>
           Effects represent interaction and visual emphasis; Shadows represent elevation. Focus
           rings derive their color from semantic color tokens (<code>--ring</code>,{' '}
           <code>--ring-primary</code>, <code>--sidebar-ring</code>, <code>--ring-error</code>)
@@ -295,7 +263,7 @@ export const Overview: Story = {
           contain more than one shadow layer internally; consumers should think in terms of
           semantic intent (which ring to use, for what purpose) rather than how many shadow layers
           implement it.
-        </PendingNotice>
+        </EffectsNotice>
       </div>
     );
   },
