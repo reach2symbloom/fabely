@@ -74,6 +74,13 @@ const preview: Preview = {
               ['Raw', 'Semantic'],
               'Stroke',
               'Shadows',
+              'Typography',
+              [
+                'Font Definitions',
+                'Typography Styles',
+                ['Headings', 'Paragraph', 'Manuscript', 'Captions', 'Monospaced'],
+                'All Fonts',
+              ],
             ],
           ],
         ],

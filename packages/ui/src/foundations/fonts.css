@@ -1,0 +1,245 @@
+/*
+ * Foundations / Fonts
+ * Registers the raw @font-face assets Fabely ships — Gellix, Sharp Serif,
+ * and Fira Mono. This is asset registration only, not the Typography
+ * foundation: no font-size/line-height/semantic text-style tokens live
+ * here (see typography.css). font-family names are the canonical product
+ * names of each typeface, not the (inconsistent, per-weight) names baked
+ * into the trial font files' internal name tables — every weight/style of
+ * a family is declared under the same font-family here so normal CSS
+ * font-weight/font-style selection works.
+ *
+ * Source files: fonts/Gellix, fonts/Sharp Serif, fonts/Fira_Mono (as
+ * provided). Every source .otf/.ttf was converted to .woff2 (smaller,
+ * web-optimized) via `fonttools ttLib.woff2 compress`; the .woff2 files in
+ * fonts/woff2/ are what's actually loaded — the original source files are
+ * kept as-is for reference/future re-export, not loaded by this file.
+ */
+
+/* Gellix — weights 100–900, normal + italic (16 files) */
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-thin.woff2') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-thin-italic.woff2') format('woff2');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-light-italic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-regular-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-medium-italic.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-semibold-italic.woff2') format('woff2');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-bold-italic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-extrabold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-extrabold-italic.woff2') format('woff2');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gellix';
+  src: url('./fonts/woff2/gellix-black-italic.woff2') format('woff2');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/*
+ * Sharp Serif — weights 250 (Thin), 300, 400, 500, 700, 800, normal +
+ * italic (12 files). Weight values are exactly as declared in the font
+ * files' own OS/2.usWeightClass (Thin is 250, not the usual 100 — this is
+ * the type foundry's own value, preserved as-is).
+ */
+@font-face {
+  font-family: 'Sharp Serif';
+  src: url('./fonts/woff2/sharp-serif-thin.woff2') format('woff2');
+  font-weight: 250;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sharp Serif';
+  src: url('./fonts/woff2/sharp-serif-thin-italic.woff2') format('woff2');
+  font-weight: 250;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sharp Serif';
+  src: url('./fonts/woff2/sharp-serif-light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sharp Serif';
+  src: url('./fonts/woff2/sharp-serif-light-italic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sharp Serif';
+  src: url('./fonts/woff2/sharp-serif-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sharp Serif';
+  src: url('./fonts/woff2/sharp-serif-regular-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sharp Serif';
+  src: url('./fonts/woff2/sharp-serif-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sharp Serif';
+  src: url('./fonts/woff2/sharp-serif-medium-italic.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sharp Serif';
+  src: url('./fonts/woff2/sharp-serif-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sharp Serif';
+  src: url('./fonts/woff2/sharp-serif-bold-italic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sharp Serif';
+  src: url('./fonts/woff2/sharp-serif-extrabold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sharp Serif';
+  src: url('./fonts/woff2/sharp-serif-extrabold-italic.woff2') format('woff2');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Fira Mono — weights 400, 500, 700, normal only (no italic provided) */
+@font-face {
+  font-family: 'Fira Mono';
+  src: url('./fonts/woff2/fira-mono-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Fira Mono';
+  src: url('./fonts/woff2/fira-mono-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Fira Mono';
+  src: url('./fonts/woff2/fira-mono-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
