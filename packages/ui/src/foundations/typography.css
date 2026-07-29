@@ -5,18 +5,25 @@
  * Layer 1: Font Definitions
  * The reusable typography primitives (family + semantic weight names) used
  * throughout the design system. These are the public API — components
- * reference --font-family-* / --font-weight-{family}-* rather than a raw
- * font-family string or a numeric weight. The font assets themselves
- * (@font-face, .woff2 files) are registered in fonts.css and are NOT
- * modified here.
+ * reference --font-family-* / --font-weight-* rather than a raw font-family
+ * string or a numeric weight. The font assets themselves (@font-face,
+ * .woff2 files) are registered in fonts.css and are NOT modified here.
  *
- * Weight names are semantic and scoped per family, not literal names from
- * the font files: e.g. Gellix's design-system "Bold" is implemented by the
- * Semibold face (600), not the file literally named Bold (700) — see the
- * per-family mapping below. Sharp Serif currently exposes only one weight
- * (Light); Fira Mono only Regular. No other registered faces are exposed
- * as tokens here, even though more exist in fonts.css — unused weights are
+ * Weight names are semantic, not literal names from the font files: e.g.
+ * Gellix's design-system "Bold" is implemented by the Semibold face (600),
+ * not the file literally named Bold (700). Sharp Serif's Bold is the real
+ * Bold face (700) — no substitution needed there. Only registered faces
+ * actually used by a Font Definition or Typography Style are exposed as
+ * tokens here, even though more exist in fonts.css — unused weights are
  * implementation assets, not part of the design system.
+ *
+ * Beyond the base per-family scale (--font-weight-sans-*, --font-weight-serif-*,
+ * --font-weight-mono-*), two Typography Style groups (Paragraph and
+ * Paragraph Serif — see Layer 2 below) get their own semantically-scoped
+ * weight tokens (--font-weight-paragraph-*, --font-weight-paragraph-serif-*)
+ * matching Figma's own naming for those groups exactly, since Paragraph and
+ * Paragraph Serif are distinct semantic typography groups, not weight
+ * variants bolted onto the generic Sans/Serif family scale.
  *
  * font-family-headings / font-family-body: Figma's own "font definitions"
  * collection defines these as aliases (headings -> serif, body -> sans).
@@ -35,7 +42,23 @@
  * every property below is scoped to its own --text-{style}-* namespace
  * rather than shared/reused across styles.
  *
- * Two inferences not directly shown in the Figma screenshots (flagged for
+ * Paragraph and Paragraph Serif are two separate semantic typography
+ * groups (per Figma's Styles panel), not variants of the same style:
+ *   - Paragraph: Gellix, 6 sizes (xxl/xl/large/regular/small/mini), each in
+ *     3 weights (Regular/Medium/Bold) -> 18 complete styles.
+ *   - Paragraph Serif: Sharp Serif, a single size (22px/31px, matching
+ *     Paragraph XL's metric exactly) in 3 weights (Regular/Medium/Bold) ->
+ *     3 complete styles.
+ * Every weight sibling of the same size shares identical font-size/
+ * line-height/paragraph-spacing/letter-spacing — only font-weight differs
+ * — per Figma's Styles panel (each shows the same "size/line-height"
+ * ratio across its Regular/Medium/Bold children). Paragraph Serif's
+ * paragraph-spacing/letter-spacing aren't independently visible in the
+ * Styles panel; carried over from Paragraph XL's already-confirmed values
+ * (20px / 0px) since the font-size/line-height match exactly — flagged as
+ * an inference, not a directly-confirmed value.
+ *
+ * Two inferences not directly shown in any Figma screenshot (flagged for
  * confirmation): the `monospaced` style has no explicit font-family
  * reference — assumed --font-family-mono, the only monospace family. The
  * four `caption/*` styles likewise have no explicit font-family reference —
@@ -62,6 +85,16 @@
 
   /* Font Definitions / weights — Monospace (Fira Mono) */
   --font-weight-mono-regular: 400;
+
+  /* Font Definitions / weights — Paragraph group (Gellix) */
+  --font-weight-paragraph-regular: 400;
+  --font-weight-paragraph-medium: 500;
+  --font-weight-paragraph-bold: 600; /* Semibold face */
+
+  /* Font Definitions / weights — Paragraph Serif group (Sharp Serif) */
+  --font-weight-paragraph-serif-regular: 400;
+  --font-weight-paragraph-serif-medium: 500;
+  --font-weight-paragraph-serif-bold: 700; /* real Bold face, no substitution */
 
   /* Typography Styles / Headings — font-family-headings, weight "Light
      Unlicensed Trial" (--font-weight-serif-light) for all four */
@@ -131,53 +164,143 @@
   --text-caption-lg-paragraph-spacing: 8px;
   --text-caption-lg-letter-spacing: 5px;
 
-  /* Typography Styles / Paragraph — font-family-body, weight Regular
-     (--font-weight-sans-regular) for all six. Figma also defines
-     paragraph-bold-weight (Semibold) and paragraph-medium-weight (Medium)
-     at the group level, matching the existing --font-weight-sans-bold /
-     --font-weight-sans-medium tokens — flagged for confirmation whether
-     these should produce additional bold/medium style variants per size,
-     or are just base-weight references; not yet implemented as separate
-     styles pending that answer. */
-  --text-paragraph-xxl-font-family: var(--font-family-body);
-  --text-paragraph-xxl-font-weight: var(--font-weight-sans-regular);
-  --text-paragraph-xxl-font-size: 24px;
-  --text-paragraph-xxl-line-height: 34px;
-  --text-paragraph-xxl-paragraph-spacing: 20px;
-  --text-paragraph-xxl-letter-spacing: 0px;
+  /* Typography Styles / Paragraph (Gellix) — 6 sizes x 3 weights each.
+     font-size/line-height/paragraph-spacing/letter-spacing are identical
+     across a size's three weight siblings; only font-weight differs. */
+  --text-paragraph-xxl-regular-font-family: var(--font-family-body);
+  --text-paragraph-xxl-regular-font-weight: var(--font-weight-paragraph-regular);
+  --text-paragraph-xxl-regular-font-size: 24px;
+  --text-paragraph-xxl-regular-line-height: 34px;
+  --text-paragraph-xxl-regular-paragraph-spacing: 20px;
+  --text-paragraph-xxl-regular-letter-spacing: 0px;
+  --text-paragraph-xxl-medium-font-family: var(--font-family-body);
+  --text-paragraph-xxl-medium-font-weight: var(--font-weight-paragraph-medium);
+  --text-paragraph-xxl-medium-font-size: 24px;
+  --text-paragraph-xxl-medium-line-height: 34px;
+  --text-paragraph-xxl-medium-paragraph-spacing: 20px;
+  --text-paragraph-xxl-medium-letter-spacing: 0px;
+  --text-paragraph-xxl-bold-font-family: var(--font-family-body);
+  --text-paragraph-xxl-bold-font-weight: var(--font-weight-paragraph-bold);
+  --text-paragraph-xxl-bold-font-size: 24px;
+  --text-paragraph-xxl-bold-line-height: 34px;
+  --text-paragraph-xxl-bold-paragraph-spacing: 20px;
+  --text-paragraph-xxl-bold-letter-spacing: 0px;
 
-  --text-paragraph-xl-font-family: var(--font-family-body);
-  --text-paragraph-xl-font-weight: var(--font-weight-sans-regular);
-  --text-paragraph-xl-font-size: 22px;
-  --text-paragraph-xl-line-height: 31px;
-  --text-paragraph-xl-paragraph-spacing: 20px;
-  --text-paragraph-xl-letter-spacing: 0px;
+  --text-paragraph-xl-regular-font-family: var(--font-family-body);
+  --text-paragraph-xl-regular-font-weight: var(--font-weight-paragraph-regular);
+  --text-paragraph-xl-regular-font-size: 22px;
+  --text-paragraph-xl-regular-line-height: 31px;
+  --text-paragraph-xl-regular-paragraph-spacing: 20px;
+  --text-paragraph-xl-regular-letter-spacing: 0px;
+  --text-paragraph-xl-medium-font-family: var(--font-family-body);
+  --text-paragraph-xl-medium-font-weight: var(--font-weight-paragraph-medium);
+  --text-paragraph-xl-medium-font-size: 22px;
+  --text-paragraph-xl-medium-line-height: 31px;
+  --text-paragraph-xl-medium-paragraph-spacing: 20px;
+  --text-paragraph-xl-medium-letter-spacing: 0px;
+  --text-paragraph-xl-bold-font-family: var(--font-family-body);
+  --text-paragraph-xl-bold-font-weight: var(--font-weight-paragraph-bold);
+  --text-paragraph-xl-bold-font-size: 22px;
+  --text-paragraph-xl-bold-line-height: 31px;
+  --text-paragraph-xl-bold-paragraph-spacing: 20px;
+  --text-paragraph-xl-bold-letter-spacing: 0px;
 
-  --text-paragraph-large-font-family: var(--font-family-body);
-  --text-paragraph-large-font-weight: var(--font-weight-sans-regular);
-  --text-paragraph-large-font-size: 18px;
-  --text-paragraph-large-line-height: 29px;
-  --text-paragraph-large-paragraph-spacing: 18px;
-  --text-paragraph-large-letter-spacing: 0px;
+  --text-paragraph-large-regular-font-family: var(--font-family-body);
+  --text-paragraph-large-regular-font-weight: var(--font-weight-paragraph-regular);
+  --text-paragraph-large-regular-font-size: 18px;
+  --text-paragraph-large-regular-line-height: 29px;
+  --text-paragraph-large-regular-paragraph-spacing: 18px;
+  --text-paragraph-large-regular-letter-spacing: 0px;
+  --text-paragraph-large-medium-font-family: var(--font-family-body);
+  --text-paragraph-large-medium-font-weight: var(--font-weight-paragraph-medium);
+  --text-paragraph-large-medium-font-size: 18px;
+  --text-paragraph-large-medium-line-height: 29px;
+  --text-paragraph-large-medium-paragraph-spacing: 18px;
+  --text-paragraph-large-medium-letter-spacing: 0px;
+  --text-paragraph-large-bold-font-family: var(--font-family-body);
+  --text-paragraph-large-bold-font-weight: var(--font-weight-paragraph-bold);
+  --text-paragraph-large-bold-font-size: 18px;
+  --text-paragraph-large-bold-line-height: 29px;
+  --text-paragraph-large-bold-paragraph-spacing: 18px;
+  --text-paragraph-large-bold-letter-spacing: 0px;
 
-  --text-paragraph-regular-font-family: var(--font-family-body);
-  --text-paragraph-regular-font-weight: var(--font-weight-sans-regular);
-  --text-paragraph-regular-font-size: 16px;
-  --text-paragraph-regular-line-height: 24px;
-  --text-paragraph-regular-paragraph-spacing: 16px;
-  --text-paragraph-regular-letter-spacing: 0px;
+  --text-paragraph-regular-regular-font-family: var(--font-family-body);
+  --text-paragraph-regular-regular-font-weight: var(--font-weight-paragraph-regular);
+  --text-paragraph-regular-regular-font-size: 16px;
+  --text-paragraph-regular-regular-line-height: 24px;
+  --text-paragraph-regular-regular-paragraph-spacing: 16px;
+  --text-paragraph-regular-regular-letter-spacing: 0px;
+  --text-paragraph-regular-medium-font-family: var(--font-family-body);
+  --text-paragraph-regular-medium-font-weight: var(--font-weight-paragraph-medium);
+  --text-paragraph-regular-medium-font-size: 16px;
+  --text-paragraph-regular-medium-line-height: 24px;
+  --text-paragraph-regular-medium-paragraph-spacing: 16px;
+  --text-paragraph-regular-medium-letter-spacing: 0px;
+  --text-paragraph-regular-bold-font-family: var(--font-family-body);
+  --text-paragraph-regular-bold-font-weight: var(--font-weight-paragraph-bold);
+  --text-paragraph-regular-bold-font-size: 16px;
+  --text-paragraph-regular-bold-line-height: 24px;
+  --text-paragraph-regular-bold-paragraph-spacing: 16px;
+  --text-paragraph-regular-bold-letter-spacing: 0px;
 
-  --text-paragraph-small-font-family: var(--font-family-body);
-  --text-paragraph-small-font-weight: var(--font-weight-sans-regular);
-  --text-paragraph-small-font-size: 14px;
-  --text-paragraph-small-line-height: 20px;
-  --text-paragraph-small-paragraph-spacing: 14px;
-  --text-paragraph-small-letter-spacing: 0px;
+  --text-paragraph-small-regular-font-family: var(--font-family-body);
+  --text-paragraph-small-regular-font-weight: var(--font-weight-paragraph-regular);
+  --text-paragraph-small-regular-font-size: 14px;
+  --text-paragraph-small-regular-line-height: 20px;
+  --text-paragraph-small-regular-paragraph-spacing: 14px;
+  --text-paragraph-small-regular-letter-spacing: 0px;
+  --text-paragraph-small-medium-font-family: var(--font-family-body);
+  --text-paragraph-small-medium-font-weight: var(--font-weight-paragraph-medium);
+  --text-paragraph-small-medium-font-size: 14px;
+  --text-paragraph-small-medium-line-height: 20px;
+  --text-paragraph-small-medium-paragraph-spacing: 14px;
+  --text-paragraph-small-medium-letter-spacing: 0px;
+  --text-paragraph-small-bold-font-family: var(--font-family-body);
+  --text-paragraph-small-bold-font-weight: var(--font-weight-paragraph-bold);
+  --text-paragraph-small-bold-font-size: 14px;
+  --text-paragraph-small-bold-line-height: 20px;
+  --text-paragraph-small-bold-paragraph-spacing: 14px;
+  --text-paragraph-small-bold-letter-spacing: 0px;
 
-  --text-paragraph-mini-font-family: var(--font-family-body);
-  --text-paragraph-mini-font-weight: var(--font-weight-sans-regular);
-  --text-paragraph-mini-font-size: 12px;
-  --text-paragraph-mini-line-height: 16px;
-  --text-paragraph-mini-paragraph-spacing: 12px;
-  --text-paragraph-mini-letter-spacing: 0px;
+  --text-paragraph-mini-regular-font-family: var(--font-family-body);
+  --text-paragraph-mini-regular-font-weight: var(--font-weight-paragraph-regular);
+  --text-paragraph-mini-regular-font-size: 12px;
+  --text-paragraph-mini-regular-line-height: 16px;
+  --text-paragraph-mini-regular-paragraph-spacing: 12px;
+  --text-paragraph-mini-regular-letter-spacing: 0px;
+  --text-paragraph-mini-medium-font-family: var(--font-family-body);
+  --text-paragraph-mini-medium-font-weight: var(--font-weight-paragraph-medium);
+  --text-paragraph-mini-medium-font-size: 12px;
+  --text-paragraph-mini-medium-line-height: 16px;
+  --text-paragraph-mini-medium-paragraph-spacing: 12px;
+  --text-paragraph-mini-medium-letter-spacing: 0px;
+  --text-paragraph-mini-bold-font-family: var(--font-family-body);
+  --text-paragraph-mini-bold-font-weight: var(--font-weight-paragraph-bold);
+  --text-paragraph-mini-bold-font-size: 12px;
+  --text-paragraph-mini-bold-line-height: 16px;
+  --text-paragraph-mini-bold-paragraph-spacing: 12px;
+  --text-paragraph-mini-bold-letter-spacing: 0px;
+
+  /* Typography Styles / Paragraph Serif (Sharp Serif) — a single size
+     (matching Paragraph XL's 22px/31px metric exactly) in 3 weights.
+     paragraph-spacing/letter-spacing carried over from Paragraph XL — see
+     header note. */
+  --text-paragraph-serif-regular-font-family: var(--font-family-serif);
+  --text-paragraph-serif-regular-font-weight: var(--font-weight-paragraph-serif-regular);
+  --text-paragraph-serif-regular-font-size: 22px;
+  --text-paragraph-serif-regular-line-height: 31px;
+  --text-paragraph-serif-regular-paragraph-spacing: 20px;
+  --text-paragraph-serif-regular-letter-spacing: 0px;
+  --text-paragraph-serif-medium-font-family: var(--font-family-serif);
+  --text-paragraph-serif-medium-font-weight: var(--font-weight-paragraph-serif-medium);
+  --text-paragraph-serif-medium-font-size: 22px;
+  --text-paragraph-serif-medium-line-height: 31px;
+  --text-paragraph-serif-medium-paragraph-spacing: 20px;
+  --text-paragraph-serif-medium-letter-spacing: 0px;
+  --text-paragraph-serif-bold-font-family: var(--font-family-serif);
+  --text-paragraph-serif-bold-font-weight: var(--font-weight-paragraph-serif-bold);
+  --text-paragraph-serif-bold-font-size: 22px;
+  --text-paragraph-serif-bold-line-height: 31px;
+  --text-paragraph-serif-bold-paragraph-spacing: 20px;
+  --text-paragraph-serif-bold-letter-spacing: 0px;
 }

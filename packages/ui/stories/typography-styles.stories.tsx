@@ -2,6 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useState, type CSSProperties } from 'react';
 import { PendingNotice, SectionHeading } from './ColorSwatchTable';
 
+type Weight = 'Regular' | 'Medium' | 'Bold';
+type WeightArgs = { weight: Weight };
+
 const meta = {
   title: 'Design System/Foundations/Typography/Typography Styles',
   tags: ['ai-generated'],
@@ -10,69 +13,12 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+type WeightStory = StoryObj<Meta<WeightArgs>>;
 
-type TextStyle = {
-  /** Display name, e.g. "Heading 1" */
-  name: string;
-  /** Slug used in the --text-{slug}-* CSS variable names, e.g. "heading-1" */
-  slug: string;
-  /** Semantic weight label as documented in Layer 1, e.g. "Serif / Light" */
-  weightLabel: string;
-  /** Free-form note, e.g. an inference flagged for confirmation */
-  note?: string;
-};
-
-const headings: TextStyle[] = [
-  { name: 'Heading 1', slug: 'heading-1', weightLabel: 'Headings / Light' },
-  { name: 'Heading 2', slug: 'heading-2', weightLabel: 'Headings / Light' },
-  { name: 'Heading 3', slug: 'heading-3', weightLabel: 'Headings / Light' },
-  { name: 'Heading 4', slug: 'heading-4', weightLabel: 'Headings / Light' },
-];
-
-const monospaced: TextStyle[] = [
-  {
-    name: 'Monospaced',
-    slug: 'monospaced',
-    weightLabel: 'Mono / Regular',
-    note: 'font-family inferred: Figma shows no explicit reference — assumed --font-family-mono (the only monospace family)',
-  },
-];
-
-const captions: TextStyle[] = [
-  {
-    name: 'Caption Mini',
-    slug: 'caption-mini',
-    weightLabel: 'Body / Medium',
-    note: 'font-family inferred: Figma shows no explicit reference — assumed --font-family-body',
-  },
-  {
-    name: 'Caption Sm',
-    slug: 'caption-sm',
-    weightLabel: 'Body / Medium',
-    note: 'font-family inferred: Figma shows no explicit reference — assumed --font-family-body',
-  },
-  {
-    name: 'Caption Md',
-    slug: 'caption-md',
-    weightLabel: 'Body / Medium',
-    note: 'font-family inferred: Figma shows no explicit reference — assumed --font-family-body',
-  },
-  {
-    name: 'Caption Lg',
-    slug: 'caption-lg',
-    weightLabel: 'Body / Medium',
-    note: 'font-family inferred: Figma shows no explicit reference — assumed --font-family-body',
-  },
-];
-
-const paragraphs: TextStyle[] = [
-  { name: 'Paragraph XXL', slug: 'paragraph-xxl', weightLabel: 'Body / Regular' },
-  { name: 'Paragraph XL', slug: 'paragraph-xl', weightLabel: 'Body / Regular' },
-  { name: 'Paragraph Large', slug: 'paragraph-large', weightLabel: 'Body / Regular' },
-  { name: 'Paragraph Regular', slug: 'paragraph-regular', weightLabel: 'Body / Regular' },
-  { name: 'Paragraph Small', slug: 'paragraph-small', weightLabel: 'Body / Regular' },
-  { name: 'Paragraph Mini', slug: 'paragraph-mini', weightLabel: 'Body / Regular' },
-];
+const weightArgType = {
+  control: { type: 'radio' },
+  options: ['Regular', 'Medium', 'Bold'],
+} as const;
 
 function useResolvedValue(cssVar: string) {
   const [value, setValue] = useState('');
@@ -100,22 +46,48 @@ const cellStyle: CSSProperties = {
 };
 const monoCell: CSSProperties = { ...cellStyle, fontFamily: 'ui-monospace, monospace', fontSize: 12 };
 
-function Row({ style }: { style: TextStyle }) {
+function specimenStyle(slug: string): CSSProperties {
+  return {
+    ...cellStyle,
+    fontFamily: `var(--text-${slug}-font-family)`,
+    fontWeight: `var(--text-${slug}-font-weight)`,
+    fontSize: `var(--text-${slug}-font-size)`,
+    lineHeight: `var(--text-${slug}-line-height)`,
+    letterSpacing: `var(--text-${slug}-letter-spacing)`,
+  };
+}
+
+function tableHead(extraCols: string[] = []) {
+  return (
+    <thead>
+      <tr>
+        <th style={{ ...cellStyle, textAlign: 'left' }}>Specimen</th>
+        <th style={{ ...cellStyle, textAlign: 'left' }}>Style</th>
+        <th style={{ ...cellStyle, textAlign: 'left' }}>Font Family</th>
+        <th style={{ ...cellStyle, textAlign: 'left' }}>Weight</th>
+        <th style={{ ...cellStyle, textAlign: 'left' }}>Size</th>
+        <th style={{ ...cellStyle, textAlign: 'left' }}>Line Height</th>
+        <th style={{ ...cellStyle, textAlign: 'left' }}>Para. Spacing</th>
+        <th style={{ ...cellStyle, textAlign: 'left' }}>Letter Spacing</th>
+        {extraCols.map((c) => (
+          <th key={c} style={{ ...cellStyle, textAlign: 'left' }}>
+            {c}
+          </th>
+        ))}
+      </tr>
+    </thead>
+  );
+}
+
+/* ---------- Fixed styles (no weight variants): Headings, Caption, Monospaced ---------- */
+
+type FixedStyle = { name: string; slug: string; weightLabel: string; note?: string };
+
+function FixedRow({ style }: { style: FixedStyle }) {
   const v = useStyleValues(style.slug);
   return (
     <tr>
-      <td
-        style={{
-          ...cellStyle,
-          fontFamily: `var(--text-${style.slug}-font-family)`,
-          fontWeight: `var(--text-${style.slug}-font-weight)`,
-          fontSize: `var(--text-${style.slug}-font-size)`,
-          lineHeight: `var(--text-${style.slug}-line-height)`,
-          letterSpacing: `var(--text-${style.slug}-letter-spacing)`,
-        }}
-      >
-        The quick brown fox jumps
-      </td>
+      <td style={specimenStyle(style.slug)}>The quick brown fox jumps</td>
       <td style={monoCell}>{style.name}</td>
       <td style={monoCell}>{v.fontFamily || '…'}</td>
       <td style={monoCell}>
@@ -131,32 +103,116 @@ function Row({ style }: { style: TextStyle }) {
   );
 }
 
-function StyleTable({ rows }: { rows: TextStyle[] }) {
+function FixedTable({ rows }: { rows: FixedStyle[] }) {
   return (
     <table style={{ borderCollapse: 'collapse', width: '100%', marginBottom: 24 }}>
-      <thead>
-        <tr>
-          <th style={{ ...cellStyle, textAlign: 'left' }}>Specimen</th>
-          <th style={{ ...cellStyle, textAlign: 'left' }}>Style</th>
-          <th style={{ ...cellStyle, textAlign: 'left' }}>Font Family</th>
-          <th style={{ ...cellStyle, textAlign: 'left' }}>Weight</th>
-          <th style={{ ...cellStyle, textAlign: 'left' }}>Size</th>
-          <th style={{ ...cellStyle, textAlign: 'left' }}>Line Height</th>
-          <th style={{ ...cellStyle, textAlign: 'left' }}>Para. Spacing</th>
-          <th style={{ ...cellStyle, textAlign: 'left' }}>Letter Spacing</th>
-          <th style={{ ...cellStyle, textAlign: 'left' }}>Note</th>
-        </tr>
-      </thead>
+      {tableHead(['Note'])}
       <tbody>
         {rows.map((r) => (
-          <Row key={r.slug} style={r} />
+          <FixedRow key={r.slug} style={r} />
         ))}
       </tbody>
     </table>
   );
 }
 
-export const AllStyles: Story = {
+const headings: FixedStyle[] = [
+  { name: 'Heading 1', slug: 'heading-1', weightLabel: 'Headings / Light' },
+  { name: 'Heading 2', slug: 'heading-2', weightLabel: 'Headings / Light' },
+  { name: 'Heading 3', slug: 'heading-3', weightLabel: 'Headings / Light' },
+  { name: 'Heading 4', slug: 'heading-4', weightLabel: 'Headings / Light' },
+];
+
+const monospaced: FixedStyle[] = [
+  {
+    name: 'Monospaced',
+    slug: 'monospaced',
+    weightLabel: 'Mono / Regular',
+    note: 'font-family inferred: Figma shows no explicit reference — assumed --font-family-mono (the only monospace family)',
+  },
+];
+
+const captions: FixedStyle[] = [
+  {
+    name: 'Caption Mini',
+    slug: 'caption-mini',
+    weightLabel: 'Body / Medium',
+    note: 'font-family inferred: Figma shows no explicit reference — assumed --font-family-body',
+  },
+  {
+    name: 'Caption Sm',
+    slug: 'caption-sm',
+    weightLabel: 'Body / Medium',
+    note: 'font-family inferred: Figma shows no explicit reference — assumed --font-family-body',
+  },
+  {
+    name: 'Caption Md',
+    slug: 'caption-md',
+    weightLabel: 'Body / Medium',
+    note: 'font-family inferred: Figma shows no explicit reference — assumed --font-family-body',
+  },
+  {
+    name: 'Caption Lg',
+    slug: 'caption-lg',
+    weightLabel: 'Body / Medium',
+    note: 'font-family inferred: Figma shows no explicit reference — assumed --font-family-body',
+  },
+];
+
+/* ---------- Variant styles (Weight is a Storybook Arg, mirroring the Figma
+   variant property): Paragraph, Paragraph Serif ---------- */
+
+function weightSlug(weight: Weight) {
+  return weight.toLowerCase();
+}
+
+function VariantRow({ name, baseSlug, weight }: { name: string; baseSlug: string; weight: Weight }) {
+  const slug = `${baseSlug}-${weightSlug(weight)}`;
+  const v = useStyleValues(slug);
+  return (
+    <tr>
+      <td style={specimenStyle(slug)}>The quick brown fox jumps</td>
+      <td style={monoCell}>{name}</td>
+      <td style={monoCell}>{v.fontFamily || '…'}</td>
+      <td style={monoCell}>
+        {weight}
+        <br />({v.fontWeight || '…'})
+      </td>
+      <td style={monoCell}>{v.fontSize || '…'}</td>
+      <td style={monoCell}>{v.lineHeight || '…'}</td>
+      <td style={monoCell}>{v.paragraphSpacing || '…'}</td>
+      <td style={monoCell}>{v.letterSpacing || '…'}</td>
+    </tr>
+  );
+}
+
+function VariantTable({ rows, weight }: { rows: { name: string; slug: string }[]; weight: Weight }) {
+  return (
+    <table style={{ borderCollapse: 'collapse', width: '100%', marginBottom: 24 }}>
+      {tableHead()}
+      <tbody>
+        {rows.map((r) => (
+          <VariantRow key={r.slug} name={r.name} baseSlug={r.slug} weight={weight} />
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+const paragraphSizes: { name: string; slug: string }[] = [
+  { name: 'Paragraph XXL', slug: 'paragraph-xxl' },
+  { name: 'Paragraph XL', slug: 'paragraph-xl' },
+  { name: 'Paragraph Large', slug: 'paragraph-large' },
+  { name: 'Paragraph Regular', slug: 'paragraph-regular' },
+  { name: 'Paragraph Small', slug: 'paragraph-small' },
+  { name: 'Paragraph Mini', slug: 'paragraph-mini' },
+];
+
+const paragraphSerifSizes: { name: string; slug: string }[] = [{ name: 'Paragraph Serif', slug: 'paragraph-serif' }];
+
+/* ---------- Stories ---------- */
+
+export const Headings: Story = {
   render: () => (
     <div>
       <PendingNotice>
@@ -164,35 +220,88 @@ export const AllStyles: Story = {
         one owns its full definition (font family, weight, size, line-height, paragraph-spacing,
         letter-spacing) as a single <code>--text-{'{style}'}-*</code> namespace. There are no
         reusable raw font-size/line-height/paragraph-spacing/letter-spacing tokens: those values
-        only have meaning as part of a complete style, so nothing here is shared/reused across
-        styles the way <code>--font-family-*</code> / <code>--font-weight-*</code> are in Layer 1.
+        only have meaning as part of a complete style.
         <br />
         <br />
-        Values are preserved exactly as Figma specifies, including ones that may look unusual:{' '}
-        <code>caption-md</code>/<code>caption-lg</code>'s 5px letter-spacing, and{' '}
-        <code>heading-3</code>'s 28.8px line-height.
-        <br />
-        <br />
-        <strong>Flagged for confirmation:</strong> Figma's "font definitions" group also defines{' '}
-        <code>paragraph-bold-weight</code> (Semibold) and <code>paragraph-medium-weight</code>{' '}
-        (Medium) alongside the base <code>paragraph-weight</code> (Regular) used below. It's not
-        clear whether these should produce additional bold/medium style variants per paragraph
-        size, or are just base-weight references for inline emphasis — not implemented as
-        separate styles pending that answer. Two font-family inferences are also flagged
-        per-row below (<code>monospaced</code>, <code>caption/*</code>).
+        Headings, Caption, and Monospaced have no weight variants — each is a single fixed style.
+        Paragraph and Paragraph Serif do have weight variants (Regular/Medium/Bold); see those
+        pages for a live <strong>Weight</strong> control mirroring Figma's variant model, where
+        weight is a property of the style rather than a separate top-level style.
       </PendingNotice>
 
       <SectionHeading>Typography Styles / Headings</SectionHeading>
-      <StyleTable rows={headings} />
+      <FixedTable rows={headings} />
+    </div>
+  ),
+};
 
-      <SectionHeading>Typography Styles / Paragraph</SectionHeading>
-      <StyleTable rows={paragraphs} />
+export const Paragraph: WeightStory = {
+  argTypes: { weight: weightArgType },
+  args: { weight: 'Regular' },
+  render: (args) => {
+    const weight = args.weight;
+    return (
+      <div>
+        <PendingNotice>
+          <strong>Paragraph</strong> (Gellix). 6 sizes (XXL/XL/Large/Regular/Small/Mini), each
+          available in 3 weights per Figma's Styles panel — Regular, Medium, and Bold (the Bold
+          variant is implemented with the Gellix <em>Semibold</em> face, 600, not the file
+          literally named Bold). Use the <strong>Weight</strong> control below to switch all six
+          specimens at once, mirroring Figma's variant property (weight is a property of the
+          style, not a separate style). Font-size, line-height, paragraph-spacing, and
+          letter-spacing are identical across a size's three weight siblings — only font-weight
+          changes.
+        </PendingNotice>
 
+        <SectionHeading>Typography Styles / Paragraph</SectionHeading>
+        <VariantTable rows={paragraphSizes} weight={weight} />
+      </div>
+    );
+  },
+};
+
+export const ParagraphSerif: WeightStory = {
+  argTypes: { weight: weightArgType },
+  args: { weight: 'Regular' },
+  render: (args) => {
+    const weight = args.weight;
+    return (
+      <div>
+        <PendingNotice>
+          <strong>Paragraph Serif</strong> (Sharp Serif). A single size — 22px / 31px line-height,
+          matching Paragraph XL's metric exactly — available in 3 weights per Figma's Styles
+          panel: Regular, Medium, and Bold (Sharp Serif's real Bold face, 700 — no substitution
+          needed, unlike Paragraph's Gellix Bold). Use the <strong>Weight</strong> control below
+          to switch the specimen, mirroring Figma's variant property.
+          <br />
+          <br />
+          <strong>Inference flagged:</strong> paragraph-spacing (20px) and letter-spacing (0px)
+          aren't independently visible for this style in Figma's Styles panel (which only shows
+          size/line-height) — carried over from Paragraph XL's already-confirmed values, since the
+          font-size/line-height match exactly.
+        </PendingNotice>
+
+        <SectionHeading>Typography Styles / Paragraph Serif</SectionHeading>
+        <VariantTable rows={paragraphSerifSizes} weight={weight} />
+      </div>
+    );
+  },
+};
+
+export const Caption: Story = {
+  render: () => (
+    <div>
       <SectionHeading>Typography Styles / Caption</SectionHeading>
-      <StyleTable rows={captions} />
+      <FixedTable rows={captions} />
+    </div>
+  ),
+};
 
+export const Monospaced: Story = {
+  render: () => (
+    <div>
       <SectionHeading>Typography Styles / Monospaced</SectionHeading>
-      <StyleTable rows={monospaced} />
+      <FixedTable rows={monospaced} />
     </div>
   ),
 };
