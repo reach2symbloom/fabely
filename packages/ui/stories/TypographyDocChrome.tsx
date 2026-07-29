@@ -11,7 +11,12 @@ import type { CSSProperties, ReactNode } from 'react';
  * demonstrate what Sharp Serif (or a Heading style built on it) looks like.
  */
 
-const uiFont: CSSProperties = { fontFamily: 'var(--font-family-sans)' };
+// Regular weight by default everywhere in this chrome — documentation should
+// read as quiet and editorial, not typographically loud. Bold is reserved for
+// genuine inline emphasis within prose (<strong> inside TypographyNotice),
+// not applied structurally to headings/headers/labels just because they're
+// headings/headers/labels.
+const uiFont: CSSProperties = { fontFamily: 'var(--font-family-sans)', fontWeight: 'var(--font-weight-sans-regular)' };
 
 export function TypographySectionHeading({ children }: { children: ReactNode }) {
   return <h3 style={{ ...uiFont, fontSize: 15, marginTop: 32 }}>{children}</h3>;
@@ -21,7 +26,7 @@ export function TypographySectionHeading({ children }: { children: ReactNode }) 
  * Serif" under a "Manuscript" section — the semantic layer name stays stable
  * while the concrete font family beneath it is called out as swappable. */
 export function TypographySubHeading({ children }: { children: ReactNode }) {
-  return <h4 style={{ ...uiFont, fontSize: 13, fontWeight: 500, opacity: 0.75, marginTop: 4, marginBottom: 8 }}>{children}</h4>;
+  return <h4 style={{ ...uiFont, fontSize: 13, opacity: 0.75, marginTop: 4, marginBottom: 8 }}>{children}</h4>;
 }
 
 export function TypographyNotice({ children }: { children: ReactNode }) {
