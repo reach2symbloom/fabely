@@ -435,10 +435,21 @@ export const Manuscript: WeightStory = {
           onChange={(w) => updateArgs({ weight: w })}
           ariaLabel="Weight"
         />
+        <div
+          style={{
+            fontFamily: 'var(--font-family-sans)',
+            fontWeight: 'var(--font-weight-sans-regular)',
+            fontSize: 13,
+            opacity: 0.7,
+            marginBottom: 8,
+          }}
+        >
+          <strong>Manuscript Font</strong> — User-selected (Sharp Serif is the current default)
+        </div>
         <LiveSpecimenPanel slug={`paragraph-serif-${weightSlug(weight)}`} />
 
         <TypographySectionHeading>Reference Table</TypographySectionHeading>
-        <TypographySubHeading>Sharp Serif</TypographySubHeading>
+        <TypographySubHeading>Current Implementation</TypographySubHeading>
         <VariantTable rows={manuscriptSizes} weight={weight} />
 
         <TypographySectionHeading>Manuscript Weight Mapping</TypographySectionHeading>
@@ -450,18 +461,24 @@ export const Manuscript: WeightStory = {
           manuscript font families without changing the API consumed by components.
           <br />
           <br />
-          Regular, Medium, and Bold currently resolve through <code>
-            --font-weight-paragraph-serif-*
-          </code>{' '}
-          to Sharp Serif's own Regular (400), Medium (500), and Bold (700) faces — a mapping
-          verified against the registered <code>@font-face</code> declarations and the resolved
-          CSS custom properties, independently of any other typography group. This mapping against
-          Figma's exact Manuscript weight-token intent is still unconfirmed pending that source
-          data — flagged for verification, not asserted as final.
+          Regular and Medium resolve through <code>--font-weight-paragraph-serif-*</code> to
+          Sharp Serif's own Regular (400) and Medium (500) faces. Bold requests semi-bold (600)
+          — but Sharp Serif has no face registered at 600 (only 250/300/400/500/700/800), so the
+          browser's own font-weight matching substitutes the nearest heavier available face
+          (700, Bold) to satisfy that request. The <em>requested</em> weight and the{' '}
+          <em>rendered</em> face are therefore not the same number right now — flagged here
+          rather than left silent, pending either a true semi-bold Sharp Serif file or an explicit
+          decision to map Bold to an existing lighter face instead.
         </TypographyNotice>
 
         <TypographySectionHeading>Architecture Notes</TypographySectionHeading>
         <TypographyNotice>
+          The Manuscript semantic typography layer is designed to support user-selectable
+          manuscript font families. This page documents the currently active implementation
+          (Sharp Serif by default), while the semantic API remains stable regardless of which
+          manuscript font is selected.
+          <br />
+          <br />
           <strong>Manuscript</strong> is the stable semantic layer; <strong>Sharp Serif</strong> is
           today's concrete implementation, nested beneath it. paragraph-spacing (20px) and
           letter-spacing (0px) aren't independently visible for this style in Figma's Styles panel

@@ -11,11 +11,14 @@
  *
  * Weight names are semantic, not literal names from the font files: e.g.
  * Gellix's design-system "Bold" is implemented by the Semibold face (600),
- * not the file literally named Bold (700). Sharp Serif's Bold is the real
- * Bold face (700) — no substitution needed there. Only registered faces
- * actually used by a Font Definition or Typography Style are exposed as
- * tokens here, even though more exist in fonts.css — unused weights are
- * implementation assets, not part of the design system.
+ * not the file literally named Bold (700). Sharp Serif's Manuscript "Bold"
+ * requests weight 600 too (semi-bold) — Sharp Serif has no registered 600
+ * face (only 250/300/400/500/700/800), so verify what the browser actually
+ * matches this to rather than assuming it renders identically to the
+ * 700 Bold face. Only registered faces actually used by a Font Definition
+ * or Typography Style are exposed as tokens here, even though more exist in
+ * fonts.css — unused weights are implementation assets, not part of the
+ * design system.
  *
  * Beyond the base per-family scale (--font-weight-sans-*, --font-weight-serif-*,
  * --font-weight-mono-*), two Typography Style groups (Paragraph and
@@ -94,7 +97,9 @@
   /* Font Definitions / weights — Paragraph Serif group (Sharp Serif) */
   --font-weight-paragraph-serif-regular: 400;
   --font-weight-paragraph-serif-medium: 500;
-  --font-weight-paragraph-serif-bold: 700; /* real Bold face, no substitution */
+  --font-weight-paragraph-serif-bold: 600; /* Semibold weight — Sharp Serif has no
+     registered 600 face (only 250/300/400/500/700/800); verify what the browser
+     actually matches this to before treating it as equivalent to Bold-700. */
 
   /* Typography Styles / Headings — font-family-headings, weight "Light
      Unlicensed Trial" (--font-weight-serif-light) for all four */
