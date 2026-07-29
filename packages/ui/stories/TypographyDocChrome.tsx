@@ -18,13 +18,20 @@ import type { CSSProperties, ReactNode } from 'react';
 // headings/headers/labels.
 const uiFont: CSSProperties = { fontFamily: 'var(--font-family-sans)', fontWeight: 'var(--font-weight-sans-regular)' };
 
+/** Top-of-page title for a dedicated Typography Styles page (Headings,
+ * Paragraph, Manuscript, Captions, Monospaced, All Styles) — each is now its
+ * own Storybook story/page rather than a subsection of one combined page. */
+export function TypographyPageTitle({ children }: { children: ReactNode }) {
+  return <h2 style={{ ...uiFont, fontSize: 20, marginBottom: 16 }}>{children}</h2>;
+}
+
+/** Subsection label within a page, e.g. "Interactive Example", "Reference
+ * Table", "Architecture Notes" — or a nested implementation label beneath a
+ * subsection, e.g. "Sharp Serif" under Manuscript's reference table. */
 export function TypographySectionHeading({ children }: { children: ReactNode }) {
   return <h3 style={{ ...uiFont, fontSize: 15, marginTop: 32 }}>{children}</h3>;
 }
 
-/** Nested implementation label beneath a semantic SectionHeading, e.g. "Sharp
- * Serif" under a "Manuscript" section — the semantic layer name stays stable
- * while the concrete font family beneath it is called out as swappable. */
 export function TypographySubHeading({ children }: { children: ReactNode }) {
   return <h4 style={{ ...uiFont, fontSize: 13, opacity: 0.75, marginTop: 4, marginBottom: 8 }}>{children}</h4>;
 }

@@ -75,7 +75,12 @@ const preview: Preview = {
               'Stroke',
               'Shadows',
               'Typography',
-              ['Font Definitions', 'Typography Styles', 'All Fonts'],
+              [
+                'Font Definitions',
+                'Typography Styles',
+                ['All Styles', 'Headings', 'Paragraph', 'Manuscript', 'Captions', 'Monospaced'],
+                'All Fonts',
+              ],
             ],
           ],
         ],
