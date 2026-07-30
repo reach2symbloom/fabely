@@ -1,8 +1,13 @@
 import type { Preview } from '@storybook/react-vite'
 import { useEffect } from 'react'
-import '../src/foundations/index.css'
+import '../src/styles/globals.css'
 import './theme.css'
 
+// globals.css pulls in Tailwind (`@import 'tailwindcss'`) and Foundations
+// (`@import '../foundations/index.css'`) together, so shadcn/Tailwind-based
+// components under src/components/ui render styled the same way they will
+// in the app, not just Foundations' plain CSS custom properties.
+//
 // Fabely's real theme mechanism is the `.dark` class toggled on the document
 // root (see src/styles/globals.css: `@custom-variant dark (&:is(.dark *))`).
 // This decorator drives that same class from a Storybook global (flipped by
@@ -85,11 +90,13 @@ const preview: Preview = {
                 'All Fonts',
               ],
             ],
-            // Atoms and Molecules are placeholder categories (see atoms.stories.tsx /
-            // molecules.stories.tsx) — empty scaffolding until the atoms-shadcn-import
-            // branch's first component imports land. Organisms/Templates intentionally
-            // not added yet.
+            // Atoms and Molecules start as placeholder categories (see
+            // atoms.stories.tsx / molecules.stories.tsx) and gain real
+            // component sub-entries as they're imported — e.g. Avatar (see
+            // src/atoms/avatar/avatar.stories.tsx). Organisms/Templates
+            // intentionally not added yet.
             'Atoms',
+            ['Avatar'],
             'Molecules',
           ],
         ],
