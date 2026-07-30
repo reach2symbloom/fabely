@@ -92,11 +92,16 @@ const preview: Preview = {
             ],
             // Atoms and Molecules start as placeholder categories (see
             // atoms.stories.tsx / molecules.stories.tsx) and gain real
-            // component sub-entries as they're imported — e.g. Avatar (see
-            // src/atoms/avatar/avatar.stories.tsx). Organisms/Templates
+            // component sub-entries as they're imported. Every component
+            // follows the same page order (see docs/DESIGN.md "Component
+            // Story Structure"): Overview always first, then each canonical
+            // example as its own focused page. Organisms/Templates
             // intentionally not added yet.
             'Atoms',
-            ['Avatar'],
+            [
+              'Avatar',
+              ['Overview', 'Default', 'With Image', 'Fallback', 'Several Fallback Initials'],
+            ],
             'Molecules',
           ],
         ],
