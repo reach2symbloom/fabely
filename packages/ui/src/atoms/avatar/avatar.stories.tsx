@@ -274,6 +274,87 @@ function GroupWithBadgesExample() {
   );
 }
 
+/** A visually distinct callout for documenting deliberate scope limits —
+ * so a limitation reads as "known and intentional" rather than looking
+ * like an unfinished implementation to someone browsing Storybook. */
+function LimitationNotice({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex gap-2 rounded-lg border border-dashed border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+      <span aria-hidden="true">⚠️</span>
+      <span>{children}</span>
+    </div>
+  );
+}
+
+/** The Gradient variant — a single `gradient` prop on Avatar itself (not a
+ * separate prop on AvatarImage/AvatarFallback), since the ring + glow
+ * treatment lives on the avatar's own outer frame in Figma, not the
+ * content inside it — so one prop already produces the correct result for
+ * both content types. Figma only authored Gradient for the Round shape —
+ * combined with `shape="roundrect"`, `gradient` is a no-op by design (see
+ * avatar.tsx's gradientClasses comment for why: the glow's fixed-color
+ * ring only visually matches the gradient border at one end, which reads
+ * as a second outline on straight edges — Round's curve is what hides
+ * this, which is almost certainly why Figma never authored that
+ * combination). */
+function GradientExample() {
+  return (
+    <div className="flex flex-col gap-8">
+      <LimitationNotice>
+        Gradient is currently supported for Round avatars only, matching the authored Figma
+        design. When used with Roundrect, the avatar renders without the gradient treatment.
+      </LimitationNotice>
+      <div>
+        <p className="mb-4 font-sans text-xs text-muted-foreground">With AvatarImage</p>
+        <div className="flex flex-wrap items-end gap-8">
+          {SIZES.map(({ size, label }) => (
+            <div key={size} className="flex flex-col items-center gap-3">
+              <Avatar size={size} gradient>
+                <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+              <span className="font-sans text-xs text-muted-foreground">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="mb-4 font-sans text-xs text-muted-foreground">With AvatarFallback</p>
+        <div className="flex flex-wrap items-end gap-8">
+          {SIZES.map(({ size, label }) => (
+            <div key={size} className="flex flex-col items-center gap-3">
+              <Avatar size={size} gradient>
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+              <span className="font-sans text-xs text-muted-foreground">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="mb-4 font-sans text-xs text-muted-foreground">
+          Round and Roundrect, both with <code>gradient</code> set — Roundrect renders as a
+          plain avatar (no border/glow) since Gradient is scoped to Round only
+        </p>
+        <div className="flex flex-wrap items-center gap-8">
+          <div className="flex flex-col items-center gap-3">
+            <Avatar size="large" shape="round" gradient>
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+            <span className="font-sans text-xs text-muted-foreground">Round</span>
+          </div>
+          <div className="flex flex-col items-center gap-3">
+            <Avatar size="large" shape="roundrect" gradient>
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+            <span className="font-sans text-xs text-muted-foreground">Roundrect (no-op)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Overview page chrome ---------- */
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -363,6 +444,9 @@ export const Overview: StoryObj<Meta<PlaygroundArgs>> = {
             <GalleryItem label="Group With Badges">
               <GroupWithBadgesExample />
             </GalleryItem>
+            <GalleryItem label="Gradient">
+              <GradientExample />
+            </GalleryItem>
           </div>
         </Section>
 
@@ -374,6 +458,8 @@ export const Overview: StoryObj<Meta<PlaygroundArgs>> = {
             <li>AvatarStatusBadge and AvatarIconBadge both size themselves off the parent Avatar's <code>size</code> automatically — no size prop needed on the badge itself.</li>
             <li>AvatarIconBadge renders a real button (not yet wired to any action); pass an accessible <code>aria-label</code> since its content is icon-only.</li>
             <li>AvatarGroup's own <code>size</code> prop controls overlap amount only — it isn't linked to its children's <code>size</code> automatically, so set both to the same value.</li>
+            <li>The <code>gradient</code> prop is a single boolean on Avatar itself — it works the same whether the content is AvatarImage or AvatarFallback, no separate prop needed on either.</li>
+            <li><strong>Gradient is currently supported for Round avatars only, matching the authored Figma design. When used with Roundrect, the avatar renders without the gradient treatment.</strong> This is a deliberate scope limit (see the Gradient example page), not a bug.</li>
             <li>Keep call sites to composing Avatar/AvatarImage/AvatarFallback/badges/AvatarGroup as-is; propose extending the atom itself rather than reimplementing behavior at the call site.</li>
           </ul>
         </Section>
@@ -456,4 +542,8 @@ export const Group: Story = {
 
 export const GroupWithBadges: Story = {
   render: () => <GroupWithBadgesExample />,
+};
+
+export const Gradient: Story = {
+  render: () => <GradientExample />,
 };

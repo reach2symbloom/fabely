@@ -29,7 +29,10 @@ export type AvatarShape = 'round' | 'roundrect';
  * `rounded-full` in the vendor primitive, so the root's clip alone isn't
  * enough — left un-synced, the fallback's circular corners paint inside the
  * root's roundrect clip and the shape reads as fully round regardless of
- * the `shape` prop. */
+ * the `shape` prop. `gradient` isn't part of this context — it never
+ * changes AvatarFallback's own radius (see Avatar's `gradientClasses`
+ * comment: Gradient only ever applies at `shape="round"`, where Fallback's
+ * existing radius is already correct as-is). */
 const AvatarVariantContext = React.createContext<{ size: AvatarSize; shape: AvatarShape }>({
   size: 'regular',
   shape: 'round',
@@ -143,6 +146,15 @@ const statusColorClasses: Record<AvatarStatus, string> = {
 type AvatarProps = Omit<React.ComponentProps<typeof AvatarPrimitive>, 'size'> & {
   size?: AvatarSize;
   shape?: AvatarShape;
+  /**
+   * Applies the Primary gradient border + Focus Ring Glow treatment.
+   *
+   * Currently supported for Round avatars only, matching the authored
+   * Figma design. When used with Roundrect, the avatar renders without
+   * the gradient treatment — this is a deliberate scope limit, not a bug.
+   * See this component's `gradientClasses` comment (or README.md) for why.
+   */
+  gradient?: boolean;
 };
 
 /** True for AvatarStatusBadge/AvatarIconBadge elements, used by Avatar to
@@ -153,6 +165,68 @@ function isAvatarBadge(child: React.ReactNode): boolean {
   );
 }
 
+/* Figma's "Gradient" variant only exists on the avatar-with-image
+ * component, and only for Roundness Type=Round — there is no
+ * Roundrect+Gradient combination in Figma at all. An earlier version tried
+ * to extend Gradient to roundrect anyway (reusing radiusClass() for
+ * whatever `shape` was set); the geometry was fixed correctly (verified:
+ * single element, one radius application, computed styles matched), but a
+ * second, independent problem surfaced that geometry couldn't fix: the
+ * glow's solid ring layer (--ring-primary, a fixed color) only visually
+ * matches the gradient border's own color at the gradient's light pole —
+ * pixel-sampling the rendered result showed an abrupt, unblended color
+ * jump between the two right where the gradient reaches its dark pole,
+ * which reads as a second concentric outline on Roundrect's straight
+ * edges. On Round the exact same color jump exists at the same position,
+ * but a continuous curve reads it as an ambient rim-light rather than a
+ * second boundary, which is almost certainly why Figma never authored
+ * that combination. Given the glow token must stay exactly as defined
+ * (foundations/effects/focus-rings/focus-rings.css) and the border must
+ * stay the true Primary gradient (not a solid color chosen to blend with
+ * the glow), the two constraints conflict specifically on Roundrect — so
+ * `gradient` only ever applies when `shape==="round"`; combined with
+ * `shape="roundrect"` it's a no-op (renders as if `gradient` were false)
+ * rather than ship a compromised result. See README.md.
+ *
+ * Implemented as a single prop on Avatar itself — not a separate prop on
+ * AvatarImage/AvatarFallback — because the ring + glow treatment lives on
+ * the avatar's own outer frame in Figma, not on the content inside it, so
+ * one prop already produces the correct result for both AvatarImage and
+ * AvatarFallback content without duplicating it.
+ *
+ * Applied directly on the vendor primitive's own root (the element that
+ * already carries radiusClass() and overflow-hidden), NOT on the outer
+ * `avatar-root` wrapper — those are two different-sized boxes (the wrapper
+ * is the full declared size; the vendor root sits inside whatever border
+ * this adds), so giving each its own copy of the same radius independently
+ * nests two visually different curves. For Round this is invisible
+ * (--rounded-full minus a few px is still a full circle either way), which
+ * is exactly why this only matters for the roundrect case being excluded
+ * above — but keeping the border/glow on the one element that already owns
+ * the correct radius, rather than the wrapper, remains the right call
+ * regardless.
+ *
+ * The border itself can't be a plain Tailwind border-color (CSS
+ * border-color only accepts solid colors, not a gradient) or CSS
+ * border-image (which ignores border-radius) — the standard technique for
+ * a gradient border that respects border-radius is a transparent border
+ * plus two layered backgrounds: an opaque inner layer clipped to
+ * padding-box (never actually visible — Avatar's own content always fully
+ * covers it) and the gradient clipped to border-box, visible only in the
+ * border's own thickness. Direction defaults to top-bottom (the visual
+ * match for the Figma reference); no direction prop is exposed since one
+ * wasn't requested. The glow reuses the existing Primary Focus Ring Glow
+ * effect token verbatim, unchanged — Figma's own effect on this variant,
+ * by name and value, is that exact token — only moved to the same element
+ * as the border so it hugs that exact same edge with zero offset, rather
+ * than the outer wrapper's larger, unrelated box. */
+const gradientClasses = cn(
+  'rounded-[var(--rounded-full)]',
+  'border-[length:var(--stroke-regular)] border-solid border-transparent',
+  '[background:linear-gradient(var(--background),var(--background))_padding-box,var(--gradient-primary-top-bottom)_border-box]',
+  'shadow-[var(--effect-focus-ring-primary-glow)]'
+);
+
 /* Badges are rendered as siblings of the vendor primitive's root, not as
  * its children: that root carries `overflow-hidden` together with its
  * rounded shape (needed to clip AvatarImage/AvatarFallback to the circle/
@@ -162,16 +236,33 @@ function isAvatarBadge(child: React.ReactNode): boolean {
  * half-circle instead of a complete dot before this fix. Splitting badge
  * children into an unclipped outer wrapper (same size, position: relative,
  * no overflow rule of its own) is what lets the badge render as a full,
- * unclipped circle on top of the avatar's edge. */
-function Avatar({ className, size = 'regular', shape = 'round', children, ...props }: AvatarProps) {
+ * unclipped circle on top of the avatar's edge. This wrapper stays
+ * unstyled otherwise — no radius, no gradient — see gradientClasses's own
+ * comment for why those apply to the vendor root inside it instead. */
+function Avatar({
+  className,
+  size = 'regular',
+  shape = 'round',
+  gradient = false,
+  children,
+  ...props
+}: AvatarProps) {
   const childArray = React.Children.toArray(children);
   const badges = childArray.filter(isAvatarBadge);
   const content = childArray.filter((child) => !isAvatarBadge(child));
+  const appliedGradient = gradient && shape === 'round';
 
   return (
     <AvatarVariantContext.Provider value={{ size, shape }}>
       <div data-slot="avatar-root" className={cn('relative', sizeClasses[size])}>
-        <AvatarPrimitive className={cn('size-full', radiusClass(size, shape), className)} {...props}>
+        <AvatarPrimitive
+          className={cn(
+            'size-full',
+            appliedGradient ? gradientClasses : radiusClass(size, shape),
+            className
+          )}
+          {...props}
+        >
           {content}
         </AvatarPrimitive>
         {badges}
