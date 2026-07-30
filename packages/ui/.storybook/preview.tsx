@@ -85,6 +85,12 @@ const preview: Preview = {
                 'All Fonts',
               ],
             ],
+            // Atoms and Molecules are placeholder categories (see atoms.stories.tsx /
+            // molecules.stories.tsx) — empty scaffolding until the atoms-shadcn-import
+            // branch's first component imports land. Organisms/Templates intentionally
+            // not added yet.
+            'Atoms',
+            'Molecules',
           ],
         ],
       },
