@@ -11,10 +11,17 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Bare Avatar with no image and no fallback content — the unstyled shape
- * shadcn/Radix render before either resolves. */
+/** Canonical usage: Avatar always paired with a fallback so it renders
+ * something even before an image is provided or if one is never set. A
+ * bare `<Avatar />` with no children is a valid but degenerate primitive
+ * state (nothing to display, so nothing renders) — not what consumers
+ * should copy as the recommended pattern. */
 export const Default: Story = {
-  render: () => <Avatar />,
+  render: () => (
+    <Avatar>
+      <AvatarFallback>CN</AvatarFallback>
+    </Avatar>
+  ),
 };
 
 /** The common case: an image that loads successfully. */
