@@ -72,7 +72,14 @@ const preview: Preview = {
             'Foundations',
             [
               'Colors',
-              ['Raw', 'Themes', ['Neutrals', 'Neutrals (Migration Layer)', 'Alpha'], 'Semantic'],
+              [
+                'Raw',
+                'Themes',
+                ['Neutrals', 'Neutrals (Migration Layer)', 'Alpha'],
+                'Semantic',
+                'Gradients',
+                ['Primary'],
+              ],
               'Spacing',
               ['Raw', 'Semantic'],
               'Radius',
