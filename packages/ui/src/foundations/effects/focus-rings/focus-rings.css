@@ -5,17 +5,24 @@
  * emphasis, not elevation. No Raw/Base layer for Effects — these are
  * complete, literal values.
  *
- * Each ring's color is preserved exactly as Figma binds it. Most reference
- * an existing semantic color token (--ring, --ring-primary, --sidebar-ring,
- * --ring-error) — but success and alert reference the raw tw-raw layer
- * directly (--tw-raw-success-700, --tw-raw-alert-800) rather than their
- * own semantic --ring-success/--ring-alert tokens, which hold different
- * values (see colors.css). This is Figma's actual current wiring,
- * preserved as-is rather than normalized for consistency.
+ * Architecture: every ring color is a semantic state color (interaction
+ * feedback — primary, success, alert, error, etc.) and must consume the
+ * matching shadcn semantic token (--ring, --ring-primary, --sidebar-ring,
+ * --ring-success, --ring-alert, --ring-error), never a raw or theme-layer
+ * value directly. Success and Alert previously referenced --tw-raw-success-700
+ * / --tw-raw-alert-800 directly (Figma's literal wiring at the time), which
+ * silently diverged from --ring-success/--ring-alert in at least one theme.
+ * Per architectural review, corrected to consume the semantic tokens like
+ * every other ring — any resulting Figma/token mismatch belongs to
+ * --ring-success/--ring-alert's own definitions (see colors.css), not to
+ * this layer bypassing them.
  *
  * "primary-glow" is a distinct effect from "primary" — two layers: the
  * same ring-primary outline, plus a soft --theme-neutrals-600 glow behind
- * it (spread 0, blur 20).
+ * it (spread 0, blur 20). That glow-halo layer is intentionally NOT a
+ * semantic state color — it's the same invariant visual-treatment neutral
+ * the Glows foundation uses (see ../glows/glows.css), so it deliberately
+ * stays pegged to --theme-neutrals-600 rather than switching per theme.
  */
 
 :root {
@@ -25,7 +32,7 @@
     0px 0px 20px 0px var(--theme-neutrals-600);
   --effect-focus-ring-secondary: 0px 0px 0px 3px var(--ring);
   --effect-focus-ring-sidebar: 0px 0px 0px 3px var(--sidebar-ring);
-  --effect-focus-ring-success: 0px 0px 0px 3px var(--tw-raw-success-700);
-  --effect-focus-ring-alert: 0px 0px 0px 3px var(--tw-raw-alert-800);
+  --effect-focus-ring-success: 0px 0px 0px 3px var(--ring-success);
+  --effect-focus-ring-alert: 0px 0px 0px 3px var(--ring-alert);
   --effect-focus-ring-error: 0px 0px 0px 3px var(--ring-error);
 }

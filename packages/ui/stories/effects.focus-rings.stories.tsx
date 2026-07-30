@@ -43,18 +43,8 @@ const focusRings: FocusRingToken[] = [
   },
   { name: 'Secondary', cssVar: '--effect-focus-ring-secondary', reference: 'var(--ring)' },
   { name: 'Sidebar', cssVar: '--effect-focus-ring-sidebar', reference: 'var(--sidebar-ring)' },
-  {
-    name: 'Success',
-    cssVar: '--effect-focus-ring-success',
-    reference: 'var(--tw-raw-success-700)',
-    note: 'Figma binds this directly to the raw value, not the semantic --ring-success token (which holds a different value) — preserved as-is.',
-  },
-  {
-    name: 'Alert',
-    cssVar: '--effect-focus-ring-alert',
-    reference: 'var(--tw-raw-alert-800)',
-    note: 'Figma binds this directly to the raw value, not the semantic --ring-alert token (which holds a different value) — preserved as-is.',
-  },
+  { name: 'Success', cssVar: '--effect-focus-ring-success', reference: 'var(--ring-success)' },
+  { name: 'Alert', cssVar: '--effect-focus-ring-alert', reference: 'var(--ring-alert)' },
   { name: 'Error', cssVar: '--effect-focus-ring-error', reference: 'var(--ring-error)' },
 ];
 
@@ -212,10 +202,10 @@ export const Overview: Story = {
       <div>
         <EffectsNotice>
           <strong>Focus Rings</strong> are semantic visual-emphasis effects for focused/active
-          interactive elements — not elevation. Each ring's color is preserved exactly as Figma
-          binds it: most reference an existing semantic color token; a couple reference the raw
-          color layer directly (flagged per-row below) rather than their own semantic ring token,
-          which is Figma's actual current wiring, not something normalized away here.
+          interactive elements — not elevation. Every ring color is a semantic state color
+          (interaction feedback) and consumes its matching semantic color token — never a raw or
+          theme-layer value directly — so each ring correctly tracks its token's value across
+          Light and Dark.
         </EffectsNotice>
 
         <EffectsSectionHeading>Interactive Example</EffectsSectionHeading>
@@ -255,14 +245,16 @@ export const Overview: Story = {
         <EffectsSectionHeading>Architecture Notes</EffectsSectionHeading>
         <EffectsNotice>
           Effects represent interaction and visual emphasis; Shadows represent elevation. Focus
-          rings derive their color from semantic color tokens (<code>--ring</code>,{' '}
-          <code>--ring-primary</code>, <code>--sidebar-ring</code>, <code>--ring-error</code>)
-          wherever Figma binds one — Success and Alert currently reference the raw color layer
-          directly instead, which is preserved exactly rather than silently aliased to their
-          differently-valued semantic counterparts. "Primary Glow" demonstrates that an effect may
-          contain more than one shadow layer internally; consumers should think in terms of
-          semantic intent (which ring to use, for what purpose) rather than how many shadow layers
-          implement it.
+          rings derive their color exclusively from semantic color tokens (<code>--ring</code>,{' '}
+          <code>--ring-primary</code>, <code>--sidebar-ring</code>, <code>--ring-success</code>,{' '}
+          <code>--ring-alert</code>, <code>--ring-error</code>) — never a raw or theme-layer value
+          directly, since each ring represents a semantic interaction state. "Primary Glow" is the
+          one deliberate exception: its outline still uses the semantic{' '}
+          <code>--ring-primary</code>, but the soft halo behind it is the same invariant{' '}
+          <code>--theme-neutrals-600</code> neutral the Glows foundation uses — that halo is a
+          visual-treatment color, not a state color, so it intentionally does not switch per
+          theme. Consumers should think in terms of semantic intent (which ring to use, for what
+          purpose) rather than how many shadow layers implement it.
         </EffectsNotice>
       </div>
     );
