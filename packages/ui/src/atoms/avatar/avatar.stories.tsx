@@ -1,7 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactNode } from 'react';
+import { Plus } from 'lucide-react';
 import { useArgs } from 'storybook/preview-api';
-import { Avatar, AvatarImage, AvatarFallback } from './avatar';
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  AvatarStatusBadge,
+  AvatarIconBadge,
+  AvatarGroup,
+} from './avatar';
+import type { AvatarSize, AvatarStatus } from './avatar';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -82,6 +91,189 @@ function SeveralFallbackInitialsExample() {
   );
 }
 
+const SIZES: { size: AvatarSize; label: string }[] = [
+  { size: 'extraTiny', label: 'Extra Tiny' },
+  { size: 'tiny', label: 'Tiny' },
+  { size: 'small', label: 'Small' },
+  { size: 'regular', label: 'Regular' },
+  { size: 'large', label: 'Large' },
+  { size: 'extraLarge', label: 'Extra Large' },
+];
+
+/** The full size scale, Extra Tiny through Extra Large, each with its own
+ * typography sourced from the matching Foundation Typography Style. */
+function SizesExample() {
+  return (
+    <div className="flex flex-wrap items-end gap-4">
+      {SIZES.map(({ size, label }) => (
+        <div key={size} className="flex flex-col items-center gap-2">
+          <Avatar size={size}>
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+          <span className="font-sans text-xs text-muted-foreground">{label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Round vs. Rounded Rectangle — border radius sourced entirely from
+ * Foundation radius tokens (--rounded-full / --rounded-sm / --rounded-md /
+ * --radius / --rounded-lg, depending on size). */
+function ShapesExample() {
+  return (
+    <div className="flex flex-wrap items-center gap-8">
+      <div className="flex flex-col items-center gap-2">
+        <Avatar size="large" shape="round">
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+        <span className="font-sans text-xs text-muted-foreground">Round</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <Avatar size="large" shape="roundrect">
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+        <span className="font-sans text-xs text-muted-foreground">Roundrect</span>
+      </div>
+    </div>
+  );
+}
+
+const STATUSES: { status: AvatarStatus; label: string }[] = [
+  { status: 'online', label: 'Online' },
+  { status: 'away', label: 'Away' },
+  { status: 'busy', label: 'Busy' },
+  { status: 'offline', label: 'Offline' },
+];
+
+/** A non-interactive presence dot — online/away/busy/offline — colored
+ * from Foundations (Busy uses --destructive; Online/Away use the raw
+ * success/alert "main" swatch since no promoted semantic token exists yet
+ * for them — see avatar.tsx's statusColorClasses for the full audit).
+ * Generous gap/padding throughout: the badge now renders fully outside the
+ * avatar's own clipped edge (see avatar.tsx's isAvatarBadge/Avatar comment),
+ * so neighboring items need enough room that it never overlaps the next
+ * avatar or its label. */
+function StatusBadgeExample() {
+  return (
+    <div className="flex flex-col gap-10">
+      <div>
+        <p className="mb-4 font-sans text-xs text-muted-foreground">By status</p>
+        <div className="flex flex-wrap items-end gap-8">
+          {STATUSES.map(({ status, label }) => (
+            <div key={status} className="flex flex-col items-center gap-3">
+              <Avatar size="regular">
+                <AvatarFallback>CN</AvatarFallback>
+                <AvatarStatusBadge status={status} />
+              </Avatar>
+              <span className="font-sans text-xs text-muted-foreground">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="mb-4 font-sans text-xs text-muted-foreground">
+          By size (Online) — badge diameter is a fixed 28% of the avatar's own size, so it scales
+          proportionally at every size
+        </p>
+        <div className="flex flex-wrap items-end gap-8">
+          {SIZES.map(({ size, label }) => (
+            <div key={size} className="flex flex-col items-center gap-3">
+              <Avatar size={size}>
+                <AvatarFallback>CN</AvatarFallback>
+                <AvatarStatusBadge status="online" />
+              </Avatar>
+              <span className="font-sans text-xs text-muted-foreground">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** An icon rendered as badge children, matching the shadcn reference. The
+ * badge is a real <button> (not a <span>) so the API is ready for a future
+ * menu/click behavior without an element-type change later — no click
+ * handler is wired up yet. Shown across every Avatar size to demonstrate
+ * the badge (and its icon) scaling proportionally — no size prop on the
+ * badge itself, it reads `size` from the parent Avatar automatically. */
+function IconBadgeExample() {
+  return (
+    <div className="flex flex-wrap items-end gap-8">
+      {SIZES.map(({ size, label }) => (
+        <div key={size} className="flex flex-col items-center gap-3">
+          <Avatar size={size}>
+            <AvatarFallback>CN</AvatarFallback>
+            <AvatarIconBadge aria-label="Add">
+              <Plus />
+            </AvatarIconBadge>
+          </Avatar>
+          <span className="font-sans text-xs text-muted-foreground">{label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const GROUP_MEMBERS = [
+  { src: 'https://github.com/shadcn.png', alt: '@shadcn', fallback: 'CN' },
+  { src: 'https://github.com/maxleiter.png', alt: '@maxleiter', fallback: 'LR' },
+  { src: 'https://github.com/evilrabbit.png', alt: '@evilrabbit', fallback: 'ER' },
+];
+
+/** A subtly overlapping stack, shown across every Avatar size. Overlap
+ * scales with AvatarGroup's own `size` prop (kept in sync with the
+ * children's `size` here, as the two aren't linked automatically — see
+ * avatar.tsx's groupOverlapClasses). Hover any avatar to see it gently
+ * scale and come to the front without disturbing its neighbors. */
+function GroupExample() {
+  return (
+    <div className="flex flex-col gap-8">
+      {SIZES.map(({ size, label }) => (
+        <div key={size} className="flex flex-col items-start gap-3">
+          <span className="font-sans text-xs text-muted-foreground">{label}</span>
+          <AvatarGroup size={size}>
+            {GROUP_MEMBERS.map((member) => (
+              <Avatar key={member.alt} size={size}>
+                <AvatarImage src={member.src} alt={member.alt} />
+                <AvatarFallback>{member.fallback}</AvatarFallback>
+              </Avatar>
+            ))}
+          </AvatarGroup>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Badges (both Status and Icon) continue to render correctly inside a
+ * group — unclipped, correctly positioned, and scaling together with their
+ * avatar on hover, since the badge lives inside the same outer wrapper
+ * AvatarGroup targets for overlap/hover. */
+function GroupWithBadgesExample() {
+  return (
+    <AvatarGroup size="large">
+      <Avatar size="large">
+        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+        <AvatarFallback>CN</AvatarFallback>
+        <AvatarStatusBadge status="online" />
+      </Avatar>
+      <Avatar size="large">
+        <AvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
+        <AvatarFallback>LR</AvatarFallback>
+        <AvatarStatusBadge status="away" />
+      </Avatar>
+      <Avatar size="large">
+        <AvatarFallback>ER</AvatarFallback>
+        <AvatarIconBadge aria-label="Add">
+          <Plus />
+        </AvatarIconBadge>
+      </Avatar>
+    </AvatarGroup>
+  );
+}
+
 /* ---------- Overview page chrome ---------- */
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -132,9 +324,11 @@ export const Overview: StoryObj<Meta<PlaygroundArgs>> = {
         <p className="text-sm leading-relaxed text-muted-foreground">
           <strong className="text-foreground">Avatar</strong> represents a user or entity with an
           image, falling back to initials (or any short content) when no image is set or the
-          image fails to load. This atom is a thin wrapper around the upstream shadcn/Radix
-          Avatar primitive — see the atom's <code>README.md</code> for what's intentionally not
-          yet included (sizes, badges, grouping, presence).
+          image fails to load. This atom wraps the upstream shadcn/Radix Avatar primitive with
+          Fabely's size and shape variants, Status and Icon badges, and AvatarGroup — see the
+          atom's <code>README.md</code> for what's intentionally not yet included (presence
+          beyond a static status dot, image-specific variants, notification counts, overflow
+          ("+N") indicators).
         </p>
 
         <Section title="Examples">
@@ -151,6 +345,24 @@ export const Overview: StoryObj<Meta<PlaygroundArgs>> = {
             <GalleryItem label="Several Fallback Initials">
               <SeveralFallbackInitialsExample />
             </GalleryItem>
+            <GalleryItem label="Sizes">
+              <SizesExample />
+            </GalleryItem>
+            <GalleryItem label="Shapes">
+              <ShapesExample />
+            </GalleryItem>
+            <GalleryItem label="Status Badge">
+              <StatusBadgeExample />
+            </GalleryItem>
+            <GalleryItem label="Icon Badge">
+              <IconBadgeExample />
+            </GalleryItem>
+            <GalleryItem label="Group">
+              <GroupExample />
+            </GalleryItem>
+            <GalleryItem label="Group With Badges">
+              <GroupWithBadgesExample />
+            </GalleryItem>
           </div>
         </Section>
 
@@ -158,7 +370,11 @@ export const Overview: StoryObj<Meta<PlaygroundArgs>> = {
           <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
             <li>Always pair Avatar with AvatarFallback, so there's something to render even before an image loads or if it never resolves.</li>
             <li>Provide a real src and meaningful alt text on AvatarImage — don't rely on the fallback as the default state.</li>
-            <li>Keep call sites to composing Avatar/AvatarImage/AvatarFallback as-is; this atom doesn't yet expose sizes, badges, or grouping — propose extending the atom itself rather than reimplementing those at the call site.</li>
+            <li>Use the <code>size</code> prop (Extra Tiny → Extra Large) and <code>shape</code> prop (Round / Roundrect) rather than overriding dimensions or radius via <code>className</code> — both are sourced from Foundation tokens.</li>
+            <li>AvatarStatusBadge and AvatarIconBadge both size themselves off the parent Avatar's <code>size</code> automatically — no size prop needed on the badge itself.</li>
+            <li>AvatarIconBadge renders a real button (not yet wired to any action); pass an accessible <code>aria-label</code> since its content is icon-only.</li>
+            <li>AvatarGroup's own <code>size</code> prop controls overlap amount only — it isn't linked to its children's <code>size</code> automatically, so set both to the same value.</li>
+            <li>Keep call sites to composing Avatar/AvatarImage/AvatarFallback/badges/AvatarGroup as-is; propose extending the atom itself rather than reimplementing behavior at the call site.</li>
           </ul>
         </Section>
 
@@ -216,4 +432,28 @@ export const Fallback: Story = {
 
 export const SeveralFallbackInitials: Story = {
   render: () => <SeveralFallbackInitialsExample />,
+};
+
+export const Sizes: Story = {
+  render: () => <SizesExample />,
+};
+
+export const Shapes: Story = {
+  render: () => <ShapesExample />,
+};
+
+export const StatusBadge: Story = {
+  render: () => <StatusBadgeExample />,
+};
+
+export const IconBadge: Story = {
+  render: () => <IconBadgeExample />,
+};
+
+export const Group: Story = {
+  render: () => <GroupExample />,
+};
+
+export const GroupWithBadges: Story = {
+  render: () => <GroupWithBadgesExample />,
 };

@@ -1,6 +1,6 @@
 # Avatar
 
-The Fabely Avatar atom — a thin wrapper around the upstream shadcn Avatar primitive (`src/components/ui/avatar.tsx`, built on Radix UI's Avatar).
+The Fabely Avatar atom — wraps the upstream shadcn Avatar primitive (`src/components/ui/avatar.tsx`, built on Radix UI's Avatar) with Fabely's own size and shape variants, sourced from Foundations.
 
 ## Purpose
 
@@ -8,15 +8,25 @@ The Fabely Avatar atom — a thin wrapper around the upstream shadcn Avatar prim
 
 ## Wraps upstream
 
-This atom does not modify, restyle, or extend the upstream primitive — it re-exports it as-is. Treat `src/components/ui/avatar.tsx` as vendor code.
+This atom does not modify the upstream primitive's file — `src/components/ui/avatar.tsx` stays vendor code. `Avatar` and `AvatarFallback` override the vendor's default classes (size, radius, background, text color/typography) via `className`; the vendor's own `size` prop ("default" | "sm" | "lg") is intentionally not exposed — Fabely's own `size` scale (see below) replaces it. `AvatarStatusBadge`, `AvatarIconBadge`, and `AvatarGroup` do **not** reuse the vendor's `AvatarBadge`/`AvatarGroup` components: vendor's `AvatarBadge` bakes in `group-data-[size=X]/avatar` sizing tied to vendor's own 3-value size scale, and since Fabely's Avatar never sets that vendor `size` prop, vendor's `group-data-[size=default]/avatar:size-2.5` rule was unconditionally winning over any size override by CSS specificity (a compound ancestor-attribute selector beats a plain class) — the same category of bug already hit and fixed for `AvatarFallback`'s radius. Vendor's `AvatarGroup` similarly targets `[data-slot=avatar]` directly with a fixed `-space-x-2`, which doesn't account for Avatar's own outer wrapper (see below) or Foundation-token sizing. All three are built directly instead.
+
+## Implemented (this milestone)
+
+- **Size** — `extraTiny` (20px) · `tiny` (24px) · `small` (32px) · `regular` (40px, default) · `large` (48px) · `extraLarge` (64px). Dimensions source `foundations/spacing.css`; initials typography sources `foundations/typography.css`'s Paragraph/Bold styles, matched to size (Micro/Mini/Small/Large/XXL). Paragraph Micro (backing `extraTiny`) is the one Paragraph size not sourced from Figma — Figma's own Extra Tiny component left its text unbound (using an unregistered "Geist" font found nowhere else in Fabely's foundations) — see that style's header comment in `typography.css` for the full provenance.
+- **Shape** — `round` (default, `--rounded-full`) · `roundrect` (`--rounded-sm` / `--rounded-md` / `--radius` / `--rounded-lg`, depending on size — see `avatar.tsx` for the exact mapping). All radii source `foundations/radius.css`.
+- **Fallback background/text** — `--tw-raw-pantones-blush` background with `--primary-foreground` text, matching the selected Figma "Avatar Placeholder" component.
+- **Status Badge** (`AvatarStatusBadge`) — a non-interactive presence dot: `online` / `away` / `busy` / `offline`. Colors audited against `foundations/colors.css` before adding anything new: `busy` consumes `--destructive` (the one status with an existing general-purpose semantic token, and the only one that's theme-aware as a result); `online`/`away` have no promoted semantic equivalent yet (`--ring-success`/`--ring-alert` exist but are calibrated for pale focus-ring glows, not solid fills) so they consume the raw "main" swatch directly per `docs/DESIGN.md`'s "Foundations may be consumed directly during exploration"; `offline` has no success/alert/error equivalent at all (`--tw-raw-neutral-400` is an engineering choice, not a Foundation status color). Promoting `--success`/`--warning` to general semantic tokens is a natural future Foundations step once a second real usage justifies it.
+- **Icon Badge** (`AvatarIconBadge`) — renders an icon passed as children (Lucide, matching the shadcn reference). Deliberately a `<button>`, not a `<span>`, since this badge is expected to open a menu or similar UI later — the element type is future-proofed now rather than swapped out later. No click behavior is wired up yet; this milestone is visual/structural only.
+- Badge sizing (both variants) has no Figma spec to source from (badges aren't part of the Figma selection this atom was built from) — diameter is `calc()`-derived as a fixed 28% of the parent avatar's own size token (not a discrete lookup), so it scales exactly and continuously with whatever size the Avatar renders at; the icon inside `AvatarIconBadge` is ~65% of the badge's own diameter, chained onto the same calc(). No `size` prop exists on either badge — both read `size` from the parent Avatar automatically via context. Both badges always render fully round (`--rounded-full`), regardless of the parent Avatar's `shape` — matching the vendor primitive's own unconditional behavior.
+- Badges render as siblings of the vendor primitive's root, not as its children: that root carries `overflow-hidden` together with its rounded shape (needed to clip `AvatarImage`/`AvatarFallback`), and `overflow-hidden` + `border-radius` clips any descendant painted outside that rounded boundary — including a badge sitting at the corner, which rendered as a "bitten" half-circle before this was fixed. `Avatar` now renders a small unclipped wrapper `<div data-slot="avatar-root">` around the vendor root, splits badge children out via `React.Children`, and renders them in that wrapper instead — so the badge paints as a complete, unclipped circle sitting outside the avatar's own edge. This wrapper is also what `AvatarGroup` targets (see below).
+- **Group** (`AvatarGroup`) — a subtly overlapping stack of Avatars, per the shadcn reference. Takes its own `size` prop (`AvatarSize`, default `regular`) that controls overlap amount only — it is **not** linked to its children's own `size` automatically, so keep both in sync at a call site. Overlap is `calc()`-derived as a fixed 25% of that `size` token (same pattern as badge sizing: scales exactly with whichever size is set, not a discrete lookup), targeting `[data-slot=avatar-root]` — Avatar's own outer wrapper, not vendor's inner `[data-slot=avatar]` root, since the wrapper is what needs to move as a flex item (it contains both the circle and any badge). A background-colored separation ring (`--stroke-regular` / `--background`) is applied to the inner `[data-slot=avatar]` circle of each child so overlapping edges read cleanly rather than blending together. Hovering any single avatar applies a CSS transform (`scale-110`, 150ms ease-out) and raises it to the front via `z-index` on `:hover` — this doesn't disturb neighboring avatars' layout (transforms don't affect flow) and is scoped to `AvatarGroup`'s own direct children specifically, so standalone (non-grouped) avatars don't gain unsolicited hover behavior. Badges continue to render correctly inside a group (unclipped, correctly positioned, scaling together with their avatar on hover) since they live inside the same outer wrapper `AvatarGroup` targets. Does not implement overflow ("+N") indicators or drag reordering.
 
 ## Future enhancements
 
 Not yet implemented — deliberately deferred until a recurring pattern justifies them (per `docs/DESIGN.md`'s "begin with faithful implementation" principle):
 
-- `AvatarGroup` / stacked avatars
-- Size variants
-- Status/presence indicators
-- Badges
-
-The upstream primitive already includes some of these (`AvatarBadge`, `AvatarGroup`, `AvatarGroupCount`, a `size` prop) — they are intentionally not yet re-exported through this layer until Fabely actually needs them.
+- Notification counts
+- Overflow ("+N") indicator for AvatarGroup (the upstream primitive already includes `AvatarGroupCount` — intentionally not yet re-exported through this layer until Fabely actually needs it)
+- Drag reordering within a group
+- Image-specific variants
+- Click/menu behavior on `AvatarIconBadge` (the element is ready — a real `<button>` — but no handler is wired up)
