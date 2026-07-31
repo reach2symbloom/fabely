@@ -1,4 +1,12 @@
 @import 'tailwindcss';
+/* Registers --animate-accordion-down/up (and other shadcn-standard
+ * animate-* utilities) plus their backing @keyframes — required by
+ * src/components/ui/accordion.tsx's `data-[state=open]:animate-accordion-down
+ * data-[state=closed]:animate-accordion-up` classes, which are otherwise
+ * undefined utilities with no generated CSS. Mirrors apps/web's own
+ * globals.css, which already imports this immediately after `tailwindcss`
+ * for the same reason. */
+@import 'tw-animate-css';
 @import '../foundations/index.css';
 
 @custom-variant dark (&:is(.dark *));
