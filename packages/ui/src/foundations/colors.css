@@ -16,7 +16,10 @@
   --tw-raw-white: #F9F9F9;
   --tw-raw-black: #080B0C;
 
-  /* tw-raw / primary-gradient */
+  /* tw-raw / primary-gradient — the two pole colors for the Primary
+     gradient (see the Gradients section below; Figma has no "gradient"
+     variable type, so these two colors are the only Figma-authored asset
+     for it) */
   --tw-raw-primary-gradient-1: #A6A09B;
   --tw-raw-primary-gradient-2: #645E59;
 
@@ -137,6 +140,33 @@
   /* tw-raw / scene-desk */
   --tw-raw-scene-desk-ghost: #9DACEA; /* 12% opacity per Figma */
   --tw-raw-scene-desk-500: #9DACEA; /* main */
+}
+
+/*
+ * Foundations / Colors — Gradients
+ * A category within Colors for reusable brand gradient treatments, not
+ * component-specific effects (see foundations/effects for those). Unlike
+ * the rest of this file, there's no separate raw layer to alias for
+ * Gradients specifically — Figma's variable system has no "gradient"
+ * variable type, so the raw pole colors above (tw-raw-primary-gradient-1/2)
+ * are the only Figma-authored asset; each gradient here is built directly
+ * from them (or future pole-color pairs) via var().
+ *
+ * Each gradient is a named group (Primary is the first; more may be added
+ * the same way) of four two-stop linear-gradient()s, one per canonical
+ * direction (top-bottom, bottom-top, left-right, right-left). Naming:
+ * --gradient-{name}-{direction}.
+ *
+ * Primary
+ * Built from --tw-raw-primary-gradient-1/2 above. No new color values are
+ * introduced here.
+ */
+
+:root {
+  --gradient-primary-top-bottom: linear-gradient(to bottom, var(--tw-raw-primary-gradient-1), var(--tw-raw-primary-gradient-2));
+  --gradient-primary-bottom-top: linear-gradient(to top, var(--tw-raw-primary-gradient-1), var(--tw-raw-primary-gradient-2));
+  --gradient-primary-left-right: linear-gradient(to right, var(--tw-raw-primary-gradient-1), var(--tw-raw-primary-gradient-2));
+  --gradient-primary-right-left: linear-gradient(to left, var(--tw-raw-primary-gradient-1), var(--tw-raw-primary-gradient-2));
 }
 
 /*

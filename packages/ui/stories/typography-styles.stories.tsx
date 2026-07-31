@@ -320,6 +320,7 @@ const paragraphSizes: { name: string; slug: string }[] = [
   { name: 'Paragraph Regular', slug: 'paragraph-regular' },
   { name: 'Paragraph Small', slug: 'paragraph-small' },
   { name: 'Paragraph Mini', slug: 'paragraph-mini' },
+  { name: 'Paragraph Micro', slug: 'paragraph-micro' },
 ];
 
 // Documentation label is "Sharp Serif" (the current concrete implementation),
@@ -381,7 +382,7 @@ export const Paragraph: WeightStory = {
       <div>
         <TypographyPageTitle>Paragraph</TypographyPageTitle>
         <TypographyNotice>
-          Fabely's body-text scale — six sizes (XXL down to Mini), all Gellix. Each size is
+          Fabely's body-text scale — seven sizes (XXL down to Micro), all Gellix. Each size is
           available in three semantic weights: <strong>Regular</strong>, <strong>Medium</strong>,
           and <strong>Bold</strong>.
         </TypographyNotice>
@@ -404,6 +405,17 @@ export const Paragraph: WeightStory = {
           (500) suits UI labels or subtle in-paragraph emphasis. <strong>Bold</strong> is
           implemented by Gellix's <em>Semibold</em> face (600) — Figma's semantic name is Bold,
           but the underlying font file is Semibold, not the file literally named Bold (700).
+        </TypographyNotice>
+
+        <TypographySectionHeading>Architecture Notes</TypographySectionHeading>
+        <TypographyNotice>
+          <strong>Micro</strong> is the one size in this scale not sourced from Figma — every
+          other size traces to Figma's Styles panel. It originates from the Fabely Avatar atom's
+          Extra Tiny size, whose Figma component left its text unbound to any real style. Only
+          Micro Bold's metrics are directly confirmed; Regular and Medium apply this scale's own
+          rule (identical metrics across weight siblings, only font-weight differs) rather than
+          being independently confirmed. See <code>typography.css</code>'s header comment for the
+          full provenance.
         </TypographyNotice>
       </div>
     );

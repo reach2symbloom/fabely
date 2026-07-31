@@ -1,8 +1,13 @@
 import type { Preview } from '@storybook/react-vite'
 import { useEffect } from 'react'
-import '../src/foundations/index.css'
+import '../src/styles/globals.css'
 import './theme.css'
 
+// globals.css pulls in Tailwind (`@import 'tailwindcss'`) and Foundations
+// (`@import '../foundations/index.css'`) together, so shadcn/Tailwind-based
+// components under src/components/ui render styled the same way they will
+// in the app, not just Foundations' plain CSS custom properties.
+//
 // Fabely's real theme mechanism is the `.dark` class toggled on the document
 // root (see src/styles/globals.css: `@custom-variant dark (&:is(.dark *))`).
 // This decorator drives that same class from a Storybook global (flipped by
@@ -67,7 +72,14 @@ const preview: Preview = {
             'Foundations',
             [
               'Colors',
-              ['Raw', 'Themes', ['Neutrals', 'Neutrals (Migration Layer)', 'Alpha'], 'Semantic'],
+              [
+                'Raw',
+                'Themes',
+                ['Neutrals', 'Neutrals (Migration Layer)', 'Alpha'],
+                'Semantic',
+                'Gradients',
+                ['Primary'],
+              ],
               'Spacing',
               ['Raw', 'Semantic'],
               'Radius',
@@ -85,11 +97,33 @@ const preview: Preview = {
                 'All Fonts',
               ],
             ],
-            // Atoms and Molecules are placeholder categories (see atoms.stories.tsx /
-            // molecules.stories.tsx) — empty scaffolding until the atoms-shadcn-import
-            // branch's first component imports land. Organisms/Templates intentionally
-            // not added yet.
+            // Atoms and Molecules start as placeholder categories (see
+            // atoms.stories.tsx / molecules.stories.tsx) and gain real
+            // component sub-entries as they're imported. Every component
+            // follows the same page order (see docs/DESIGN.md "Component
+            // Story Structure"): Overview always first, then each canonical
+            // example as its own focused page. Organisms/Templates
+            // intentionally not added yet.
             'Atoms',
+            [
+              'Avatar',
+              [
+                'Overview',
+                'Default',
+                'With Image',
+                'Fallback',
+                'Several Fallback Initials',
+                'Sizes',
+                'Shapes',
+                'Status Badge',
+                'Icon Badge',
+                'Group',
+                'Group With Badges',
+                'Group With Count',
+                'Group With Count Icon',
+                'Gradient',
+              ],
+            ],
             'Molecules',
           ],
         ],
