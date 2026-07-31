@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { ReactNode } from 'react';
-import { Plus } from 'lucide-react';
-import { useArgs } from 'storybook/preview-api';
+import { useState, type ReactNode } from 'react';
+import { Plus, Pencil, Camera } from 'lucide-react';
 import {
   Avatar,
   AvatarImage,
@@ -11,7 +10,7 @@ import {
   AvatarGroup,
   AvatarGroupCount,
 } from './avatar';
-import type { AvatarSize, AvatarStatus } from './avatar';
+import type { AvatarSize, AvatarShape, AvatarStatus } from './avatar';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -412,6 +411,255 @@ function GradientExample() {
   );
 }
 
+/* ---------- Interactive playgrounds ----------
+ * Rendered inline at the top of the Overview page (not as separate story
+ * pages) so visitors can experiment with the full option set directly
+ * alongside the live examples. State is plain component-local `useState`,
+ * not Storybook args — these aren't independent stories, just interactive
+ * UI within the Overview page itself. Split into two playgrounds (Single
+ * Avatar, Avatar Group) rather than one combined one: the two are largely
+ * independent composition modes, and combining them would bury the
+ * controls that matter for a given task under ones that don't apply. */
+
+const playgroundLabelClass = 'font-sans text-xs text-muted-foreground';
+const playgroundControlClass =
+  'mt-1 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm';
+
+function PlaygroundField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="block">
+      <span className={playgroundLabelClass}>{label}</span>
+      {children}
+    </label>
+  );
+}
+
+const ICON_OPTIONS = {
+  plus: { label: 'Plus', Icon: Plus, ariaLabel: 'Add' },
+  pencil: { label: 'Pencil', Icon: Pencil, ariaLabel: 'Edit' },
+  camera: { label: 'Camera', Icon: Camera, ariaLabel: 'Change photo' },
+} as const;
+
+type IconOption = keyof typeof ICON_OPTIONS;
+
+/** Every option a single Avatar supports, in one place: Size, Shape,
+ * Content (Image/Initials), Gradient, and Badge (None/Status/Icon).
+ * Badge-specific controls (Status, Icon) only render once the matching
+ * Badge is selected — an unrelated Status control while Badge=Icon (or
+ * vice versa) would just be a dead control describing nothing on screen.
+ * Gradient only applies to Round avatars (see the Gradient example page
+ * for why); selecting Roundrect swaps the Gradient checkbox for a
+ * LimitationNotice explaining the constraint, rather than leaving a
+ * control visible that silently no-ops. */
+function SingleAvatarPlayground() {
+  const [size, setSize] = useState<AvatarSize>('regular');
+  const [shape, setShape] = useState<AvatarShape>('round');
+  const [content, setContent] = useState<'image' | 'initials'>('image');
+  const [gradient, setGradient] = useState(false);
+  const [badge, setBadge] = useState<'none' | 'status' | 'icon'>('none');
+  const [status, setStatus] = useState<AvatarStatus>('online');
+  const [icon, setIcon] = useState<IconOption>('plus');
+  const { Icon, ariaLabel } = ICON_OPTIONS[icon];
+
+  return (
+    <div className="flex flex-col items-center gap-8 rounded-lg border border-border p-8">
+      <Avatar size={size} shape={shape} gradient={gradient}>
+        {content === 'image' ? (
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+        ) : null}
+        <AvatarFallback>CN</AvatarFallback>
+        {badge === 'status' ? <AvatarStatusBadge status={status} /> : null}
+        {badge === 'icon' ? (
+          <AvatarIconBadge aria-label={ariaLabel}>
+            <Icon />
+          </AvatarIconBadge>
+        ) : null}
+      </Avatar>
+
+      <div className="grid w-full max-w-sm grid-cols-2 gap-4">
+        <PlaygroundField label="Size">
+          <select
+            value={size}
+            onChange={(e) => setSize(e.target.value as AvatarSize)}
+            className={playgroundControlClass}
+          >
+            {SIZES.map(({ size: s, label }) => (
+              <option key={s} value={s}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </PlaygroundField>
+
+        <PlaygroundField label="Shape">
+          <select
+            value={shape}
+            onChange={(e) => setShape(e.target.value as AvatarShape)}
+            className={playgroundControlClass}
+          >
+            <option value="round">Round</option>
+            <option value="roundrect">Roundrect</option>
+          </select>
+        </PlaygroundField>
+
+        <PlaygroundField label="Content">
+          <select
+            value={content}
+            onChange={(e) => setContent(e.target.value as 'image' | 'initials')}
+            className={playgroundControlClass}
+          >
+            <option value="image">Image</option>
+            <option value="initials">Initials</option>
+          </select>
+        </PlaygroundField>
+
+        <PlaygroundField label="Badge">
+          <select
+            value={badge}
+            onChange={(e) => setBadge(e.target.value as 'none' | 'status' | 'icon')}
+            className={playgroundControlClass}
+          >
+            <option value="none">None</option>
+            <option value="status">Status</option>
+            <option value="icon">Icon</option>
+          </select>
+        </PlaygroundField>
+
+        {badge === 'status' ? (
+          <PlaygroundField label="Status">
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as AvatarStatus)}
+              className={playgroundControlClass}
+            >
+              {STATUSES.map(({ status: s, label }) => (
+                <option key={s} value={s}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </PlaygroundField>
+        ) : null}
+
+        {badge === 'icon' ? (
+          <PlaygroundField label="Icon">
+            <select
+              value={icon}
+              onChange={(e) => setIcon(e.target.value as IconOption)}
+              className={playgroundControlClass}
+            >
+              {(Object.keys(ICON_OPTIONS) as IconOption[]).map((value) => (
+                <option key={value} value={value}>
+                  {ICON_OPTIONS[value].label}
+                </option>
+              ))}
+            </select>
+          </PlaygroundField>
+        ) : null}
+
+        {shape === 'round' ? (
+          <label className="flex items-center gap-2 self-end pb-1.5">
+            <input
+              type="checkbox"
+              checked={gradient}
+              onChange={(e) => setGradient(e.target.checked)}
+              className="size-4 rounded border-input"
+            />
+            <span className={playgroundLabelClass}>Gradient</span>
+          </label>
+        ) : (
+          <div className="col-span-2">
+            <LimitationNotice>Gradient only applies to Round avatars.</LimitationNotice>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const GROUP_PLAYGROUND_MEMBERS: { src?: string; alt: string; fallback: string }[] = [
+  { src: 'https://github.com/shadcn.png', alt: '@shadcn', fallback: 'CN' },
+  { src: 'https://github.com/maxleiter.png', alt: '@maxleiter', fallback: 'LR' },
+  { src: 'https://github.com/evilrabbit.png', alt: '@evilrabbit', fallback: 'ER' },
+  { alt: 'Jamie Diaz', fallback: 'JD' },
+  { alt: 'Aiko Kimura', fallback: 'AK' },
+  { alt: 'Theo Brandt', fallback: 'TB' },
+];
+
+/** AvatarGroup's own options only — Size, Number of Avatars, and
+ * AvatarGroupCount (None/Text/Icon). Deliberately excludes shape, gradient,
+ * and badges: groups are always Round, Gradient is a single-Avatar variant
+ * (see the Single Avatar playground above and the Gradient example page),
+ * and badges compose onto individual Avatars directly rather than through
+ * AvatarGroup itself — see the Group With Badges example. */
+function AvatarGroupPlayground() {
+  const [size, setSize] = useState<AvatarSize>('regular');
+  const [count, setCount] = useState(3);
+  const [groupCount, setGroupCount] = useState<'none' | 'text' | 'icon'>('text');
+  const members = GROUP_PLAYGROUND_MEMBERS.slice(0, count);
+
+  return (
+    <div className="flex flex-col items-center gap-8 rounded-lg border border-border p-8">
+      <AvatarGroup size={size}>
+        {members.map((member) => (
+          <Avatar key={member.alt} size={size}>
+            {member.src ? <AvatarImage src={member.src} alt={member.alt} /> : null}
+            <AvatarFallback>{member.fallback}</AvatarFallback>
+          </Avatar>
+        ))}
+        {groupCount === 'text' ? <AvatarGroupCount>+3</AvatarGroupCount> : null}
+        {groupCount === 'icon' ? (
+          <AvatarGroupCount aria-label="Add">
+            <Plus />
+          </AvatarGroupCount>
+        ) : null}
+      </AvatarGroup>
+
+      <div className="grid w-full max-w-sm grid-cols-2 gap-4">
+        <PlaygroundField label="Size">
+          <select
+            value={size}
+            onChange={(e) => setSize(e.target.value as AvatarSize)}
+            className={playgroundControlClass}
+          >
+            {SIZES.map(({ size: s, label }) => (
+              <option key={s} value={s}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </PlaygroundField>
+
+        <PlaygroundField label="Number of Avatars">
+          <select
+            value={count}
+            onChange={(e) => setCount(Number(e.target.value))}
+            className={playgroundControlClass}
+          >
+            {GROUP_PLAYGROUND_MEMBERS.map((_, i) => (
+              <option key={i} value={i + 1}>
+                {i + 1}
+              </option>
+            ))}
+          </select>
+        </PlaygroundField>
+
+        <PlaygroundField label="AvatarGroupCount">
+          <select
+            value={groupCount}
+            onChange={(e) => setGroupCount(e.target.value as 'none' | 'text' | 'icon')}
+            className={playgroundControlClass}
+          >
+            <option value="none">None</option>
+            <option value="text">Text</option>
+            <option value="icon">Icon</option>
+          </select>
+        </PlaygroundField>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Overview page chrome ---------- */
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -432,42 +680,34 @@ function GalleryItem({ label, children }: { label: string; children: ReactNode }
   );
 }
 
-type PlaygroundArgs = { imageSrc: string; fallbackText: string };
-
-function AvatarPlayground({ imageSrc, fallbackText }: PlaygroundArgs) {
-  return (
-    <Avatar>
-      {imageSrc ? <AvatarImage src={imageSrc} alt={fallbackText} /> : null}
-      <AvatarFallback>{fallbackText}</AvatarFallback>
-    </Avatar>
-  );
-}
-
 /* ---------- Overview ---------- */
 
-export const Overview: StoryObj<Meta<PlaygroundArgs>> = {
-  argTypes: {
-    imageSrc: { control: 'text' },
-    fallbackText: { control: 'text' },
-  },
-  args: {
-    imageSrc: 'https://github.com/shadcn.png',
-    fallbackText: 'CN',
-  },
+export const Overview: Story = {
   render: () => {
-    const [args, updateArgs] = useArgs<PlaygroundArgs>();
-
     return (
       <div className="w-[640px] max-w-full font-sans">
+        <h2 className="text-lg font-semibold text-foreground mb-2">Avatar</h2>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          <strong className="text-foreground">Avatar</strong> represents a user or entity with an
-          image, falling back to initials (or any short content) when no image is set or the
-          image fails to load. This atom wraps the upstream shadcn/Radix Avatar primitive with
-          Fabely's size and shape variants, Status and Icon badges, and AvatarGroup — see the
-          atom's <code>README.md</code> for what's intentionally not yet included (presence
-          beyond a static status dot, image-specific variants, notification counts, overflow
-          ("+N") indicators).
+          Represents a user or entity with an image, falling back to initials (or any short
+          content) when no image is set or the image fails to load. This atom wraps the upstream
+          shadcn/Radix Avatar primitive with Fabely's size and shape variants, Status and Icon
+          badges, AvatarGroup, and AvatarGroupCount — see the atom's <code>README.md</code> for
+          what's intentionally not yet included (presence beyond a static status dot,
+          image-specific variants, notification counts).
         </p>
+
+        <Section title="Playground">
+          <div className="space-y-8">
+            <div>
+              <p className="mb-3 font-sans text-sm font-medium text-foreground">Single Avatar</p>
+              <SingleAvatarPlayground />
+            </div>
+            <div>
+              <p className="mb-3 font-sans text-sm font-medium text-foreground">Avatar Group</p>
+              <AvatarGroupPlayground />
+            </div>
+          </div>
+        </Section>
 
         <Section title="Examples">
           <div className="flex flex-wrap gap-4">
@@ -534,32 +774,6 @@ export const Overview: StoryObj<Meta<PlaygroundArgs>> = {
             <li>Radix automatically swaps to AvatarFallback when the image fails or has no src, so users are never left with a broken image icon.</li>
             <li>Initials alone (e.g. "CN") aren't a substitute for an accessible name where one is needed elsewhere in the surrounding UI (e.g. next to the user's full name).</li>
           </ul>
-        </Section>
-
-        <Section title="Playground">
-          <div className="flex flex-col items-center gap-6 rounded-lg border border-border p-8">
-            <AvatarPlayground imageSrc={args.imageSrc ?? ''} fallbackText={args.fallbackText ?? ''} />
-            <div className="w-full max-w-sm space-y-3">
-              <label className="block">
-                <span className="font-sans text-xs text-muted-foreground">Image src (clear it, or break it, to see the fallback)</span>
-                <input
-                  type="text"
-                  value={args.imageSrc ?? ''}
-                  onChange={(e) => updateArgs({ imageSrc: e.target.value })}
-                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-                />
-              </label>
-              <label className="block">
-                <span className="font-sans text-xs text-muted-foreground">Fallback text</span>
-                <input
-                  type="text"
-                  value={args.fallbackText ?? ''}
-                  onChange={(e) => updateArgs({ fallbackText: e.target.value })}
-                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-                />
-              </label>
-            </div>
-          </div>
         </Section>
       </div>
     );

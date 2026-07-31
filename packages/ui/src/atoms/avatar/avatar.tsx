@@ -416,7 +416,7 @@ function AvatarGroup({ className, size = 'regular', shape = 'round', ...props }:
   );
 }
 
-type AvatarGroupCountProps = React.ComponentProps<'div'>;
+type AvatarGroupCountProps = React.ComponentProps<'a'>;
 
 /** Sits at the end of an AvatarGroup as either an overflow count (text
  * children, e.g. "+3") or an "action avatar" (arbitrary children, e.g. an
@@ -424,6 +424,15 @@ type AvatarGroupCountProps = React.ComponentProps<'div'>;
  * the children differ. No `size`/`shape` props of its own: it reads both
  * from AvatarGroupContext, so `<AvatarGroupCount>+3</AvatarGroupCount>`
  * alone already matches the surrounding group with no extra wiring.
+ *
+ * A real `<a>`, not a `<div>` — both the count and icon variants are
+ * interactive placeholders (e.g. "+3" opening the full member list, an icon
+ * adding a member), so the element type is future-proofed now rather than
+ * swapped out later, matching AvatarIconBadge's own reasoning. Defaults to
+ * `href="#"` since no destination exists yet; callers can override it once
+ * one does. Picks up the same focus-visible ring AvatarIconBadge uses, for
+ * the same reason: no interactive Avatar primitive should be keyboard-
+ * focusable without one.
  *
  * Composes naturally with the *existing* AvatarGroup rather than
  * duplicating its behavior: carries the identical `data-slot="avatar-root"`
@@ -461,15 +470,24 @@ type AvatarGroupCountProps = React.ComponentProps<'div'>;
  * globals.css's `@theme inline`, so the plain Tailwind utilities resolve
  * correctly) — the existing neutral semantic pair, not a new color,
  * matching vendor's own choice for this exact "more avatars" indicator.
- * Text reuses `initialsTypographyClasses` — a "+3" is visually the same
- * kind of content as AvatarFallback's own initials, so the same type scale
- * applies. An icon child is sized via `[&>svg]:size-[1em]` rather than a
- * second lookup table: at 1em it automatically matches whatever font-size
- * that same typography class already set for the current `size`. */
-function AvatarGroupCount({ className, ...props }: AvatarGroupCountProps) {
+ * Text reuses `initialsTypographyClasses` for size/line-height/letter-
+ * spacing only — a "+3" sits at the same type scale as AvatarFallback's own
+ * initials — but overrides the weight to Regular rather than reusing
+ * AvatarFallback's Bold: unlike AvatarFallback's initials (a name
+ * abbreviation, read as text), "+3" reads as a count/label next to avatars
+ * that are themselves the visual weight, so Regular keeps it from competing
+ * with them. Safe to source the "-bold" variant's own font-size/line-height/
+ * letter-spacing regardless (Foundations defines these identically across
+ * weights at every size — only the weight token itself differs), rather
+ * than needing a parallel "-regular" lookup table. An icon child is sized
+ * via `[&>svg]:size-[1em]` rather than a second lookup table: at 1em it
+ * automatically matches whatever font-size that same typography class
+ * already set for the current `size`. */
+function AvatarGroupCount({ className, href = '#', ...props }: AvatarGroupCountProps) {
   const { size, shape } = React.useContext(AvatarGroupContext);
   return (
-    <div
+    <a
+      href={href}
       data-slot="avatar-root"
       className={cn(
         'relative flex shrink-0 items-center justify-center',
@@ -478,8 +496,9 @@ function AvatarGroupCount({ className, ...props }: AvatarGroupCountProps) {
         'bg-muted text-muted-foreground',
         'ring-[length:var(--stroke-regular)] ring-[color:var(--background)]',
         'inset-ring-[length:var(--stroke-regular)] inset-ring-[color:var(--border)]',
-        'font-[family-name:var(--font-family-body)] [font-weight:var(--font-weight-paragraph-bold)]',
+        'font-[family-name:var(--font-family-body)] [font-weight:var(--font-weight-paragraph-regular)]',
         initialsTypographyClasses[size],
+        'cursor-pointer focus-visible:outline-none focus-visible:shadow-[var(--effect-focus-ring-primary)]',
         '[&>svg]:size-[1em]',
         className
       )}
