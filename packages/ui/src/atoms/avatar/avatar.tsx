@@ -9,7 +9,7 @@
  * sites changing their import.
  *
  * Not yet implemented — deliberately deferred, see README.md:
- * notification counts, overflow ("+N") indicators.
+ * notification counts.
  */
 import * as React from 'react';
 import {
@@ -368,7 +368,20 @@ const groupOverlapClasses: Record<AvatarSize, string> = {
 
 type AvatarGroupProps = React.ComponentProps<'div'> & {
   size?: AvatarSize;
+  shape?: AvatarShape;
 };
+
+/** Lets AvatarGroupCount automatically match its parent AvatarGroup's
+ * `size`/`shape` with no props of its own for the common case — mirrors
+ * AvatarVariantContext's role for Avatar/AvatarFallback, but scoped to the
+ * group level since AvatarGroupCount isn't a child of any single Avatar.
+ * Neither `size` nor `shape` here are linked to the group's actual Avatar
+ * children automatically (same as `size` already wasn't) — keep them in
+ * sync at the call site. */
+const AvatarGroupContext = React.createContext<{ size: AvatarSize; shape: AvatarShape }>({
+  size: 'regular',
+  shape: 'round',
+});
 
 /** Groups Avatars into a subtly overlapping stack (per the shadcn
  * reference), adapted to this atom's own structure rather than reused
@@ -383,20 +396,91 @@ type AvatarGroupProps = React.ComponentProps<'div'> & {
  * z-index, so it's never clipped by avatars stacked on top of it in normal
  * paint order. Scoped to direct `[data-slot=avatar-root]` children of the
  * group specifically, not baked into Avatar itself, so standalone
- * (non-grouped) avatars don't gain unsolicited hover behavior.
+ * (non-grouped) avatars don't gain unsolicited hover behavior. */
+function AvatarGroup({ className, size = 'regular', shape = 'round', ...props }: AvatarGroupProps) {
+  return (
+    <AvatarGroupContext.Provider value={{ size, shape }}>
+      <div
+        data-slot="avatar-group"
+        className={cn(
+          'flex items-center',
+          groupOverlapClasses[size],
+          '[&>[data-slot=avatar-root]]:transition-transform [&>[data-slot=avatar-root]]:duration-150 [&>[data-slot=avatar-root]]:ease-out',
+          '[&>[data-slot=avatar-root]:hover]:z-10 [&>[data-slot=avatar-root]:hover]:scale-110',
+          '[&_[data-slot=avatar]]:ring-[length:var(--stroke-regular)] [&_[data-slot=avatar]]:ring-[color:var(--background)]',
+          className
+        )}
+        {...props}
+      />
+    </AvatarGroupContext.Provider>
+  );
+}
+
+type AvatarGroupCountProps = React.ComponentProps<'div'>;
+
+/** Sits at the end of an AvatarGroup as either an overflow count (text
+ * children, e.g. "+3") or an "action avatar" (arbitrary children, e.g. an
+ * icon) — per the shadcn reference, the same component covers both; only
+ * the children differ. No `size`/`shape` props of its own: it reads both
+ * from AvatarGroupContext, so `<AvatarGroupCount>+3</AvatarGroupCount>`
+ * alone already matches the surrounding group with no extra wiring.
  *
- * Does not implement overflow counts ("+N") or drag reordering — see
- * README.md. */
-function AvatarGroup({ className, size = 'regular', ...props }: AvatarGroupProps) {
+ * Composes naturally with the *existing* AvatarGroup rather than
+ * duplicating its behavior: carries the identical `data-slot="avatar-root"`
+ * marker every Avatar's own wrapper uses, so it's picked up for free by
+ * AvatarGroup's own overlap margin, hover-scale, and hover-z-index
+ * selectors — no separate CSS needed here for any of those. Size and
+ * radius reuse Avatar's own `sizeClasses`/`radiusClass()` so its diameter
+ * and corner curve are pixel-identical to its sibling Avatars, and it
+ * applies the same background-colored separation ring AvatarGroup applies
+ * to real avatars (that selector only targets nested vendor
+ * `[data-slot=avatar]` elements, which this isn't, so the ring is added
+ * directly here instead). That outer ring is what creates the group's
+ * overlap "cutout": it's a `ring` (box-shadow) tinted to match the page
+ * background, not a `border` — later avatars paint over earlier ones in
+ * normal DOM order, so the ring punches a background-colored gap into
+ * whatever's underneath at each overlap point. It owns the group's
+ * silhouette and must stay exactly as-is.
+ *
+ * Against that silhouette, `bg-muted` alone reads low-contrast — muted and
+ * the page background sit one step apart on the same neutral scale, so the
+ * circle doesn't visually separate itself from its surroundings the way a
+ * photo or a saturated Fallback color does. Adding a second *outer* ring
+ * for definition would compete with the cutout ring above (the same
+ * "double frame" problem already hit and fixed for Gradient), so
+ * definition comes from an *inset* ring instead — drawn just inside the
+ * circle's own edge via Tailwind's `inset-ring-*` utilities, which
+ * compose independently of `ring-*` rather than overriding it. Reuses the
+ * same `--stroke-regular` width as every other ring in this file, and
+ * `--border` for color — the semantic token that exists for exactly this
+ * purpose, not a new color. Doesn't affect layout (a box-shadow, not a
+ * real `border`), so it needs no per-size adjustment the way an actual
+ * border would.
+ *
+ * Color otherwise uses `bg-muted`/`text-muted-foreground` (registered in
+ * globals.css's `@theme inline`, so the plain Tailwind utilities resolve
+ * correctly) — the existing neutral semantic pair, not a new color,
+ * matching vendor's own choice for this exact "more avatars" indicator.
+ * Text reuses `initialsTypographyClasses` — a "+3" is visually the same
+ * kind of content as AvatarFallback's own initials, so the same type scale
+ * applies. An icon child is sized via `[&>svg]:size-[1em]` rather than a
+ * second lookup table: at 1em it automatically matches whatever font-size
+ * that same typography class already set for the current `size`. */
+function AvatarGroupCount({ className, ...props }: AvatarGroupCountProps) {
+  const { size, shape } = React.useContext(AvatarGroupContext);
   return (
     <div
-      data-slot="avatar-group"
+      data-slot="avatar-root"
       className={cn(
-        'flex items-center',
-        groupOverlapClasses[size],
-        '[&>[data-slot=avatar-root]]:transition-transform [&>[data-slot=avatar-root]]:duration-150 [&>[data-slot=avatar-root]]:ease-out',
-        '[&>[data-slot=avatar-root]:hover]:z-10 [&>[data-slot=avatar-root]:hover]:scale-110',
-        '[&_[data-slot=avatar]]:ring-[length:var(--stroke-regular)] [&_[data-slot=avatar]]:ring-[color:var(--background)]',
+        'relative flex shrink-0 items-center justify-center',
+        sizeClasses[size],
+        radiusClass(size, shape),
+        'bg-muted text-muted-foreground',
+        'ring-[length:var(--stroke-regular)] ring-[color:var(--background)]',
+        'inset-ring-[length:var(--stroke-regular)] inset-ring-[color:var(--border)]',
+        'font-[family-name:var(--font-family-body)] [font-weight:var(--font-weight-paragraph-bold)]',
+        initialsTypographyClasses[size],
+        '[&>svg]:size-[1em]',
         className
       )}
       {...props}
@@ -404,4 +488,12 @@ function AvatarGroup({ className, size = 'regular', ...props }: AvatarGroupProps
   );
 }
 
-export { Avatar, AvatarImage, AvatarFallback, AvatarStatusBadge, AvatarIconBadge, AvatarGroup };
+export {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  AvatarStatusBadge,
+  AvatarIconBadge,
+  AvatarGroup,
+  AvatarGroupCount,
+};

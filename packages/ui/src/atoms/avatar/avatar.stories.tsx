@@ -9,6 +9,7 @@ import {
   AvatarStatusBadge,
   AvatarIconBadge,
   AvatarGroup,
+  AvatarGroupCount,
 } from './avatar';
 import type { AvatarSize, AvatarStatus } from './avatar';
 
@@ -274,6 +275,62 @@ function GroupWithBadgesExample() {
   );
 }
 
+/** AvatarGroupCount as an overflow indicator — text children ("+3") —
+ * shown across every Avatar size. No size/shape prop set on it directly:
+ * it reads both from the surrounding AvatarGroup automatically, so its
+ * diameter, radius, and rings (including the inset ring that gives it
+ * definition against the page background) match its sibling Avatars at
+ * every size. It also joins the same overlap/hover treatment as any other
+ * avatar in the group, since it carries the same `data-slot="avatar-root"`
+ * marker AvatarGroup already targets. */
+function GroupWithCountExample() {
+  return (
+    <div className="flex flex-col gap-8">
+      {SIZES.map(({ size, label }) => (
+        <div key={size} className="flex flex-col items-start gap-3">
+          <span className="font-sans text-xs text-muted-foreground">{label}</span>
+          <AvatarGroup size={size}>
+            {GROUP_MEMBERS.map((member) => (
+              <Avatar key={member.alt} size={size}>
+                <AvatarImage src={member.src} alt={member.alt} />
+                <AvatarFallback>{member.fallback}</AvatarFallback>
+              </Avatar>
+            ))}
+            <AvatarGroupCount>+3</AvatarGroupCount>
+          </AvatarGroup>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** AvatarGroupCount as an "action avatar" — an icon passed as children
+ * instead of text — shown across every Avatar size. The icon sizes itself
+ * to 1em, so it automatically matches whatever type scale AvatarGroupCount
+ * resolved for the current `size`, no separate icon-size lookup needed. */
+function GroupWithCountIconExample() {
+  return (
+    <div className="flex flex-col gap-8">
+      {SIZES.map(({ size, label }) => (
+        <div key={size} className="flex flex-col items-start gap-3">
+          <span className="font-sans text-xs text-muted-foreground">{label}</span>
+          <AvatarGroup size={size}>
+            {GROUP_MEMBERS.map((member) => (
+              <Avatar key={member.alt} size={size}>
+                <AvatarImage src={member.src} alt={member.alt} />
+                <AvatarFallback>{member.fallback}</AvatarFallback>
+              </Avatar>
+            ))}
+            <AvatarGroupCount>
+              <Plus />
+            </AvatarGroupCount>
+          </AvatarGroup>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /** A visually distinct callout for documenting deliberate scope limits —
  * so a limitation reads as "known and intentional" rather than looking
  * like an unfinished implementation to someone browsing Storybook. */
@@ -444,6 +501,12 @@ export const Overview: StoryObj<Meta<PlaygroundArgs>> = {
             <GalleryItem label="Group With Badges">
               <GroupWithBadgesExample />
             </GalleryItem>
+            <GalleryItem label="Group With Count">
+              <GroupWithCountExample />
+            </GalleryItem>
+            <GalleryItem label="Group With Count Icon">
+              <GroupWithCountIconExample />
+            </GalleryItem>
             <GalleryItem label="Gradient">
               <GradientExample />
             </GalleryItem>
@@ -457,7 +520,8 @@ export const Overview: StoryObj<Meta<PlaygroundArgs>> = {
             <li>Use the <code>size</code> prop (Extra Tiny → Extra Large) and <code>shape</code> prop (Round / Roundrect) rather than overriding dimensions or radius via <code>className</code> — both are sourced from Foundation tokens.</li>
             <li>AvatarStatusBadge and AvatarIconBadge both size themselves off the parent Avatar's <code>size</code> automatically — no size prop needed on the badge itself.</li>
             <li>AvatarIconBadge renders a real button (not yet wired to any action); pass an accessible <code>aria-label</code> since its content is icon-only.</li>
-            <li>AvatarGroup's own <code>size</code> prop controls overlap amount only — it isn't linked to its children's <code>size</code> automatically, so set both to the same value.</li>
+            <li>AvatarGroup's own <code>size</code>/<code>shape</code> props control overlap amount and AvatarGroupCount's matching only — neither is linked to the group's actual Avatar children automatically, so set them consistently at the call site.</li>
+            <li>AvatarGroupCount needs no <code>size</code>/<code>shape</code> of its own — it reads both from the surrounding AvatarGroup and already matches its sibling Avatars' diameter, radius, and separation ring. Give it text ("+3") for an overflow count, or an icon for an action avatar — same component either way.</li>
             <li>The <code>gradient</code> prop is a single boolean on Avatar itself — it works the same whether the content is AvatarImage or AvatarFallback, no separate prop needed on either.</li>
             <li><strong>Gradient is currently supported for Round avatars only, matching the authored Figma design. When used with Roundrect, the avatar renders without the gradient treatment.</strong> This is a deliberate scope limit (see the Gradient example page), not a bug.</li>
             <li>Keep call sites to composing Avatar/AvatarImage/AvatarFallback/badges/AvatarGroup as-is; propose extending the atom itself rather than reimplementing behavior at the call site.</li>
@@ -542,6 +606,14 @@ export const Group: Story = {
 
 export const GroupWithBadges: Story = {
   render: () => <GroupWithBadgesExample />,
+};
+
+export const GroupWithCount: Story = {
+  render: () => <GroupWithCountExample />,
+};
+
+export const GroupWithCountIcon: Story = {
+  render: () => <GroupWithCountIconExample />,
 };
 
 export const Gradient: Story = {
