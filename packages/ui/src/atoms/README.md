@@ -4,4 +4,4 @@ The smallest indivisible UI building blocks — Button, Input, Label, Badge, and
 
 Per `docs/DESIGN.md`'s Component Layer workflow: match Figma faithfully first, then identify recurring patterns before introducing semantic component tokens. Atoms should consume semantic tokens from `foundations/` wherever a stable semantic role exists, and foundation tokens directly during exploration.
 
-No components have been imported yet — this directory is scaffolding, ready for the first shadcn imports.
+Currently implemented: [Avatar](./avatar/README.md), [Accordion](./accordion/README.md).
