@@ -444,7 +444,17 @@
   --border: var(--theme-neutrals-700);
   --input: var(--theme-neutrals-800);
   --card: var(--theme-neutrals-900);
-  --card-foreground: var(--theme-alpha-white-switch-100);
+  /* NOT --theme-alpha-white-switch-100: "switch" tokens are for translucent
+     overlay-style colors that intentionally invert their base between
+     themes (see --muted-foreground/--sidebar-accent above) — in .dark,
+     white-switch resolves to a *black*-based color, which silently made
+     card text render near-black on this near-black card background.
+     Every sibling on-dark-surface foreground here (--foreground,
+     --popover-foreground, etc.) instead points straight at a light
+     theme-neutrals/tw-raw value with no indirection; --card-foreground
+     mirrors that same pattern, and its light-mode counterpart's own
+     theme-neutrals-950 for symmetry. */
+  --card-foreground: var(--theme-neutrals-50);
   --popover: var(--tw-raw-neutral-950);
   --popover-foreground: var(--tw-raw-white);
 

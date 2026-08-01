@@ -123,6 +123,8 @@ const preview: Preview = {
                 'Group With Count Icon',
                 'Gradient',
               ],
+              'Alert',
+              ['Overview', 'One Line', 'Two Lines', 'Without Icon', 'Error', 'Warning', 'Success'],
             ],
             'Molecules',
           ],
