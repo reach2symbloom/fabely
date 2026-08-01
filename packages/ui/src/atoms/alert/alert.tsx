@@ -75,11 +75,14 @@ type AlertProps = Omit<React.ComponentProps<typeof AlertPrimitive>, 'variant'> &
  *   TODO(design-tokens): if a real "error surface"/"error border" alpha
  *   step gets published to Foundations, swap these two `color-mix()`
  *   calls for it.
- *   The ring, unlike background/border, *is* an existing, already-
- *   switching Foundation token — Figma's own inspected effect here is
- *   "focus ring error", which resolves to the exact declared value of
- *   `--ring-error` (light: `--tw-raw-error-100`, dark: `--tw-raw-error-
- *   ghost) — reused directly.
+ *   The ring is a literal, unbound 8% of `--tw-raw-error-ghost` (`#C43551`)
+ *   — the *same* already-declared raw token as the background/border
+ *   above, not the switching `--ring-error` semantic token (that token's
+ *   own light/dark values don't match Figma's literal ring color here;
+ *   this type keeps a fixed brand-color ring in both themes, same as its
+ *   background/border, and same pattern as `alert`/`success` below,
+ *   which also build their own rings from their own raw ghost token
+ *   rather than `--ring-alert`/`--ring-success`).
  *   Title text binds to the raw, non-switching `--tw-raw-error-50` in
  *   Figma (not a semantic/switching token, unlike `neutral`'s `--
  *   foreground`) — preserved as literally specified.
@@ -128,7 +131,7 @@ const typeClasses: Record<AlertType, string> = {
   error: cn(
     'bg-[color-mix(in_srgb,var(--tw-raw-error-400)_8%,transparent)]',
     'border-[color-mix(in_srgb,var(--tw-raw-error-300)_32%,transparent)]',
-    'shadow-[0px_0px_0px_3px_var(--ring-error)]',
+    'shadow-[0px_0px_0px_3px_color-mix(in_srgb,var(--tw-raw-error-ghost)_8%,transparent)]',
     'text-[var(--tw-raw-error-50)]'
   ),
   alert: cn(
