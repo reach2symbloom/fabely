@@ -1,0 +1,32 @@
+/*
+ * Foundations / Iconography — Icon size scale
+ *
+ * Canonical icon sizing tokens for the entire design system. Atoms,
+ * molecules, and organisms must consume these (--icon-*) instead of
+ * hardcoded px / Tailwind size utilities for icons.
+ *
+ * Every token aliases a Spacing semantic token via var() — never a
+ * literal px value duplicated here — so icon sizing stays on the same
+ * scale as layout spacing. Theme-independent — these values do not
+ * change between Light and Dark.
+ *
+ *   --icon-2xs  →  8px
+ *   --icon-xs   → 12px
+ *   --icon-sm   → 16px
+ *   --icon-md   → 20px
+ *   --icon-lg   → 24px
+ *   --icon-xl   → 32px
+ *   --icon-2xl  → 40px
+ *   --icon-3xl  → 48px
+ */
+
+:root {
+  --icon-2xs: var(--spacing-xs); /* 8px */
+  --icon-xs: var(--spacing-sm); /* 12px */
+  --icon-sm: var(--spacing-md); /* 16px */
+  --icon-md: var(--spacing-lg); /* 20px */
+  --icon-lg: var(--spacing-xl); /* 24px */
+  --icon-xl: var(--spacing-2xl); /* 32px */
+  --icon-2xl: var(--spacing-3xl); /* 40px */
+  --icon-3xl: var(--spacing-4xl); /* 48px */
+}

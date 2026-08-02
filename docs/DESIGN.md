@@ -132,9 +132,21 @@ Current foundations include:
 - Radius
 - Spacing
 - Motion
-- Icons
+- Iconography
 
 Foundations should remain implementation-agnostic.
+
+### Iconography
+
+**Size tokens** (`packages/ui/src/foundations/iconography.css`) are the canonical icon sizing scale: `--icon-2xs` … `--icon-3xl` (8–48px). Atoms, molecules, organisms, and vendored shadcn wrappers must consume these via `var(--icon-*)` — never hardcoded px or Tailwind `size-*` utilities for icons.
+
+**Icon glyphs** are not CSS tokens. They come from approved libraries:
+
+- Lucide — primary system UI
+- Solar Bold Duotone — illustration accents only
+- Fabely Icons — brand-specific custom glyphs (catalog empty until designed)
+
+Do not mix sets in the same interface. Full catalogs live in Storybook under Foundations → Iconography → Icon Library.
 
 ---
 

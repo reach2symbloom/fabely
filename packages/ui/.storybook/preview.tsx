@@ -96,6 +96,15 @@ const preview: Preview = {
                 ['Headings', 'Paragraph', 'Manuscript', 'Captions', 'Monospaced'],
                 'All Fonts',
               ],
+              'Iconography',
+              [
+                'Overview',
+                'Size Tokens',
+                'Stroke & Alignment',
+                'Icon Library',
+                ['Lucide', 'Solar', 'Fabely Icons'],
+                'Best Practices',
+              ],
             ],
             // Atoms and Molecules start as placeholder categories (see
             // atoms.stories.tsx / molecules.stories.tsx) and gain real
