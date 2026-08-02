@@ -26,7 +26,7 @@ All Figma badges use **soft tinted fills** (ghost / alpha backgrounds + colored 
 
 This atom does not modify the upstream primitive's file — `src/components/ui/badge.tsx` stays vendor code. `Badge` overrides the vendor's default classes (radius, padding, typography, colors, focus ring, height) via `className`, and extends the variant surface for Figma-only statuses.
 
-**Polymorphism:** vendor uses Radix `Slot` via `asChild` — **not** a `render` prop. The shadcn docs page for newer Base UI variants mentions `render`; this package's CLI output is the Radix/`asChild` path, so that is the API ground truth.
+**Polymorphism:** vendor uses Base UI `useRender` via the `render` prop — **not** Radix `asChild`. Call sites pass the host element as `render={<a href="..." />}` and keep label text as children.
 
 **Vendor variants preserved / mapped:**
 
@@ -39,7 +39,7 @@ This atom does not modify the upstream primitive's file — `src/components/ui/b
 | `destructive` | Destructive | `--tw-raw-error-ghost` at 12% (`color-mix`) fill + `--tw-raw-error-300` text/icon — vendor solid `bg-destructive` stubbed away |
 | `success` | Success | Figma-only — no vendor equivalent |
 | `alert` | Alert | Figma-only — no vendor equivalent |
-| `link` | *(none)* | Kept for shadcn Link docs composition (`asChild` + `<a>`) |
+| `link` | *(none)* | Kept for shadcn Link docs composition (`render={<a />}`) |
 
 Soft-fill variants that would otherwise inherit a solid vendor chip (`destructive`, plus Fabely-only `success` / `alert`) call the vendor primitive with a stub vendor variant (`default`) so the upstream component remains mounted without its `bg-destructive` / `dark:bg-destructive/60` classes; the visible styles and `data-variant` come entirely from this atom.
 
@@ -51,7 +51,7 @@ Soft-fill variants that would otherwise inherit a solid vendor chip (`destructiv
 - **Spacing** — horizontal padding `--spacing-1-5` (6px), vertical `--spacing-3xs` (2px), gap `--spacing-2xs` (4px).
 - **Focus rings** — variant-specific Foundation effects: Primary → `--effect-focus-ring-primary`; Secondary/Outline/Ghost → `--effect-focus-ring-secondary`; Destructive → `--effect-focus-ring-error`; Success → `--effect-focus-ring-success`; Alert → `--effect-focus-ring-alert`.
 - **Icons** — SVG children sized to `--tw-raw-spacing-3` (12px) at Default size; Large uses `14px` (see TODO in `badge.tsx` — Figma Large+icon frames weren't explicitly sized in the design-context payload). `data-icon` flips flex direction for start/end placement.
-- **`asChild`** — passed through to the vendor Slot for link/button composition.
+- **`render`** — passed through to the vendor Base UI `useRender` for link/button composition.
 - **`badgeVariants`** — exported CVA helper for call sites that need the same class map (e.g. custom compositions).
 
 Colors audited against `foundations/colors.css` before use. Soft fills for secondary / destructive / success / alert consume the raw `*-ghost` swatches via `color-mix(... 12%/8%, transparent)` — those tokens are solid hex in Foundations with a comment that Figma applies them at reduced opacity; using them as opaque fills would make Secondary/Success text invisible (text swatch equals the ghost hex). Same "Foundations may be consumed directly during exploration" posture Avatar documented for status colors — there is no promoted semantic `--success` / `--warning` fill token yet.

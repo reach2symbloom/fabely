@@ -6,8 +6,8 @@
  * Visual source of truth: Figma component set "Badge"
  * (file gV94L0qCmvwQkddNbEktry, node 19:6979). API ground truth for
  * polymorphism and the shared shadcn surface remains the vendored file
- * (`asChild` via Radix Slot — not a `render` prop) plus the shadcn docs'
- * composition examples (icon, spinner, link-as-child, custom colors, RTL).
+ * (`render` via Base UI `useRender` — not Radix `asChild`) plus the shadcn
+ * docs' composition examples (icon, spinner, link-as-child, custom colors, RTL).
  *
  * This is the public API future Fabely components should import Badge
  * from, not the vendor path directly.
@@ -33,7 +33,7 @@ export type BadgeRoundness = 'default' | 'round';
  * - `success`     ← Figma Success (no vendor equivalent)
  * - `alert`       ← Figma Alert (no vendor equivalent)
  * - `link`        ← vendor/docs only — not authored in the Figma set; kept so
- *                   the shadcn Link (`asChild` + `<a>`) example stays a
+ *                   the shadcn Link (`render={<a />}`) example stays a
  *                   first-class composition without inventing a parallel API
  */
 export type BadgeVariant =

@@ -172,19 +172,18 @@ function WithSpinnerExample() {
   );
 }
 
-/** shadcn docs' "Link" — `asChild` + native `<a>` (vendor uses Radix Slot,
- * not a `render` prop). */
+/** shadcn docs' "Link" — Base UI `render` + native `<a>`. */
 function LinkExample() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Badge asChild variant="link">
-        <a href="https://fabely.app">Fabely</a>
+      <Badge variant="link" render={<a href="https://fabely.app" />}>
+        Fabely
       </Badge>
-      <Badge asChild variant="secondary">
-        <a href="https://fabely.app">Secondary link</a>
+      <Badge variant="secondary" render={<a href="https://fabely.app" />}>
+        Secondary link
       </Badge>
-      <Badge asChild variant="outline">
-        <a href="https://fabely.app">Outline link</a>
+      <Badge variant="outline" render={<a href="https://fabely.app" />}>
+        Outline link
       </Badge>
     </div>
   );
@@ -352,8 +351,14 @@ function BadgePlayground() {
   return (
     <div className="flex flex-col items-center gap-8 rounded-lg border border-border p-8">
       {asLink ? (
-        <Badge asChild variant={variant} size={size} roundness={roundness} data-icon={dataIcon}>
-          <a href="#">{content}</a>
+        <Badge
+          render={<a href="#" />}
+          variant={variant}
+          size={size}
+          roundness={roundness}
+          data-icon={dataIcon}
+        >
+          {content}
         </Badge>
       ) : (
         <Badge variant={variant} size={size} roundness={roundness} data-icon={dataIcon}>
@@ -451,7 +456,7 @@ export const Overview: Story = {
           A small label for status, category, or metadata. This atom wraps the upstream
           shadcn Badge primitive with Fabely&apos;s Figma-authored size, roundness, and
           color variants (soft tinted fills — not the vendor&apos;s solid primary chip),
-          sourced from Foundations. Polymorphism uses <code>asChild</code> (Radix Slot),
+          sourced from Foundations. Polymorphism uses Base UI <code>render</code>,
           matching the vendored file — see the atom&apos;s <code>README.md</code> for the
           Figma → API mapping and what&apos;s deliberately deferred.
         </p>
@@ -517,9 +522,9 @@ export const Overview: Story = {
               <code>&quot;inline-end&quot;</code> — no dedicated icon prop.
             </li>
             <li>
-              Use <code>asChild</code> to render the badge as a link or other interactive
-              element; do not expect a <code>render</code> prop (this package&apos;s vendor
-              file uses Radix <code>Slot</code>).
+              Use the <code>render</code> prop (e.g. <code>{"render={<a href=... />}"}</code>)
+              to render the badge as a link or other interactive element (Base UI{' '}
+              <code>useRender</code> — not Radix <code>asChild</code>).
             </li>
             <li>
               One-off colors that aren&apos;t a variant belong in <code>className</code> (see
@@ -532,7 +537,7 @@ export const Overview: Story = {
           <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
             <li>
               Badge is presentational by default (<code>span</code>). When used as a control
-              via <code>asChild</code>, the child element carries the accessible name and
+              via <code>render</code>, the rendered element carries the accessible name and
               role — ensure links/buttons have meaningful text (not icon-only without{' '}
               <code>aria-label</code>).
             </li>
