@@ -1,6 +1,6 @@
 # Avatar
 
-The Fabely Avatar atom — wraps the upstream shadcn Avatar primitive (`src/components/ui/avatar.tsx`, built on Radix UI's Avatar) with Fabely's own size and shape variants, sourced from Foundations.
+The Fabely Avatar atom — wraps the upstream shadcn Avatar primitive (`src/components/ui/avatar.tsx`, built on Base UI's Avatar) with Fabely's own size and shape variants, sourced from Foundations.
 
 ## Purpose
 

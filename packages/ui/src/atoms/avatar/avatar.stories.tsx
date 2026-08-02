@@ -59,7 +59,7 @@ function WithImageExample() {
   );
 }
 
-/** AvatarImage with a src that fails to load — Radix falls back to
+/** AvatarImage with a src that fails to load — Base UI falls back to
  * AvatarFallback's children automatically. */
 function FallbackExample() {
   return (
@@ -690,7 +690,7 @@ export const Overview: Story = {
         <p className="text-sm leading-relaxed text-muted-foreground">
           Represents a user or entity with an image, falling back to initials (or any short
           content) when no image is set or the image fails to load. This atom wraps the upstream
-          shadcn/Radix Avatar primitive with Fabely's size and shape variants, Status and Icon
+          shadcn/Base UI Avatar primitive with Fabely's size and shape variants, Status and Icon
           badges, AvatarGroup, and AvatarGroupCount — see the atom's <code>README.md</code> for
           what's intentionally not yet included (presence beyond a static status dot,
           image-specific variants, notification counts).
@@ -771,7 +771,7 @@ export const Overview: Story = {
         <Section title="Accessibility">
           <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
             <li>AvatarImage's <code>alt</code> should identify who or what the avatar represents — screen readers announce it when the image is present.</li>
-            <li>Radix automatically swaps to AvatarFallback when the image fails or has no src, so users are never left with a broken image icon.</li>
+            <li>Base UI automatically swaps to AvatarFallback when the image fails or has no src, so users are never left with a broken image icon.</li>
             <li>Initials alone (e.g. "CN") aren't a substitute for an accessible name where one is needed elsewhere in the surrounding UI (e.g. next to the user's full name).</li>
           </ul>
         </Section>
