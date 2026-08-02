@@ -27,5 +27,9 @@
   "scripts": {
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@solar-icons/react": "^1.1.1",
+    "lucide-react": "^0.564.0"
   }
 }

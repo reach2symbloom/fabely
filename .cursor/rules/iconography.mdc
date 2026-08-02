@@ -1,0 +1,54 @@
+---
+description: Fabely iconography — size tokens, Lucide/Solar sets, required for all UI components including shadcn
+globs: packages/ui/**/*.{tsx,ts,css},apps/**/*.{tsx,ts,css}
+alwaysApply: false
+---
+
+# Iconography
+
+## Size tokens (required)
+
+Canonical Foundation tokens live in `packages/ui/src/foundations/iconography.css`. Components **must** size icons with these — never hardcoded px, `size-4` / `size-6`, or ad-hoc values.
+
+| Token | px |
+|---|---|
+| `--icon-2xs` | 8 |
+| `--icon-xs` | 12 |
+| `--icon-sm` | 16 |
+| `--icon-md` | 20 |
+| `--icon-lg` | 24 |
+| `--icon-xl` | 32 |
+| `--icon-2xl` | 40 |
+| `--icon-3xl` | 48 |
+
+```tsx
+// ❌ BAD — Tailwind defaults / literals
+<Icon className="size-4" />
+<svg width={16} height={16} />
+
+// ✅ GOOD — Foundation icon size tokens
+<Icon className="size-[length:var(--icon-sm)]" />
+<Icon style={{ width: 'var(--icon-sm)', height: 'var(--icon-sm)' }} />
+// Solar: pass resolved px to `size` if CSS vars are not accepted
+```
+
+Typical mapping when adapting shadcn: `size-3`/`size-4` → `--icon-sm` (or `--icon-xs` for dense badges), `size-5` → `--icon-md`, `size-6` → `--icon-lg`.
+
+## Icon sets (not CSS tokens)
+
+Individual glyphs are **library components**, not CSS design tokens:
+
+- **Lucide** (`lucide-react`) — primary system UI (buttons, inputs, nav, alerts, badges)
+- **Solar Bold Duotone** (`@solar-icons/react`, `weight="BoldDuotone"`) — illustrations / empty states / Lucide gaps only
+
+Catalog: Storybook → Foundations → Iconography → Icon Library → Lucide | Solar | Fabely Icons.
+
+Do not mix Lucide and Solar in the same interface. Prefer `currentColor` so icons inherit text / disabled styles.
+
+## shadcn / vendor components
+
+When adding or wrapping shadcn under `packages/ui`:
+
+1. Replace hardcoded icon sizes with `--icon-*` tokens immediately.
+2. Keep Lucide as the icon library (`components.json` → `iconLibrary: "lucide"`).
+3. Public Fabely atoms wrap vendor primitives and own the tokenized icon sizing — do not leave `size-4` in Fabely-facing APIs.
