@@ -35,10 +35,12 @@ function normalizeOptions<T extends string>(
 
 /**
  * Shared Storybook playground segmented control — Foundations and Primitive
- * stories use this so active-chip styling stays one place (`bg-primary` /
- * `text-primary-foreground` → `--primary` / `--primary-foreground`).
- * Note: in dark mode `--primary` resolves to `--theme-neutrals-500`
- * (`#948C86`, a warm taupe) — see foundations/colors.css.
+ * stories use this so active-chip styling stays one place.
+ *
+ * Selected chip: Foundations theme-alpha black/switch (flips in dark) —
+ * fill `--theme-alpha-black-switch-15`, border `--theme-alpha-black-switch-40`
+ * for a defined edge against the fill, text `--foreground` for contrast in
+ * both modes. Transparent border on unselected chips avoids layout shift.
  */
 export function InlineSegmentedControl<T extends string>({
   label,
@@ -75,11 +77,11 @@ export function InlineSegmentedControl<T extends string>({
               aria-checked={selected}
               onClick={() => onChange(opt.value)}
               className={cn(
-                'rounded-sm px-3 py-1.5 font-sans text-sm transition-colors',
+                'rounded-sm border px-3 py-1.5 font-sans text-sm transition-colors',
                 fullWidth && 'min-w-0 flex-1',
                 selected
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-transparent text-muted-foreground hover:text-foreground'
+                  ? 'border-[color:var(--theme-alpha-black-switch-40)] bg-[var(--theme-alpha-black-switch-15)] text-foreground'
+                  : 'border-transparent bg-transparent text-muted-foreground hover:text-foreground'
               )}
             >
               {opt.label}
