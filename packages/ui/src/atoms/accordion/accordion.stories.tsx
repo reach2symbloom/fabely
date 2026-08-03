@@ -1,17 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion';
+import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
+import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
- * Overview is always the first page — description, a gallery composing the
- * canonical examples below (not duplicating them), usage guidance, a11y
- * notes, then an Args playground at the very bottom. Each example below
- * stays its own focused page. No Args playground is built for this atom
- * (per docs/DESIGN.md, it's only added once canonical examples are
- * complete, and this atom adds no Fabely-specific props/variants to
- * explore beyond the vendor primitive's own `multiple`/`disabled`, which
- * the Basic/Multiple/Disabled example pages already demonstrate directly).
+ * Overview is always the first page — description, interactive Playground
+ * at the top (same order as Badge / Avatar / Alert), then a gallery composing
+ * the canonical examples below (not duplicating them), usage guidance, and
+ * a11y notes. Each example below stays its own focused page.
  */
 
 const meta = {
@@ -265,6 +263,119 @@ function RtlExample() {
   );
 }
 
+/* ---------- Playground (Overview top) ----------
+ * Rendered inline at the top of the Overview page (same order as Badge /
+ * Avatar / Alert) so visitors can experiment with the vendor primitive's
+ * behavioral props directly alongside the live examples. State is plain
+ * component-local `useState`, not Storybook args. Ordered binary/scale
+ * controls (Mode) use InlineSegmentedControl; unordered composition
+ * variants (Style) stay as a select. Borders is not an Accordion prop —
+ * it's the docs' className recipe toggled as a composition mode.
+ * Base UI: single mode omits `multiple` and is always collapsible;
+ * `defaultValue` is always an array. */
+
+const playgroundLabelClass = 'font-sans text-xs text-muted-foreground';
+const playgroundControlClass =
+  'mt-1 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm';
+
+function PlaygroundField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="block">
+      <span className={playgroundLabelClass}>{label}</span>
+      {children}
+    </label>
+  );
+}
+
+type PlaygroundStyle = 'default' | 'borders';
+
+const STYLE_OPTIONS: { value: PlaygroundStyle; label: string }[] = [
+  { value: 'default', label: 'Default' },
+  { value: 'borders', label: 'Borders' },
+];
+
+function AccordionPlayground() {
+  const [mode, setMode] = useState<'single' | 'multiple'>('single');
+  const [style, setStyle] = useState<PlaygroundStyle>('default');
+
+  const rootClassName =
+    style === 'borders'
+      ? 'w-96 rounded-[var(--radius)] border-[length:var(--stroke-thin)] border-[color:var(--border)]'
+      : 'w-96';
+  const itemClassName =
+    style === 'borders'
+      ? 'border-b-[length:var(--stroke-thin)] border-[color:var(--border)] px-[var(--spacing-md)] last:border-b-0'
+      : undefined;
+
+  const items = FAQ_ITEMS.map(({ value, question, answer }) => (
+    <AccordionItem key={value} value={value} className={itemClassName}>
+      <AccordionTrigger>{question}</AccordionTrigger>
+      <AccordionContent>{answer}</AccordionContent>
+    </AccordionItem>
+  ));
+
+  return (
+    <PlaygroundPanel
+      preview={
+        mode === 'single' ? (
+          <Accordion key="single" defaultValue={['item-1']} className={rootClassName}>
+            {items}
+          </Accordion>
+        ) : (
+          <Accordion
+            key="multiple"
+            multiple
+            defaultValue={['item-1', 'item-2']}
+            className={rootClassName}
+          >
+            {items}
+          </Accordion>
+        )
+      }
+      controls={
+        <div className="grid w-full max-w-sm grid-cols-2 gap-4">
+          <div className="col-span-2">
+            <InlineSegmentedControl
+              label="Mode"
+              value={mode}
+              options={[
+                { value: 'single', label: 'Single' },
+                { value: 'multiple', label: 'Multiple' },
+              ]}
+              onChange={setMode}
+              fullWidth
+            />
+          </div>
+
+          <div className="col-span-2">
+            <LimitationNotice>
+              Base UI single mode is always collapsible (no <code>collapsible</code> prop).
+              Use a controlled <code>value</code> + <code>eventDetails.cancel()</code> if you
+              need to forbid collapsing the last open item.
+            </LimitationNotice>
+          </div>
+
+          <div className="col-span-2">
+            <PlaygroundField label="Style">
+              <select
+                value={style}
+                onChange={(e) => setStyle(e.target.value as PlaygroundStyle)}
+                className={playgroundControlClass}
+              >
+                {STYLE_OPTIONS.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </PlaygroundField>
+          </div>
+        </div>
+      }
+    />
+  );
+}
+
 /* ---------- Overview page chrome ----------
  * Reused verbatim from avatar.stories.tsx's own Section/GalleryItem. */
 
@@ -301,6 +412,10 @@ export const Overview: Story = {
           <code>README.md</code> for why (no Figma source exists yet for this component) and
           for the exact token substitutions made.
         </p>
+
+        <Section title="Playground">
+          <AccordionPlayground />
+        </Section>
 
         <Section title="Examples">
           <div className="flex flex-wrap gap-4">
