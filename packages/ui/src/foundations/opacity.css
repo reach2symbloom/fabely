@@ -6,9 +6,10 @@
  */
 
 :root {
-  /* Hover — Primary softens to 0.9; Destructive + Fia share 0.8 (second use). */
-  --opacity-hover-soft: 0.9;
-  --opacity-hover: 0.8;
+  /* Filled-control ladder — each pressed step is one notch stronger than hover. */
+  --opacity-hover-soft: 0.9; /* Primary hover */
+  --opacity-hover: 0.8; /* Primary pressed; Destructive + Fia filled hover */
+  --opacity-pressed: 0.7; /* Destructive + Fia filled pressed */
 
   /* Primary button always-on focus ring at rest (full ring on :focus-visible). */
   --opacity-focus-ring-rest: 40%;

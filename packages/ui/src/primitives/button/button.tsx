@@ -3,6 +3,8 @@
  *
  * Visual source of truth: Figma "Button"
  * (file gV94L0qCmvwQkddNbEktry, page Button / set 9:1071).
+ * Interaction model (hover / pressed) is library-authored — see README
+ * and docs/DESIGN.md (Figma had no pressed state).
  *
  * Wraps Base UI Button (same primitive the vendor file uses). Styles and
  * the variant / size / roundness surface are Foundations-sourced from Figma.
@@ -55,12 +57,19 @@ const GRADIENT_BORDER = [
   'before:[-webkit-mask-composite:xor]',
 ].join(' ');
 
+/** Outline/quiet hover + pressed fills. `data-pressed` mirrors `:active` for stories. */
+const QUIET_INTERACTION = [
+  'hover:bg-[var(--theme-alpha-black-switch-5)]',
+  'active:bg-[var(--theme-alpha-black-switch-10)]',
+  'data-[pressed]:bg-[var(--theme-alpha-black-switch-10)]',
+].join(' ');
+
 const buttonVariants = cva(
   [
     'group/button inline-flex shrink-0 items-center justify-center',
     'border border-transparent',
     'font-[family-name:var(--font-family-body)] [font-weight:var(--font-weight-paragraph-medium)]',
-    'whitespace-nowrap transition-[color,background-color,border-color,opacity,box-shadow,border-width]',
+    'whitespace-nowrap transition-[color,background-color,border-color,opacity,box-shadow]',
     'outline-none select-none',
     'disabled:pointer-events-none disabled:opacity-50',
     '[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-current',
@@ -71,7 +80,8 @@ const buttonVariants = cva(
         primary: [
           'bg-clip-padding bg-[image:var(--gradient-primary-top-bottom)] text-[color:var(--primary-foreground)]',
           'shadow-[var(--effect-focus-ring-primary-rest)]',
-          'hover:opacity-[var(--opacity-hover-soft)] active:opacity-[var(--opacity-hover-soft)]',
+          'hover:opacity-[var(--opacity-hover-soft)]',
+          'active:opacity-[var(--opacity-hover)] data-[pressed]:opacity-[var(--opacity-hover)]',
           'focus-visible:shadow-[var(--effect-focus-ring-primary)]',
           'disabled:bg-none disabled:bg-[var(--theme-neutrals-300)] disabled:text-[color:var(--theme-neutrals-700)]',
           'disabled:shadow-none disabled:opacity-50',
@@ -79,11 +89,9 @@ const buttonVariants = cva(
         primaryOutline: [
           GRADIENT_BORDER,
           'text-[color:var(--foreground)]',
-          'hover:border-[length:var(--stroke-medium)] hover:before:inset-[calc(var(--stroke-medium)*-1)] hover:before:border-[length:var(--stroke-medium)]',
-          'active:border-[length:var(--stroke-medium)] active:before:inset-[calc(var(--stroke-medium)*-1)] active:before:border-[length:var(--stroke-medium)]',
-          /* Focus fills surface per Figma; ::before keeps the gradient ring. */
+          QUIET_INTERACTION,
+          /* Focus fills surface; border width stays constant. */
           'focus-visible:bg-[var(--background)]',
-          'focus-visible:border-[length:var(--stroke-thin)] focus-visible:before:inset-[calc(var(--stroke-thin)*-1)] focus-visible:before:border-[length:var(--stroke-thin)]',
           'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           'disabled:opacity-50',
         ],
@@ -91,8 +99,8 @@ const buttonVariants = cva(
           'bg-[var(--theme-alpha-white-switch-0)]',
           'border-[length:var(--stroke-regular)] border-[color:var(--tw-raw-secondary-200)]',
           'text-[color:var(--foreground)]',
-          'hover:border-[length:var(--stroke-medium)] active:border-[length:var(--stroke-medium)]',
-          'focus-visible:bg-[var(--background)] focus-visible:border-[length:var(--stroke-thin)]',
+          QUIET_INTERACTION,
+          'focus-visible:bg-[var(--background)]',
           'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           'disabled:opacity-50',
         ],
@@ -100,8 +108,9 @@ const buttonVariants = cva(
           'bg-[var(--theme-alpha-black-switch-0)]',
           'border-[length:var(--stroke-thin)] border-[color:var(--theme-alpha-black-switch-10)]',
           'text-muted-foreground',
-          'hover:bg-[var(--theme-alpha-black-switch-5)] hover:text-secondary-foreground',
-          'active:bg-[var(--theme-alpha-black-switch-5)] active:text-secondary-foreground',
+          QUIET_INTERACTION,
+          'hover:text-secondary-foreground',
+          'active:text-secondary-foreground data-[pressed]:text-secondary-foreground',
           'focus-visible:text-secondary-foreground',
           'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           'disabled:opacity-50',
@@ -109,8 +118,9 @@ const buttonVariants = cva(
         ghost: [
           'bg-[var(--theme-alpha-white-switch-001)] border-transparent',
           'text-muted-foreground',
-          'hover:bg-[var(--theme-alpha-black-switch-5)] hover:text-foreground',
-          'active:bg-[var(--theme-alpha-black-switch-5)] active:text-foreground',
+          QUIET_INTERACTION,
+          'hover:text-foreground',
+          'active:text-foreground data-[pressed]:text-foreground',
           'focus-visible:text-foreground',
           'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           'disabled:opacity-50',
@@ -118,13 +128,15 @@ const buttonVariants = cva(
         destructive: [
           'bg-[color-mix(in_srgb,var(--tw-raw-error-ghost)_12%,transparent)]',
           'text-[color:var(--tw-raw-error-600)] border-transparent',
-          'hover:opacity-[var(--opacity-hover)] active:opacity-[var(--opacity-hover)]',
+          'hover:opacity-[var(--opacity-hover)]',
+          'active:opacity-[var(--opacity-pressed)] data-[pressed]:opacity-[var(--opacity-pressed)]',
           'focus-visible:shadow-[var(--effect-focus-ring-error)]',
           'disabled:opacity-50',
         ],
         fiaFilled: [
           'bg-[var(--tw-raw-fia-200)] text-[color:var(--tw-raw-fia-950)] border-transparent',
-          'hover:opacity-[var(--opacity-hover)] active:opacity-[var(--opacity-hover)]',
+          'hover:opacity-[var(--opacity-hover)]',
+          'active:opacity-[var(--opacity-pressed)] data-[pressed]:opacity-[var(--opacity-pressed)]',
           'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           'disabled:opacity-50',
         ],
@@ -132,7 +144,7 @@ const buttonVariants = cva(
           'bg-transparent',
           'border-[length:var(--stroke-regular)] border-[color:var(--tw-raw-fia-200)]',
           'text-[color:var(--foreground)]',
-          'hover:opacity-[var(--opacity-hover)] active:opacity-[var(--opacity-hover)]',
+          QUIET_INTERACTION,
           'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           'disabled:opacity-50',
         ],

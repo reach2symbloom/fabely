@@ -151,6 +151,19 @@ function DisabledExample() {
   );
 }
 
+/** Forces pressed styles via `data-pressed` (mirrors `:active` in the primitive). */
+function PressedExample() {
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      {VARIANTS.map(({ variant, label }) => (
+        <Button key={variant} variant={variant} data-pressed>
+          {label}
+        </Button>
+      ))}
+    </div>
+  );
+}
+
 /** `buttonVariants` on a plain `<a>` — not `render={<a />}`. */
 function AsLinkExample() {
   return (
@@ -368,6 +381,9 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Disabled">
             <DisabledExample />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Pressed">
+            <PressedExample />
+          </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="As Link">
             <AsLinkExample />
           </PrimitiveGalleryItem>
@@ -459,6 +475,10 @@ export const SpinnerStory: Story = {
 
 export const Disabled: Story = {
   render: () => <DisabledExample />,
+};
+
+export const Pressed: Story = {
+  render: () => <PressedExample />,
 };
 
 export const AsLink: Story = {

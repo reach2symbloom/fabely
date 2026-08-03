@@ -29,13 +29,23 @@ Visual source of truth: Figma component set **Button** in [Fabely Design System]
 | `primary` | `--gradient-primary-top-bottom` | — | `--primary-foreground` | Always-on `--effect-focus-ring-primary-rest`; full `--effect-focus-ring-primary` on `:focus-visible` |
 | `primaryOutline` | transparent (see deviations) | gradient poles (border-box via mask) | `--foreground` | `--effect-focus-ring-secondary` |
 | `secondary` | transparent | `--tw-raw-secondary-200` | `--foreground` | secondary |
-| `tertiary` | transparent / hover `--theme-alpha-black-switch-5` | `--theme-alpha-black-switch-10` | `--muted-foreground` → `--secondary-foreground` on hover | secondary |
-| `ghost` | `--theme-alpha-white-switch-001` / hover `--theme-alpha-black-switch-5` | none | `--muted-foreground` → `--foreground` on hover | secondary |
+| `tertiary` | transparent | `--theme-alpha-black-switch-10` | `--muted-foreground` → `--secondary-foreground` on hover/pressed | secondary |
+| `ghost` | `--theme-alpha-white-switch-001` | none | `--muted-foreground` → `--foreground` on hover/pressed | secondary |
 | `destructive` | `--tw-raw-error-ghost` @ 12% (`color-mix`) | — | `--tw-raw-error-600` | `--effect-focus-ring-error` |
 | `fiaFilled` | `--tw-raw-fia-200` | — | `--tw-raw-fia-950` | secondary |
 | `fiaOutline` | transparent | `--tw-raw-fia-200` | `--foreground` | secondary |
 
-Hover opacity: Primary → `--opacity-hover-soft` (0.9); Destructive + Fia → `--opacity-hover` (0.8). Disabled → layer opacity 0.5.
+### Interaction model (library-authored)
+
+Figma had no pressed state and inconsistent outline hovers — this model is defined in code (library wins; see `docs/DESIGN.md`).
+
+| Group | Hover | Pressed (`:active` / `data-pressed`) |
+| --- | --- | --- |
+| Filled — Primary | `--opacity-hover-soft` (0.9) | `--opacity-hover` (0.8) |
+| Filled — Destructive, Fia filled | `--opacity-hover` (0.8) | `--opacity-pressed` (0.7) |
+| Outline/quiet — Primary outline, Secondary, Tertiary, Ghost, Fia Outline | `--theme-alpha-black-switch-5` fill | `--theme-alpha-black-switch-10` fill |
+
+Border width is constant in every state (no 2px→3px hover thickening). Disabled → layer opacity 0.5.
 
 ### Size tokens
 
@@ -55,21 +65,23 @@ Hover opacity: Primary → `--opacity-hover-soft` (0.9); Destructive + Fia → `
 | --- | --- | --- |
 | `--spacing-11` | `var(--tw-raw-spacing-11)` → 44px | Button Large height (Figma spacing `11`) |
 | `--spacing-13` | `var(--tw-raw-spacing-13)` → 52px | Button Extra Large height (Figma spacing `13`) |
-| `--opacity-hover-soft` | `0.9` | Primary hover / active |
-| `--opacity-hover` | `0.8` | Destructive + Fia hover (second use) |
+| `--opacity-hover-soft` | `0.9` | Primary hover |
+| `--opacity-hover` | `0.8` | Primary pressed; Destructive + Fia filled hover |
+| `--opacity-pressed` | `0.7` | Destructive + Fia filled pressed |
 | `--opacity-focus-ring-rest` | `40%` | Primary always-on ring strength at rest |
 | `--effect-focus-ring-primary-rest` | 3px ring via `color-mix` + rest opacity | Always-on Primary treatment |
 
 ## Decisions / deviations
 
 1. Tertiary/Ghost default muted text → `--muted-foreground` (not a 0.75 alpha literal on a separate “text default” token).
-2. Ghost hover fill → `--theme-alpha-black-switch-5` (aligned with Tertiary).
+2. Outline/quiet hover/pressed fills use `--theme-alpha-black-switch-5` / `-10` across all five quiet variants (extends the old Tertiary/Ghost hover pattern).
 3. Large/XL heights use published `--spacing-11` / `--spacing-13` (not raw).
 4. Primary focus ring is always-on at rest opacity; `:focus-visible` uses full primary ring.
-5. Fia hover → `--opacity-hover` (0.8), matching updated Figma.
+5. Border width stays constant — no hover/focus stroke thickening (border-box was eating padding).
 6. Dropped shadcn `link` variant and all `icon*` sizes — separate Figma components.
 7. Heights consume spacing tokens because Figma binds button height to the spacing scale (same precedent as Avatar).
 8. **Primary outline gradient border:** Figma fill is `--theme-alpha-white-switch-0` (transparent). An opaque padding-box background layer would pin the center to `--background` and fail on non-default surfaces. Instead we use mask-composite on `::before`: `background: var(--gradient-primary-top-bottom) border-box` + `mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0)` (`-webkit-mask-composite: xor` on WebKit). That punches out the padding-box so only the border ring remains, with a genuinely transparent face. The ring is on `::before` (negative-inset to the border-box) so the mask does not hide label text. Focus fills `--background` on the button; the ring remains.
+9. **Interaction model** (hover/pressed) is library-authored — Figma lacked pressed and had inconsistent outline hovers.
 
 ## As link
 

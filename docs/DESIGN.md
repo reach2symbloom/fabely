@@ -13,14 +13,25 @@ DESIGN.md evolves alongside the design system. It records architectural decision
 
 DESIGN.md is the architectural reference for the Fabely Design System.
 
-It explains *why* the design system is structured the way it is. Figma defines the visual source of truth, Storybook documents the implementation, and production code brings the system to life.
+It explains *why* the design system is structured the way it is. Storybook documents the implementation; production code ships it. Authority between Figma and the library is directional — see Source of truth below.
 
 ### Responsibilities
 
-- **Figma** → Visual design and design tokens
+- **Figma** → Vessel of communication: originates design intent and hands it off (visuals, tokens, component specs for work not yet built)
 - **DESIGN.md** → Architecture, philosophy, naming, and conventions
 - **Storybook** → Implementation and documentation
-- **Code** → Production implementation
+- **Code (library)** → Production implementation; master for components once built
+
+### Source of truth
+
+Figma originates design intent and hands it off. Once a component is built in the library, **the library becomes the master** — it is authoritative for that component's API, states, and interaction behavior. Figma is not maintained retroactively to match.
+
+**Direction of authority**
+
+- **Figma → library** for components not yet built
+- **Library wins** for components already built
+
+Example: Button's hover and pressed interaction model was defined in code. Figma had no pressed state and inconsistent outline hovers; the library is the source of truth for those behaviors.
 
 ---
 
@@ -182,7 +193,7 @@ Vendor-derived wrappers do not belong in these tiers — they live under Primiti
 
 Workflow:
 
-1. Match Figma faithfully.
+1. Match Figma faithfully for components not yet built (Figma → library). Once built, the library is master — see Source of truth.
 2. Identify recurring patterns.
 3. Create semantic component tokens where appropriate.
 4. Refactor components to consume those semantic tokens.
