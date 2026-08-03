@@ -1,0 +1,30 @@
+---
+description: Design token usage — spacing vs dimensions, icons, colors, motion; values live in Foundations
+alwaysApply: true
+---
+
+# Design Tokens
+
+Values live in Foundations (`packages/ui/src/foundations/`). This rule states usage only. Rationale: `docs/DESIGN.md`.
+
+`pnpm check:tokens` must pass before any work is considered complete.
+
+## Dimensions
+
+- Spacing tokens are for rhythm only (padding, gaps, margins) — never for sizing components.
+- Component dimensions are component tokens defined alongside the component.
+- Never inline raw dimensions (px, rem literals, arbitrary Tailwind sizes).
+
+## Icons
+
+- Size always from `--icon-*`. Never `size-4`, `size-[14px]`, or hardcoded px.
+- Glyphs: Lucide for system UI, Solar Bold Duotone for illustrative accents. Never mix sets in one interface.
+
+## Colors
+
+- Semantic color classes only. Never hex literals.
+
+## Motion
+
+- No duration/easing tokens exist yet. Do not invent them.
+- On second use of the same motion value, promote it to Foundations.
