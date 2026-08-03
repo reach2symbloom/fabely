@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useState, type CSSProperties } from 'react';
 import { useArgs } from 'storybook/preview-api';
 import { EffectsNotice, EffectsSectionHeading, uiCellStyle, codeCellStyle } from './EffectsDocChrome';
+import { InlineSegmentedControl } from './InlineSegmentedControl';
 
 type Variant = 'Primary' | 'Primary Glow' | 'Secondary' | 'Sidebar' | 'Success' | 'Alert' | 'Error';
 type Control = 'Input' | 'Button';
@@ -58,54 +59,6 @@ function useResolvedValue(cssVar: string) {
     setValue(getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim());
   }, [cssVar]);
   return value;
-}
-
-/** Generic clickable segmented control, reused for Variant and Control —
- * same inline-args pattern established by the Typography stories (synced
- * to Storybook's Controls panel via useArgs, inline is primary). */
-function InlineSegmentedControl<T extends string>({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: T;
-  options: T[];
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div style={{ marginBottom: 12 }}>
-      <div style={{ fontFamily: 'var(--font-family-sans)', fontSize: 12, opacity: 0.7, marginBottom: 6 }}>{label}</div>
-      <div
-        role="radiogroup"
-        aria-label={label}
-        style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 4, padding: 4, border: '1px solid var(--border)', borderRadius: 8 }}
-      >
-        {options.map((opt) => (
-          <button
-            key={opt}
-            type="button"
-            role="radio"
-            aria-checked={value === opt}
-            onClick={() => onChange(opt)}
-            style={{
-              fontFamily: 'var(--font-family-sans)',
-              fontSize: 13,
-              padding: '6px 14px',
-              borderRadius: 6,
-              border: 'none',
-              cursor: 'pointer',
-              background: value === opt ? 'var(--primary)' : 'transparent',
-              color: value === opt ? 'var(--primary-foreground)' : 'inherit',
-            }}
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 /** Single representative specimen panel — a bordered preview panel rather
@@ -209,17 +162,28 @@ export const Overview: Story = {
         </EffectsNotice>
 
         <EffectsSectionHeading>Interactive Example</EffectsSectionHeading>
-        <InlineSegmentedControl
-          label="Variant"
-          value={variant}
-          options={['Primary', 'Primary Glow', 'Secondary', 'Sidebar', 'Success', 'Alert', 'Error']}
-          onChange={(v) => updateArgs({ variant: v })}
-        />
+        {/* Variant is an unordered semantic set → select; Control is a short
+         * binary choice → shared InlineSegmentedControl. */}
+        <label className="mb-3 block max-w-sm">
+          <span className="mb-1.5 block font-sans text-xs text-muted-foreground">Variant</span>
+          <select
+            value={variant}
+            onChange={(e) => updateArgs({ variant: e.target.value as Variant })}
+            className="w-full rounded-md border border-input bg-background px-3 py-1.5 font-sans text-sm"
+          >
+            {variantArgType.options.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </label>
         <InlineSegmentedControl
           label="Control"
           value={control}
           options={['Input', 'Button']}
           onChange={(c) => updateArgs({ control: c })}
+          className="mb-3"
         />
         <FocusRingPreview variant={variant} control={control} />
 

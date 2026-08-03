@@ -3,6 +3,8 @@ import { useState, type ReactNode } from 'react';
 import { InfoIcon, CheckCheck } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription, type AlertType } from './alert';
 import { cn } from '@/lib/utils';
+import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
+import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -119,13 +121,6 @@ function SuccessExample() {
   );
 }
 
-/* ---------- Type selector ----------
- * Single-click segmented control, not a dropdown, per this milestone's
- * own instructions. Story-local only — Fabely has no shared Tabs/
- * segmented-control atom yet to reuse, matching the same "minimal local
- * placeholder for demo purposes" precedent as the previous milestone's
- * now-removed `OutlineButton`. */
-
 const ALERT_TYPES: { value: AlertType; label: string }[] = [
   { value: 'neutral', label: 'Neutral' },
   { value: 'error', label: 'Error' },
@@ -133,40 +128,18 @@ const ALERT_TYPES: { value: AlertType; label: string }[] = [
   { value: 'success', label: 'Success' },
 ];
 
-function TypeSegmentedControl({ value, onChange }: { value: AlertType; onChange: (type: AlertType) => void }) {
-  return (
-    <div role="radiogroup" aria-label="Type" className="inline-flex gap-1 rounded-md border border-border p-1">
-      {ALERT_TYPES.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          role="radio"
-          aria-checked={value === option.value}
-          onClick={() => onChange(option.value)}
-          className={cn(
-            'rounded-sm px-3 py-1 text-sm font-sans transition-colors',
-            value === option.value
-              ? 'bg-foreground text-background'
-              : 'text-muted-foreground hover:text-foreground'
-          )}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 /* ---------- Interactive playground ----------
  * Rendered inline at the top of the Overview page (not as a separate story
  * page) so visitors can experiment with all controls directly alongside
  * the live examples — same approach as Avatar's own playground. State is
  * plain component-local `useState`, not Storybook args/Controls — this
  * isn't an independent story, just interactive UI within the Overview
- * page itself. Four controls total: Type, Icon, Line 2, and free-text
- * copy. The Icon checkbox behaves identically for all 4 types, `success`
+ * page itself. Four controls total: Type, Icon, line count, and free-text
+ * copy. Icon on/off behaves identically for all 4 types, `success`
  * included — only its *identity* is swapped for a fixed `CheckCheck` in
- * alert.tsx, its presence/absence still follows this same checkbox. */
+ * alert.tsx, its presence/absence still follows this same control.
+ * Ordered scales (Icon on/off, line count) use InlineSegmentedControl;
+ * unordered Type uses a select. */
 
 const playgroundLabelClass = 'font-sans text-xs text-muted-foreground';
 const playgroundControlClass =
@@ -189,66 +162,78 @@ function AlertPlayground() {
   const [description, setDescription] = useState('You can undo this from the activity log.');
 
   return (
-    <div className="flex flex-col items-stretch gap-8 rounded-lg border border-border p-8">
-      <div className="w-full max-w-xl">
-        <Alert type={type}>
-          {showIcon ? <InfoIcon /> : null}
-          <AlertTitle>{title}</AlertTitle>
-          {showLine2 ? <AlertDescription>{description}</AlertDescription> : null}
-        </Alert>
-      </div>
-
-      <div className="flex flex-col gap-4">
-        <div>
-          <span className={playgroundLabelClass}>Type</span>
-          <div className="mt-1">
-            <TypeSegmentedControl value={type} onChange={setType} />
-          </div>
+    <PlaygroundPanel
+      previewAlign="stretch"
+      preview={
+        <div className="w-full max-w-xl">
+          <Alert type={type}>
+            {showIcon ? <InfoIcon /> : null}
+            <AlertTitle>{title}</AlertTitle>
+            {showLine2 ? <AlertDescription>{description}</AlertDescription> : null}
+          </Alert>
         </div>
-
-        <div className="grid w-full max-w-sm grid-cols-2 gap-4">
-          <PlaygroundField label="Line 1">
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+      }
+      controls={
+        <div className="flex flex-col gap-4">
+          <PlaygroundField label="Type">
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value as AlertType)}
               className={playgroundControlClass}
-            />
+            >
+              {ALERT_TYPES.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </PlaygroundField>
 
-          <PlaygroundField label="Line 2">
-            <input
-              type="text"
-              value={description}
-              disabled={!showLine2}
-              onChange={(e) => setDescription(e.target.value)}
-              className={cn(playgroundControlClass, !showLine2 && 'opacity-50')}
-            />
-          </PlaygroundField>
+          <div className="grid w-full max-w-sm grid-cols-2 gap-4">
+            <PlaygroundField label="Line 1">
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className={playgroundControlClass}
+              />
+            </PlaygroundField>
 
-          <div className="col-span-2 flex items-end gap-4 pb-1.5">
-            <label className="flex items-center gap-2">
+            <PlaygroundField label="Line 2">
               <input
-                type="checkbox"
-                checked={showIcon}
-                onChange={(e) => setShowIcon(e.target.checked)}
-                className="size-4 rounded border-input"
+                type="text"
+                value={description}
+                disabled={!showLine2}
+                onChange={(e) => setDescription(e.target.value)}
+                className={cn(playgroundControlClass, !showLine2 && 'opacity-50')}
               />
-              <span className={playgroundLabelClass}>Icon</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={showLine2}
-                onChange={(e) => setShowLine2(e.target.checked)}
-                className="size-4 rounded border-input"
-              />
-              <span className={playgroundLabelClass}>Line 2 (two-line alert)</span>
-            </label>
+            </PlaygroundField>
+
+            <InlineSegmentedControl
+              label="Icon"
+              value={showIcon ? 'on' : 'off'}
+              options={[
+                { value: 'off', label: 'Off' },
+                { value: 'on', label: 'On' },
+              ]}
+              onChange={(v) => setShowIcon(v === 'on')}
+              fullWidth
+            />
+
+            <InlineSegmentedControl
+              label="Lines"
+              value={showLine2 ? 'two' : 'one'}
+              options={[
+                { value: 'one', label: 'One' },
+                { value: 'two', label: 'Two' },
+              ]}
+              onChange={(v) => setShowLine2(v === 'two')}
+              fullWidth
+            />
           </div>
         </div>
-      </div>
-    </div>
+      }
+    />
   );
 }
 

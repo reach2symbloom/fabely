@@ -47,17 +47,23 @@ const sizeClasses: Record<AvatarSize, string> = {
   extraLarge: 'size-[var(--spacing-5xl)]',
 };
 
+/* Roundrect corner radii — component tokens (`--avatar-radius-*` in
+ * avatar.css), each resolving to a Foundations raw radius primitive
+ * (`--tw-raw-radius-*`). Size-specific and owned by Avatar rather than
+ * borrowing the generic Foundations published radius scale. */
 const roundrectRadiusClasses: Record<AvatarSize, string> = {
-  extraTiny: 'rounded-[var(--rounded-sm)]',
-  tiny: 'rounded-[var(--rounded-md)]',
-  small: 'rounded-[var(--radius)]',
-  regular: 'rounded-[var(--radius)]',
-  large: 'rounded-[var(--rounded-lg)]',
-  extraLarge: 'rounded-[var(--radius)]',
+  extraTiny: 'rounded-[var(--avatar-radius-extraTiny)]',
+  tiny: 'rounded-[var(--avatar-radius-tiny)]',
+  small: 'rounded-[var(--avatar-radius-small)]',
+  regular: 'rounded-[var(--avatar-radius-regular)]',
+  large: 'rounded-[var(--avatar-radius-large)]',
+  extraLarge: 'rounded-[var(--avatar-radius-extraLarge)]',
 };
 
 function radiusClass(size: AvatarSize, shape: AvatarShape) {
-  return shape === 'round' ? 'rounded-[var(--rounded-full)]' : roundrectRadiusClasses[size];
+  return shape === 'round'
+    ? 'rounded-[var(--avatar-radius-round)]'
+    : roundrectRadiusClasses[size];
 }
 
 /* Keyed by size only — shape doesn't affect type scale. Every size maps to

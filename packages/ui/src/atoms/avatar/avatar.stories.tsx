@@ -11,6 +11,8 @@ import {
   AvatarGroupCount,
 } from './avatar';
 import type { AvatarSize, AvatarShape, AvatarStatus } from './avatar';
+import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
+import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -98,6 +100,16 @@ const SIZES: { size: AvatarSize; label: string }[] = [
   { size: 'regular', label: 'Regular' },
   { size: 'large', label: 'Large' },
   { size: 'extraLarge', label: 'Extra Large' },
+];
+
+const SIZE_OPTIONS: { value: AvatarSize; label: string }[] = SIZES.map(({ size, label }) => ({
+  value: size,
+  label,
+}));
+
+const SHAPE_OPTIONS: { value: AvatarShape; label: string }[] = [
+  { value: 'round', label: 'Round' },
+  { value: 'roundrect', label: 'Roundrect' },
 ];
 
 /** The full size scale, Extra Tiny through Extra Large, each with its own
@@ -419,7 +431,9 @@ function GradientExample() {
  * UI within the Overview page itself. Split into two playgrounds (Single
  * Avatar, Avatar Group) rather than one combined one: the two are largely
  * independent composition modes, and combining them would bury the
- * controls that matter for a given task under ones that don't apply. */
+ * controls that matter for a given task under ones that don't apply.
+ * Ordered scales (Size, Shape, on/off) use the shared InlineSegmentedControl
+ * story helper; unordered option sets stay as selects. */
 
 const playgroundLabelClass = 'font-sans text-xs text-muted-foreground';
 const playgroundControlClass =
@@ -462,118 +476,119 @@ function SingleAvatarPlayground() {
   const { Icon, ariaLabel } = ICON_OPTIONS[icon];
 
   return (
-    <div className="flex flex-col items-center gap-8 rounded-lg border border-border p-8">
-      <Avatar size={size} shape={shape} gradient={gradient}>
-        {content === 'image' ? (
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-        ) : null}
-        <AvatarFallback>CN</AvatarFallback>
-        {badge === 'status' ? <AvatarStatusBadge status={status} /> : null}
-        {badge === 'icon' ? (
-          <AvatarIconBadge aria-label={ariaLabel}>
-            <Icon />
-          </AvatarIconBadge>
-        ) : null}
-      </Avatar>
-
-      <div className="grid w-full max-w-sm grid-cols-2 gap-4">
-        <PlaygroundField label="Size">
-          <select
-            value={size}
-            onChange={(e) => setSize(e.target.value as AvatarSize)}
-            className={playgroundControlClass}
-          >
-            {SIZES.map(({ size: s, label }) => (
-              <option key={s} value={s}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </PlaygroundField>
-
-        <PlaygroundField label="Shape">
-          <select
-            value={shape}
-            onChange={(e) => setShape(e.target.value as AvatarShape)}
-            className={playgroundControlClass}
-          >
-            <option value="round">Round</option>
-            <option value="roundrect">Roundrect</option>
-          </select>
-        </PlaygroundField>
-
-        <PlaygroundField label="Content">
-          <select
-            value={content}
-            onChange={(e) => setContent(e.target.value as 'image' | 'initials')}
-            className={playgroundControlClass}
-          >
-            <option value="image">Image</option>
-            <option value="initials">Initials</option>
-          </select>
-        </PlaygroundField>
-
-        <PlaygroundField label="Badge">
-          <select
-            value={badge}
-            onChange={(e) => setBadge(e.target.value as 'none' | 'status' | 'icon')}
-            className={playgroundControlClass}
-          >
-            <option value="none">None</option>
-            <option value="status">Status</option>
-            <option value="icon">Icon</option>
-          </select>
-        </PlaygroundField>
-
-        {badge === 'status' ? (
-          <PlaygroundField label="Status">
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as AvatarStatus)}
-              className={playgroundControlClass}
-            >
-              {STATUSES.map(({ status: s, label }) => (
-                <option key={s} value={s}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </PlaygroundField>
-        ) : null}
-
-        {badge === 'icon' ? (
-          <PlaygroundField label="Icon">
-            <select
-              value={icon}
-              onChange={(e) => setIcon(e.target.value as IconOption)}
-              className={playgroundControlClass}
-            >
-              {(Object.keys(ICON_OPTIONS) as IconOption[]).map((value) => (
-                <option key={value} value={value}>
-                  {ICON_OPTIONS[value].label}
-                </option>
-              ))}
-            </select>
-          </PlaygroundField>
-        ) : null}
-
-        {shape === 'round' ? (
-          <label className="flex items-center gap-2 self-end pb-1.5">
-            <input
-              type="checkbox"
-              checked={gradient}
-              onChange={(e) => setGradient(e.target.checked)}
-              className="size-4 rounded border-input"
-            />
-            <span className={playgroundLabelClass}>Gradient</span>
-          </label>
-        ) : (
+    <PlaygroundPanel
+      preview={
+        <Avatar size={size} shape={shape} gradient={gradient}>
+          {content === 'image' ? (
+            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          ) : null}
+          <AvatarFallback>CN</AvatarFallback>
+          {badge === 'status' ? <AvatarStatusBadge status={status} /> : null}
+          {badge === 'icon' ? (
+            <AvatarIconBadge aria-label={ariaLabel}>
+              <Icon />
+            </AvatarIconBadge>
+          ) : null}
+        </Avatar>
+      }
+      controls={
+        <div className="grid w-full max-w-sm grid-cols-2 gap-4">
           <div className="col-span-2">
-            <LimitationNotice>Gradient only applies to Round avatars.</LimitationNotice>
+            <InlineSegmentedControl
+              label="Size"
+              value={size}
+              options={SIZE_OPTIONS}
+              onChange={setSize}
+              fullWidth
+            />
           </div>
-        )}
-      </div>
-    </div>
+
+          <div className="col-span-2">
+            <InlineSegmentedControl
+              label="Shape"
+              value={shape}
+              options={SHAPE_OPTIONS}
+              onChange={setShape}
+              fullWidth
+            />
+          </div>
+
+          <PlaygroundField label="Content">
+            <select
+              value={content}
+              onChange={(e) => setContent(e.target.value as 'image' | 'initials')}
+              className={playgroundControlClass}
+            >
+              <option value="image">Image</option>
+              <option value="initials">Initials</option>
+            </select>
+          </PlaygroundField>
+
+          <PlaygroundField label="Badge">
+            <select
+              value={badge}
+              onChange={(e) => setBadge(e.target.value as 'none' | 'status' | 'icon')}
+              className={playgroundControlClass}
+            >
+              <option value="none">None</option>
+              <option value="status">Status</option>
+              <option value="icon">Icon</option>
+            </select>
+          </PlaygroundField>
+
+          {badge === 'status' ? (
+            <PlaygroundField label="Status">
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as AvatarStatus)}
+                className={playgroundControlClass}
+              >
+                {STATUSES.map(({ status: s, label }) => (
+                  <option key={s} value={s}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </PlaygroundField>
+          ) : null}
+
+          {badge === 'icon' ? (
+            <PlaygroundField label="Icon">
+              <select
+                value={icon}
+                onChange={(e) => setIcon(e.target.value as IconOption)}
+                className={playgroundControlClass}
+              >
+                {(Object.keys(ICON_OPTIONS) as IconOption[]).map((value) => (
+                  <option key={value} value={value}>
+                    {ICON_OPTIONS[value].label}
+                  </option>
+                ))}
+              </select>
+            </PlaygroundField>
+          ) : null}
+
+          {shape === 'round' ? (
+            <div className="col-span-2">
+              <InlineSegmentedControl
+                label="Gradient"
+                value={gradient ? 'on' : 'off'}
+                options={[
+                  { value: 'off', label: 'Off' },
+                  { value: 'on', label: 'On' },
+                ]}
+                onChange={(v) => setGradient(v === 'on')}
+                fullWidth
+              />
+            </div>
+          ) : (
+            <div className="col-span-2">
+              <LimitationNotice>Gradient only applies to Round avatars.</LimitationNotice>
+            </div>
+          )}
+        </div>
+      }
+    />
   );
 }
 
@@ -592,71 +607,71 @@ const GROUP_PLAYGROUND_MEMBERS: { src?: string; alt: string; fallback: string }[
  * (see the Single Avatar playground above and the Gradient example page),
  * and badges compose onto individual Avatars directly rather than through
  * AvatarGroup itself — see the Group With Badges example. */
+const GROUP_COUNT_OPTIONS = ['1', '2', '3', '4', '5', '6'] as const;
+type GroupCountOption = (typeof GROUP_COUNT_OPTIONS)[number];
+
 function AvatarGroupPlayground() {
   const [size, setSize] = useState<AvatarSize>('regular');
-  const [count, setCount] = useState(3);
+  const [count, setCount] = useState<GroupCountOption>('3');
   const [groupCount, setGroupCount] = useState<'none' | 'text' | 'icon'>('text');
-  const members = GROUP_PLAYGROUND_MEMBERS.slice(0, count);
+  const members = GROUP_PLAYGROUND_MEMBERS.slice(0, Number(count));
 
   return (
-    <div className="flex flex-col items-center gap-8 rounded-lg border border-border p-8">
-      <AvatarGroup size={size}>
-        {members.map((member) => (
-          <Avatar key={member.alt} size={size}>
-            {member.src ? <AvatarImage src={member.src} alt={member.alt} /> : null}
-            <AvatarFallback>{member.fallback}</AvatarFallback>
-          </Avatar>
-        ))}
-        {groupCount === 'text' ? <AvatarGroupCount>+3</AvatarGroupCount> : null}
-        {groupCount === 'icon' ? (
-          <AvatarGroupCount aria-label="Add">
-            <Plus />
-          </AvatarGroupCount>
-        ) : null}
-      </AvatarGroup>
+    <PlaygroundPanel
+      preview={
+        <AvatarGroup size={size}>
+          {members.map((member) => (
+            <Avatar key={member.alt} size={size}>
+              {member.src ? <AvatarImage src={member.src} alt={member.alt} /> : null}
+              <AvatarFallback>{member.fallback}</AvatarFallback>
+            </Avatar>
+          ))}
+          {groupCount === 'text' ? <AvatarGroupCount>+3</AvatarGroupCount> : null}
+          {groupCount === 'icon' ? (
+            <AvatarGroupCount aria-label="Add">
+              <Plus />
+            </AvatarGroupCount>
+          ) : null}
+        </AvatarGroup>
+      }
+      controls={
+        <div className="grid w-full max-w-sm grid-cols-2 gap-4">
+          <div className="col-span-2">
+            <InlineSegmentedControl
+              label="Size"
+              value={size}
+              options={SIZE_OPTIONS}
+              onChange={setSize}
+              fullWidth
+            />
+          </div>
 
-      <div className="grid w-full max-w-sm grid-cols-2 gap-4">
-        <PlaygroundField label="Size">
-          <select
-            value={size}
-            onChange={(e) => setSize(e.target.value as AvatarSize)}
-            className={playgroundControlClass}
-          >
-            {SIZES.map(({ size: s, label }) => (
-              <option key={s} value={s}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </PlaygroundField>
+          <div className="col-span-2">
+            <InlineSegmentedControl
+              label="Number of Avatars"
+              value={count}
+              options={GROUP_COUNT_OPTIONS}
+              onChange={setCount}
+              fullWidth
+            />
+          </div>
 
-        <PlaygroundField label="Number of Avatars">
-          <select
-            value={count}
-            onChange={(e) => setCount(Number(e.target.value))}
-            className={playgroundControlClass}
-          >
-            {GROUP_PLAYGROUND_MEMBERS.map((_, i) => (
-              <option key={i} value={i + 1}>
-                {i + 1}
-              </option>
-            ))}
-          </select>
-        </PlaygroundField>
-
-        <PlaygroundField label="AvatarGroupCount">
-          <select
-            value={groupCount}
-            onChange={(e) => setGroupCount(e.target.value as 'none' | 'text' | 'icon')}
-            className={playgroundControlClass}
-          >
-            <option value="none">None</option>
-            <option value="text">Text</option>
-            <option value="icon">Icon</option>
-          </select>
-        </PlaygroundField>
-      </div>
-    </div>
+          <div className="col-span-2">
+            <PlaygroundField label="AvatarGroupCount">
+              <select
+                value={groupCount}
+                onChange={(e) => setGroupCount(e.target.value as 'none' | 'text' | 'icon')}
+                className={playgroundControlClass}
+              >
+                <option value="none">None</option>
+                <option value="text">Text</option>
+                <option value="icon">Icon</option>
+              </select>
+            </PlaygroundField>
+          </div>
+        </div>
+      }
+    />
   );
 }
 

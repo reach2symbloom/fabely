@@ -3,7 +3,8 @@ import { useState, type ReactNode } from 'react';
 import { BadgeCheckIcon, Loader2Icon } from 'lucide-react';
 import { Badge } from './badge';
 import type { BadgeRoundness, BadgeSize, BadgeVariant } from './badge';
-import { cn } from '@/lib/utils';
+import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
+import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -259,9 +260,9 @@ function LimitationNotice({ children }: { children: ReactNode }) {
  * Rendered inline at the top of the Overview page (same order as Avatar /
  * Alert) so visitors can experiment with the full option set directly
  * alongside the live examples. State is plain component-local `useState`,
- * not Storybook args. Binary controls use a story-local segmented control
- * (no shared Tabs atom yet — same precedent as Alert's Type selector);
- * dropdowns are reserved for 3+ option sets (Variant, Icon). */
+ * not Storybook args. Binary / few-option controls use the shared
+ * InlineSegmentedControl story helper; unordered sets (Variant, Icon) stay
+ * as selects. */
 
 const playgroundLabelClass = 'font-sans text-xs text-muted-foreground';
 const playgroundControlClass =
@@ -273,47 +274,6 @@ function PlaygroundField({ label, children }: { label: string; children: ReactNo
       <span className={playgroundLabelClass}>{label}</span>
       {children}
     </label>
-  );
-}
-
-function SegmentedControl<T extends string>({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: T;
-  options: { value: T; label: string }[];
-  onChange: (value: T) => void;
-}) {
-  return (
-    <div>
-      <span className={playgroundLabelClass}>{label}</span>
-      <div
-        role="radiogroup"
-        aria-label={label}
-        className="mt-1 inline-flex w-full gap-1 rounded-md border border-border p-1"
-      >
-        {options.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            role="radio"
-            aria-checked={value === option.value}
-            onClick={() => onChange(option.value)}
-            className={cn(
-              'flex-1 rounded-sm px-3 py-1 text-sm font-sans transition-colors',
-              value === option.value
-                ? 'bg-foreground text-background'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -349,79 +309,85 @@ function BadgePlayground() {
     icon === 'end' ? 'inline-end' : icon === 'none' ? undefined : 'inline-start';
 
   return (
-    <div className="flex flex-col items-center gap-8 rounded-lg border border-border p-8">
-      {asLink ? (
-        <Badge
-          render={<a href="#" />}
-          variant={variant}
-          size={size}
-          roundness={roundness}
-          data-icon={dataIcon}
-        >
-          {content}
-        </Badge>
-      ) : (
-        <Badge variant={variant} size={size} roundness={roundness} data-icon={dataIcon}>
-          {content}
-        </Badge>
-      )}
-
-      <div className="grid w-full max-w-sm grid-cols-2 gap-4">
-        <PlaygroundField label="Variant">
-          <select
-            value={variant}
-            onChange={(e) => setVariant(e.target.value as BadgeVariant)}
-            className={playgroundControlClass}
+    <PlaygroundPanel
+      preview={
+        asLink ? (
+          <Badge
+            render={<a href="#" />}
+            variant={variant}
+            size={size}
+            roundness={roundness}
+            data-icon={dataIcon}
           >
-            {ALL_VARIANTS.map(({ variant: v, label }) => (
-              <option key={v} value={v}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </PlaygroundField>
+            {content}
+          </Badge>
+        ) : (
+          <Badge variant={variant} size={size} roundness={roundness} data-icon={dataIcon}>
+            {content}
+          </Badge>
+        )
+      }
+      controls={
+        <div className="grid w-full max-w-sm grid-cols-2 gap-4">
+          <PlaygroundField label="Variant">
+            <select
+              value={variant}
+              onChange={(e) => setVariant(e.target.value as BadgeVariant)}
+              className={playgroundControlClass}
+            >
+              {ALL_VARIANTS.map(({ variant: v, label }) => (
+                <option key={v} value={v}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </PlaygroundField>
 
-        <PlaygroundField label="Icon">
-          <select
-            value={icon}
-            onChange={(e) => setIcon(e.target.value as typeof icon)}
-            className={playgroundControlClass}
-          >
-            {ICON_OPTIONS.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </PlaygroundField>
+          <PlaygroundField label="Icon">
+            <select
+              value={icon}
+              onChange={(e) => setIcon(e.target.value as typeof icon)}
+              className={playgroundControlClass}
+            >
+              {ICON_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </PlaygroundField>
 
-        <SegmentedControl
-          label="Size"
-          value={size}
-          options={SIZES.map(({ size: s, label }) => ({ value: s, label }))}
-          onChange={setSize}
-        />
-
-        <SegmentedControl
-          label="Roundness"
-          value={roundness}
-          options={ROUNDNESSES.map(({ roundness: r, label }) => ({ value: r, label }))}
-          onChange={setRoundness}
-        />
-
-        <div className="col-span-2">
-          <SegmentedControl
-            label="Link"
-            value={asLink ? 'on' : 'off'}
-            options={[
-              { value: 'off', label: 'Off' },
-              { value: 'on', label: 'On' },
-            ]}
-            onChange={(v) => setAsLink(v === 'on')}
+          <InlineSegmentedControl
+            label="Size"
+            value={size}
+            options={SIZES.map(({ size: s, label }) => ({ value: s, label }))}
+            onChange={setSize}
+            fullWidth
           />
+
+          <InlineSegmentedControl
+            label="Roundness"
+            value={roundness}
+            options={ROUNDNESSES.map(({ roundness: r, label }) => ({ value: r, label }))}
+            onChange={setRoundness}
+            fullWidth
+          />
+
+          <div className="col-span-2">
+            <InlineSegmentedControl
+              label="Link"
+              value={asLink ? 'on' : 'off'}
+              options={[
+                { value: 'off', label: 'Off' },
+                { value: 'on', label: 'On' },
+              ]}
+              onChange={(v) => setAsLink(v === 'on')}
+              fullWidth
+            />
+          </div>
         </div>
-      </div>
-    </div>
+      }
+    />
   );
 }
 

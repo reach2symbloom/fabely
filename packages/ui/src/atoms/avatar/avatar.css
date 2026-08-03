@@ -1,0 +1,21 @@
+/*
+ * Avatar — component radius tokens
+ *
+ * Per docs/DESIGN.md Component Layer / Dimensions: component tokens live
+ * alongside the component and are the public API; they may resolve to a
+ * Foundations value. Round uses a single full-round token; roundrect corner
+ * radii are size-specific, so each Avatar size gets its own token. All
+ * alias Foundations raw radius primitives (`--tw-raw-radius-*`).
+ *
+ * Consumed by avatar.tsx's `radiusClass` / `roundrectRadiusClasses`.
+ */
+
+:root {
+  --avatar-radius-round: var(--tw-raw-radius-round);
+  --avatar-radius-extraTiny: var(--tw-raw-radius-5);
+  --avatar-radius-tiny: var(--tw-raw-radius-8);
+  --avatar-radius-small: var(--tw-raw-radius-8);
+  --avatar-radius-regular: var(--tw-raw-radius-12);
+  --avatar-radius-large: var(--tw-raw-radius-12);
+  --avatar-radius-extraLarge: var(--tw-raw-radius-16);
+}

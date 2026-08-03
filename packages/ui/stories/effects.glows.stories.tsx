@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useState, type CSSProperties } from 'react';
 import { useArgs } from 'storybook/preview-api';
 import { EffectsNotice, EffectsSectionHeading, uiCellStyle, codeCellStyle } from './EffectsDocChrome';
+import { InlineSegmentedControl } from './InlineSegmentedControl';
 
 type Variant = 'Primary Glow 1' | 'Primary Glow 2';
 type Args = { variant: Variant };
@@ -52,49 +53,6 @@ function useResolvedValue(cssVar: string) {
     setValue(getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim());
   }, [cssVar]);
   return value;
-}
-
-/** Single clickable segmented control for Variant — same inline-args pattern
- * established by the Typography stories (synced to Storybook's Controls
- * panel via useArgs, inline is primary). */
-function InlineSegmentedControl<T extends string>({
-  value,
-  options,
-  onChange,
-}: {
-  value: T;
-  options: T[];
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div
-      role="radiogroup"
-      aria-label="Variant"
-      style={{ display: 'inline-flex', gap: 4, padding: 4, border: '1px solid var(--border)', borderRadius: 8, marginBottom: 24 }}
-    >
-      {options.map((opt) => (
-        <button
-          key={opt}
-          type="button"
-          role="radio"
-          aria-checked={value === opt}
-          onClick={() => onChange(opt)}
-          style={{
-            fontFamily: 'var(--font-family-sans)',
-            fontSize: 13,
-            padding: '6px 14px',
-            borderRadius: 6,
-            border: 'none',
-            cursor: 'pointer',
-            background: value === opt ? 'var(--primary)' : 'transparent',
-            color: value === opt ? 'var(--primary-foreground)' : 'inherit',
-          }}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
-  );
 }
 
 /** Single representative specimen panel — a bordered preview panel rather
@@ -162,6 +120,8 @@ export const Overview: Story = {
           value={variant}
           options={['Primary Glow 1', 'Primary Glow 2']}
           onChange={(v) => updateArgs({ variant: v })}
+          ariaLabel="Variant"
+          className="mb-6"
         />
         <GlowPreview variant={variant} />
 

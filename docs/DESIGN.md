@@ -371,3 +371,27 @@ Avoid implementation names unless documenting implementation details:
 - Expose implementation details as public APIs.
 - Hardcode reusable values.
 - Couple semantic names to specific implementations.
+
+### Dimensions
+
+Spacing tokens describe rhythm — padding, gaps, margins. They are not
+dimension tokens. A component whose size happens to match a spacing
+value is borrowing that number, not expressing intent.
+
+Component dimensions are component tokens: `--avatar-size-small`,
+`--badge-height-sm`. Define them alongside the component. They may
+resolve to a spacing value, but the semantic name is the public API.
+
+Never inline raw dimensions (`h-[18px]`, `w-[220px]`).
+
+### Icons
+
+Icon size always comes from `--icon-*` (Foundations → Iconography).
+Never `size-4`, never `size-[14px]` — Tailwind's scale and raw pixels
+both bypass the system.
+
+Icon glyphs come from approved libraries only: Lucide for system UI,
+Solar Bold Duotone for illustrative accents, Fabely Icons for brand
+marks. Never mix sets within one interface.
+
+    <Icon className="size-[var(--icon-sm)]" />

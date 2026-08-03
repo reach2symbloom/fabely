@@ -3,12 +3,18 @@
  * animate-* utilities) plus their backing @keyframes — required by
  * src/components/ui/accordion.tsx's `data-open:animate-accordion-down
  * data-closed:animate-accordion-up` classes (Base UI presence attrs), which
- * are otherwise undefined utilities with no generated CSS. Height animation
- * also uses `--accordion-panel-height` + starting/ending-style on the panel
- * inner div. Mirrors apps/web's own globals.css, which already imports this
- * immediately after `tailwindcss` for the same reason. */
+ * are otherwise undefined utilities with no generated CSS. Mirrors
+ * apps/web's own globals.css, which already imports this immediately after
+ * `tailwindcss` for the same reason.
+ *
+ * Note: tw-animate-css keyframes still target --radix-accordion-content-height
+ * (etc.). Foundations `motion/` (imported via foundations/index.css) redefines
+ * accordion-down/up against Base UI's --accordion-panel-height so those
+ * utilities actually interpolate. */
 @import 'tw-animate-css';
 @import '../foundations/index.css';
+/* Component-scoped tokens (alongside their atoms — see docs/DESIGN.md). */
+@import '../atoms/avatar/avatar.css';
 
 @custom-variant dark (&:is(.dark *));
 
