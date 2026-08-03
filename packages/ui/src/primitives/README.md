@@ -14,8 +14,9 @@ When adding or documenting a new Primitive:
 
 1. Colocate `*.stories.tsx` next to the wrapper under `src/primitives/<name>/`.
 2. Title stories `Design System/Primitives/<Name>` (flat, alphabetical — no atomic subfolder in the sidebar).
-3. Overview **must** use [`PrimitivePage`](../../stories/PrimitivePage.tsx) with all six props: `title`, `description`, `playground`, `examples`, `usageGuidance`, `accessibility`.
-4. Overview stories set `parameters: { layout: 'fullscreen' }` so `PrimitivePage` owns page inset. Do not add per-story width wrappers (`w-[640px]`, etc.) — playground max-width lives in `PrimitivePage`.
-5. Do not invent alternate Overview sections or reorder them. Incomplete sections take placeholder copy (`PRIMITIVE_PAGE_SECTION_PLACEHOLDER`), not omissions.
-6. Reference implementation: [Badge Overview](./badge/badge.stories.tsx).
-7. Canonical examples remain their own focused story pages; Overview’s `examples` gallery reuses those same implementations.
+3. Overview **must** use [`PrimitivePage`](../../stories/PrimitivePage.tsx) with all six props: `title`, `description`, `playground`, `variants`, `usageGuidance`, `accessibility`.
+4. Overview stories set `parameters: { layout: 'fullscreen' }` so `PrimitivePage` owns page inset. Do not add per-story panel max-widths — Playground and Variants span the full page width.
+5. Playground controls use `PRIMITIVE_PLAYGROUND_CONTROL_GRID` (2 columns). Prefer `InlineSegmentedControl` over `<select>` unless the option set is too long to fit; use `col-span-2` only for long option sets or text inputs.
+6. Do not invent alternate Overview sections or reorder them. Incomplete sections take placeholder copy (`PRIMITIVE_PAGE_SECTION_PLACEHOLDER`), not omissions. The Variants section name matches Figma’s vocabulary.
+7. Reference implementation: [Badge Overview](./badge/badge.stories.tsx).
+8. Canonical variants remain their own focused story pages; Overview’s `variants` gallery reuses those same implementations.

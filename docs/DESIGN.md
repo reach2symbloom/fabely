@@ -347,7 +347,7 @@ Required props / sections, in order:
 1. **title** — component name
 2. **description** — brief purpose + how this Primitive relates to the vendor wrapper / Foundations
 3. **playground** — interactive controls (inline `useState`, not Storybook args)
-4. **examples** — gallery composing every canonical example story (reuse the same example implementations; do not duplicate them)
+4. **variants** — gallery composing every canonical variant story (reuse the same implementations; do not duplicate them). Named **Variants** to match Figma’s vocabulary, not “Examples.”
 5. **usageGuidance** — how to compose and which props to prefer
 6. **accessibility** — a11y notes for the Primitive
 
@@ -355,7 +355,7 @@ If a section is not written yet, pass placeholder text (see `PRIMITIVE_PAGE_SECT
 
 Reference implementation: Badge Overview.
 
-Each individual example page stays focused on demonstrating one behavior or variation.
+Each individual variant page stays focused on demonstrating one behavior or variation.
 
 This pattern does not apply to Foundations, which remain documentation-first with their existing structure. Primitives are listed flat and alphabetically under Design System → Primitives; the atomic tiers (Atoms → Templates) hold compositions we design.
 

@@ -39,7 +39,8 @@ This primitive does not modify the upstream primitive's file — `src/components
 | `destructive` | Destructive | `--tw-raw-error-ghost` at 12% (`color-mix`) fill + `--tw-raw-error-300` text/icon — vendor solid `bg-destructive` stubbed away |
 | `success` | Success | Figma-only — no vendor equivalent |
 | `alert` | Alert | Figma-only — no vendor equivalent |
-| `link` | *(none)* | Kept for shadcn Link docs composition (`render={<a />}`) |
+
+There is no `link` color variant — link behavior is composition via `render={<a href=… />}` on any Figma variant above (see Storybook Link example / playground Link control).
 
 Soft-fill variants that would otherwise inherit a solid vendor chip (`destructive`, plus Fabely-only `success` / `alert`) call the vendor primitive with a stub vendor variant (`default`) so the upstream component remains mounted without its `bg-destructive` / `dark:bg-destructive/60` classes; the visible styles and `data-variant` come entirely from this primitive.
 

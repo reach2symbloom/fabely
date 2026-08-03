@@ -3,7 +3,11 @@ import { useState, type ReactNode } from 'react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
-import { PrimitiveGalleryItem, PrimitivePage } from '../../../stories/PrimitivePage';
+import {
+  PRIMITIVE_PLAYGROUND_CONTROL_GRID,
+  PrimitiveGalleryItem,
+  PrimitivePage,
+} from '../../../stories/PrimitivePage';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -320,19 +324,25 @@ function AccordionPlayground() {
         )
       }
       controls={
-        <div className="grid w-full max-w-sm grid-cols-2 gap-4">
-          <div className="col-span-2">
-            <InlineSegmentedControl
-              label="Mode"
-              value={mode}
-              options={[
-                { value: 'single', label: 'Single' },
-                { value: 'multiple', label: 'Multiple' },
-              ]}
-              onChange={setMode}
-              fullWidth
-            />
-          </div>
+        <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
+          <InlineSegmentedControl
+            label="Mode"
+            value={mode}
+            options={[
+              { value: 'single', label: 'Single' },
+              { value: 'multiple', label: 'Multiple' },
+            ]}
+            onChange={setMode}
+            fullWidth
+          />
+
+          <InlineSegmentedControl
+            label="Style"
+            value={style}
+            options={STYLE_OPTIONS}
+            onChange={setStyle}
+            fullWidth
+          />
 
           <div className="col-span-2">
             <LimitationNotice>
@@ -340,16 +350,6 @@ function AccordionPlayground() {
               Use a controlled <code>value</code> + <code>eventDetails.cancel()</code> if you
               need to forbid collapsing the last open item.
             </LimitationNotice>
-          </div>
-
-          <div className="col-span-2">
-            <InlineSegmentedControl
-              label="Style"
-              value={style}
-              options={STYLE_OPTIONS}
-              onChange={setStyle}
-              fullWidth
-            />
           </div>
         </div>
       }
@@ -375,7 +375,7 @@ export const Overview: Story = {
         </>
       }
       playground={<AccordionPlayground />}
-      examples={
+      variants={
         <div className="flex flex-wrap gap-4">
           <PrimitiveGalleryItem label="Basic">
             <BasicExample />

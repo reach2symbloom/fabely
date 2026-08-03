@@ -13,7 +13,11 @@ import {
 import type { AvatarSize, AvatarShape, AvatarStatus } from './avatar';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
-import { PrimitiveGalleryItem, PrimitivePage } from '../../../stories/PrimitivePage';
+import {
+  PRIMITIVE_PLAYGROUND_CONTROL_GRID,
+  PrimitiveGalleryItem,
+  PrimitivePage,
+} from '../../../stories/PrimitivePage';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -433,21 +437,9 @@ function GradientExample() {
  * Avatar, Avatar Group) rather than one combined one: the two are largely
  * independent composition modes, and combining them would bury the
  * controls that matter for a given task under ones that don't apply.
- * Ordered scales (Size, Shape, on/off) use the shared InlineSegmentedControl
- * story helper; unordered option sets stay as selects. */
-
-const playgroundLabelClass = 'font-sans text-xs text-muted-foreground';
-const playgroundControlClass =
-  'mt-1 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm';
-
-function PlaygroundField({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <label className="block">
-      <span className={playgroundLabelClass}>{label}</span>
-      {children}
-    </label>
-  );
-}
+ * Few-option controls use InlineSegmentedControl; 2-column control grid
+ * (`PRIMITIVE_PLAYGROUND_CONTROL_GRID`), with `col-span-2` for long option
+ * sets (Size, Number of Avatars). */
 
 const ICON_OPTIONS = {
   plus: { label: 'Plus', Icon: Plus, ariaLabel: 'Add' },
@@ -493,7 +485,7 @@ function SingleAvatarPlayground() {
         </Avatar>
       }
       controls={
-        <div className="grid w-full max-w-sm grid-cols-2 gap-4">
+        <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
           <div className="col-span-2">
             <InlineSegmentedControl
               label="Size"
@@ -504,84 +496,71 @@ function SingleAvatarPlayground() {
             />
           </div>
 
-          <div className="col-span-2">
-            <InlineSegmentedControl
-              label="Shape"
-              value={shape}
-              options={SHAPE_OPTIONS}
-              onChange={setShape}
-              fullWidth
-            />
-          </div>
+          <InlineSegmentedControl
+            label="Shape"
+            value={shape}
+            options={SHAPE_OPTIONS}
+            onChange={setShape}
+            fullWidth
+          />
 
-          <PlaygroundField label="Content">
-            <select
-              value={content}
-              onChange={(e) => setContent(e.target.value as 'image' | 'initials')}
-              className={playgroundControlClass}
-            >
-              <option value="image">Image</option>
-              <option value="initials">Initials</option>
-            </select>
-          </PlaygroundField>
+          <InlineSegmentedControl
+            label="Content"
+            value={content}
+            options={[
+              { value: 'image', label: 'Image' },
+              { value: 'initials', label: 'Initials' },
+            ]}
+            onChange={setContent}
+            fullWidth
+          />
 
-          <PlaygroundField label="Badge">
-            <select
-              value={badge}
-              onChange={(e) => setBadge(e.target.value as 'none' | 'status' | 'icon')}
-              className={playgroundControlClass}
-            >
-              <option value="none">None</option>
-              <option value="status">Status</option>
-              <option value="icon">Icon</option>
-            </select>
-          </PlaygroundField>
+          <InlineSegmentedControl
+            label="Badge"
+            value={badge}
+            options={[
+              { value: 'none', label: 'None' },
+              { value: 'status', label: 'Status' },
+              { value: 'icon', label: 'Icon' },
+            ]}
+            onChange={setBadge}
+            fullWidth
+          />
 
           {badge === 'status' ? (
-            <PlaygroundField label="Status">
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as AvatarStatus)}
-                className={playgroundControlClass}
-              >
-                {STATUSES.map(({ status: s, label }) => (
-                  <option key={s} value={s}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </PlaygroundField>
+            <InlineSegmentedControl
+              label="Status"
+              value={status}
+              options={STATUSES.map(({ status: s, label }) => ({ value: s, label }))}
+              onChange={setStatus}
+              fullWidth
+            />
           ) : null}
 
           {badge === 'icon' ? (
-            <PlaygroundField label="Icon">
-              <select
-                value={icon}
-                onChange={(e) => setIcon(e.target.value as IconOption)}
-                className={playgroundControlClass}
-              >
-                {(Object.keys(ICON_OPTIONS) as IconOption[]).map((value) => (
-                  <option key={value} value={value}>
-                    {ICON_OPTIONS[value].label}
-                  </option>
-                ))}
-              </select>
-            </PlaygroundField>
+            <InlineSegmentedControl
+              label="Icon"
+              value={icon}
+              options={(Object.keys(ICON_OPTIONS) as IconOption[]).map((value) => ({
+                value,
+                label: ICON_OPTIONS[value].label,
+              }))}
+              onChange={setIcon}
+              fullWidth
+            />
           ) : null}
 
           {shape === 'round' ? (
-            <div className="col-span-2">
-              <InlineSegmentedControl
-                label="Gradient"
-                value={gradient ? 'on' : 'off'}
-                options={[
-                  { value: 'off', label: 'Off' },
-                  { value: 'on', label: 'On' },
-                ]}
-                onChange={(v) => setGradient(v === 'on')}
-                fullWidth
-              />
-            </div>
+            <InlineSegmentedControl
+              label="Gradient"
+              value={gradient ? 'on' : 'off'}
+              options={[
+                { value: 'off', label: 'Off' },
+                { value: 'on', label: 'On' },
+              ]}
+              onChange={(v) => setGradient(v === 'on')}
+              fullWidth
+            />
           ) : (
             <div className="col-span-2">
               <LimitationNotice>Gradient only applies to Round avatars.</LimitationNotice>
@@ -636,7 +615,7 @@ function AvatarGroupPlayground() {
         </AvatarGroup>
       }
       controls={
-        <div className="grid w-full max-w-sm grid-cols-2 gap-4">
+        <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
           <div className="col-span-2">
             <InlineSegmentedControl
               label="Size"
@@ -657,19 +636,17 @@ function AvatarGroupPlayground() {
             />
           </div>
 
-          <div className="col-span-2">
-            <PlaygroundField label="AvatarGroupCount">
-              <select
-                value={groupCount}
-                onChange={(e) => setGroupCount(e.target.value as 'none' | 'text' | 'icon')}
-                className={playgroundControlClass}
-              >
-                <option value="none">None</option>
-                <option value="text">Text</option>
-                <option value="icon">Icon</option>
-              </select>
-            </PlaygroundField>
-          </div>
+          <InlineSegmentedControl
+            label="AvatarGroupCount"
+            value={groupCount}
+            options={[
+              { value: 'none', label: 'None' },
+              { value: 'text', label: 'Text' },
+              { value: 'icon', label: 'Icon' },
+            ]}
+            onChange={setGroupCount}
+            fullWidth
+          />
         </div>
       }
     />
@@ -705,7 +682,7 @@ export const Overview: Story = {
           </div>
         </div>
       }
-      examples={
+      variants={
         <div className="flex flex-wrap gap-4">
           <PrimitiveGalleryItem label="Default">
             <DefaultExample />

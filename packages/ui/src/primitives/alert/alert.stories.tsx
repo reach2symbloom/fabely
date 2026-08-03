@@ -5,7 +5,11 @@ import { Alert, AlertTitle, AlertDescription, type AlertType } from './alert';
 import { cn } from '@/lib/utils';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
-import { PrimitiveGalleryItem, PrimitivePage } from '../../../stories/PrimitivePage';
+import {
+  PRIMITIVE_PLAYGROUND_CONTROL_GRID,
+  PrimitiveGalleryItem,
+  PrimitivePage,
+} from '../../../stories/PrimitivePage';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -139,8 +143,8 @@ const ALERT_TYPES: { value: AlertType; label: string }[] = [
  * copy. Icon on/off behaves identically for all 4 types, `success`
  * included — only its *identity* is swapped for a fixed `CheckCheck` in
  * alert.tsx, its presence/absence still follows this same control.
- * Ordered scales (Icon on/off, line count) use InlineSegmentedControl;
- * unordered Type uses a select. */
+ * Few-option controls use InlineSegmentedControl; 2-column control grid
+ * (`PRIMITIVE_PLAYGROUND_CONTROL_GRID`). */
 
 const playgroundLabelClass = 'font-sans text-xs text-muted-foreground';
 const playgroundControlClass =
@@ -166,7 +170,7 @@ function AlertPlayground() {
     <PlaygroundPanel
       previewAlign="stretch"
       preview={
-        <div className="w-full max-w-xl">
+        <div className="w-full">
           <Alert type={type}>
             {showIcon ? <InfoIcon /> : null}
             <AlertTitle>{title}</AlertTitle>
@@ -175,63 +179,57 @@ function AlertPlayground() {
         </div>
       }
       controls={
-        <div className="flex flex-col gap-4">
-          <PlaygroundField label="Type">
-            <select
+        <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
+          <div className="col-span-2">
+            <InlineSegmentedControl
+              label="Type"
               value={type}
-              onChange={(e) => setType(e.target.value as AlertType)}
-              className={playgroundControlClass}
-            >
-              {ALERT_TYPES.map(({ value, label }) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </PlaygroundField>
-
-          <div className="grid w-full max-w-sm grid-cols-2 gap-4">
-            <PlaygroundField label="Line 1">
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className={playgroundControlClass}
-              />
-            </PlaygroundField>
-
-            <PlaygroundField label="Line 2">
-              <input
-                type="text"
-                value={description}
-                disabled={!showLine2}
-                onChange={(e) => setDescription(e.target.value)}
-                className={cn(playgroundControlClass, !showLine2 && 'opacity-50')}
-              />
-            </PlaygroundField>
-
-            <InlineSegmentedControl
-              label="Icon"
-              value={showIcon ? 'on' : 'off'}
-              options={[
-                { value: 'off', label: 'Off' },
-                { value: 'on', label: 'On' },
-              ]}
-              onChange={(v) => setShowIcon(v === 'on')}
-              fullWidth
-            />
-
-            <InlineSegmentedControl
-              label="Lines"
-              value={showLine2 ? 'two' : 'one'}
-              options={[
-                { value: 'one', label: 'One' },
-                { value: 'two', label: 'Two' },
-              ]}
-              onChange={(v) => setShowLine2(v === 'two')}
+              options={ALERT_TYPES}
+              onChange={setType}
               fullWidth
             />
           </div>
+
+          <PlaygroundField label="Line 1">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className={playgroundControlClass}
+            />
+          </PlaygroundField>
+
+          <PlaygroundField label="Line 2">
+            <input
+              type="text"
+              value={description}
+              disabled={!showLine2}
+              onChange={(e) => setDescription(e.target.value)}
+              className={cn(playgroundControlClass, !showLine2 && 'opacity-50')}
+            />
+          </PlaygroundField>
+
+          <InlineSegmentedControl
+            label="Icon"
+            value={showIcon ? 'on' : 'off'}
+            options={[
+              { value: 'off', label: 'Off' },
+              { value: 'on', label: 'On' },
+            ]}
+            onChange={(v) => setShowIcon(v === 'on')}
+            fullWidth
+          />
+
+          <InlineSegmentedControl
+            label="Lines"
+            value={showLine2 ? 'two' : 'one'}
+            options={[
+              { value: 'one', label: 'One' },
+              { value: 'two', label: 'Two' },
+            ]}
+            onChange={(v) => setShowLine2(v === 'two')}
+            fullWidth
+          />
         </div>
       }
     />
@@ -257,16 +255,16 @@ export const Overview: Story = {
         </>
       }
       playground={<AlertPlayground />}
-      examples={
+      variants={
         <div className="flex flex-col gap-6">
           <div className="grid grid-cols-2 gap-4">
             <PrimitiveGalleryItem label="Neutral">
-              <div className="w-full max-w-sm">
+              <div className="w-full">
                 <TwoLinesExample />
               </div>
             </PrimitiveGalleryItem>
             <PrimitiveGalleryItem label="Error">
-              <div className="w-full max-w-sm">
+              <div className="w-full">
                 <Alert type="error">
                   <InfoIcon />
                   <AlertTitle>Your payment could not be processed.</AlertTitle>
@@ -275,7 +273,7 @@ export const Overview: Story = {
               </div>
             </PrimitiveGalleryItem>
             <PrimitiveGalleryItem label="Warning (Figma: Type=Alert)">
-              <div className="w-full max-w-sm">
+              <div className="w-full">
                 <Alert type="alert">
                   <InfoIcon />
                   <AlertTitle>Your subscription is about to expire.</AlertTitle>
@@ -286,7 +284,7 @@ export const Overview: Story = {
               </div>
             </PrimitiveGalleryItem>
             <PrimitiveGalleryItem label="Success">
-              <div className="w-full max-w-sm">
+              <div className="w-full">
                 <Alert type="success">
                   <CheckCheck />
                   <AlertTitle>7 files added successfully</AlertTitle>

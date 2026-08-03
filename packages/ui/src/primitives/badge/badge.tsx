@@ -32,9 +32,9 @@ export type BadgeRoundness = 'default' | 'round';
  * - `destructive` ← Figma Destructive
  * - `success`     ← Figma Success (no vendor equivalent)
  * - `alert`       ← Figma Alert (no vendor equivalent)
- * - `link`        ← vendor/docs only — not authored in the Figma set; kept so
- *                   the shadcn Link (`render={<a />}`) example stays a
- *                   first-class composition without inventing a parallel API
+ *
+ * Link-as-anchor is not a variant — use Base UI `render={<a href=… />}` with
+ * any Figma color variant (see Storybook Link composition / playground).
  */
 export type BadgeVariant =
   | 'default'
@@ -42,11 +42,10 @@ export type BadgeVariant =
   | 'destructive'
   | 'outline'
   | 'ghost'
-  | 'link'
   | 'success'
   | 'alert';
 
-type VendorVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
+type VendorVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost';
 
 function toVendorVariant(variant: BadgeVariant): VendorVariant {
   switch (variant) {
@@ -135,14 +134,6 @@ const badgeVariants = cva(
           'bg-[color-mix(in_srgb,var(--tw-raw-alert-ghost)_8%,transparent)] text-[color:var(--tw-raw-alert-600)]',
           'focus-visible:shadow-[var(--effect-focus-ring-alert)]',
           '[a&]:hover:opacity-90',
-        ],
-        /* Not in the Figma Badge set — retained for shadcn Link composition.
-         * Uses semantic --primary text; underline only when rendered as an
-         * anchor (`[a&]`), matching the vendor's own link variant intent. */
-        link: [
-          'bg-transparent text-[color:var(--primary)] underline-offset-4',
-          'focus-visible:shadow-[var(--effect-focus-ring-primary)]',
-          '[a&]:hover:underline',
         ],
       },
       size: {

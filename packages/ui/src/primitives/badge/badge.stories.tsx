@@ -5,7 +5,11 @@ import { Badge } from './badge';
 import type { BadgeRoundness, BadgeSize, BadgeVariant } from './badge';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
-import { PrimitiveGalleryItem, PrimitivePage } from '../../../stories/PrimitivePage';
+import {
+  PRIMITIVE_PLAYGROUND_CONTROL_GRID,
+  PrimitiveGalleryItem,
+  PrimitivePage,
+} from '../../../stories/PrimitivePage';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -35,11 +39,6 @@ const FIGMA_VARIANTS: { variant: BadgeVariant; label: string }[] = [
   { variant: 'alert', label: 'Alert' },
 ];
 
-const ALL_VARIANTS: { variant: BadgeVariant; label: string }[] = [
-  ...FIGMA_VARIANTS,
-  { variant: 'link', label: 'Link' },
-];
-
 const SIZES: { size: BadgeSize; label: string }[] = [
   { size: 'default', label: 'Default' },
   { size: 'large', label: 'Large' },
@@ -58,11 +57,11 @@ function DefaultExample() {
   return <Badge>Badge</Badge>;
 }
 
-/** Every Figma color variant plus the vendor/docs-only `link` variant. */
+/** Every Figma color variant. */
 function VariantsExample() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      {ALL_VARIANTS.map(({ variant, label }) => (
+      {FIGMA_VARIANTS.map(({ variant, label }) => (
         <Badge key={variant} variant={variant}>
           {label}
         </Badge>
@@ -174,13 +173,12 @@ function WithSpinnerExample() {
   );
 }
 
-/** shadcn docs' "Link" — Base UI `render` + native `<a>`. */
+/** Link composition — Base UI `render` + native `<a>`, using Figma color
+ * variants (there is no dedicated `link` visual variant). */
 function LinkExample() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Badge variant="link" render={<a href="https://fabely.app" />}>
-        Fabely
-      </Badge>
+      <Badge render={<a href="https://fabely.app" />}>Fabely</Badge>
       <Badge variant="secondary" render={<a href="https://fabely.app" />}>
         Secondary link
       </Badge>
@@ -261,22 +259,9 @@ function LimitationNotice({ children }: { children: ReactNode }) {
  * Rendered inline at the top of the Overview page (same order as Avatar /
  * Alert) so visitors can experiment with the full option set directly
  * alongside the live examples. State is plain component-local `useState`,
- * not Storybook args. Binary / few-option controls (Size, Roundness, Icon,
- * Link) use the shared InlineSegmentedControl story helper; unordered sets
- * (Variant) stay as selects. */
-
-const playgroundLabelClass = 'font-sans text-xs text-muted-foreground';
-const playgroundControlClass =
-  'mt-1 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm';
-
-function PlaygroundField({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <label className="block">
-      <span className={playgroundLabelClass}>{label}</span>
-      {children}
-    </label>
-  );
-}
+ * not Storybook args. Few-option controls use InlineSegmentedControl;
+ * 2-column control grid (`PRIMITIVE_PLAYGROUND_CONTROL_GRID`), with
+ * `col-span-2` only for long option sets. */
 
 const ICON_OPTIONS: { value: 'none' | 'start' | 'end' | 'spinner'; label: string }[] = [
   { value: 'none', label: 'None' },
@@ -329,21 +314,15 @@ function BadgePlayground() {
         )
       }
       controls={
-        <div className="grid w-full max-w-sm grid-cols-2 gap-4">
+        <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
           <div className="col-span-2">
-            <PlaygroundField label="Variant">
-              <select
-                value={variant}
-                onChange={(e) => setVariant(e.target.value as BadgeVariant)}
-                className={playgroundControlClass}
-              >
-                {ALL_VARIANTS.map(({ variant: v, label }) => (
-                  <option key={v} value={v}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </PlaygroundField>
+            <InlineSegmentedControl
+              label="Variant"
+              value={variant}
+              options={FIGMA_VARIANTS.map(({ variant: v, label }) => ({ value: v, label }))}
+              onChange={setVariant}
+              fullWidth
+            />
           </div>
 
           <InlineSegmentedControl
@@ -362,28 +341,24 @@ function BadgePlayground() {
             fullWidth
           />
 
-          <div className="col-span-2">
-            <InlineSegmentedControl
-              label="Icon"
-              value={icon}
-              options={ICON_OPTIONS}
-              onChange={setIcon}
-              fullWidth
-            />
-          </div>
+          <InlineSegmentedControl
+            label="Icon"
+            value={icon}
+            options={ICON_OPTIONS}
+            onChange={setIcon}
+            fullWidth
+          />
 
-          <div className="col-span-2">
-            <InlineSegmentedControl
-              label="Link"
-              value={asLink ? 'on' : 'off'}
-              options={[
-                { value: 'off', label: 'Off' },
-                { value: 'on', label: 'On' },
-              ]}
-              onChange={(v) => setAsLink(v === 'on')}
-              fullWidth
-            />
-          </div>
+          <InlineSegmentedControl
+            label="Link"
+            value={asLink ? 'on' : 'off'}
+            options={[
+              { value: 'off', label: 'Off' },
+              { value: 'on', label: 'On' },
+            ]}
+            onChange={(v) => setAsLink(v === 'on')}
+            fullWidth
+          />
         </div>
       }
     />
@@ -408,7 +383,7 @@ export const Overview: Story = {
         </>
       }
       playground={<BadgePlayground />}
-      examples={
+      variants={
         <div className="flex flex-wrap gap-4">
           <PrimitiveGalleryItem label="Default">
             <DefaultExample />
@@ -455,8 +430,7 @@ export const Overview: Story = {
           </li>
           <li>
             <code>ghost</code> maps to Figma Tertiary. <code>success</code> / <code>alert</code>{' '}
-            are Figma-only extensions (no vendor equivalent). <code>link</code> is kept for the
-            shadcn Link composition and is not in Figma.
+            are Figma-only extensions (no vendor equivalent).
           </li>
           <li>
             For icons, pass a Lucide (or other) SVG as a child and set{' '}
@@ -464,9 +438,10 @@ export const Overview: Story = {
             — no dedicated icon prop.
           </li>
           <li>
-            Use the <code>render</code> prop (e.g. <code>{"render={<a href=... />}"}</code>) to
-            render the badge as a link or other interactive element (Base UI{' '}
-            <code>useRender</code> — not Radix <code>asChild</code>).
+            To render as a link (or other host), use the <code>render</code> prop (e.g.{' '}
+            <code>{"render={<a href=... />}"}</code>) with any color <code>variant</code> — there
+            is no separate <code>link</code> visual variant (Base UI <code>useRender</code>, not
+            Radix <code>asChild</code>).
           </li>
           <li>
             One-off colors that aren&apos;t a variant belong in <code>className</code> (see Custom
