@@ -1,0 +1,15 @@
+/*
+ * Foundations / Opacity
+ * Interactive opacity steps promoted from recurring component use
+ * (Button hover / rest-state focus-ring treatment). Unitless values for
+ * the CSS `opacity` property; percentage form for color-mix() where noted.
+ */
+
+:root {
+  /* Hover — Primary softens to 0.9; Destructive + Fia share 0.8 (second use). */
+  --opacity-hover-soft: 0.9;
+  --opacity-hover: 0.8;
+
+  /* Primary button always-on focus ring at rest (full ring on :focus-visible). */
+  --opacity-focus-ring-rest: 40%;
+}

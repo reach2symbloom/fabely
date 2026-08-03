@@ -40,7 +40,7 @@ export const Overview: Story = {
 export const Default: Story = {
   render: () => (
     <HoverCard>
-      <HoverCardTrigger render={<Button variant="link" />}>Hover</HoverCardTrigger>
+      <HoverCardTrigger render={<Button variant="ghost" />}>Hover</HoverCardTrigger>
       <HoverCardContent>
         <p className="text-sm">Lorem ipsum</p>
       </HoverCardContent>

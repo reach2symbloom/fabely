@@ -1,59 +1,224 @@
 /**
- * Fabely Button primitive — phase 1: full shadcn Button API surface.
+ * Fabely Button primitive — phase 2: Figma Button component set.
  *
- * Radius is Foundations-sourced: Roundrect uses `--rounded-lg`
- * (`--tw-raw-radius-12` / 12px) across every size — a flat Figma value, not
- * size-proportional. Round is composition via `rounded-full` /
- * `--rounded-full`. Other styling remains the vendor's until a Figma restyle.
+ * Visual source of truth: Figma "Button"
+ * (file gV94L0qCmvwQkddNbEktry, page Button / set 9:1071).
  *
- * Public API matches the shadcn docs (`variant`, `size`, `buttonVariants`);
- * import from this primitive, not the vendor path.
+ * Wraps Base UI Button (same primitive the vendor file uses). Styles and
+ * the variant / size / roundness surface are Foundations-sourced from Figma.
+ * Icon Button and Button Link are separate Figma components — not this API.
  */
 import * as React from 'react';
-import {
-  Button as ButtonPrimitive,
-  buttonVariants as vendorButtonVariants,
-} from '@/components/ui/button';
+import { Button as ButtonPrimitive } from '@base-ui/react/button';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
-/** shadcn Button `variant` prop — see docs API Reference. */
+/** Figma Variant axis (8 values). No `link` — Button Link is a separate set. */
 export type ButtonVariant =
-  | 'default'
-  | 'outline'
+  | 'primary'
+  | 'primaryOutline'
+  | 'secondary'
+  | 'tertiary'
   | 'ghost'
   | 'destructive'
-  | 'secondary'
-  | 'link';
+  | 'fiaFilled'
+  | 'fiaOutline';
 
-/** shadcn Button `size` prop — see docs API Reference. */
+/** Figma Size axis — no icon-* sizes (Icon Button is a separate primitive). */
 export type ButtonSize =
+  | 'extraSmall'
+  | 'small'
   | 'default'
-  | 'xs'
-  | 'sm'
-  | 'lg'
-  | 'icon'
-  | 'icon-xs'
-  | 'icon-sm'
-  | 'icon-lg';
+  | 'large'
+  | 'extraLarge';
+
+/** Figma Roundness axis — Default 12px / Round fully rounded. */
+export type ButtonRoundness = 'default' | 'round';
 
 /**
- * Roundrect radius — Foundations semantic `--rounded-lg` → `--tw-raw-radius-12`
- * (12px). Applied across all sizes; overrides the vendor's `rounded-4xl`
- * (Tailwind `--radius-4xl` / 32px).
+ * Gradient border (Primary outline) — mask-composite ring on `::before`:
+ *   background: var(--gradient-primary-top-bottom) border-box;
+ *   mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0);
+ * Transparent button face; surface shows through. Ring is on `::before`
+ * (not the button) so the mask does not hide label text. Negative inset
+ * aligns the pseudo to the button's border-box. WebKit: xor composite.
  */
-const ROUNDRECT_RADIUS = 'rounded-[var(--rounded-lg)]';
+const GRADIENT_BORDER = [
+  'relative bg-transparent',
+  'border-[length:var(--stroke-regular)] border-solid border-transparent',
+  "before:pointer-events-none before:absolute before:rounded-[inherit] before:content-['']",
+  'before:inset-[calc(var(--stroke-regular)*-1)]',
+  'before:border-[length:var(--stroke-regular)] before:border-solid before:border-transparent',
+  'before:[background:var(--gradient-primary-top-bottom)_border-box]',
+  'before:[mask:linear-gradient(#000_0_0)_padding-box_exclude,linear-gradient(#000_0_0)]',
+  'before:[-webkit-mask:linear-gradient(#000_0_0)_padding-box,linear-gradient(#000_0_0)]',
+  'before:[-webkit-mask-composite:xor]',
+].join(' ');
 
-type VendorButtonVariantsOptions = NonNullable<Parameters<typeof vendorButtonVariants>[0]>;
+const buttonVariants = cva(
+  [
+    'group/button inline-flex shrink-0 items-center justify-center',
+    'border border-transparent',
+    'font-[family-name:var(--font-family-body)] [font-weight:var(--font-weight-paragraph-medium)]',
+    'whitespace-nowrap transition-[color,background-color,border-color,opacity,box-shadow,border-width]',
+    'outline-none select-none',
+    'disabled:pointer-events-none disabled:opacity-50',
+    '[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-current',
+  ],
+  {
+    variants: {
+      variant: {
+        primary: [
+          'bg-clip-padding bg-[image:var(--gradient-primary-top-bottom)] text-[color:var(--primary-foreground)]',
+          'shadow-[var(--effect-focus-ring-primary-rest)]',
+          'hover:opacity-[var(--opacity-hover-soft)] active:opacity-[var(--opacity-hover-soft)]',
+          'focus-visible:shadow-[var(--effect-focus-ring-primary)]',
+          'disabled:bg-none disabled:bg-[var(--theme-neutrals-300)] disabled:text-[color:var(--theme-neutrals-700)]',
+          'disabled:shadow-none disabled:opacity-50',
+        ],
+        primaryOutline: [
+          GRADIENT_BORDER,
+          'text-[color:var(--foreground)]',
+          'hover:border-[length:var(--stroke-medium)] hover:before:inset-[calc(var(--stroke-medium)*-1)] hover:before:border-[length:var(--stroke-medium)]',
+          'active:border-[length:var(--stroke-medium)] active:before:inset-[calc(var(--stroke-medium)*-1)] active:before:border-[length:var(--stroke-medium)]',
+          /* Focus fills surface per Figma; ::before keeps the gradient ring. */
+          'focus-visible:bg-[var(--background)]',
+          'focus-visible:border-[length:var(--stroke-thin)] focus-visible:before:inset-[calc(var(--stroke-thin)*-1)] focus-visible:before:border-[length:var(--stroke-thin)]',
+          'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+          'disabled:opacity-50',
+        ],
+        secondary: [
+          'bg-[var(--theme-alpha-white-switch-0)]',
+          'border-[length:var(--stroke-regular)] border-[color:var(--tw-raw-secondary-200)]',
+          'text-[color:var(--foreground)]',
+          'hover:border-[length:var(--stroke-medium)] active:border-[length:var(--stroke-medium)]',
+          'focus-visible:bg-[var(--background)] focus-visible:border-[length:var(--stroke-thin)]',
+          'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+          'disabled:opacity-50',
+        ],
+        tertiary: [
+          'bg-[var(--theme-alpha-black-switch-0)]',
+          'border-[length:var(--stroke-thin)] border-[color:var(--theme-alpha-black-switch-10)]',
+          'text-muted-foreground',
+          'hover:bg-[var(--theme-alpha-black-switch-5)] hover:text-secondary-foreground',
+          'active:bg-[var(--theme-alpha-black-switch-5)] active:text-secondary-foreground',
+          'focus-visible:text-secondary-foreground',
+          'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+          'disabled:opacity-50',
+        ],
+        ghost: [
+          'bg-[var(--theme-alpha-white-switch-001)] border-transparent',
+          'text-muted-foreground',
+          'hover:bg-[var(--theme-alpha-black-switch-5)] hover:text-foreground',
+          'active:bg-[var(--theme-alpha-black-switch-5)] active:text-foreground',
+          'focus-visible:text-foreground',
+          'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+          'disabled:opacity-50',
+        ],
+        destructive: [
+          'bg-[color-mix(in_srgb,var(--tw-raw-error-ghost)_12%,transparent)]',
+          'text-[color:var(--tw-raw-error-600)] border-transparent',
+          'hover:opacity-[var(--opacity-hover)] active:opacity-[var(--opacity-hover)]',
+          'focus-visible:shadow-[var(--effect-focus-ring-error)]',
+          'disabled:opacity-50',
+        ],
+        fiaFilled: [
+          'bg-[var(--tw-raw-fia-200)] text-[color:var(--tw-raw-fia-950)] border-transparent',
+          'hover:opacity-[var(--opacity-hover)] active:opacity-[var(--opacity-hover)]',
+          'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+          'disabled:opacity-50',
+        ],
+        fiaOutline: [
+          'bg-transparent',
+          'border-[length:var(--stroke-regular)] border-[color:var(--tw-raw-fia-200)]',
+          'text-[color:var(--foreground)]',
+          'hover:opacity-[var(--opacity-hover)] active:opacity-[var(--opacity-hover)]',
+          'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+          'disabled:opacity-50',
+        ],
+      },
+      size: {
+        extraSmall: [
+          'h-[length:var(--spacing-xl)]',
+          'gap-[var(--spacing-1-5)]',
+          'px-[var(--spacing-xs)] py-[var(--spacing-2xs)]',
+          'text-[length:var(--text-paragraph-mini-medium-font-size)]',
+          'leading-[var(--text-paragraph-mini-medium-line-height)]',
+          'tracking-[var(--text-paragraph-mini-medium-letter-spacing)]',
+          '[&>svg]:size-[length:var(--icon-xs)]',
+        ],
+        small: [
+          'h-[length:var(--spacing-2xl)]',
+          'gap-[var(--spacing-1-5)]',
+          'px-[var(--spacing-2-5)] py-[var(--spacing-1-5)]',
+          'text-[length:var(--text-paragraph-small-medium-font-size)]',
+          'leading-[var(--text-paragraph-small-medium-line-height)]',
+          'tracking-[var(--text-paragraph-small-medium-letter-spacing)]',
+          '[&>svg]:size-[length:var(--icon-sm)]',
+        ],
+        default: [
+          'h-[length:var(--spacing-3xl)]',
+          'gap-[var(--spacing-xs)]',
+          'px-[var(--spacing-2-5)] py-[var(--spacing-xs)]',
+          'text-[length:var(--text-paragraph-small-medium-font-size)]',
+          'leading-[var(--text-paragraph-small-medium-line-height)]',
+          'tracking-[var(--text-paragraph-small-medium-letter-spacing)]',
+          '[&>svg]:size-[length:var(--icon-sm)]',
+        ],
+        large: [
+          'h-[length:var(--spacing-11)]',
+          'gap-[var(--spacing-xs)]',
+          'px-[var(--spacing-2-5)] py-[var(--spacing-2-5)]',
+          'text-[length:var(--text-paragraph-regular-medium-font-size)]',
+          'leading-[var(--text-paragraph-regular-medium-line-height)]',
+          'tracking-[var(--text-paragraph-regular-medium-letter-spacing)]',
+          '[&>svg]:size-[length:var(--icon-sm)]',
+        ],
+        extraLarge: [
+          'h-[length:var(--spacing-13)]',
+          'gap-[var(--spacing-xs)]',
+          'px-[var(--spacing-xl)] py-[var(--spacing-sm)]',
+          'text-[length:var(--text-paragraph-regular-medium-font-size)]',
+          'leading-[var(--text-paragraph-regular-medium-line-height)]',
+          'tracking-[var(--text-paragraph-regular-medium-letter-spacing)]',
+          '[&>svg]:size-[length:var(--icon-sm)]',
+        ],
+      },
+      roundness: {
+        default: 'rounded-[var(--rounded-lg)]',
+        round: 'rounded-[var(--rounded-full)]',
+      },
+    },
+    defaultVariants: {
+      variant: 'primary',
+      size: 'default',
+      roundness: 'default',
+    },
+  }
+);
 
-function buttonVariants(options?: VendorButtonVariantsOptions) {
-  const { className, ...rest } = options ?? {};
-  return cn(vendorButtonVariants(rest), ROUNDRECT_RADIUS, className);
-}
+type ButtonProps = Omit<ButtonPrimitive.Props, 'className'> &
+  VariantProps<typeof buttonVariants> & {
+    className?: string;
+  };
 
-type ButtonProps = React.ComponentProps<typeof ButtonPrimitive>;
-
-function Button({ className, ...props }: ButtonProps) {
-  return <ButtonPrimitive className={cn(ROUNDRECT_RADIUS, className)} {...props} />;
+function Button({
+  className,
+  variant = 'primary',
+  size = 'default',
+  roundness = 'default',
+  ...props
+}: ButtonProps) {
+  return (
+    <ButtonPrimitive
+      data-slot="button"
+      data-variant={variant}
+      data-size={size}
+      data-roundness={roundness}
+      className={cn(buttonVariants({ variant, size, roundness }), className)}
+      {...props}
+    />
+  );
 }
 
 export { Button, buttonVariants };

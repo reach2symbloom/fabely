@@ -40,9 +40,9 @@ export const Overview: Story = {
 export const Default: Story = {
   render: () => (
     <ButtonGroup>
-      <Button variant="outline">Item one</Button>
-      <Button variant="outline">Item two</Button>
-      <Button variant="outline">Item three</Button>
+      <Button variant="primaryOutline">Item one</Button>
+      <Button variant="primaryOutline">Item two</Button>
+      <Button variant="primaryOutline">Item three</Button>
     </ButtonGroup>
   ),
 };

@@ -99,4 +99,8 @@
   --spacing-2-5: var(--tw-raw-spacing-2-5);
   --spacing-3-5: var(--tw-raw-spacing-3-5);
   --spacing-3-875: var(--tw-raw-spacing-3-875);
+  /* Promoted for Button Large (44) / Extra Large (52) heights — Figma
+     spacing absolute names `11` / `13`. Same odd-scale pattern as above. */
+  --spacing-11: var(--tw-raw-spacing-11);
+  --spacing-13: var(--tw-raw-spacing-13);
 }

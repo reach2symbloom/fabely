@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { ArrowRightIcon, PlusIcon } from 'lucide-react';
 import { Button, buttonVariants } from './button';
-import type { ButtonSize, ButtonVariant } from './button';
+import type { ButtonRoundness, ButtonSize, ButtonVariant } from './button';
 import { Spinner } from '../spinner';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
@@ -14,12 +14,8 @@ import {
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
- * Overview is always the first page — description, interactive Playground
- * at the top, then a gallery composing the canonical examples below, usage
- * guidance, and a11y notes. Each example below stays its own focused page.
- *
- * Phase 1: full shadcn Button API surface; vendor styling only — no Figma
- * tokens yet.
+ * Overview first — Playground, Variants gallery, usage, a11y — then focused
+ * example pages. Phase 2: Figma Button axes (not shadcn defaults).
  */
 
 const meta = {
@@ -33,32 +29,33 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const VARIANTS: { variant: ButtonVariant; label: string }[] = [
-  { variant: 'default', label: 'Default' },
-  { variant: 'outline', label: 'Outline' },
+  { variant: 'primary', label: 'Primary' },
+  { variant: 'primaryOutline', label: 'Primary outline' },
   { variant: 'secondary', label: 'Secondary' },
+  { variant: 'tertiary', label: 'Tertiary' },
   { variant: 'ghost', label: 'Ghost' },
   { variant: 'destructive', label: 'Destructive' },
-  { variant: 'link', label: 'Link' },
+  { variant: 'fiaFilled', label: 'Fia filled' },
+  { variant: 'fiaOutline', label: 'Fia Outline' },
 ];
 
 const SIZES: { size: ButtonSize; label: string }[] = [
+  { size: 'extraSmall', label: 'Extra Small' },
+  { size: 'small', label: 'Small' },
   { size: 'default', label: 'Default' },
-  { size: 'xs', label: 'XS' },
-  { size: 'sm', label: 'SM' },
-  { size: 'lg', label: 'LG' },
-  { size: 'icon', label: 'Icon' },
-  { size: 'icon-xs', label: 'Icon XS' },
-  { size: 'icon-sm', label: 'Icon SM' },
-  { size: 'icon-lg', label: 'Icon LG' },
+  { size: 'large', label: 'Large' },
+  { size: 'extraLarge', label: 'Extra Large' },
 ];
 
-const TEXT_SIZES = SIZES.filter(({ size }) => !size.startsWith('icon'));
-const ICON_SIZES = SIZES.filter(({ size }) => size.startsWith('icon'));
+const ROUNDNESSES: { roundness: ButtonRoundness; label: string }[] = [
+  { roundness: 'default', label: 'Roundrect' },
+  { roundness: 'round', label: 'Round' },
+];
 
 /* ---------- Canonical examples ---------- */
 
 function DefaultExample() {
-  return <Button>Button</Button>;
+  return <Button>Label</Button>;
 }
 
 function VariantsExample() {
@@ -75,49 +72,39 @@ function VariantsExample() {
 
 function SizesExample() {
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <p className="mb-3 font-sans text-xs text-muted-foreground">Text sizes</p>
-        <div className="flex flex-wrap items-end gap-4">
-          {TEXT_SIZES.map(({ size, label }) => (
-            <div key={size} className="flex flex-col items-center gap-2">
-              <Button size={size}>Button</Button>
-              <span className="font-sans text-xs text-muted-foreground">{label}</span>
-            </div>
-          ))}
+    <div className="flex flex-wrap items-end gap-4">
+      {SIZES.map(({ size, label }) => (
+        <div key={size} className="flex flex-col items-center gap-2">
+          <Button size={size}>Label</Button>
+          <span className="font-sans text-xs text-muted-foreground">{label}</span>
         </div>
-      </div>
-      <div>
-        <p className="mb-3 font-sans text-xs text-muted-foreground">Icon sizes</p>
-        <div className="flex flex-wrap items-end gap-4">
-          {ICON_SIZES.map(({ size, label }) => (
-            <div key={size} className="flex flex-col items-center gap-2">
-              <Button size={size} aria-label="Add">
-                <PlusIcon />
-              </Button>
-              <span className="font-sans text-xs text-muted-foreground">{label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** shadcn docs' "Icon" — icon-only button sizes. */
-function IconExample() {
-  return (
-    <div className="flex flex-wrap items-center gap-3">
-      {ICON_SIZES.map(({ size }) => (
-        <Button key={size} size={size} variant="outline" aria-label="Add">
-          <PlusIcon />
-        </Button>
       ))}
     </div>
   );
 }
 
-/** shadcn docs' "With Icon" — `data-icon` for start/end spacing. */
+function ShapeExample() {
+  return (
+    <div className="flex flex-col gap-6">
+      {ROUNDNESSES.map(({ roundness, label }) => (
+        <div key={roundness}>
+          <p className="mb-3 font-sans text-xs text-muted-foreground">{label}</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button roundness={roundness}>Label</Button>
+            <Button roundness={roundness} variant="secondary">
+              Label
+            </Button>
+            <Button roundness={roundness} variant="fiaFilled" data-icon="inline-start">
+              <PlusIcon data-icon="inline-start" />
+              Label
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function WithIconExample() {
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -125,7 +112,7 @@ function WithIconExample() {
         <PlusIcon data-icon="inline-start" />
         Add
       </Button>
-      <Button variant="outline" data-icon="inline-end">
+      <Button variant="primaryOutline" data-icon="inline-end">
         Next
         <ArrowRightIcon data-icon="inline-end" />
       </Button>
@@ -137,7 +124,6 @@ function WithIconExample() {
   );
 }
 
-/** shadcn docs' "Spinner" — Spinner child + `data-icon` for spacing. */
 function SpinnerExample() {
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -145,7 +131,7 @@ function SpinnerExample() {
         <Spinner data-icon="inline-start" />
         Please wait
       </Button>
-      <Button variant="outline" disabled data-icon="inline-start">
+      <Button variant="primaryOutline" disabled data-icon="inline-start">
         <Spinner data-icon="inline-start" />
         Loading
       </Button>
@@ -153,90 +139,38 @@ function SpinnerExample() {
   );
 }
 
-/**
- * Shape axis (Avatar vocabulary) — Roundrect is Foundations `--rounded-lg`
- * (12px, flat across sizes); Round adds `rounded-full`.
- */
-function ShapeExample() {
-  return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <p className="mb-3 font-sans text-xs text-muted-foreground">Roundrect</p>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button>Button</Button>
-          <Button variant="outline" size="icon" aria-label="Add">
-            <PlusIcon />
-          </Button>
-          <Button variant="secondary" data-icon="inline-start">
-            <PlusIcon data-icon="inline-start" />
-            Add
-          </Button>
-        </div>
-      </div>
-      <div>
-        <p className="mb-3 font-sans text-xs text-muted-foreground">Round</p>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button className="rounded-full">Button</Button>
-          <Button variant="outline" className="rounded-full" size="icon" aria-label="Add">
-            <PlusIcon />
-          </Button>
-          <Button variant="secondary" className="rounded-full" data-icon="inline-start">
-            <PlusIcon data-icon="inline-start" />
-            Add
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function DisabledExample() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Button disabled>Default</Button>
-      <Button variant="outline" disabled>
-        Outline
-      </Button>
-      <Button variant="secondary" disabled>
-        Secondary
-      </Button>
-      <Button variant="ghost" disabled>
-        Ghost
-      </Button>
-      <Button variant="destructive" disabled>
-        Destructive
-      </Button>
-      <Button variant="link" disabled>
-        Link
-      </Button>
+      {VARIANTS.map(({ variant, label }) => (
+        <Button key={variant} variant={variant} disabled>
+          {label}
+        </Button>
+      ))}
     </div>
   );
 }
 
-/**
- * shadcn docs' "As Link" — `buttonVariants` on a plain `<a>`.
- * Do not use `<Button render={<a />} />` (Base UI forces role="button").
- */
+/** `buttonVariants` on a plain `<a>` — not `render={<a />}`. */
 function AsLinkExample() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <a className={buttonVariants()} href="https://fabely.app">
-        Default link
+      <a className={buttonVariants({ variant: 'primary' })} href="#">
+        Primary link
       </a>
-      <a className={buttonVariants({ variant: 'outline' })} href="https://fabely.app">
+      <a className={buttonVariants({ variant: 'primaryOutline' })} href="#">
         Outline link
       </a>
-      <a className={buttonVariants({ variant: 'secondary' })} href="https://fabely.app">
+      <a className={buttonVariants({ variant: 'secondary' })} href="#">
         Secondary link
       </a>
-      <a className={buttonVariants({ variant: 'ghost' })} href="https://fabely.app">
+      <a className={buttonVariants({ variant: 'ghost' })} href="#">
         Ghost link
       </a>
     </div>
   );
 }
 
-/** shadcn docs' "RTL" — wrap in `dir="rtl"`. */
 function RtlExample() {
   return (
     <div dir="rtl" className="flex flex-wrap items-center gap-3">
@@ -244,11 +178,30 @@ function RtlExample() {
         <PlusIcon data-icon="inline-start" />
         إضافة
       </Button>
-      <Button variant="outline" data-icon="inline-end">
+      <Button variant="primaryOutline" data-icon="inline-end">
         التالي
         <ArrowRightIcon data-icon="inline-end" />
       </Button>
       <Button variant="secondary">زر</Button>
+    </div>
+  );
+}
+
+function FigmaMatrixExample() {
+  return (
+    <div className="flex flex-col gap-6">
+      {SIZES.map(({ size, label }) => (
+        <div key={size}>
+          <p className="mb-3 font-sans text-xs text-muted-foreground">Size: {label}</p>
+          <div className="flex flex-wrap items-center gap-3">
+            {VARIANTS.map(({ variant, label: vLabel }) => (
+              <Button key={variant} variant={variant} size={size}>
+                {vLabel}
+              </Button>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -262,41 +215,33 @@ const ICON_OPTIONS: { value: 'none' | 'start' | 'end' | 'spinner'; label: string
   { value: 'spinner', label: 'Spinner' },
 ];
 
-type ButtonShape = 'roundrect' | 'round';
-
 function ButtonPlayground() {
-  const [variant, setVariant] = useState<ButtonVariant>('default');
+  const [variant, setVariant] = useState<ButtonVariant>('primary');
   const [size, setSize] = useState<ButtonSize>('default');
+  const [roundness, setRoundness] = useState<ButtonRoundness>('default');
   const [icon, setIcon] = useState<'none' | 'start' | 'end' | 'spinner'>('none');
-  const [shape, setShape] = useState<ButtonShape>('roundrect');
   const [disabled, setDisabled] = useState(false);
   const [asLink, setAsLink] = useState(false);
 
-  const isIconSize = size.startsWith('icon');
   const dataIcon =
     icon === 'end' ? 'inline-end' : icon === 'none' ? undefined : 'inline-start';
 
-  const content = isIconSize ? (
-    <PlusIcon />
-  ) : (
+  const content = (
     <>
       {icon === 'start' ? <PlusIcon data-icon="inline-start" /> : null}
       {icon === 'spinner' ? <Spinner data-icon="inline-start" /> : null}
-      Button
+      Label
       {icon === 'end' ? <ArrowRightIcon data-icon="inline-end" /> : null}
     </>
   );
-
-  const className = shape === 'round' ? 'rounded-full' : undefined;
 
   return (
     <PlaygroundPanel
       preview={
         asLink ? (
           <a
-            className={buttonVariants({ variant, size, className })}
+            className={buttonVariants({ variant, size, roundness })}
             href="#"
-            aria-label={isIconSize ? 'Add' : undefined}
             data-icon={dataIcon}
           >
             {content}
@@ -305,10 +250,9 @@ function ButtonPlayground() {
           <Button
             variant={variant}
             size={size}
+            roundness={roundness}
             disabled={disabled}
-            className={className}
             data-icon={dataIcon}
-            aria-label={isIconSize ? 'Add' : undefined}
           >
             {content}
           </Button>
@@ -337,21 +281,21 @@ function ButtonPlayground() {
           </div>
 
           <InlineSegmentedControl
-            label="Icon"
-            value={icon}
-            options={ICON_OPTIONS}
-            onChange={setIcon}
+            label="Shape"
+            value={roundness}
+            options={ROUNDNESSES.map(({ roundness: r, label }) => ({
+              value: r,
+              label,
+            }))}
+            onChange={setRoundness}
             fullWidth
           />
 
           <InlineSegmentedControl
-            label="Shape"
-            value={shape}
-            options={[
-              { value: 'roundrect', label: 'Roundrect' },
-              { value: 'round', label: 'Round' },
-            ]}
-            onChange={setShape}
+            label="Icon"
+            value={icon}
+            options={ICON_OPTIONS}
+            onChange={setIcon}
             fullWidth
           />
 
@@ -391,10 +335,10 @@ export const Overview: Story = {
       title="Button"
       description={
         <>
-          Displays a button or a component that looks like a button. Phase 1 exposes the full
-          shadcn Button API (<code>variant</code>, <code>size</code>, <code>buttonVariants</code>)
-          with vendor styling only — not yet matched to Figma. Import from this primitive, not{' '}
-          <code>src/components/ui/button</code>.
+          Fabely Button from the Figma component set — eight variants, five sizes, and
+          Roundrect / Round. Styles use Foundations tokens (Primary gradient, Fia / error
+          raw swatches, theme-alpha, focus-ring effects). Icon Button and Button Link are
+          separate Figma components, not this API.
         </>
       }
       playground={<ButtonPlayground />}
@@ -409,17 +353,17 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Sizes">
             <SizesExample />
           </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Icon">
-            <IconExample />
+          <PrimitiveGalleryItem label="Shape">
+            <ShapeExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Figma Matrix">
+            <FigmaMatrixExample />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="With Icon">
             <WithIconExample />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Spinner">
             <SpinnerExample />
-          </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Shape">
-            <ShapeExample />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Disabled">
             <DisabledExample />
@@ -435,55 +379,46 @@ export const Overview: Story = {
       usageGuidance={
         <ul className="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
           <li>
-            Prefer the <code>variant</code> and <code>size</code> props over inventing one-off
-            visual classes — phase 1 tracks the shadcn surface; Figma restyle comes later.
+            Prefer <code>variant</code>, <code>size</code>, and <code>roundness</code> over
+            one-off visual classes — all three map to the Figma Button set.
           </li>
           <li>
-            For icons, pass an SVG child and set <code>data-icon=&quot;inline-start&quot;</code> or{' '}
-            <code>&quot;inline-end&quot;</code> on the button (and the icon) for correct spacing —
-            no dedicated icon prop.
+            <code>primary</code> is a Foundations gradient (<code>--gradient-primary-*</code>),
+            not solid <code>--primary</code>. It keeps a rest-strength focus ring; keyboard focus
+            uses the full primary ring.
           </li>
           <li>
-            Loading: render <code>&lt;Spinner /&gt;</code> inside the button with{' '}
-            <code>data-icon</code>; typically pair with <code>disabled</code>.
+            Tertiary has a quiet border; Ghost does not — they are separate variants (unlike
+            Badge, where ghost mapped to Tertiary).
           </li>
           <li>
-            Shape: Roundrect is Foundations <code>--rounded-lg</code> (12px, flat for every
-            size — not size-proportional like Avatar). Round is{' '}
-            <code>className=&quot;rounded-full&quot;</code>. There is no <code>shape</code> prop
-            yet (playground/docs vocabulary only).
+            Icons: pass an SVG child and set <code>data-icon=&quot;inline-start&quot;</code> or{' '}
+            <code>&quot;inline-end&quot;</code>. No icon-only sizes here — use the Icon Button
+            primitive when it lands.
           </li>
           <li>
-            <strong>Do not use</strong> <code>{"<Button render={<a />} />"}</code> for links. Base
-            UI&apos;s Button always applies <code>role=&quot;button&quot;</code>, which overrides
-            the semantic link role on <code>&lt;a&gt;</code>. Use <code>buttonVariants</code> with
-            a plain <code>&lt;a&gt;</code> instead (see As Link).
-          </li>
-          <li>
-            For grouped actions, compose with the <code>ButtonGroup</code> primitive — see that
-            component&apos;s docs.
+            <strong>Do not use</strong> <code>{"<Button render={<a />} />"}</code> for links. Use{' '}
+            <code>buttonVariants</code> on a plain <code>&lt;a&gt;</code> (see As Link). Button
+            Link is a separate Figma component.
           </li>
         </ul>
       }
       accessibility={
         <ul className="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
           <li>
-            Icon-only buttons need an accessible name (<code>aria-label</code>) — the glyph alone
-            is not enough for screen readers.
+            Icon-leading / trailing buttons still need clear label text (or{' '}
+            <code>aria-label</code> when a future Icon Button is icon-only).
           </li>
           <li>
-            Decorative icons should set <code>aria-hidden=&quot;true&quot;</code> when label text
-            is present; the Spinner primitive already exposes{' '}
-            <code>role=&quot;status&quot;</code> and an accessible loading label.
+            Decorative icons: <code>aria-hidden=&quot;true&quot;</code>. Spinner exposes{' '}
+            <code>role=&quot;status&quot;</code>.
           </li>
           <li>
-            Prefer native <code>disabled</code> for non-interactive states so focus and pointer
-            events are correctly suppressed.
+            Prefer native <code>disabled</code> so focus and pointer events are suppressed.
           </li>
           <li>
-            Links that look like buttons must remain real links (<code>&lt;a href&gt;</code> +{' '}
-            <code>buttonVariants</code>) so keyboard and AT users get link semantics and
-            affordances.
+            Links that look like buttons must stay real links (<code>&lt;a href&gt;</code> +{' '}
+            <code>buttonVariants</code>).
           </li>
         </ul>
       }
@@ -505,8 +440,12 @@ export const Sizes: Story = {
   render: () => <SizesExample />,
 };
 
-export const Icon: Story = {
-  render: () => <IconExample />,
+export const Shape: Story = {
+  render: () => <ShapeExample />,
+};
+
+export const FigmaMatrix: Story = {
+  render: () => <FigmaMatrixExample />,
 };
 
 export const WithIcon: Story = {
@@ -516,10 +455,6 @@ export const WithIcon: Story = {
 export const SpinnerStory: Story = {
   name: 'Spinner',
   render: () => <SpinnerExample />,
-};
-
-export const Shape: Story = {
-  render: () => <ShapeExample />,
 };
 
 export const Disabled: Story = {
