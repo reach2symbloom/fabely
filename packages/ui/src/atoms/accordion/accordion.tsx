@@ -1,19 +1,17 @@
 /**
  * Fabely Accordion atom — wraps the upstream shadcn Accordion primitive
- * (src/components/ui/accordion.tsx, built on Radix UI's Accordion, reached
- * via the shared `radix-ui` umbrella package Avatar already depends on)
- * with Fabely's Foundations-sourced styling.
+ * (src/components/ui/accordion.tsx, built on Base UI's Accordion via
+ * `@base-ui/react/accordion`) with Fabely's Foundations-sourced styling.
  *
  * Unlike Avatar, this atom introduces no new props, variants, or
  * sub-components. No Figma design exists yet for Accordion — there was no
  * selection to reverse-engineer a Fabely-specific variant surface from, so
  * per docs/DESIGN.md's "match Figma faithfully first, identify recurring
  * patterns before introducing abstractions" workflow, there is nothing yet
- * to abstract beyond a faithful restyle. shadcn/Radix's own Accordion
- * documentation (component + prop names: `type`, `value`/`defaultValue`,
- * `onValueChange`, `collapsible`, `disabled`, `dir`) is the source of truth
- * for API and behavior in place of Figma for this milestone — see
- * README.md.
+ * to abstract beyond a faithful restyle. shadcn/Base UI's own Accordion
+ * documentation (component + prop names: `multiple`, `value`/`defaultValue`
+ * as arrays, `onValueChange`, `disabled`) is the source of truth for API
+ * and behavior in place of Figma for this milestone — see README.md.
  *
  * The four exports below are a straight pass-through of the vendor
  * component set (Accordion, AccordionItem, AccordionTrigger,
@@ -119,7 +117,7 @@ function AccordionTrigger({
  * and zero needs no provenance.
  *
  * These utilities land on AccordionContent's *inner* wrapper div, not the
- * outer Radix `Content` element — the vendor file hardcodes the outer
+ * outer Base UI `Panel` element — the vendor file hardcodes the outer
  * element's own class list as a literal string rather than merging it
  * through `cn()`, so `className` (and everything passed here) can only
  * ever reach that inner div, never the outer element. This still produces

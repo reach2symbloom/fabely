@@ -1,6 +1,6 @@
 # Accordion
 
-The Fabely Accordion atom — wraps the upstream shadcn Accordion primitive (`src/components/ui/accordion.tsx`, built on Radix UI's Accordion, via the shared `radix-ui` package Avatar already depends on) with Fabely's Foundations-sourced styling.
+The Fabely Accordion atom — wraps the upstream shadcn Accordion primitive (`src/components/ui/accordion.tsx`, built on Base UI's Accordion via `@base-ui/react/accordion`) with Fabely's Foundations-sourced styling.
 
 ## Purpose
 
@@ -14,14 +14,14 @@ The Fabely Accordion atom — wraps the upstream shadcn Accordion primitive (`sr
 
 ## Wraps upstream
 
-This atom does not modify the upstream primitive's file — `src/components/ui/accordion.tsx` stays vendor code, installed unmodified via `npx shadcn@latest add accordion` (the "new-york" style, Radix-based variant; the shadcn docs page for this component references a Base UI variant, but the actual CLI output for this project's `components.json` config uses Radix via the `radix-ui` package, so the *vendored file* — not the docs' code sample — is the API ground truth this atom wraps). `AccordionItem`, `AccordionTrigger`, and `AccordionContent` override the vendor's default classes via `className`; `Accordion` itself carries no default classes in the vendor file to begin with, so it's re-exported completely unchanged — mirroring how `avatar.tsx` re-exports `AvatarImage` as-is for the same reason (nothing to restyle).
+This atom does not modify the upstream primitive's file beyond the Radix → Base UI migration of `src/components/ui/accordion.tsx` (base-luma golden-pair merge; project custom classes retained). `AccordionItem`, `AccordionTrigger`, and `AccordionContent` override the vendor's default classes via `className`; `Accordion` itself carries no default classes in the vendor file to begin with, so it's re-exported completely unchanged — mirroring how `avatar.tsx` re-exports `AvatarImage` as-is for the same reason (nothing to restyle).
 
-**API surface is unchanged from the vendor primitive** — no new props were added to any of the four components:
+**API surface matches the Base UI / base-luma vendor primitive** — no new props were added to any of the four components:
 
-- `Accordion` — `type: "single" | "multiple"` (required), `value`/`defaultValue` (string for `type="single"`, string array for `type="multiple"`), `onValueChange`, `collapsible` (boolean, `type="single"` only — whether the open item can be collapsed back to none), `disabled`, `orientation`, `dir` (`"ltr" | "rtl"`).
-- `AccordionItem` — `value` (required, unique per item), `disabled`.
-- `AccordionTrigger` — standard button props; renders inside an `AccordionHeader`/`h3` internally (vendor structure, unchanged).
-- `AccordionContent` — standard div props; the vendor's own internal structure (an outer Radix `Content` element wrapping an inner padded `div`) is unchanged — see `accordion.tsx`'s own comment on `AccordionContent` for why this atom's `className` still visibly and correctly restyles the rendered text despite landing on that inner div rather than the outer element.
+- `Accordion` — `multiple` (boolean, default `false` for single-open mode), `value`/`defaultValue` (**always** `string[]`, even in single mode), `onValueChange` (receives an array + event details), `disabled`. Single mode is always collapsible (Radix's `type` / `collapsible` / Root `dir` are gone).
+- `AccordionItem` — `value` (unique per item), `disabled`.
+- `AccordionTrigger` — standard button props; renders inside an `AccordionHeader`/`h3` internally (vendor structure, unchanged). Open state on the trigger is `data-panel-open`.
+- `AccordionContent` — wraps Base UI `Panel`; the vendor's internal structure (outer panel + inner padded `div`) is unchanged — `className` lands on the inner div. Height animation uses `--accordion-panel-height` plus `data-starting-style` / `data-ending-style` on that inner div, alongside `data-open`/`data-closed` + `animate-accordion-*`.
 
 ## Implemented (this milestone)
 
@@ -34,13 +34,13 @@ Every value below substitutes a Foundations token for a Tailwind default that wa
 - **Trigger focus ring** — the vendor's ad hoc `focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50` (the `border-ring` half of which is inert — `AccordionTrigger` has no border of its own for it to recolor) → `--effect-focus-ring-secondary` (`foundations/effects/focus-rings/focus-rings.css`), the same box-shadow-ring pattern already established for interactive atoms (see `avatar.tsx`'s `AvatarIconBadge`). **Secondary**, not Primary, is the correct one of the two to reuse here: the vendor's own default ring color is plain `--ring` (not `--ring-primary`), and `--effect-focus-ring-secondary` is defined as exactly that color at the Foundations-standard 3px width.
 - **Content typography** — `text-sm` (no explicit weight, i.e. browser default 400) → Paragraph Small Regular (`foundations/typography.css`).
 - **Content bottom spacing** — `pb-4` → `--spacing-md`. `pt-0` is left as a literal `0` — there's no Foundations token to source zero from.
-- **Chevron rotation, hover underline, disabled opacity, open/close height animation** — left exactly as the vendor defines them. None of these are design-token-driven values (a rotation transform, a text-decoration toggle, an opacity multiplier, and a keyframe animation aren't things Foundations publishes tokens for), so there was nothing to substitute — see "Fixed during review" below for a package-level gap that initially kept the animation from actually running.
+- **Chevron rotation, hover underline, disabled opacity, open/close height animation** — left as the vendor defines them (Base UI data attrs + `--accordion-panel-height` / starting-ending styles + `tw-animate-css` `animate-accordion-*`).
 
 ## Fixed during review
 
 Three fidelity bugs were found and fixed after the initial build, each root-caused against upstream rather than patched locally:
 
-- **Missing expand/collapse animation.** The vendor's `data-[state=open]:animate-accordion-down`/`data-[state=closed]:animate-accordion-up` classes (unmodified, present since the initial CLI install) depend on `animate-accordion-down`/`animate-accordion-up` Tailwind utilities and their backing `@keyframes`, which are registered by the `tw-animate-css` package — `apps/web` already imports it in its own `globals.css`, but `packages/ui` never had it as a dependency or import, so those utilities generated no CSS at all and the accordion snapped open/closed instantly. Fixed by adding `tw-animate-css` to `packages/ui/package.json` and `@import 'tw-animate-css';` to `packages/ui/src/styles/globals.css` (immediately after `@import 'tailwindcss';`, mirroring `apps/web`). No change to `accordion.tsx` was needed — the vendor classes were already correct.
+- **Missing expand/collapse animation.** The vendor's `animate-accordion-down`/`animate-accordion-up` classes depend on `tw-animate-css` — `apps/web` already imports it in its own `globals.css`, but `packages/ui` never had it as a dependency or import, so those utilities generated no CSS at all and the accordion snapped open/closed instantly. Fixed by adding `tw-animate-css` to `packages/ui/package.json` and `@import 'tw-animate-css';` to `packages/ui/src/styles/globals.css`. After the Base UI migration, panel height also uses `--accordion-panel-height` with `data-starting-style`/`data-ending-style` on the inner div (base-luma golden).
 - **Bordered example's divider wasn't full width.** The "Borders" Storybook example (`accordion.stories.tsx`) had added horizontal padding directly on the `Accordion` container for visual breathing room; padding a shared container narrows every item's own content box, including the width its `border-b` draws against, so the divider rendered inset from the outer `border`'s edges instead of flush with it. Fixed by moving that same padding one level down, onto `AccordionItem` itself (alongside its `border-b`) — padding is inside an element's own border (border-box sizing), so it insets the item's *content* without narrowing the item's own border-box, keeping the divider edge-to-edge exactly like upstream's literal `border` + `border-b last:border-b-0` recipe.
 - **Card example's text was unreadable in Dark mode.** See "Known issues" below — root-caused to a pre-existing bug in Foundations' own `--card-foreground` token, not to this atom or story.
 

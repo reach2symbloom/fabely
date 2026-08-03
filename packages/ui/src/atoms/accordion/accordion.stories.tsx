@@ -10,9 +10,8 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './
  * stays its own focused page. No Args playground is built for this atom
  * (per docs/DESIGN.md, it's only added once canonical examples are
  * complete, and this atom adds no Fabely-specific props/variants to
- * explore beyond the vendor primitive's own `type`/`collapsible`/`disabled`,
- * which the Basic/Multiple/Disabled example pages already demonstrate
- * directly).
+ * explore beyond the vendor primitive's own `multiple`/`disabled`, which
+ * the Basic/Multiple/Disabled example pages already demonstrate directly).
  */
 
 const meta = {
@@ -20,12 +19,6 @@ const meta = {
   component: Accordion,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
-  /* `type` has no default on the vendor primitive (a required prop on its
-   * discriminated `type="single" | "multiple"` union) — every story below
-   * fully replaces rendering via its own `render`, so this default only
-   * exists to satisfy CSF3's generated Story type, which otherwise expects
-   * every story to supply `args.type` itself. */
-  args: { type: 'single' },
 } satisfies Meta<typeof Accordion>;
 
 export default meta;
@@ -62,12 +55,13 @@ const FAQ_ITEMS = [
  * story page render the exact same implementation — composed, not
  * duplicated. */
 
-/** shadcn docs' "Basic" example: `type="single"` with `collapsible`, one
- * item open at a time, the first item open by default via `defaultValue`.
- * This is the recommended default composition for most call sites. */
+/** shadcn docs' "Basic" example (Base UI form): single mode (omit
+ * `multiple`), always collapsible, one item open at a time, the first
+ * item open by default via `defaultValue` as an array. This is the
+ * recommended default composition for most call sites. */
 function BasicExample() {
   return (
-    <Accordion type="single" collapsible defaultValue="item-1" className="w-96">
+    <Accordion defaultValue={['item-1']} className="w-96">
       {FAQ_ITEMS.map(({ value, question, answer }) => (
         <AccordionItem key={value} value={value}>
           <AccordionTrigger>{question}</AccordionTrigger>
@@ -78,15 +72,12 @@ function BasicExample() {
   );
 }
 
-/** shadcn docs' "Multiple" example: `type="multiple"` allows any number of
- * items open simultaneously — no `collapsible` prop here, it only applies
- * to `type="single"` (a single open item can always toggle back to none by
- * definition; `type="multiple"` has no equivalent "none allowed" concept to
- * gate). Two items start open via `defaultValue` (a string array for this
- * type, vs. a single string for `type="single"`). */
+/** shadcn docs' "Multiple" example: `multiple` allows any number of items
+ * open simultaneously. Two items start open via `defaultValue` (always a
+ * string array under Base UI, including single mode). */
 function MultipleExample() {
   return (
-    <Accordion type="multiple" defaultValue={['item-1', 'item-2']} className="w-96">
+    <Accordion multiple defaultValue={['item-1', 'item-2']} className="w-96">
       {FAQ_ITEMS.map(({ value, question, answer }) => (
         <AccordionItem key={value} value={value}>
           <AccordionTrigger>{question}</AccordionTrigger>
@@ -102,7 +93,7 @@ function MultipleExample() {
  * keyboard-focusable, but the rest of the accordion behaves normally. */
 function DisabledExample() {
   return (
-    <Accordion type="single" collapsible defaultValue="item-1" className="w-96">
+    <Accordion defaultValue={['item-1']} className="w-96">
       {FAQ_ITEMS.map(({ value, question, answer }, i) => (
         <AccordionItem key={value} value={value} disabled={i === 1}>
           <AccordionTrigger>
@@ -148,9 +139,7 @@ function DisabledExample() {
 function BordersExample() {
   return (
     <Accordion
-      type="single"
-      collapsible
-      defaultValue="item-1"
+      defaultValue={['item-1']}
       className="w-96 rounded-[var(--radius)] border-[length:var(--stroke-thin)] border-[color:var(--border)]"
     >
       {FAQ_ITEMS.map(({ value, question, answer }) => (
@@ -231,7 +220,7 @@ function CardExample() {
         introduced here.
       </LimitationNotice>
       <div className="mt-4 w-96 rounded-[var(--radius)] border-[length:var(--stroke-thin)] border-[color:var(--border)] bg-[var(--card)] px-[var(--spacing-lg)] text-[color:var(--foreground)]">
-        <Accordion type="single" collapsible defaultValue="item-1">
+        <Accordion defaultValue={['item-1']}>
           {FAQ_ITEMS.map(({ value, question, answer }) => (
             <AccordionItem key={value} value={value}>
               <AccordionTrigger>{question}</AccordionTrigger>
@@ -244,17 +233,16 @@ function CardExample() {
   );
 }
 
-/** shadcn docs' "RTL" example: the `dir="rtl"` prop, forwarded straight
- * through to the underlying Radix root (affects keyboard navigation
- * semantics — Arrow key direction — and the flex row's visual order, both
- * of which mirror correctly with no extra work). Documents one known,
- * unfixed limitation rather than silently working around it: the vendor
- * Trigger hardcodes `text-left` (a *physical* Tailwind utility) rather
- * than the *logical* `text-start`, so the question text itself stays
- * left-aligned even though the row's flex layout (and its chevron) has
- * correctly mirrored to the right — changing that is a vendor-file
- * behavior change, not a Foundations-token restyle, so it's out of this
- * milestone's explicit "no new props/variants, thin restyle only" scope. */
+/** RTL via the DOM `dir` attribute on a wrapping element (Base UI dropped
+ * the Root `dir` prop; direction is read from the DOM / DirectionProvider).
+ * Documents one known, unfixed limitation rather than silently working
+ * around it: the vendor Trigger hardcodes `text-left` (a *physical*
+ * Tailwind utility) rather than the *logical* `text-start`, so the
+ * question text itself stays left-aligned even though the row's flex
+ * layout (and its chevron) has correctly mirrored to the right — changing
+ * that is a vendor-file behavior change, not a Foundations-token restyle,
+ * so it's out of this milestone's explicit "no new props/variants, thin
+ * restyle only" scope. */
 function RtlExample() {
   return (
     <div dir="rtl" className="flex flex-col gap-4">
@@ -265,7 +253,7 @@ function RtlExample() {
         fixed here — doing so would change vendor-derived behavior beyond this
         milestone&apos;s restyle-only scope.
       </LimitationNotice>
-      <Accordion type="single" collapsible defaultValue="item-1" dir="rtl" className="w-96">
+      <Accordion defaultValue={['item-1']} className="w-96">
         {FAQ_ITEMS.map(({ value, question, answer }) => (
           <AccordionItem key={value} value={value}>
             <AccordionTrigger>{question}</AccordionTrigger>
@@ -307,7 +295,7 @@ export const Overview: Story = {
         <h2 className="text-lg font-semibold text-foreground mb-2">Accordion</h2>
         <p className="text-sm leading-relaxed text-muted-foreground">
           A vertically stacked set of interactive headings that each reveal a section of
-          content. This atom wraps the upstream shadcn/Radix Accordion primitive with
+          content. This atom wraps the upstream shadcn/Base UI Accordion primitive with
           Fabely&apos;s Foundations-sourced spacing, radius, typography, color, and focus-ring
           styling — no Fabely-specific props or variants are added on top; see the atom&apos;s{' '}
           <code>README.md</code> for why (no Figma source exists yet for this component) and
@@ -340,11 +328,10 @@ export const Overview: Story = {
         <Section title="Usage guidance">
           <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
             <li>
-              Use <code>type=&quot;single&quot;</code> (with <code>collapsible</code>) for the
-              common "one section open at a time" case, and{' '}
-              <code>type=&quot;multiple&quot;</code> when several sections may reasonably stay
-              open together — the two are mutually exclusive per the vendor primitive, matching
-              Radix&apos;s own API exactly (see README.md).
+              Use single mode (omit <code>multiple</code>) for the common &quot;one section
+              open at a time&quot; case, and <code>multiple</code> when several sections may
+              reasonably stay open together — see README.md. Values are always arrays:{' '}
+              <code>defaultValue=&#123;[&#39;item-1&#39;]&#125;</code>.
             </li>
             <li>
               Every <code>AccordionItem</code> needs a unique <code>value</code> within its
@@ -366,7 +353,7 @@ export const Overview: Story = {
         <Section title="Accessibility">
           <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
             <li>
-              Follows the WAI-ARIA Accordion pattern via Radix: each trigger is a real{' '}
+              Follows the WAI-ARIA Accordion pattern via Base UI: each trigger is a real{' '}
               <code>button</code> with <code>aria-expanded</code> and{' '}
               <code>aria-controls</code> wired up automatically, and each panel carries a
               matching <code>role=&quot;region&quot;</code>/<code>aria-labelledby</code> — no
@@ -374,8 +361,8 @@ export const Overview: Story = {
             </li>
             <li>
               Fully keyboard operable out of the box: Tab moves between triggers, Enter/Space
-              toggles the focused item, and Arrow Up/Down (Home/End) move focus between triggers
-              without changing which items are expanded.
+              toggles the focused item. (Base UI no longer uses Arrow-key roving focus on
+              accordion triggers, matching updated APG guidance.)
             </li>
             <li>
               The focus-visible ring (<code>--effect-focus-ring-secondary</code>) is always
