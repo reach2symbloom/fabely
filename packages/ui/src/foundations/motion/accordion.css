@@ -1,0 +1,36 @@
+/*
+ * Foundations / Motion / Accordion
+ *
+ * Overrides tw-animate-css's accordion-down/up keyframes, which still
+ * animate against Radix/Bits/Reka/KB height vars. Base UI Accordion.Panel
+ * exposes --accordion-panel-height (see AccordionPanelCssVars). Without
+ * this override, animate-accordion-* falls through to `auto` and height
+ * does not interpolate — the panel snaps open/closed.
+ *
+ * Must live in `@theme` so Tailwind emits these after tw-animate-css's
+ * theme keyframes (plain @keyframes lose the cascade). Duration and
+ * easing stay on tw-animate-css's --animate-accordion-* theme tokens
+ * (0.2s ease-out) until Foundations Motion duration/easing tokens exist
+ * — DESIGN.md lists Motion as a foundation, but no duration/easing CSS
+ * is checked in yet. Do not invent values here.
+ */
+
+@theme inline {
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--accordion-panel-height, auto);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--accordion-panel-height, auto);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
