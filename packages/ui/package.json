@@ -30,14 +30,23 @@
   "scripts": {
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "check:tokens": "bash scripts/check-tokens.sh"
+    "check:tokens": "bash scripts/check-tokens.sh owned",
+    "check:tokens:vendor": "bash scripts/check-tokens.sh vendor"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
+    "@shadcn/react": "^0.2.1",
     "@solar-icons/react": "^1.1.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "1.1.1",
+    "date-fns": "4.1.0",
+    "embla-carousel-react": "8.6.0",
+    "input-otp": "1.4.2",
     "lucide-react": "^0.564.0",
+    "react-day-picker": "^10.0.1",
+    "react-resizable-panels": "^2.1.9",
+    "recharts": "3.8.0",
     "tailwind-merge": "^3.3.1"
   }
 }

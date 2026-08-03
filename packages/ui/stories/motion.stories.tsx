@@ -5,7 +5,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/atoms/accordion';
+} from '@/primitives/accordion';
 import { PendingNotice, SectionHeading } from './ColorSwatchTable';
 
 const meta = {

@@ -5,9 +5,9 @@
 ## Changed
 
 - `packages/ui/src/components/ui/avatar.tsx` — progressive write to `avatar-base.tsx` then finalize rename. Three-way merge (`git merge-file` with radix-luma golden as ancestor) of the user's customized file onto `https://ui.shadcn.com/r/styles/base-luma/avatar.json`. Import/`AvatarPrimitive.*.Props` types now match Base UI; kept project customizations vs stock luma (`overflow-hidden` instead of the after-border ring treatment, Image without `rounded-full object-cover`, Badge without `bg-blend-color`, export order). Leftover scan clean: `grep -n "radix-ui\|@radix-ui\|IconPlaceholder" src/components/ui/avatar.tsx` → no matches.
-- `packages/ui/src/atoms/avatar/avatar.tsx` — still imports `@/components/ui/avatar` (public atom API unchanged; no `delayMs`/`asChild` call sites).
-- `packages/ui/src/atoms/avatar/avatar.stories.tsx` — docs copy Radix → Base UI (fallback behavior / Overview a11y notes).
-- `packages/ui/src/atoms/avatar/README.md` — upstream primitive described as Base UI instead of Radix UI.
+- `packages/ui/src/primitives/avatar/avatar.tsx` — still imports `@/components/ui/avatar` (public atom API unchanged; no `delayMs`/`asChild` call sites).
+- `packages/ui/src/primitives/avatar/avatar.stories.tsx` — docs copy Radix → Base UI (fallback behavior / Overview a11y notes).
+- `packages/ui/src/primitives/avatar/README.md` — upstream primitive described as Base UI instead of Radix UI.
 
 ## Left alone
 

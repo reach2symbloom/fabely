@@ -5,9 +5,9 @@
 ## Changed
 
 - `packages/ui/src/components/ui/badge.tsx` — progressive write to `badge-base.tsx` then finalize rename. Replaced `Slot` from `radix-ui` + `asChild` with `@base-ui/react/merge-props` + `@base-ui/react/use-render` and a `render` prop, matching `https://ui.shadcn.com/r/styles/base-luma/badge.json`. Kept the project's pre-existing class/variant customization (not stock luma classes: `rounded-full`, `[a&]:hover:*`, solid destructive, etc.). Leftover scan clean: `grep -n "radix-ui\|@radix-ui" src/components/ui/badge.tsx` → no matches.
-- `packages/ui/src/atoms/badge/badge.tsx` — docs comments updated for `render`; still imports `@/components/ui/badge` (public atom API unchanged aside from inherited prop rename).
-- `packages/ui/src/atoms/badge/badge.stories.tsx` — call sites `asChild` → `render={<a ... />}` with label children; gallery copy updated.
-- `packages/ui/src/atoms/badge/README.md` — polymorphism docs updated to Base UI `render`.
+- `packages/ui/src/primitives/badge/badge.tsx` — docs comments updated for `render`; still imports `@/components/ui/badge` (public atom API unchanged aside from inherited prop rename).
+- `packages/ui/src/primitives/badge/badge.stories.tsx` — call sites `asChild` → `render={<a ... />}` with label children; gallery copy updated.
+- `packages/ui/src/primitives/badge/README.md` — polymorphism docs updated to Base UI `render`.
 
 ## Left alone
 

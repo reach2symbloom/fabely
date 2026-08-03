@@ -138,7 +138,7 @@ Foundations should remain implementation-agnostic.
 
 ### Iconography
 
-**Size tokens** (`packages/ui/src/foundations/iconography.css`) are the canonical icon sizing scale: `--icon-2xs` … `--icon-3xl` (8–48px). Atoms, molecules, organisms, and vendored shadcn wrappers must consume these via `var(--icon-*)` — never hardcoded px or Tailwind `size-*` utilities for icons.
+**Size tokens** (`packages/ui/src/foundations/iconography.css`) are the canonical icon sizing scale: `--icon-2xs` … `--icon-3xl` (8–48px). Primitives, atoms, molecules, organisms, and templates must consume these via `var(--icon-*)` — never hardcoded px or Tailwind `size-*` utilities for icons. Raw vendor output under `src/components/ui` is regenerated, not hand-edited.
 
 **Icon glyphs** are not CSS tokens. They come from approved libraries:
 
@@ -159,6 +159,24 @@ Components should consume semantic tokens whenever a reusable semantic role exis
 ---
 
 # Component Layer
+
+Storybook hierarchy (and package layout under `packages/ui/src/`):
+
+```text
+Foundations → Primitives → Atoms → Molecules → Organisms → Templates
+```
+
+## Primitives
+
+Primitives are wrapped shadcn / Base UI components. We restyle them with Foundations tokens but do not compose them at this layer. They are listed flat and alphabetically in Storybook — no atomic classification.
+
+A component may start as a Primitive and later be composed into an Atom (or higher) once we design a Fabely composition around it. Until then, the Primitive is the public surface consumers should import.
+
+## Atoms, Molecules, Organisms, Templates
+
+These tiers are for components we design. Atoms are the smallest compositions we author; molecules group atoms; organisms form distinct interface sections; templates are page-level layout skeletons. Empty tiers remain as scaffolding until real compositions land.
+
+Vendor-derived wrappers do not belong in these tiers — they live under Primitives.
 
 ## Component Semantics
 
@@ -309,10 +327,10 @@ Documentation should explain what exists, demonstrate usage, and remain concise.
 
 ## Component Story Structure
 
-Every Atom, Molecule, and eventually Organism follows the same Storybook page structure, first established with Avatar:
+Every Primitive, Atom, Molecule, and eventually Organism / Template follows the same Storybook page structure, first established with Avatar:
 
 ```text
-Atoms
+Primitives
 └── Avatar
     ├── Overview
     ├── Default
@@ -333,7 +351,7 @@ Each individual example page stays focused on demonstrating one behavior or vari
 
 Do not build the Args playground until the component's canonical examples are complete. The intended learning flow is: read the Overview, see the recommended examples, open an individual example page, then experiment with Args. Args support exploration — they are not the primary documentation.
 
-This pattern does not apply to Foundations, which remain documentation-first with their existing structure.
+This pattern does not apply to Foundations, which remain documentation-first with their existing structure. Primitives are listed flat and alphabetically under Design System → Primitives; the atomic tiers (Atoms → Templates) hold compositions we design.
 
 ---
 

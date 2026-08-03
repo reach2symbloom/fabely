@@ -5,9 +5,9 @@
 ## Changed
 
 - `packages/ui/src/components/ui/accordion.tsx` — progressive write to `accordion-base.tsx` then finalize rename. Three-way merge (`git merge-file` with radix-luma golden as ancestor) of the user's file onto `https://ui.shadcn.com/r/styles/base-luma/accordion.json`. Kept project customizations vs stock luma (no root `rounded-2xl border`, `border-b last:border-b-0`, single rotating `ChevronDownIcon`, focus-ring utilities, no content `px-4` / link styles). Applied Base UI deltas: import/`*.Props` types, `Content` → `Panel`, `disabled:*` → `aria-disabled:*`, `[&[data-state=open]>svg]` → `[&[data-panel-open]>svg]`, `data-[state=*]:animate-accordion-*` → `data-open`/`data-closed` variants, inner `h-(--accordion-panel-height) data-starting-style:h-0 data-ending-style:h-0`. Leftover scan clean: `grep -n "radix-ui\|@radix-ui\|IconPlaceholder" src/components/ui/accordion.tsx` → no matches.
-- `packages/ui/src/atoms/accordion/accordion.tsx` — still imports `@/components/ui/accordion` (public atom API pass-through); header comments updated Radix → Base UI.
-- `packages/ui/src/atoms/accordion/accordion.stories.tsx` — consumer pass: drop `type`/`collapsible`/`dir`; `defaultValue` always arrays; `multiple` for multi-open; Overview/a11y copy Base UI (no Arrow-key roving focus).
-- `packages/ui/src/atoms/accordion/README.md` — upstream primitive + API described as Base UI (`multiple`, array values).
+- `packages/ui/src/primitives/accordion/accordion.tsx` — still imports `@/components/ui/accordion` (public atom API pass-through); header comments updated Radix → Base UI.
+- `packages/ui/src/primitives/accordion/accordion.stories.tsx` — consumer pass: drop `type`/`collapsible`/`dir`; `defaultValue` always arrays; `multiple` for multi-open; Overview/a11y copy Base UI (no Arrow-key roving focus).
+- `packages/ui/src/primitives/accordion/README.md` — upstream primitive + API described as Base UI (`multiple`, array values).
 - `packages/ui/src/styles/globals.css` — comment updated for Base UI data attrs / `--accordion-panel-height`.
 - `packages/ui/package.json` + `pnpm-lock.yaml` — removed `radix-ui` (last wrapper migrated; skill rule).
 

@@ -6,9 +6,10 @@ const config: StorybookConfig = {
   "stories": [
     "../stories/**/*.mdx",
     "../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)",
-    // Foundations docs live under ../stories; component stories (atoms,
-    // molecules, organisms, templates) are colocated with their component
-    // under src/ instead — see src/atoms/avatar/avatar.stories.tsx.
+    // Foundations docs + empty-tier placeholders live under ../stories;
+    // component stories (primitives, atoms, molecules, organisms, templates)
+    // are colocated with their component under src/ instead — see
+    // src/primitives/avatar/avatar.stories.tsx.
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
   ],
   "addons": [

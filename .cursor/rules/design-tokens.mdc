@@ -7,17 +7,17 @@ alwaysApply: true
 
 Values live in Foundations (`packages/ui/src/foundations/`). This rule states usage only. Rationale: `docs/DESIGN.md`.
 
-`pnpm check:tokens` must pass before any work is considered complete.
+Primitives and composition tiers (atoms → templates) must pass `pnpm check:tokens` (CI gate). Vendor output under `src/components/ui` is not hand-edited — `pnpm check:tokens:vendor` is informational only.
 
 ## Dimensions
 
 - Spacing tokens are for rhythm only (padding, gaps, margins) — never for sizing components.
-- Component dimensions are component tokens defined alongside the component.
-- Never inline raw dimensions (px, rem literals, arbitrary Tailwind sizes).
+- Do not invent height/width tokens: those sizes are usually content-, padding-, and line-height-driven, and Figma does not define them.
+- Border-radius uses Foundations radius tokens — never raw `rounded-[…px|rem]`.
 
 ## Icons
 
-- Size always from `--icon-*`. Never `size-4`, `size-[14px]`, or hardcoded px.
+- Size always from `--icon-*`, including when sizing via icon-context selectors (`[&>svg]:…`, `[&_svg]:…`, `svg:…`). Never hardcoded px on icons.
 - Glyphs: Lucide for system UI, Solar Bold Duotone for illustrative accents. Never mix sets in one interface.
 
 ## Colors

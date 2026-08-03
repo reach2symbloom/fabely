@@ -14,7 +14,7 @@
 @import 'tw-animate-css';
 @import '../foundations/index.css';
 /* Component-scoped tokens (alongside their atoms — see docs/DESIGN.md). */
-@import '../atoms/avatar/avatar.css';
+@import '../primitives/avatar/avatar.css';
 
 @custom-variant dark (&:is(.dark *));
 

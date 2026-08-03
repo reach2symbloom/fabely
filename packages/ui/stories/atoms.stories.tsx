@@ -14,21 +14,21 @@ export const Overview: Story = {
   render: () => (
     <div>
       <PendingNotice>
-        <strong>Placeholder — no components implemented yet.</strong> Atoms are the smallest
-        indivisible UI building blocks — Button, Input, Label, Badge, and similar shadcn
-        primitives wrapped with Fabely's design layer on top. This page exists only to establish
-        the Storybook navigation category ahead of the first component imports (see the{' '}
-        <code>atoms-shadcn-import</code> branch); it will be replaced by real component stories,
-        not appended to.
+        <strong>Placeholder — no components implemented yet.</strong> Atoms are the smallest UI
+        building blocks we design ourselves — compositions built on Foundations and, when useful,
+        Primitives. Vendor-derived wrappers live under{' '}
+        <code>Design System → Primitives</code>, not here. This page exists only to establish the
+        Storybook navigation category; it will be replaced by real component stories, not appended
+        to.
       </PendingNotice>
 
       <SectionHeading>Where Atoms fit</SectionHeading>
       <PendingNotice>
-        Per <code>docs/DESIGN.md</code>'s Component Layer workflow: match Figma faithfully first,
-        then identify recurring patterns before introducing semantic component tokens. Atoms
-        should consume semantic tokens from <em>Foundations</em> wherever a stable semantic role
-        already exists, and foundation tokens directly during exploration — semantic abstraction
-        is expected to be an evolution of the system, not a prerequisite for building it.
+        Per <code>docs/DESIGN.md</code>: Foundations → Primitives → Atoms → Molecules → Organisms →
+        Templates. Atoms consume semantic tokens from <em>Foundations</em> wherever a stable
+        semantic role already exists, and foundation tokens directly during exploration. A
+        component may start as a Primitive and later be composed into an Atom once we design a
+        Fabely composition around it.
       </PendingNotice>
     </div>
   ),

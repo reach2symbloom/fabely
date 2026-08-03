@@ -106,15 +106,26 @@ const preview: Preview = {
                 'Best Practices',
               ],
             ],
-            // Atoms and Molecules start as placeholder categories (see
-            // atoms.stories.tsx / molecules.stories.tsx) and gain real
-            // component sub-entries as they're imported. Every component
-            // follows the same page order (see docs/DESIGN.md "Component
-            // Story Structure"): Overview always first, then each canonical
-            // example as its own focused page. Organisms/Templates
-            // intentionally not added yet.
-            'Atoms',
+            // Primitives: wrapped vendor components (flat, alphabetical).
+            // Atoms → Templates: our compositions — placeholders until
+            // designed (see atoms/molecules/organisms/templates.stories.tsx).
+            // Every component follows the same page order (see docs/DESIGN.md
+            // "Component Story Structure"): Overview always first, then each
+            // canonical example as its own focused page.
+            'Primitives',
             [
+              'Accordion',
+              [
+                'Overview',
+                'Basic',
+                'Multiple',
+                'Disabled',
+                'Borders',
+                'Card',
+                'RTL',
+              ],
+              'Alert',
+              ['Overview', 'One Line', 'Two Lines', 'Without Icon', 'Error', 'Warning', 'Success'],
               'Avatar',
               [
                 'Overview',
@@ -132,10 +143,25 @@ const preview: Preview = {
                 'Group With Count Icon',
                 'Gradient',
               ],
-              'Alert',
-              ['Overview', 'One Line', 'Two Lines', 'Without Icon', 'Error', 'Warning', 'Success'],
+              'Badge',
+              [
+                'Overview',
+                'Default',
+                'Variants',
+                'Sizes',
+                'Roundness',
+                'Figma Matrix',
+                'With Icon',
+                'With Spinner',
+                'Link',
+                'Custom Colors',
+                'RTL',
+              ],
             ],
+            'Atoms',
             'Molecules',
+            'Organisms',
+            'Templates',
           ],
         ],
       },
