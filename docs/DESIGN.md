@@ -327,29 +327,35 @@ Documentation should explain what exists, demonstrate usage, and remain concise.
 
 ## Component Story Structure
 
-Every Primitive, Atom, Molecule, and eventually Organism / Template follows the same Storybook page structure, first established with Avatar:
+Every Primitive, Atom, Molecule, and eventually Organism / Template follows the same Storybook page structure, first established with Badge (and shared via `packages/ui/stories/PrimitivePage.tsx` for Primitives):
 
 ```text
 Primitives
-└── Avatar
+└── Badge
     ├── Overview
     ├── Default
-    ├── With Image
-    ├── Fallback
-    └── Several Fallback Initials
+    ├── Variants
+    └── …
 ```
 
-Overview is always the first page and the component's primary documentation entry point. It contains, in order:
+### Primitive Overview (thin pass)
 
-1. A brief description of the component and its purpose.
-2. A gallery composing every canonical example story on one page — reusing the same example implementations the individual story pages render, not duplicating them.
-3. Usage guidance.
-4. Accessibility notes, when applicable.
-5. An interactive Args/Controls playground, at the very bottom.
+Every new Primitive Overview **must** render through `PrimitivePage` (`packages/ui/stories/PrimitivePage.tsx`). The component owns section order, spacing, and headings — stories supply content only and cannot reorder or omit sections.
+
+Required props / sections, in order:
+
+1. **title** — component name
+2. **description** — brief purpose + how this Primitive relates to the vendor wrapper / Foundations
+3. **playground** — interactive controls (inline `useState`, not Storybook args)
+4. **examples** — gallery composing every canonical example story (reuse the same example implementations; do not duplicate them)
+5. **usageGuidance** — how to compose and which props to prefer
+6. **accessibility** — a11y notes for the Primitive
+
+If a section is not written yet, pass placeholder text (see `PRIMITIVE_PAGE_SECTION_PLACEHOLDER`) — do not omit the prop or invent alternate section headings.
+
+Reference implementation: Badge Overview.
 
 Each individual example page stays focused on demonstrating one behavior or variation.
-
-Do not build the Args playground until the component's canonical examples are complete. The intended learning flow is: read the Overview, see the recommended examples, open an individual example page, then experiment with Args. Args support exploration — they are not the primary documentation.
 
 This pattern does not apply to Foundations, which remain documentation-first with their existing structure. Primitives are listed flat and alphabetically under Design System → Primitives; the atomic tiers (Atoms → Templates) hold compositions we design.
 

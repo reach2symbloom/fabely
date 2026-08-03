@@ -5,6 +5,7 @@ import { Badge } from './badge';
 import type { BadgeRoundness, BadgeSize, BadgeVariant } from './badge';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
+import { PrimitiveGalleryItem, PrimitivePage } from '../../../stories/PrimitivePage';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -389,139 +390,113 @@ function BadgePlayground() {
   );
 }
 
-/* ---------- Overview page chrome ---------- */
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="mt-8 first:mt-0">
-      <h3 className="font-sans text-sm font-medium text-foreground mb-3">{title}</h3>
-      {children}
-    </section>
-  );
-}
-
-function GalleryItem({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-border p-6">
-      {children}
-      <span className="font-sans text-xs text-muted-foreground">{label}</span>
-    </div>
-  );
-}
-
 /* ---------- Overview ---------- */
 
 export const Overview: Story = {
-  render: () => {
-    return (
-      <div className="w-[640px] max-w-full font-sans">
-        <h2 className="text-lg font-semibold text-foreground mb-2">Badge</h2>
-        <p className="text-sm leading-relaxed text-muted-foreground">
+  render: () => (
+    <PrimitivePage
+      title="Badge"
+      description={
+        <>
           A small label for status, category, or metadata. This primitive wraps the upstream
-          shadcn Badge primitive with Fabely&apos;s Figma-authored size, roundness, and
-          color variants (soft tinted fills — not the vendor&apos;s solid primary chip),
-          sourced from Foundations. Polymorphism uses Base UI <code>render</code>,
-          matching the vendored file — see the primitive&apos;s <code>README.md</code> for the
-          Figma → API mapping and what&apos;s deliberately deferred.
-        </p>
-
-        <Section title="Playground">
-          <BadgePlayground />
-        </Section>
-
-        <Section title="Examples">
-          <div className="flex flex-wrap gap-4">
-            <GalleryItem label="Default">
-              <DefaultExample />
-            </GalleryItem>
-            <GalleryItem label="Variants">
-              <VariantsExample />
-            </GalleryItem>
-            <GalleryItem label="Sizes">
-              <SizesExample />
-            </GalleryItem>
-            <GalleryItem label="Roundness">
-              <RoundnessExample />
-            </GalleryItem>
-            <GalleryItem label="Figma Matrix">
-              <FigmaMatrixExample />
-            </GalleryItem>
-            <GalleryItem label="With Icon">
-              <WithIconExample />
-            </GalleryItem>
-            <GalleryItem label="With Spinner">
-              <WithSpinnerExample />
-            </GalleryItem>
-            <GalleryItem label="Link">
-              <LinkExample />
-            </GalleryItem>
-            <GalleryItem label="Custom Colors">
-              <CustomColorsExample />
-            </GalleryItem>
-            <GalleryItem label="RTL">
-              <RtlExample />
-            </GalleryItem>
-          </div>
-        </Section>
-
-        <Section title="Usage guidance">
-          <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
-            <li>
-              Prefer the <code>variant</code>, <code>size</code>, and <code>roundness</code>{' '}
-              props over overriding fill/radius/type via <code>className</code> — all three
-              are sourced from the Figma Badge set and Foundations tokens.
-            </li>
-            <li>
-              <code>default</code> is Figma&apos;s Primary (soft muted), not a solid primary
-              fill. Use <code>secondary</code> for the lavender accent chip.
-            </li>
-            <li>
-              <code>ghost</code> maps to Figma Tertiary. <code>success</code> /{' '}
-              <code>alert</code> are Figma-only extensions (no vendor equivalent).{' '}
-              <code>link</code> is kept for the shadcn Link composition and is not in Figma.
-            </li>
-            <li>
-              For icons, pass a Lucide (or other) SVG as a child and set{' '}
-              <code>data-icon=&quot;inline-start&quot;</code> or{' '}
-              <code>&quot;inline-end&quot;</code> — no dedicated icon prop.
-            </li>
-            <li>
-              Use the <code>render</code> prop (e.g. <code>{"render={<a href=... />}"}</code>)
-              to render the badge as a link or other interactive element (Base UI{' '}
-              <code>useRender</code> — not Radix <code>asChild</code>).
-            </li>
-            <li>
-              One-off colors that aren&apos;t a variant belong in <code>className</code> (see
-              Custom Colors), not new variant names proposed at the call site.
-            </li>
-          </ul>
-        </Section>
-
-        <Section title="Accessibility">
-          <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
-            <li>
-              Badge is presentational by default (<code>span</code>). When used as a control
-              via <code>render</code>, the rendered element carries the accessible name and
-              role — ensure links/buttons have meaningful text (not icon-only without{' '}
-              <code>aria-label</code>).
-            </li>
-            <li>
-              Decorative icons should set <code>aria-hidden=&quot;true&quot;</code>; the
-              label text is what screen readers announce.
-            </li>
-            <li>
-              Focus-visible rings are variant-specific Foundation effect tokens (primary /
-              secondary / error / success / alert) so keyboard focus is never color-alone.
-            </li>
-            <li>
-              Don&apos;t rely on badge color alone to convey state — pair with text (and an
-              icon when helpful).
-            </li>
-          </ul>
-        </Section>
-      </div>
-    );
-  },
+          shadcn Badge primitive with Fabely&apos;s Figma-authored size, roundness, and color
+          variants (soft tinted fills — not the vendor&apos;s solid primary chip), sourced from
+          Foundations. Polymorphism uses Base UI <code>render</code>, matching the vendored file
+          — see the primitive&apos;s <code>README.md</code> for the Figma → API mapping and
+          what&apos;s deliberately deferred.
+        </>
+      }
+      playground={<BadgePlayground />}
+      examples={
+        <div className="flex flex-wrap gap-4">
+          <PrimitiveGalleryItem label="Default">
+            <DefaultExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Variants">
+            <VariantsExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Sizes">
+            <SizesExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Roundness">
+            <RoundnessExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Figma Matrix">
+            <FigmaMatrixExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="With Icon">
+            <WithIconExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="With Spinner">
+            <WithSpinnerExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Link">
+            <LinkExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Custom Colors">
+            <CustomColorsExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="RTL">
+            <RtlExample />
+          </PrimitiveGalleryItem>
+        </div>
+      }
+      usageGuidance={
+        <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
+          <li>
+            Prefer the <code>variant</code>, <code>size</code>, and <code>roundness</code> props
+            over overriding fill/radius/type via <code>className</code> — all three are sourced
+            from the Figma Badge set and Foundations tokens.
+          </li>
+          <li>
+            <code>default</code> is Figma&apos;s Primary (soft muted), not a solid primary fill.
+            Use <code>secondary</code> for the lavender accent chip.
+          </li>
+          <li>
+            <code>ghost</code> maps to Figma Tertiary. <code>success</code> / <code>alert</code>{' '}
+            are Figma-only extensions (no vendor equivalent). <code>link</code> is kept for the
+            shadcn Link composition and is not in Figma.
+          </li>
+          <li>
+            For icons, pass a Lucide (or other) SVG as a child and set{' '}
+            <code>data-icon=&quot;inline-start&quot;</code> or <code>&quot;inline-end&quot;</code>{' '}
+            — no dedicated icon prop.
+          </li>
+          <li>
+            Use the <code>render</code> prop (e.g. <code>{"render={<a href=... />}"}</code>) to
+            render the badge as a link or other interactive element (Base UI{' '}
+            <code>useRender</code> — not Radix <code>asChild</code>).
+          </li>
+          <li>
+            One-off colors that aren&apos;t a variant belong in <code>className</code> (see Custom
+            Colors), not new variant names proposed at the call site.
+          </li>
+        </ul>
+      }
+      accessibility={
+        <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
+          <li>
+            Badge is presentational by default (<code>span</code>). When used as a control via{' '}
+            <code>render</code>, the rendered element carries the accessible name and role —
+            ensure links/buttons have meaningful text (not icon-only without{' '}
+            <code>aria-label</code>).
+          </li>
+          <li>
+            Decorative icons should set <code>aria-hidden=&quot;true&quot;</code>; the label text
+            is what screen readers announce.
+          </li>
+          <li>
+            Focus-visible rings are variant-specific Foundation effect tokens (primary / secondary
+            / error / success / alert) so keyboard focus is never color-alone.
+          </li>
+          <li>
+            Don&apos;t rely on badge color alone to convey state — pair with text (and an icon when
+            helpful).
+          </li>
+        </ul>
+      }
+    />
+  ),
 };
 
 /* ---------- Individual example pages ---------- */

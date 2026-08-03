@@ -5,6 +5,7 @@ import { Alert, AlertTitle, AlertDescription, type AlertType } from './alert';
 import { cn } from '@/lib/utils';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
+import { PrimitiveGalleryItem, PrimitivePage } from '../../../stories/PrimitivePage';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -237,54 +238,33 @@ function AlertPlayground() {
   );
 }
 
-/* ---------- Overview page chrome ---------- */
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="mt-8 first:mt-0">
-      <h3 className="font-sans text-sm font-medium text-foreground mb-3">{title}</h3>
-      {children}
-    </section>
-  );
-}
-
-function GalleryItem({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-border p-6">
-      {children}
-      <span className="font-sans text-xs text-muted-foreground">{label}</span>
-    </div>
-  );
-}
-
 /* ---------- Overview ---------- */
 
 export const Overview: Story = {
-  render: () => {
-    return (
-      <div className="w-[720px] max-w-full font-sans">
-        <h2 className="text-lg font-semibold text-foreground mb-2">Alert</h2>
-        <p className="text-sm leading-relaxed text-muted-foreground">
+  render: () => (
+    <PrimitivePage
+      title="Alert"
+      description={
+        <>
           Displays a callout for user attention. This primitive wraps the upstream shadcn Alert
-          primitive (<code>Alert</code>, <code>AlertTitle</code>, <code>AlertDescription</code>)
-          to match this design system's own Figma Alert component (node <code>58:5416</code>,
-          "Fabely Design System" file) — all 4 of its types, at one or two lines, with an optional
-          leading icon. See the primitive's <code>README.md</code> for the full token mapping,
-          including a few values Figma hardcodes that don't have Foundation tokens yet.
-        </p>
-
-        <Section title="Playground">
-          <AlertPlayground />
-        </Section>
-
-        <Section title="Types">
+          primitive (<code>Alert</code>, <code>AlertTitle</code>, <code>AlertDescription</code>) to
+          match this design system&apos;s own Figma Alert component (node <code>58:5416</code>,
+          &quot;Fabely Design System&quot; file) — all 4 of its types, at one or two lines, with an
+          optional leading icon. See the primitive&apos;s <code>README.md</code> for the full token
+          mapping, including a few values Figma hardcodes that don&apos;t have Foundation tokens
+          yet.
+        </>
+      }
+      playground={<AlertPlayground />}
+      examples={
+        <div className="flex flex-col gap-6">
           <div className="grid grid-cols-2 gap-4">
-            <GalleryItem label="Neutral">
+            <PrimitiveGalleryItem label="Neutral">
               <div className="w-full max-w-sm">
                 <TwoLinesExample />
               </div>
-            </GalleryItem>
-            <GalleryItem label="Error">
+            </PrimitiveGalleryItem>
+            <PrimitiveGalleryItem label="Error">
               <div className="w-full max-w-sm">
                 <Alert type="error">
                   <InfoIcon />
@@ -292,17 +272,19 @@ export const Overview: Story = {
                   <AlertDescription>Check your card details and try again.</AlertDescription>
                 </Alert>
               </div>
-            </GalleryItem>
-            <GalleryItem label="Warning (Figma: Type=Alert)">
+            </PrimitiveGalleryItem>
+            <PrimitiveGalleryItem label="Warning (Figma: Type=Alert)">
               <div className="w-full max-w-sm">
                 <Alert type="alert">
                   <InfoIcon />
                   <AlertTitle>Your subscription is about to expire.</AlertTitle>
-                  <AlertDescription>Renew within 7 days to avoid losing access.</AlertDescription>
+                  <AlertDescription>
+                    Renew within 7 days to avoid losing access.
+                  </AlertDescription>
                 </Alert>
               </div>
-            </GalleryItem>
-            <GalleryItem label="Success">
+            </PrimitiveGalleryItem>
+            <PrimitiveGalleryItem label="Success">
               <div className="w-full max-w-sm">
                 <Alert type="success">
                   <CheckCheck />
@@ -310,22 +292,20 @@ export const Overview: Story = {
                   <AlertDescription>Your files are now part of this book.</AlertDescription>
                 </Alert>
               </div>
-            </GalleryItem>
+            </PrimitiveGalleryItem>
           </div>
-        </Section>
-
-        <Section title="Lines and icon">
           <div className="flex flex-col gap-4">
-            <GalleryItem label="One line">
+            <PrimitiveGalleryItem label="One line">
               <OneLineExample />
-            </GalleryItem>
-            <GalleryItem label="Without icon">
+            </PrimitiveGalleryItem>
+            <PrimitiveGalleryItem label="Without icon">
               <WithoutIconExample />
-            </GalleryItem>
+            </PrimitiveGalleryItem>
           </div>
-        </Section>
-
-        <Section title="Usage guidance">
+        </div>
+      }
+      usageGuidance={
+        <div className="space-y-4">
           <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
             <li>
               Compose <code>Alert</code> from an optional icon (any direct SVG child, e.g. a
@@ -333,56 +313,54 @@ export const Overview: Story = {
               <code>AlertDescription</code> — see Composition below.
             </li>
             <li>
-              <code>type</code> is the only real prop (<code>"neutral"</code> default,{' '}
-              <code>"error"</code>, <code>"alert"</code>, <code>"success"</code>) — everything
-              else is derived from which children are present. Pass <code>AlertDescription</code>{' '}
-              for a two-line alert, omit it for one line; pass an icon element, or don't.
+              <code>type</code> is the only real prop (<code>&quot;neutral&quot;</code> default,{' '}
+              <code>&quot;error&quot;</code>, <code>&quot;alert&quot;</code>,{' '}
+              <code>&quot;success&quot;</code>) — everything else is derived from which children
+              are present. Pass <code>AlertDescription</code> for a two-line alert, omit it for one
+              line; pass an icon element, or don&apos;t.
             </li>
             <li>
-              <code>type="success"</code> follows the same icon show/hide rule as the other 3
-              types (pass an icon child, or don't) — but always renders its own checkmark
-              regardless of which icon element was passed. It doesn't accept a caller-chosen
-              icon, only a caller-chosen presence.
+              <code>type=&quot;success&quot;</code> follows the same icon show/hide rule as the
+              other 3 types (pass an icon child, or don&apos;t) — but always renders its own
+              checkmark regardless of which icon element was passed. It doesn&apos;t accept a
+              caller-chosen icon, only a caller-chosen presence.
             </li>
             <li>
-              <code>AlertTitle</code> is always single-line (vendor's own <code>line-clamp-1</code>
-              ) — keep titles short.
+              <code>AlertTitle</code> is always single-line (vendor&apos;s own{' '}
+              <code>line-clamp-1</code>) — keep titles short.
             </li>
           </ul>
-        </Section>
-
-        <Section title="Composition">
           <pre className="rounded-md border border-border bg-muted p-4 font-mono text-xs text-foreground overflow-x-auto">
 {`Alert type="neutral" | "error" | "alert" | "success"
 ├── Icon (optional — ignored/replaced for type="success")
 ├── AlertTitle
 └── AlertDescription (optional)`}
           </pre>
-        </Section>
-
-        <Section title="Accessibility">
-          <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
-            <li>
-              <code>Alert</code> renders with <code>role="alert"</code> (from the vendor
-              primitive), so assistive technology announces its content when it appears in the DOM
-              — reserve it for content that genuinely needs that interruption, not routine or
-              decorative callouts.
-            </li>
-            <li>
-              The icon is decorative by default (no accessible name is added to it) — the alert's
-              meaning should come from <code>AlertTitle</code>/<code>AlertDescription</code> text,
-              not the icon alone.
-            </li>
-            <li>
-              <code>error</code>/<code>alert</code> title text uses a raw, theme-invariant Figma
-              color rather than a switching semantic token — see the README's "Known limitations"
-              for the light-mode contrast caveat this carries over from the source design.
-            </li>
-          </ul>
-        </Section>
-      </div>
-    );
-  },
+        </div>
+      }
+      accessibility={
+        <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
+          <li>
+            <code>Alert</code> renders with <code>role=&quot;alert&quot;</code> (from the vendor
+            primitive), so assistive technology announces its content when it appears in the DOM —
+            reserve it for content that genuinely needs that interruption, not routine or decorative
+            callouts.
+          </li>
+          <li>
+            The icon is decorative by default (no accessible name is added to it) — the alert&apos;s
+            meaning should come from <code>AlertTitle</code>/<code>AlertDescription</code> text, not
+            the icon alone.
+          </li>
+          <li>
+            <code>error</code>/<code>alert</code> title text uses a raw, theme-invariant Figma color
+            rather than a switching semantic token — see the README&apos;s &quot;Known
+            limitations&quot; for the light-mode contrast caveat this carries over from the source
+            design.
+          </li>
+        </ul>
+      }
+    />
+  ),
 };
 
 /* ---------- Individual example pages ---------- */

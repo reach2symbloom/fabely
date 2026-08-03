@@ -3,6 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
+import { PrimitiveGalleryItem, PrimitivePage } from '../../../stories/PrimitivePage';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -356,124 +357,97 @@ function AccordionPlayground() {
   );
 }
 
-/* ---------- Overview page chrome ----------
- * Reused verbatim from avatar.stories.tsx's own Section/GalleryItem. */
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="mt-8 first:mt-0">
-      <h3 className="font-sans text-sm font-medium text-foreground mb-3">{title}</h3>
-      {children}
-    </section>
-  );
-}
-
-function GalleryItem({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-border p-6">
-      {children}
-      <span className="font-sans text-xs text-muted-foreground">{label}</span>
-    </div>
-  );
-}
-
 /* ---------- Overview ---------- */
 
 export const Overview: Story = {
-  render: () => {
-    return (
-      <div className="w-[640px] max-w-full font-sans">
-        <h2 className="text-lg font-semibold text-foreground mb-2">Accordion</h2>
-        <p className="text-sm leading-relaxed text-muted-foreground">
-          A vertically stacked set of interactive headings that each reveal a section of
-          content. This primitive wraps the upstream shadcn/Base UI Accordion primitive with
-          Fabely&apos;s Foundations-sourced spacing, radius, typography, color, and focus-ring
-          styling — no Fabely-specific props or variants are added on top; see the primitive&apos;s{' '}
-          <code>README.md</code> for why (no Figma source exists yet for this component) and
-          for the exact token substitutions made.
-        </p>
-
-        <Section title="Playground">
-          <AccordionPlayground />
-        </Section>
-
-        <Section title="Examples">
-          <div className="flex flex-wrap gap-4">
-            <GalleryItem label="Basic">
-              <BasicExample />
-            </GalleryItem>
-            <GalleryItem label="Multiple">
-              <MultipleExample />
-            </GalleryItem>
-            <GalleryItem label="Disabled">
-              <DisabledExample />
-            </GalleryItem>
-            <GalleryItem label="Borders">
-              <BordersExample />
-            </GalleryItem>
-            <GalleryItem label="Card">
-              <CardExample />
-            </GalleryItem>
-            <GalleryItem label="RTL">
-              <RtlExample />
-            </GalleryItem>
-          </div>
-        </Section>
-
-        <Section title="Usage guidance">
-          <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
-            <li>
-              Use single mode (omit <code>multiple</code>) for the common &quot;one section
-              open at a time&quot; case, and <code>multiple</code> when several sections may
-              reasonably stay open together — see README.md. Values are always arrays:{' '}
-              <code>defaultValue=&#123;[&#39;item-1&#39;]&#125;</code>.
-            </li>
-            <li>
-              Every <code>AccordionItem</code> needs a unique <code>value</code> within its
-              parent <code>Accordion</code>.
-            </li>
-            <li>
-              Use <code>disabled</code> on an individual <code>AccordionItem</code> to remove it
-              from keyboard/pointer interaction without removing it from the list.
-            </li>
-            <li>
-              This primitive adds no new className hooks beyond what the vendor primitive already
-              forwards — compose additional layout (borders, radius, background) via{' '}
-              <code>className</code> at the call site, per the Borders/Card examples above,
-              rather than proposing new variant props for a one-off need.
-            </li>
-          </ul>
-        </Section>
-
-        <Section title="Accessibility">
-          <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
-            <li>
-              Follows the WAI-ARIA Accordion pattern via Base UI: each trigger is a real{' '}
-              <code>button</code> with <code>aria-expanded</code> and{' '}
-              <code>aria-controls</code> wired up automatically, and each panel carries a
-              matching <code>role=&quot;region&quot;</code>/<code>aria-labelledby</code> — no
-              manual ARIA wiring is needed at the call site.
-            </li>
-            <li>
-              Fully keyboard operable out of the box: Tab moves between triggers, Enter/Space
-              toggles the focused item. (Base UI no longer uses Arrow-key roving focus on
-              accordion triggers, matching updated APG guidance.)
-            </li>
-            <li>
-              The focus-visible ring (<code>--effect-focus-ring-secondary</code>) is always
-              present on keyboard focus — see accordion.tsx&apos;s <code>AccordionTrigger</code>{' '}
-              comment for why Secondary, not Primary, is the correct token here.
-            </li>
-            <li>
-              A <code>disabled</code> <code>AccordionItem</code>&apos;s trigger is excluded from
-              the Tab order entirely (matching native <code>&lt;button disabled&gt;</code>{' '}
-              behavior) — its state isn&apos;t conveyed by color alone.
-            </li>
-          </ul>
-        </Section>
-      </div>
-    );
-  },
+  render: () => (
+    <PrimitivePage
+      title="Accordion"
+      description={
+        <>
+          A vertically stacked set of interactive headings that each reveal a section of content.
+          This primitive wraps the upstream shadcn/Base UI Accordion primitive with Fabely&apos;s
+          Foundations-sourced spacing, radius, typography, color, and focus-ring styling — no
+          Fabely-specific props or variants are added on top; see the primitive&apos;s{' '}
+          <code>README.md</code> for why (no Figma source exists yet for this component) and for
+          the exact token substitutions made.
+        </>
+      }
+      playground={<AccordionPlayground />}
+      examples={
+        <div className="flex flex-wrap gap-4">
+          <PrimitiveGalleryItem label="Basic">
+            <BasicExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Multiple">
+            <MultipleExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Disabled">
+            <DisabledExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Borders">
+            <BordersExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Card">
+            <CardExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="RTL">
+            <RtlExample />
+          </PrimitiveGalleryItem>
+        </div>
+      }
+      usageGuidance={
+        <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
+          <li>
+            Use single mode (omit <code>multiple</code>) for the common &quot;one section open at
+            a time&quot; case, and <code>multiple</code> when several sections may reasonably stay
+            open together — see README.md. Values are always arrays:{' '}
+            <code>defaultValue=&#123;[&#39;item-1&#39;]&#125;</code>.
+          </li>
+          <li>
+            Every <code>AccordionItem</code> needs a unique <code>value</code> within its parent{' '}
+            <code>Accordion</code>.
+          </li>
+          <li>
+            Use <code>disabled</code> on an individual <code>AccordionItem</code> to remove it from
+            keyboard/pointer interaction without removing it from the list.
+          </li>
+          <li>
+            This primitive adds no new className hooks beyond what the vendor primitive already
+            forwards — compose additional layout (borders, radius, background) via{' '}
+            <code>className</code> at the call site, per the Borders/Card examples above, rather
+            than proposing new variant props for a one-off need.
+          </li>
+        </ul>
+      }
+      accessibility={
+        <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
+          <li>
+            Follows the WAI-ARIA Accordion pattern via Base UI: each trigger is a real{' '}
+            <code>button</code> with <code>aria-expanded</code> and <code>aria-controls</code>{' '}
+            wired up automatically, and each panel carries a matching{' '}
+            <code>role=&quot;region&quot;</code>/<code>aria-labelledby</code> — no manual ARIA
+            wiring is needed at the call site.
+          </li>
+          <li>
+            Fully keyboard operable out of the box: Tab moves between triggers, Enter/Space toggles
+            the focused item. (Base UI no longer uses Arrow-key roving focus on accordion triggers,
+            matching updated APG guidance.)
+          </li>
+          <li>
+            The focus-visible ring (<code>--effect-focus-ring-secondary</code>) is always present
+            on keyboard focus — see accordion.tsx&apos;s <code>AccordionTrigger</code> comment for
+            why Secondary, not Primary, is the correct token here.
+          </li>
+          <li>
+            A <code>disabled</code> <code>AccordionItem</code>&apos;s trigger is excluded from the
+            Tab order entirely (matching native <code>&lt;button disabled&gt;</code> behavior) —
+            its state isn&apos;t conveyed by color alone.
+          </li>
+        </ul>
+      }
+    />
+  ),
 };
 
 /* ---------- Individual example pages ---------- */

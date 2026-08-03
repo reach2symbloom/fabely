@@ -13,6 +13,7 @@ import {
 import type { AvatarSize, AvatarShape, AvatarStatus } from './avatar';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
+import { PrimitiveGalleryItem, PrimitivePage } from '../../../stories/PrimitivePage';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -675,124 +676,148 @@ function AvatarGroupPlayground() {
   );
 }
 
-/* ---------- Overview page chrome ---------- */
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="mt-8 first:mt-0">
-      <h3 className="font-sans text-sm font-medium text-foreground mb-3">{title}</h3>
-      {children}
-    </section>
-  );
-}
-
-function GalleryItem({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-border p-6">
-      {children}
-      <span className="font-sans text-xs text-muted-foreground">{label}</span>
-    </div>
-  );
-}
-
 /* ---------- Overview ---------- */
 
 export const Overview: Story = {
-  render: () => {
-    return (
-      <div className="w-[640px] max-w-full font-sans">
-        <h2 className="text-lg font-semibold text-foreground mb-2">Avatar</h2>
-        <p className="text-sm leading-relaxed text-muted-foreground">
+  render: () => (
+    <PrimitivePage
+      title="Avatar"
+      description={
+        <>
           Represents a user or entity with an image, falling back to initials (or any short
-          content) when no image is set or the image fails to load. This primitive wraps the upstream
-          shadcn/Base UI Avatar primitive with Fabely's size and shape variants, Status and Icon
-          badges, AvatarGroup, and AvatarGroupCount — see the primitive's <code>README.md</code> for
-          what's intentionally not yet included (presence beyond a static status dot,
-          image-specific variants, notification counts).
-        </p>
-
-        <Section title="Playground">
-          <div className="space-y-8">
-            <div>
-              <p className="mb-3 font-sans text-sm font-medium text-foreground">Single Avatar</p>
-              <SingleAvatarPlayground />
-            </div>
-            <div>
-              <p className="mb-3 font-sans text-sm font-medium text-foreground">Avatar Group</p>
-              <AvatarGroupPlayground />
-            </div>
+          content) when no image is set or the image fails to load. This primitive wraps the
+          upstream shadcn/Base UI Avatar primitive with Fabely&apos;s size and shape variants,
+          Status and Icon badges, AvatarGroup, and AvatarGroupCount — see the primitive&apos;s{' '}
+          <code>README.md</code> for what&apos;s intentionally not yet included (presence beyond a
+          static status dot, image-specific variants, notification counts).
+        </>
+      }
+      playground={
+        <div className="space-y-8">
+          <div>
+            <p className="mb-3 font-sans text-sm font-medium text-foreground">Single Avatar</p>
+            <SingleAvatarPlayground />
           </div>
-        </Section>
-
-        <Section title="Examples">
-          <div className="flex flex-wrap gap-4">
-            <GalleryItem label="Default">
-              <DefaultExample />
-            </GalleryItem>
-            <GalleryItem label="With Image">
-              <WithImageExample />
-            </GalleryItem>
-            <GalleryItem label="Fallback">
-              <FallbackExample />
-            </GalleryItem>
-            <GalleryItem label="Several Fallback Initials">
-              <SeveralFallbackInitialsExample />
-            </GalleryItem>
-            <GalleryItem label="Sizes">
-              <SizesExample />
-            </GalleryItem>
-            <GalleryItem label="Shapes">
-              <ShapesExample />
-            </GalleryItem>
-            <GalleryItem label="Status Badge">
-              <StatusBadgeExample />
-            </GalleryItem>
-            <GalleryItem label="Icon Badge">
-              <IconBadgeExample />
-            </GalleryItem>
-            <GalleryItem label="Group">
-              <GroupExample />
-            </GalleryItem>
-            <GalleryItem label="Group With Badges">
-              <GroupWithBadgesExample />
-            </GalleryItem>
-            <GalleryItem label="Group With Count">
-              <GroupWithCountExample />
-            </GalleryItem>
-            <GalleryItem label="Group With Count Icon">
-              <GroupWithCountIconExample />
-            </GalleryItem>
-            <GalleryItem label="Gradient">
-              <GradientExample />
-            </GalleryItem>
+          <div>
+            <p className="mb-3 font-sans text-sm font-medium text-foreground">Avatar Group</p>
+            <AvatarGroupPlayground />
           </div>
-        </Section>
-
-        <Section title="Usage guidance">
-          <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
-            <li>Always pair Avatar with AvatarFallback, so there's something to render even before an image loads or if it never resolves.</li>
-            <li>Provide a real src and meaningful alt text on AvatarImage — don't rely on the fallback as the default state.</li>
-            <li>Use the <code>size</code> prop (Extra Tiny → Extra Large) and <code>shape</code> prop (Round / Roundrect) rather than overriding dimensions or radius via <code>className</code> — both are sourced from Foundation tokens.</li>
-            <li>AvatarStatusBadge and AvatarIconBadge both size themselves off the parent Avatar's <code>size</code> automatically — no size prop needed on the badge itself.</li>
-            <li>AvatarIconBadge renders a real button (not yet wired to any action); pass an accessible <code>aria-label</code> since its content is icon-only.</li>
-            <li>AvatarGroup's own <code>size</code>/<code>shape</code> props control overlap amount and AvatarGroupCount's matching only — neither is linked to the group's actual Avatar children automatically, so set them consistently at the call site.</li>
-            <li>AvatarGroupCount needs no <code>size</code>/<code>shape</code> of its own — it reads both from the surrounding AvatarGroup and already matches its sibling Avatars' diameter, radius, and separation ring. Give it text ("+3") for an overflow count, or an icon for an action avatar — same component either way.</li>
-            <li>The <code>gradient</code> prop is a single boolean on Avatar itself — it works the same whether the content is AvatarImage or AvatarFallback, no separate prop needed on either.</li>
-            <li><strong>Gradient is currently supported for Round avatars only, matching the authored Figma design. When used with Roundrect, the avatar renders without the gradient treatment.</strong> This is a deliberate scope limit (see the Gradient example page), not a bug.</li>
-            <li>Keep call sites to composing Avatar/AvatarImage/AvatarFallback/badges/AvatarGroup as-is; propose extending the primitive itself rather than reimplementing behavior at the call site.</li>
-          </ul>
-        </Section>
-
-        <Section title="Accessibility">
-          <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
-            <li>AvatarImage's <code>alt</code> should identify who or what the avatar represents — screen readers announce it when the image is present.</li>
-            <li>Base UI automatically swaps to AvatarFallback when the image fails or has no src, so users are never left with a broken image icon.</li>
-            <li>Initials alone (e.g. "CN") aren't a substitute for an accessible name where one is needed elsewhere in the surrounding UI (e.g. next to the user's full name).</li>
-          </ul>
-        </Section>
-      </div>
-    );
-  },
+        </div>
+      }
+      examples={
+        <div className="flex flex-wrap gap-4">
+          <PrimitiveGalleryItem label="Default">
+            <DefaultExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="With Image">
+            <WithImageExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Fallback">
+            <FallbackExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Several Fallback Initials">
+            <SeveralFallbackInitialsExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Sizes">
+            <SizesExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Shapes">
+            <ShapesExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Status Badge">
+            <StatusBadgeExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Icon Badge">
+            <IconBadgeExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Group">
+            <GroupExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Group With Badges">
+            <GroupWithBadgesExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Group With Count">
+            <GroupWithCountExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Group With Count Icon">
+            <GroupWithCountIconExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Gradient">
+            <GradientExample />
+          </PrimitiveGalleryItem>
+        </div>
+      }
+      usageGuidance={
+        <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
+          <li>
+            Always pair Avatar with AvatarFallback, so there&apos;s something to render even before
+            an image loads or if it never resolves.
+          </li>
+          <li>
+            Provide a real src and meaningful alt text on AvatarImage — don&apos;t rely on the
+            fallback as the default state.
+          </li>
+          <li>
+            Use the <code>size</code> prop (Extra Tiny → Extra Large) and <code>shape</code> prop
+            (Round / Roundrect) rather than overriding dimensions or radius via{' '}
+            <code>className</code> — both are sourced from Foundation tokens.
+          </li>
+          <li>
+            AvatarStatusBadge and AvatarIconBadge both size themselves off the parent Avatar&apos;s{' '}
+            <code>size</code> automatically — no size prop needed on the badge itself.
+          </li>
+          <li>
+            AvatarIconBadge renders a real button (not yet wired to any action); pass an accessible{' '}
+            <code>aria-label</code> since its content is icon-only.
+          </li>
+          <li>
+            AvatarGroup&apos;s own <code>size</code>/<code>shape</code> props control overlap
+            amount and AvatarGroupCount&apos;s matching only — neither is linked to the group&apos;s
+            actual Avatar children automatically, so set them consistently at the call site.
+          </li>
+          <li>
+            AvatarGroupCount needs no <code>size</code>/<code>shape</code> of its own — it reads
+            both from the surrounding AvatarGroup and already matches its sibling Avatars&apos;
+            diameter, radius, and separation ring. Give it text (&quot;+3&quot;) for an overflow
+            count, or an icon for an action avatar — same component either way.
+          </li>
+          <li>
+            The <code>gradient</code> prop is a single boolean on Avatar itself — it works the same
+            whether the content is AvatarImage or AvatarFallback, no separate prop needed on either.
+          </li>
+          <li>
+            <strong>
+              Gradient is currently supported for Round avatars only, matching the authored Figma
+              design. When used with Roundrect, the avatar renders without the gradient treatment.
+            </strong>{' '}
+            This is a deliberate scope limit (see the Gradient example page), not a bug.
+          </li>
+          <li>
+            Keep call sites to composing Avatar/AvatarImage/AvatarFallback/badges/AvatarGroup
+            as-is; propose extending the primitive itself rather than reimplementing behavior at the
+            call site.
+          </li>
+        </ul>
+      }
+      accessibility={
+        <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1.5">
+          <li>
+            AvatarImage&apos;s <code>alt</code> should identify who or what the avatar represents —
+            screen readers announce it when the image is present.
+          </li>
+          <li>
+            Base UI automatically swaps to AvatarFallback when the image fails or has no src, so
+            users are never left with a broken image icon.
+          </li>
+          <li>
+            Initials alone (e.g. &quot;CN&quot;) aren&apos;t a substitute for an accessible name
+            where one is needed elsewhere in the surrounding UI (e.g. next to the user&apos;s full
+            name).
+          </li>
+        </ul>
+      }
+    />
+  ),
 };
 
 /* ---------- Individual example pages ---------- */

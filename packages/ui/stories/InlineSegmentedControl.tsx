@@ -34,9 +34,11 @@ function normalizeOptions<T extends string>(
 }
 
 /**
- * Shared Storybook playground segmented control — Foundations and atom
- * stories use this so active-chip styling stays one place (`--primary` /
- * `--primary-foreground`, matching Foundations selection semantics).
+ * Shared Storybook playground segmented control — Foundations and Primitive
+ * stories use this so active-chip styling stays one place (`bg-primary` /
+ * `text-primary-foreground` → `--primary` / `--primary-foreground`).
+ * Note: in dark mode `--primary` resolves to `--theme-neutrals-500`
+ * (`#948C86`, a warm taupe) — see foundations/colors.css.
  */
 export function InlineSegmentedControl<T extends string>({
   label,
