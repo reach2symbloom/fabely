@@ -360,6 +360,7 @@ function AccordionPlayground() {
 /* ---------- Overview ---------- */
 
 export const Overview: Story = {
+  parameters: { layout: 'fullscreen' },
   render: () => (
     <PrimitivePage
       title="Accordion"

@@ -393,6 +393,7 @@ function BadgePlayground() {
 /* ---------- Overview ---------- */
 
 export const Overview: Story = {
+  parameters: { layout: 'fullscreen' },
   render: () => (
     <PrimitivePage
       title="Badge"

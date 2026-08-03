@@ -10,13 +10,23 @@ export type PrimitivePageProps = {
 };
 
 /**
- * Fixed Overview chrome for every Primitive story. Section order and
- * headings are owned here — call sites supply content only and cannot
- * reorder or omit Playground / Examples / Usage guidance / Accessibility.
- * Incomplete sections should pass placeholder copy, not be skipped.
+ * Fixed Overview chrome for every Primitive story. Section order, page
+ * inset, playground max-width, and headings are owned here — call sites
+ * supply content only and cannot reorder or omit sections. Incomplete
+ * sections should pass placeholder copy, not be skipped.
  *
- * Reference layout: Badge Overview (see docs/DESIGN.md "Component Story
- * Structure").
+ * Page inset: `--tw-raw-spacing-14` (56px). Exact Foundations raw match;
+ * the published semantic scale has no 56px step (`--spacing-4xl` = 48px,
+ * `--spacing-5xl` = 64px).
+ *
+ * Playground max-width: 640px — single shared layout width (not a spacing
+ * token). Do not set width wrappers in individual Primitive stories.
+ *
+ * Pair Overview stories with `parameters: { layout: 'fullscreen' }` so this
+ * inset is the page margin (not stacked on Storybook's centered/padded
+ * chrome). All sections share the same left edge.
+ *
+ * Reference: Badge Overview (see docs/DESIGN.md "Component Story Structure").
  */
 export function PrimitivePage({
   title,
@@ -27,11 +37,13 @@ export function PrimitivePage({
   accessibility,
 }: PrimitivePageProps) {
   return (
-    <div className="w-[640px] max-w-full font-sans">
+    <div className="box-border w-full max-w-full font-sans p-[length:var(--tw-raw-spacing-14)]">
       <h2 className="text-lg font-semibold text-foreground mb-2">{title}</h2>
       <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
 
-      <Section title="Playground">{playground}</Section>
+      <Section title="Playground">
+        <div className="w-full max-w-[640px]">{playground}</div>
+      </Section>
       <Section title="Examples">{examples}</Section>
       <Section title="Usage guidance">{usageGuidance}</Section>
       <Section title="Accessibility">{accessibility}</Section>
@@ -41,7 +53,7 @@ export function PrimitivePage({
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="mt-8 first:mt-0">
+    <section className="mt-8">
       <h3 className="font-sans text-sm font-medium text-foreground mb-3">{title}</h3>
       {children}
     </section>

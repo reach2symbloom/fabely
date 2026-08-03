@@ -679,6 +679,7 @@ function AvatarGroupPlayground() {
 /* ---------- Overview ---------- */
 
 export const Overview: Story = {
+  parameters: { layout: 'fullscreen' },
   render: () => (
     <PrimitivePage
       title="Avatar"

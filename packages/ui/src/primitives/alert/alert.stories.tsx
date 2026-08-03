@@ -241,6 +241,7 @@ function AlertPlayground() {
 /* ---------- Overview ---------- */
 
 export const Overview: Story = {
+  parameters: { layout: 'fullscreen' },
   render: () => (
     <PrimitivePage
       title="Alert"
