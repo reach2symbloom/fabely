@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Toast } from './toast';
+import { Toaster, toast } from './toast';
+import { Button } from '../button';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -13,13 +15,31 @@ import {
 
 const meta = {
   title: 'Design System/Primitives/Toast',
-  component: Toast,
+  component: Toaster,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
 } satisfies Meta;
 
 export default meta;
 type Story = StoryObj;
+
+function ToastDemo() {
+  return (
+    <Toaster>
+      <Button
+        onClick={() =>
+          toast.add({
+            title: 'Label',
+            description: 'Lorem ipsum',
+          })
+        }
+      >
+        Show toast
+      </Button>
+    </Toaster>
+  );
+}
+
 
 export const Overview: Story = {
   parameters: { layout: 'fullscreen' },
@@ -37,8 +57,6 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Requires ToastProvider / Toaster in the tree and a trigger to show toasts.
-    </p>
+    <ToastDemo />
   ),
 };

@@ -1,5 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ContextMenu } from './context-menu';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from './context-menu';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +44,17 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      ContextMenu needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <ContextMenu>
+      <ContextMenuTrigger className="flex h-24 w-48 items-center justify-center rounded-lg border border-dashed text-sm">
+        Right click
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuGroup>
+          <ContextMenuItem>Item one</ContextMenuItem>
+          <ContextMenuItem>Item two</ContextMenuItem>
+          <ContextMenuItem>Item three</ContextMenuItem>
+        </ContextMenuGroup>
+      </ContextMenuContent>
+    </ContextMenu>
   ),
 };

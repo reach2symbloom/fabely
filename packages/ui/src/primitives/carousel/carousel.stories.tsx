@@ -1,5 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Carousel } from './carousel';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from './carousel';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +44,26 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Requires slide children and Carousel API wiring — not fabricating slides in the thin pass.
-    </p>
+    <Carousel className="w-64">
+      <CarouselContent>
+        <CarouselItem>
+          <div className="flex h-32 items-center justify-center rounded-lg border bg-muted">
+            Item one
+          </div>
+        </CarouselItem>
+        <CarouselItem>
+          <div className="flex h-32 items-center justify-center rounded-lg border bg-muted">
+            Item two
+          </div>
+        </CarouselItem>
+        <CarouselItem>
+          <div className="flex h-32 items-center justify-center rounded-lg border bg-muted">
+            Item three
+          </div>
+        </CarouselItem>
+      </CarouselContent>
+      <CarouselPrevious />
+      <CarouselNext />
+    </Carousel>
   ),
 };

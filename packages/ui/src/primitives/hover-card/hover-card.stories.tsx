@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { HoverCard } from './hover-card';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from './hover-card';
+import { Button } from '../button';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +39,11 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      HoverCard needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <HoverCard>
+      <HoverCardTrigger render={<Button variant="link" />}>Hover</HoverCardTrigger>
+      <HoverCardContent>
+        <p className="text-sm">Lorem ipsum</p>
+      </HoverCardContent>
+    </HoverCard>
   ),
 };

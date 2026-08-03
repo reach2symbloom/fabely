@@ -1,5 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Sheet } from './sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from './sheet';
+import { Button } from '../button';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +46,14 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Sheet needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <Sheet>
+      <SheetTrigger render={<Button />}>Open</SheetTrigger>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Label</SheetTitle>
+          <SheetDescription>Lorem ipsum</SheetDescription>
+        </SheetHeader>
+      </SheetContent>
+    </Sheet>
   ),
 };

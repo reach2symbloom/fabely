@@ -1,5 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Tooltip } from './tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from './tooltip';
+import { Button } from '../button';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +44,11 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Requires TooltipProvider wrapping Tooltip / Trigger / Content.
-    </p>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger render={<Button />}>Hover</TooltipTrigger>
+        <TooltipContent>Label</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   ),
 };

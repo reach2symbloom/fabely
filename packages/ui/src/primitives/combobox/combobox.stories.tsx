@@ -1,5 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Combobox } from './combobox';
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from './combobox';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +45,18 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Combobox needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <Combobox items={['Item one', 'Item two', 'Item three']}>
+      <ComboboxInput placeholder="Label" />
+      <ComboboxContent>
+        <ComboboxEmpty>No results</ComboboxEmpty>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   ),
 };

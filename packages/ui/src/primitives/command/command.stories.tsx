@@ -1,5 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Command } from './command';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from './command';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +45,16 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Typically composed inside a dialog/popover with items — leave Default as a minimal Command shell or placeholder.
-    </p>
+    <Command className="w-72 rounded-lg border">
+      <CommandInput placeholder="Search" />
+      <CommandList>
+        <CommandEmpty>No results</CommandEmpty>
+        <CommandGroup>
+          <CommandItem>Item one</CommandItem>
+          <CommandItem>Item two</CommandItem>
+          <CommandItem>Item three</CommandItem>
+        </CommandGroup>
+      </CommandList>
+    </Command>
   ),
 };

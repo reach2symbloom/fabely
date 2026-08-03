@@ -1,5 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Table } from './table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './table';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +45,31 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Requires row/column data — not fabricating table content in the thin pass.
-    </p>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Column one</TableHead>
+          <TableHead>Column two</TableHead>
+          <TableHead>Column three</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow>
+          <TableCell>Item one</TableCell>
+          <TableCell>Lorem</TableCell>
+          <TableCell>Ipsum</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>Item two</TableCell>
+          <TableCell>Lorem</TableCell>
+          <TableCell>Ipsum</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>Item three</TableCell>
+          <TableCell>Lorem</TableCell>
+          <TableCell>Ipsum</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
   ),
 };

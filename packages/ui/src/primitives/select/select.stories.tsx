@@ -1,5 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Select } from './select';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './select';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +45,17 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Select needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <Select>
+      <SelectTrigger>
+        <SelectValue placeholder="Label" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectItem value="one">Item one</SelectItem>
+          <SelectItem value="two">Item two</SelectItem>
+          <SelectItem value="three">Item three</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   ),
 };

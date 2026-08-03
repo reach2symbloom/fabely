@@ -1,5 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Dialog } from './dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from './dialog';
+import { Button } from '../button';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +46,14 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Dialog needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <Dialog>
+      <DialogTrigger render={<Button />}>Open</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Label</DialogTitle>
+          <DialogDescription>Lorem ipsum</DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
   ),
 };

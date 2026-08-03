@@ -1,5 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ResizablePanelGroup } from './resizable';
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from './resizable';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +42,14 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      ResizablePanelGroup needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <ResizablePanelGroup orientation="horizontal" className="h-40 w-80 rounded-lg border">
+      <ResizablePanel defaultSize={50}>
+        <div className="flex h-full items-center justify-center text-sm">Item one</div>
+      </ResizablePanel>
+      <ResizableHandle />
+      <ResizablePanel defaultSize={50}>
+        <div className="flex h-full items-center justify-center text-sm">Item two</div>
+      </ResizablePanel>
+    </ResizablePanelGroup>
   ),
 };

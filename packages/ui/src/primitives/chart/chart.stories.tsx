@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ChartContainer } from './chart';
+import { Bar, BarChart, XAxis } from 'recharts';
+import { ChartContainer, type ChartConfig } from './chart';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -21,6 +23,17 @@ const meta = {
 export default meta;
 type Story = StoryObj;
 
+const chartConfig = {
+  value: { label: 'Value', color: 'var(--primary)' },
+} satisfies ChartConfig;
+
+const chartData = [
+  { name: 'One', value: 12 },
+  { name: 'Two', value: 18 },
+  { name: 'Three', value: 9 },
+];
+
+
 export const Overview: Story = {
   parameters: { layout: 'fullscreen' },
   render: () => (
@@ -37,8 +50,11 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Requires ChartConfig + series data (recharts) — not fabricating chart data in the thin pass.
-    </p>
+    <ChartContainer config={chartConfig} className="h-48 w-72">
+      <BarChart data={chartData}>
+        <XAxis dataKey="name" />
+        <Bar dataKey="value" fill="var(--color-value)" radius={4} />
+      </BarChart>
+    </ChartContainer>
   ),
 };

@@ -1,5 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Sidebar } from './sidebar';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from './sidebar';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +50,33 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Requires SidebarProvider and a full app-shell layout.
-    </p>
+    <SidebarProvider className="min-h-[240px] w-[480px] border">
+      <Sidebar>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Label</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton>Item one</SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton>Item two</SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton>Item three</SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset>
+        <div className="flex items-center gap-2 p-4">
+          <SidebarTrigger />
+          <span className="text-sm">Lorem ipsum</span>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   ),
 };

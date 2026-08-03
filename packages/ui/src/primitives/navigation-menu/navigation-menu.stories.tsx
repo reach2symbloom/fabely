@@ -1,5 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { NavigationMenu } from './navigation-menu';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from './navigation-menu';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +45,17 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      NavigationMenu needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <NavigationMenu>
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>Label</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <NavigationMenuLink href="#">Item one</NavigationMenuLink>
+            <NavigationMenuLink href="#">Item two</NavigationMenuLink>
+            <NavigationMenuLink href="#">Item three</NavigationMenuLink>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+    </NavigationMenu>
   ),
 };

@@ -1,5 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { MessageScroller } from './message-scroller';
+import {
+  MessageScroller,
+  MessageScrollerContent,
+  MessageScrollerItem,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
+} from './message-scroller';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +44,18 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      MessageScroller needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <div className="h-64 w-80 rounded-lg border">
+      <MessageScrollerProvider>
+        <MessageScroller>
+          <MessageScrollerViewport>
+            <MessageScrollerContent>
+              <MessageScrollerItem messageId="1">Item one</MessageScrollerItem>
+              <MessageScrollerItem messageId="2">Item two</MessageScrollerItem>
+              <MessageScrollerItem messageId="3">Item three</MessageScrollerItem>
+            </MessageScrollerContent>
+          </MessageScrollerViewport>
+        </MessageScroller>
+      </MessageScrollerProvider>
+    </div>
   ),
 };

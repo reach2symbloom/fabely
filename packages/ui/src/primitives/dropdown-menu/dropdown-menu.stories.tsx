@@ -1,5 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { DropdownMenu } from './dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './dropdown-menu';
+import { Button } from '../button';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +45,15 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      DropdownMenu needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button />}>Open</DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuGroup>
+          <DropdownMenuItem>Item one</DropdownMenuItem>
+          <DropdownMenuItem>Item two</DropdownMenuItem>
+          <DropdownMenuItem>Item three</DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   ),
 };

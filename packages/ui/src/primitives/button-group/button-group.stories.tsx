@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ButtonGroup } from './button-group';
+import { Button } from '../button';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +39,10 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      ButtonGroup needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <ButtonGroup>
+      <Button variant="outline">Item one</Button>
+      <Button variant="outline">Item two</Button>
+      <Button variant="outline">Item three</Button>
+    </ButtonGroup>
   ),
 };

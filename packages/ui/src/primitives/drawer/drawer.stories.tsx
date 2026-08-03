@@ -1,5 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Drawer } from './drawer';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from './drawer';
+import { Button } from '../button';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +46,14 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Drawer needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <Drawer>
+      <DrawerTrigger render={<Button />}>Open</DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Label</DrawerTitle>
+          <DrawerDescription>Lorem ipsum</DrawerDescription>
+        </DrawerHeader>
+      </DrawerContent>
+    </Drawer>
   ),
 };

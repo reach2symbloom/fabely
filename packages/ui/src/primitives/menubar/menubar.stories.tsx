@@ -1,5 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Menubar } from './menubar';
+import {
+  Menubar,
+  MenubarContent,
+  MenubarGroup,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
+} from './menubar';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +45,17 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Menubar needs composed parts and/or a provider/portal host — not inventing a full composition in the thin pass.
-    </p>
+    <Menubar>
+      <MenubarMenu>
+        <MenubarTrigger>File</MenubarTrigger>
+        <MenubarContent>
+          <MenubarGroup>
+            <MenubarItem>Item one</MenubarItem>
+            <MenubarItem>Item two</MenubarItem>
+            <MenubarItem>Item three</MenubarItem>
+          </MenubarGroup>
+        </MenubarContent>
+      </MenubarMenu>
+    </Menubar>
   ),
 };

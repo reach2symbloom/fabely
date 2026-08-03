@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Calendar } from './calendar';
+
 import {
   PrimitivePage,
   PRIMITIVE_PAGE_SECTION_PLACEHOLDER,
@@ -37,8 +38,6 @@ export const Overview: Story = {
 
 export const Default: Story = {
   render: () => (
-    <p className="font-sans text-sm text-muted-foreground max-w-md">
-      Requires a selected date / mode props and typically react-day-picker wiring — not fabricating data in the thin pass.
-    </p>
+    <Calendar mode="single" selected={new Date(2026, 7, 3)} />
   ),
 };
