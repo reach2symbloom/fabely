@@ -160,6 +160,17 @@ const preview: Preview = {
               ],
               'Breadcrumb',
               'Bubble',
+              [
+                'Overview',
+                'Conversation',
+                'Speakers',
+                'Footer slot',
+                'Destructive',
+                'Group',
+                'Reactions',
+                'Links and Buttons',
+                'Collapsible',
+              ],
               'Button',
               [
                 'Icon Button',
