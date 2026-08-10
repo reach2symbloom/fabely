@@ -33,6 +33,10 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Card × Image / Aspect Ratio** — swap the Image story cover wrapper for
       Foundations Aspect Ratio (and any media primitive) when those land. See
       [Card README → Deferred](../src/primitives/card/README.md#deferred).
+- [ ] **Carousel × Autoplay / Image** — add `embla-carousel-autoplay` (+ Plugin
+      story) and the Figma “Carousel with Image” composition once Aspect Ratio /
+      media partners land. See
+      [Carousel README → Deferred](../src/primitives/carousel/README.md#deferred).
 - [ ] **Cross-primitive demos** — walk shadcn docs for each Fabely primitive;
       flesh out examples that need siblings we did not have at land time
       (toolbars, split buttons, field + addon strips, pagination clusters, etc.).
