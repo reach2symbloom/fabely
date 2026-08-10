@@ -7,3 +7,4 @@ export type { ButtonVariant, ButtonRoundness } from './shared';
 export { Button, buttonVariants } from './text-button';
 export type { ButtonProps, ButtonSize } from './text-button';
 export * from './icon-button';
+export * from './link-button';

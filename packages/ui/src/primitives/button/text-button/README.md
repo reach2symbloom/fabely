@@ -93,7 +93,7 @@ Size slot names are shared vocabulary with Icon Button (`mini` / `default`); **v
 3. Large/XL heights use published `--spacing-11` / `--spacing-13` (not raw).
 4. Primary focus ring is always-on at rest opacity; `:focus-visible` uses full primary ring.
 5. Border width stays constant — no hover/focus stroke thickening (border-box was eating padding).
-6. Dropped shadcn `link` variant and all `icon*` sizes — Icon Button / Button Link are separate primitives. Figma “Extra Small” maps to API `mini`.
+6. Dropped shadcn `link` variant and all `icon*` sizes — Icon Button / Link Button are separate primitives. Figma “Extra Small” maps to API `mini`.
 7. Heights consume spacing tokens because Figma binds button height to the spacing scale (same precedent as Avatar).
 8. **Primary outline gradient border:** Figma fill is `--theme-alpha-white-switch-0` (transparent). An opaque padding-box background layer would pin the center to `--background` and fail on non-default surfaces. Instead we use mask-composite on `::before`: `background: var(--gradient-primary-top-bottom) border-box` + `mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0)` (`-webkit-mask-composite: xor` on WebKit). That punches out the padding-box so only the border ring remains, with a genuinely transparent face. The ring is on `::before` (negative-inset to the border-box) so the mask does not hide label text. Focus fills `--background` on the button; the ring remains.
 9. **Interaction model** (hover/pressed) is library-authored — Figma lacked pressed and had inconsistent outline hovers.
@@ -108,4 +108,4 @@ Size slot names are shared vocabulary with Icon Button (`mini` / `default`); **v
 </a>
 ```
 
-Button Link (Figma) will be a dedicated primitive later for link-specific typography/spacing.
+For underlined text actions (Figma Link Button), use [`ButtonLink`](../link-button/README.md) / `buttonLinkVariants`.

@@ -173,6 +173,18 @@ const preview: Preview = {
                   'Disabled',
                   'Pressed',
                 ],
+                'Link Button',
+                [
+                  'Overview',
+                  'Default',
+                  'Variants',
+                  'Sizes',
+                  'With Icon',
+                  'Matrix',
+                  'Disabled',
+                  'Pressed',
+                  'As Anchor',
+                ],
                 'Text Button',
                 [
                   'Overview',

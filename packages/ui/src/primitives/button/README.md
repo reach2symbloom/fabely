@@ -6,13 +6,20 @@ Labeled and icon-only controls that share one variant/interaction model.
 src/primitives/button/
 ├── shared.ts          # buttonVariantClasses, QUIET_INTERACTION, types
 ├── text-button/       # exported as `Button`
-└── icon-button/       # exported as `IconButton`
+├── icon-button/       # exported as `IconButton`
+└── link-button/       # exported as `ButtonLink`
 ```
 
 Import from the family barrel — consumers stay stable:
 
 ```tsx
-import { Button, IconButton, buttonVariants } from '@/primitives/button';
+import {
+  Button,
+  IconButton,
+  ButtonLink,
+  buttonVariants,
+  buttonLinkVariants,
+} from '@/primitives/button';
 ```
 
 ## When to use which
@@ -21,13 +28,15 @@ import { Button, IconButton, buttonVariants } from '@/primitives/button';
 | --- | --- |
 | Label (optional leading/trailing icon) | **`Button`** (Text Button) |
 | Icon only (square / circular) | **`IconButton`** — requires `aria-label` |
-| Text that navigates like a link | `buttonVariants` on `<a>` for now; Button Link later |
+| Underlined text action (show more, inline CTA) | **`ButtonLink`** (Link Button) |
+| Real document navigation (`<a href>`) | `buttonLinkVariants` or `buttonVariants` on `<a>` — not `render={<a />}` |
 
 Do not stretch Text Button into an icon-only size — that is Icon Button’s job.
+Link Button does **not** reuse `buttonVariantClasses` (different chrome model).
 
-## Shared variants
+## Shared variants (Text + Icon)
 
-Both siblings consume **`buttonVariantClasses`** from [`shared.ts`](./shared.ts):
+Text and Icon Button consume **`buttonVariantClasses`** from [`shared.ts`](./shared.ts):
 
 `primary` · `primaryOutline` · `secondary` · `tertiary` · `ghost` · `destructive` · `fiaFilled` · `fiaOutline`
 
@@ -35,29 +44,33 @@ Hover / pressed / focus / disabled follow the same library-authored model
 (quiet `@5` / `@10`, filled opacity ladder, Primary always-on rest ring).
 Icon Button adds one extra variant: **`outline`**.
 
+Link Button has its own Style axis: `tertiary` · `secondary` · `primary` · `fia`
+(underline on hover/pressed only).
+
 ## Size slots
 
 Size prop names are **shared vocabulary**; each sibling owns its values
 (see `docs/DESIGN.md` “Size slots”).
 
-| Slot idea | Text Button | Icon Button |
-| --- | --- | --- |
-| Smallest | `mini` → 24 tall | `mini` → 24×24 |
-| Small | `small` → 32 | `sm` → 32×32 |
-| Default | `default` → 40 | `default` → 36×36 |
-| Large | `large` → 44 | `lg` → 40×40 |
-| Extra large | `extraLarge` → 52 | — |
+| Slot idea | Text Button | Icon Button | Link Button |
+| --- | --- | --- | --- |
+| Smallest | `mini` → 24 tall | `mini` → 24×24 | `mini` → type only |
+| Small | `small` → 32 | `sm` → 32×32 | `sm` → + py `--spacing-3xs` |
+| Default | `default` → 40 | `default` → 36×36 | `default` → type only |
+| Large | `large` → 44 | `lg` → 40×40 | `lg` → type only |
+| Extra large | `extraLarge` → 52 | — | — |
 
 Same name ≠ same pixels. Do not “fix” one scale to the other.
 
 ## Roundness
 
-Both expose `default` | `round`. Text Button Default is flat
+Text and Icon expose `default` | `round`. Text Button Default is flat
 `--rounded-lg` (12) at every size. Icon Button Default uses `--rounded-sm`
 (5) on `mini` so Default vs Round stays distinguishable at 24px; other
-sizes use `--rounded-lg`.
+sizes use `--rounded-lg`. Link Button has no roundness axis (text chrome only).
 
 ## Docs per sibling
 
 - [Text Button](./text-button/README.md)
 - [Icon Button](./icon-button/README.md)
+- [Link Button](./link-button/README.md)
