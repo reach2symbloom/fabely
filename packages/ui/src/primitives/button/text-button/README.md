@@ -25,7 +25,7 @@ Visual source of truth: Figma component set **Button** in
 
 | Figma axis | Values | Primitive API |
 | --- | --- | --- |
-| Variant | Primary · Primary outline · Secondary · Tertiary · Ghost · Destructive · Fia filled · Fia Outline | `variant`: `primary` \| `primaryOutline` \| `secondary` \| `tertiary` \| `ghost` \| `destructive` \| `fiaFilled` \| `fiaOutline` |
+| Variant | Primary · Primary outline · Secondary · Tertiary · Outline · Ghost · Destructive · Fia filled · Fia Outline | `variant`: `primary` \| `primaryOutline` \| `secondary` \| `tertiary` \| `outline` \| `ghost` \| `destructive` \| `fiaFilled` \| `fiaOutline` |
 | Size | Extra Small · Small · Default · Large · Extra Large | `size`: `mini` \| `small` \| `default` \| `large` \| `extraLarge` |
 | Roundness | Default · Round | `roundness`: `default` \| `round` |
 | State | Default · Hover & Active · Focus · Disabled | CSS `:hover` / `:active` / `:focus-visible` / `[disabled]` — not props |
@@ -42,6 +42,7 @@ Shared eight-variant styles live in [`../shared.ts`](../shared.ts)
 | `primaryOutline` | transparent (see deviations) | gradient poles (border-box via mask) | `--foreground` | `--effect-focus-ring-secondary` |
 | `secondary` | transparent | `--tw-raw-secondary-200` | `--foreground` | secondary |
 | `tertiary` | transparent | `--theme-alpha-black-switch-10` | `--muted-foreground` → `--secondary-foreground` on hover/pressed | secondary |
+| `outline` | `--theme-alpha-black-switch-333` | `--stroke-thin` + `--border` | `--muted-foreground` → `--foreground` on hover/pressed | secondary |
 | `ghost` | `--theme-alpha-white-switch-001` | none | `--muted-foreground` → `--foreground` on hover/pressed | secondary |
 | `destructive` | `--tw-raw-error-ghost` @ 12% (`color-mix`) | — | `--tw-raw-error-600` | `--effect-focus-ring-error` |
 | `fiaFilled` | `--tw-raw-fia-200` | — | `--tw-raw-fia-950` | secondary |
@@ -55,7 +56,7 @@ Figma had no pressed state and inconsistent outline hovers — this model is def
 | --- | --- | --- |
 | Filled — Primary | `--opacity-hover-soft` (0.9) | `--opacity-hover` (0.8) |
 | Filled — Destructive, Fia filled | `--opacity-hover` (0.8) | `--opacity-pressed` (0.7) |
-| Outline/quiet — Primary outline, Secondary, Tertiary, Ghost, Fia Outline | `--theme-alpha-black-switch-5` fill | `--theme-alpha-black-switch-10` fill |
+| Outline/quiet — Primary outline, Secondary, Tertiary, Outline, Ghost, Fia Outline | `--theme-alpha-black-switch-5` fill | `--theme-alpha-black-switch-10` fill |
 
 Border width is constant in every state (no 2px→3px hover thickening). Disabled → layer opacity 0.5.
 

@@ -12,6 +12,10 @@ Figma-matched: [Accordion](./accordion/README.md), [Alert](./alert/README.md), [
 
 Thin-pass stubs (unstyled re-exports, not yet matched to Figma): every other file under `src/components/ui` except `direction` (skipped).
 
+**After this pass:** compositions deferred because a partner was missing or
+thin-pass live in [`.migration/post-primitives-docket.md`](../../.migration/post-primitives-docket.md).
+Revisit that docket when thin-pass stubs are gone.
+
 ## Thin-pass Storybook instructions
 
 When adding or documenting a new Primitive:

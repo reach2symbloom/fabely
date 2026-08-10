@@ -2,8 +2,8 @@
  * Fabely Icon Button — icon-only control in the Button family.
  *
  * Figma set (page Icon Button / 9:775) defines a 5-variant subset.
- * Library is master: full shared variant surface + Icon-Button-only
- * `outline`. Interaction model matches Text Button (see README).
+ * Library is master: full shared variant surface (including `outline` from
+ * Button Group Figma). Interaction model matches Text Button (see README).
  *
  * Size slots share vocabulary with Text Button (`mini` / `default`); values
  * are Icon Button’s own (24 / 32 / 36 / 40). See docs/DESIGN.md “Size slots”.
@@ -15,14 +15,11 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import {
   buttonVariantClasses,
-  QUIET_INTERACTION,
   type ButtonRoundness,
 } from '../shared';
 
-/** Button’s eight + Icon-Button-only `outline`. */
-export type IconButtonVariant =
-  | keyof typeof buttonVariantClasses
-  | 'outline';
+/** Same variant axis as Text Button (shared `buttonVariantClasses`). */
+export type IconButtonVariant = keyof typeof buttonVariantClasses;
 
 /** Shared size vocabulary — slots this control implements. */
 export type IconButtonSize = 'mini' | 'sm' | 'default' | 'lg';
@@ -32,6 +29,11 @@ export type IconButtonRoundness = ButtonRoundness;
 const iconButtonVariants = cva(
   [
     'group/icon-button inline-flex shrink-0 items-center justify-center',
+    /*
+     * `min-h-0` + `overflow-hidden` — flex min-content otherwise grows past
+     * `size-*` when pad+glyph+border exceed the box (Button Group rows).
+     */
+    'box-border min-h-0 min-w-0 overflow-hidden',
     'border border-transparent',
     'transition-[color,background-color,border-color,opacity,box-shadow]',
     'outline-none select-none',
@@ -42,18 +44,6 @@ const iconButtonVariants = cva(
     variants: {
       variant: {
         ...buttonVariantClasses,
-        /** Icon-Button-only — solid surface + border; quiet hover/pressed. */
-        outline: [
-          'bg-[var(--background)]',
-          'border-[length:var(--stroke-regular)] border-[color:var(--border)]',
-          'text-muted-foreground',
-          QUIET_INTERACTION,
-          'hover:text-foreground',
-          'active:text-foreground data-[pressed]:text-foreground',
-          'focus-visible:text-foreground',
-          'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
-          'disabled:opacity-50',
-        ],
       },
       size: {
         mini: [
@@ -71,9 +61,10 @@ const iconButtonVariants = cva(
           'p-[var(--spacing-xs)]',
           "[&_svg:not([class*='size-'])]:size-[length:var(--icon-sm)]",
         ],
+        /* Pad `--spacing-xs` (not 2-5): 10+10+20+border exceeds 40 border-box. */
         lg: [
           'size-[length:var(--spacing-3xl)]',
-          'p-[var(--spacing-2-5)]',
+          'p-[var(--spacing-xs)]',
           "[&_svg:not([class*='size-'])]:size-[length:var(--icon-md)]",
         ],
       },

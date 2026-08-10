@@ -12,6 +12,7 @@ export type ButtonVariant =
   | 'primaryOutline'
   | 'secondary'
   | 'tertiary'
+  | 'outline'
   | 'ghost'
   | 'destructive'
   | 'fiaFilled'
@@ -49,7 +50,6 @@ export const QUIET_INTERACTION = [
 
 /**
  * Shared variant styles — Text Button and Icon Button both spread these.
- * Icon Button adds `outline` on top.
  */
 export const buttonVariantClasses = {
   primary: [
@@ -87,6 +87,22 @@ export const buttonVariantClasses = {
     'hover:text-secondary-foreground',
     'active:text-secondary-foreground data-[pressed]:text-secondary-foreground',
     'focus-visible:text-secondary-foreground',
+    'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+    'disabled:opacity-50',
+  ],
+  /**
+   * Figma Button Group Variant=Outline (`784:82792`) — quiet fill + `--border`.
+   * Shared by Text Button and Icon Button (Icon’s former local `outline`
+   * converges here).
+   */
+  outline: [
+    'bg-[var(--theme-alpha-black-switch-333)]',
+    'border-[length:var(--stroke-thin)] border-[color:var(--border)]',
+    'text-muted-foreground',
+    QUIET_INTERACTION,
+    'hover:text-foreground',
+    'active:text-foreground data-[pressed]:text-foreground',
+    'focus-visible:text-foreground',
     'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
     'disabled:opacity-50',
   ],

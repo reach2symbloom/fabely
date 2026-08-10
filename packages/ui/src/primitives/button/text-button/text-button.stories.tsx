@@ -34,6 +34,7 @@ const VARIANTS: { variant: ButtonVariant; label: string }[] = [
   { variant: 'primaryOutline', label: 'Primary outline' },
   { variant: 'secondary', label: 'Secondary' },
   { variant: 'tertiary', label: 'Tertiary' },
+  { variant: 'outline', label: 'Outline' },
   { variant: 'ghost', label: 'Ghost' },
   { variant: 'destructive', label: 'Destructive' },
   { variant: 'fiaFilled', label: 'Fia filled' },
@@ -349,7 +350,7 @@ export const Overview: Story = {
       title="Text Button"
       description={
         <>
-          Fabely Text Button from the Figma Button set — eight variants, five sizes, and
+          Fabely Text Button from the Figma Button set — shared variants (incl. outline), five sizes, and
           Roundrect / Round. Styles use Foundations tokens (Primary gradient, Fia / error
           raw swatches, theme-alpha, focus-ring effects). Sibling:{' '}
           <code>IconButton</code> under Primitives/Button/Icon Button.

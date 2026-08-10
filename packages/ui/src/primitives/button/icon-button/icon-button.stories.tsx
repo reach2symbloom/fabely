@@ -18,7 +18,7 @@ import {
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
  * Overview first — Playground, Variants gallery, usage, a11y — then focused
- * example pages. Library master: Button’s eight variants + outline.
+ * example pages. Library master: shared Button variants including outline.
  */
 
 const meta = {
@@ -245,7 +245,7 @@ export const Overview: Story = {
       description={
         <>
           Icon-only control unified with Button — shared variant styles and interaction
-          model, plus Icon-Button-only <code>outline</code>. Size slots share vocabulary
+          model. Size slots share vocabulary
           with Button; values are Icon Button’s own (24 / 32 / 36 / 40). Library is master
           over Figma’s five-variant subset.
         </>
@@ -286,7 +286,8 @@ export const Overview: Story = {
             <code>--icon-*</code> token; do not hardcode icon px.
           </li>
           <li>
-            Nine variants: Button’s eight plus <code>outline</code>. Quiet hover/pressed and
+            Nine shared variants (including <code>outline</code> from Button Group
+            Figma). Quiet hover/pressed and
             Destructive match Button (library master).
           </li>
           <li>

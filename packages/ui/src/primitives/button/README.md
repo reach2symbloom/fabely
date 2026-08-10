@@ -38,11 +38,11 @@ Link Button does **not** reuse `buttonVariantClasses` (different chrome model).
 
 Text and Icon Button consume **`buttonVariantClasses`** from [`shared.ts`](./shared.ts):
 
-`primary` · `primaryOutline` · `secondary` · `tertiary` · `ghost` · `destructive` · `fiaFilled` · `fiaOutline`
+`primary` · `primaryOutline` · `secondary` · `tertiary` · `outline` · `ghost` · `destructive` · `fiaFilled` · `fiaOutline`
 
 Hover / pressed / focus / disabled follow the same library-authored model
 (quiet `@5` / `@10`, filled opacity ladder, Primary always-on rest ring).
-Icon Button adds one extra variant: **`outline`**.
+`outline` matches Figma Button Group Variant=Outline (quiet alpha fill + `--border`).
 
 Link Button has its own Style axis: `tertiary` · `secondary` · `primary` · `fia`
 (underline on hover/pressed only).
