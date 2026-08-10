@@ -27,6 +27,12 @@ partners have real sizes, tokens, and chrome.
       Foundations-matched; add presets / date-time demos that need Card + Input.
       Optional: Persian (`react-day-picker/persian`) as documented opt-in.
       See [Calendar README → Deferred](../src/primitives/calendar/README.md#deferred).
+- [ ] **Card × form partners** — re-verify login / Spacing / RTL demos once
+      Input, Label, and Field are Foundations-matched. See
+      [Card README → Deferred](../src/primitives/card/README.md#deferred).
+- [ ] **Card × Image / Aspect Ratio** — swap the Image story cover wrapper for
+      Foundations Aspect Ratio (and any media primitive) when those land. See
+      [Card README → Deferred](../src/primitives/card/README.md#deferred).
 - [ ] **Cross-primitive demos** — walk shadcn docs for each Fabely primitive;
       flesh out examples that need siblings we did not have at land time
       (toolbars, split buttons, field + addon strips, pagination clusters, etc.).
