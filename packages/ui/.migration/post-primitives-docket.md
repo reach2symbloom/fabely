@@ -37,6 +37,12 @@ partners have real sizes, tokens, and chrome.
       story) and the Figma “Carousel with Image” composition once Aspect Ratio /
       media partners land. See
       [Carousel README → Deferred](../src/primitives/carousel/README.md#deferred).
+- [ ] **Checkbox × Field / Label / Table** — re-verify Basic, Description,
+      Disabled, Group, Invalid, and RTL demos once Field and Label are
+      Foundations-matched; add the shadcn table selection demo once Table lands;
+      optionally compose Figma Checkbox Group (Inline / Block) instead of a
+      second primitive. See
+      [Checkbox README → Deferred](../src/primitives/checkbox/README.md#deferred).
 - [ ] **Cross-primitive demos** — walk shadcn docs for each Fabely primitive;
       flesh out examples that need siblings we did not have at land time
       (toolbars, split buttons, field + addon strips, pagination clusters, etc.).
