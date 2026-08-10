@@ -23,6 +23,10 @@ partners have real sizes, tokens, and chrome.
       for Input, Input Group, Select, Popover (and any other shadcn Button Group
       demos we skipped). Promote or trim selectors that only exist for thin-pass
       chrome. See [Button Group README → Deferred](../src/primitives/button-group/README.md#deferred).
+- [ ] **Calendar × Date Picker** — compose Calendar in Popover once Popover is
+      Foundations-matched; add presets / date-time demos that need Card + Input.
+      Optional: Persian (`react-day-picker/persian`) as documented opt-in.
+      See [Calendar README → Deferred](../src/primitives/calendar/README.md#deferred).
 - [ ] **Cross-primitive demos** — walk shadcn docs for each Fabely primitive;
       flesh out examples that need siblings we did not have at land time
       (toolbars, split buttons, field + addon strips, pagination clusters, etc.).
