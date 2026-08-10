@@ -36,6 +36,12 @@ const general: ColorToken[] = [
   { name: 'card foreground', cssVar: '--card-foreground', reference: 'Light: --theme-neutrals-950 / Dark: --theme-alpha-white-switch-100' },
   { name: 'popover', cssVar: '--popover', reference: 'Light: --tw-raw-white / Dark: --tw-raw-neutral-950' },
   { name: 'popover foreground', cssVar: '--popover-foreground', reference: 'Light: --tw-raw-neutral-950 / Dark: --tw-raw-white' },
+  {
+    name: 'overlay',
+    cssVar: '--overlay',
+    reference: '--theme-alpha-black-no-switch-30 (Light & Dark — non-switching scrim)',
+    note: 'Modal / sheet backdrop. Alert Dialog now; Dialog, Sheet, Drawer when built.',
+  },
 ];
 
 // shadcn colors / focus

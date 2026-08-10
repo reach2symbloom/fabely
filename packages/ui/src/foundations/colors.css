@@ -408,6 +408,10 @@
   --card-foreground: var(--theme-neutrals-950);
   --popover: var(--tw-raw-white);
   --popover-foreground: var(--tw-raw-neutral-950);
+  /* Modal / sheet scrim — raw black @ 30%, non-switching (stays dark in
+     both themes). Consumed by Alert Dialog now; Dialog, Sheet, and Drawer
+     use the same token when those primitives are built. */
+  --overlay: var(--theme-alpha-black-no-switch-30);
 
   /* shadcn colors / focus */
   --ring: var(--theme-neutrals-300);
