@@ -47,6 +47,13 @@ partners have real sizes, tokens, and chrome.
       Field and Input are Foundations-matched; restore Explorer / Outline Tabs
       on File Tree once Tabs lands. See
       [Collapsible README → Deferred](../src/primitives/collapsible/README.md#deferred).
+- [ ] **Combobox × Input Group / sizes** — re-verify ComboboxInput host once
+      Input Group is Foundations-matched; add Input Group addon demo; expose
+      Figma Size (Large / Small / Mini) and Style Ghost if product needs them.
+      See [Combobox README → Deferred](../src/primitives/combobox/README.md#deferred).
+- [ ] **Combobox × deletable Chip** — swap inline `ComboboxChip` remove chrome
+      for the shared deletable Chip primitive once it exists. See
+      [Combobox README → Deferred](../src/primitives/combobox/README.md#deferred).
 - [ ] **Cross-primitive demos** — walk shadcn docs for each Fabely primitive;
       flesh out examples that need siblings we did not have at land time
       (toolbars, split buttons, field + addon strips, pagination clusters, etc.).
