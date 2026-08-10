@@ -20,7 +20,7 @@ Vendor file is untouched. Parts override vendor classes via `className`. `Attach
 | --- | --- |
 | `Attachment` | `state`: `idle` \| `uploading` \| `processing` \| `error` \| `done` (default `done`); `size`: `default` \| `sm` \| `xs`; `orientation`: `horizontal` \| `vertical` |
 | `AttachmentMedia` | `variant`: `icon` \| `image` |
-| `AttachmentRightIcon` | our Button props; defaults `variant="ghost"`, `size="extraSmall"`, `roundness="round"` (shadcn name: `AttachmentAction`, default size `icon-xs`) |
+| `AttachmentRightIcon` | our Button props; defaults `variant="ghost"`, `size="mini"`, `roundness="round"` (shadcn name: `AttachmentAction`, default size `icon-xs`) |
 | `AttachmentRightIcons` | group for one or more right icons (shadcn name: `AttachmentActions`) |
 | `AttachmentTrigger` | `render` for link/dialog composition |
 | `AttachmentGroup` | scrollable snapping row |

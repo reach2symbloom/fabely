@@ -1,16 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { ArrowRightIcon, PlusIcon } from 'lucide-react';
-import { Button, buttonVariants } from './button';
-import type { ButtonRoundness, ButtonSize, ButtonVariant } from './button';
-import { Spinner } from '../spinner';
-import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
-import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
+import { Button, buttonVariants } from './text-button';
+import type { ButtonSize } from './text-button';
+import type { ButtonRoundness, ButtonVariant } from '../shared';
+import { Spinner } from '../../spinner';
+import { InlineSegmentedControl } from '../../../../stories/InlineSegmentedControl';
+import { PlaygroundPanel } from '../../../../stories/PlaygroundPanel';
 import {
   PRIMITIVE_PLAYGROUND_CONTROL_GRID,
   PrimitiveGalleryItem,
   PrimitivePage,
-} from '../../../stories/PrimitivePage';
+} from '../../../../stories/PrimitivePage';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -19,7 +20,7 @@ import {
  */
 
 const meta = {
-  title: 'Design System/Primitives/Button',
+  title: 'Design System/Primitives/Button/Text Button',
   component: Button,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
@@ -40,7 +41,7 @@ const VARIANTS: { variant: ButtonVariant; label: string }[] = [
 ];
 
 const SIZES: { size: ButtonSize; label: string }[] = [
-  { size: 'extraSmall', label: 'Extra Small' },
+  { size: 'mini', label: 'Mini' },
   { size: 'small', label: 'Small' },
   { size: 'default', label: 'Default' },
   { size: 'large', label: 'Large' },
@@ -345,13 +346,13 @@ export const Overview: Story = {
   parameters: { layout: 'fullscreen' },
   render: () => (
     <PrimitivePage
-      title="Button"
+      title="Text Button"
       description={
         <>
-          Fabely Button from the Figma component set — eight variants, five sizes, and
+          Fabely Text Button from the Figma Button set — eight variants, five sizes, and
           Roundrect / Round. Styles use Foundations tokens (Primary gradient, Fia / error
-          raw swatches, theme-alpha, focus-ring effects). Icon Button and Button Link are
-          separate Figma components, not this API.
+          raw swatches, theme-alpha, focus-ring effects). Sibling:{' '}
+          <code>IconButton</code> under Primitives/Button/Icon Button.
         </>
       }
       playground={<ButtonPlayground />}
@@ -409,8 +410,9 @@ export const Overview: Story = {
           </li>
           <li>
             Icons: pass an SVG child and set <code>data-icon=&quot;inline-start&quot;</code> or{' '}
-            <code>&quot;inline-end&quot;</code>. No icon-only sizes here — use the Icon Button
-            primitive when it lands.
+            <code>&quot;inline-end&quot;</code>. For icon-only actions use{' '}
+            <code>IconButton</code> (Primitives/Button/Icon Button) — it requires{' '}
+            <code>aria-label</code>.
           </li>
           <li>
             <strong>Do not use</strong> <code>{"<Button render={<a />} />"}</code> for links. Use{' '}
@@ -422,8 +424,9 @@ export const Overview: Story = {
       accessibility={
         <ul className="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
           <li>
-            Icon-leading / trailing buttons still need clear label text (or{' '}
-            <code>aria-label</code> when a future Icon Button is icon-only).
+            Icon-leading / trailing buttons still need clear label text. Pure icon-only
+            controls belong on <code>IconButton</code> with a required{' '}
+            <code>aria-label</code>.
           </li>
           <li>
             Decorative icons: <code>aria-hidden=&quot;true&quot;</code>. Spinner exposes{' '}

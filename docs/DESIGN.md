@@ -419,6 +419,15 @@ resolve to a spacing value, but the semantic name is the public API.
 
 Never inline raw dimensions (`h-[18px]`, `w-[220px]`).
 
+### Size slots
+
+Size prop names (`mini`, `sm`, `default`, `lg`, …) are **shared
+vocabulary** across related primitives (e.g. Button and Icon Button).
+Each component owns its own values for those slots — the same name does
+not imply the same pixel dimensions. Button `default` is 40px tall;
+Icon Button `default` is 36×36. Do not “fix” one component’s size
+scale to another’s when the Figma (or library) specs differ.
+
 ### Icons
 
 Icon size always comes from `--icon-*` (Foundations → Iconography).

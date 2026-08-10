@@ -147,13 +147,13 @@ function AttachmentRightIcons({
 
 /**
  * Right icon button (shadcn `AttachmentAction`). Our Button with circular
- * hover (`roundness="round"`). Default `extraSmall` stands in for shadcn
+ * hover (`roundness="round"`). Default `mini` stands in for shadcn
  * `icon-xs`; `ghost` stays the quiet default.
  */
 function AttachmentRightIcon({
   className,
   variant = 'ghost',
-  size = 'extraSmall',
+  size = 'mini',
   roundness = 'round',
   ...props
 }: ButtonProps) {
