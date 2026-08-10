@@ -43,6 +43,10 @@ partners have real sizes, tokens, and chrome.
       optionally compose Figma Checkbox Group (Inline / Block) instead of a
       second primitive. See
       [Checkbox README → Deferred](../src/primitives/checkbox/README.md#deferred).
+- [ ] **Collapsible × Field / Input / Tabs** — re-verify Settings Panel once
+      Field and Input are Foundations-matched; restore Explorer / Outline Tabs
+      on File Tree once Tabs lands. See
+      [Collapsible README → Deferred](../src/primitives/collapsible/README.md#deferred).
 - [ ] **Cross-primitive demos** — walk shadcn docs for each Fabely primitive;
       flesh out examples that need siblings we did not have at land time
       (toolbars, split buttons, field + addon strips, pagination clusters, etc.).
