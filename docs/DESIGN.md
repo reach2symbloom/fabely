@@ -179,15 +179,25 @@ Foundations → Primitives → Atoms → Molecules → Organisms → Templates
 
 ## Primitives
 
-Primitives are wrapped shadcn / Base UI components. We restyle them with Foundations tokens but do not compose them at this layer. They are listed flat and alphabetically in Storybook — no atomic classification.
+Primitives are mostly wrapped shadcn / Base UI components. We restyle them with Foundations tokens but do not compose them at this layer. They are listed flat and alphabetically in Storybook — no atomic classification.
 
 A component may start as a Primitive and later be composed into an Atom (or higher) once we design a Fabely composition around it. Until then, the Primitive is the public surface consumers should import.
+
+### ListItem — shared row atom
+
+`ListItem` is the shared leaf-row atom for menus and lists. Dropdown Menu, Popover, Command, Select, Context Menu, and standalone lists compose it rather than hand-rolling their own row chrome.
+
+It is Fabely-authored (no shadcn equivalent — shadcn’s `Item` is a bordered card-like row, wrong shape). It still lives under **Primitives**, not Atoms: Primitives consume it, and **Primitives must not depend on Atoms**. Putting the shared row in Atoms would force every menu Primitive that needs a row to depend upward.
+
+**Rule:** Any new component that needs a list or menu row must use `ListItem`. Do not compose an equivalent row inline (custom padding, hover fills, focus rings, leading/trailing icon layouts) in DropdownMenuItem, CommandItem, SelectItem, ContextMenuItem, or ad hoc lists.
+
+Figma source is the **Menu Item** component set (`18:1010` on page Select & Combobox). The code name is deliberately `ListItem` — unscoped to any one menu surface.
 
 ## Atoms, Molecules, Organisms, Templates
 
 These tiers are for components we design. Atoms are the smallest compositions we author; molecules group atoms; organisms form distinct interface sections; templates are page-level layout skeletons. Empty tiers remain as scaffolding until real compositions land.
 
-Vendor-derived wrappers do not belong in these tiers — they live under Primitives.
+Vendor-derived wrappers do not belong in these tiers — they live under Primitives. Fabely-authored primitives that other Primitives must consume (e.g. `ListItem`) also live here rather than in Atoms — see ListItem above.
 
 ## Component Semantics
 
