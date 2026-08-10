@@ -54,10 +54,10 @@ Size prop names are **shared vocabulary**; each sibling owns its values
 
 | Slot idea | Text Button | Icon Button | Link Button |
 | --- | --- | --- | --- |
-| Smallest | `mini` → 24 tall | `mini` → 24×24 | `mini` → type only |
-| Small | `small` → 32 | `sm` → 32×32 | `sm` → + py `--spacing-3xs` |
-| Default | `default` → 40 | `default` → 36×36 | `default` → type only |
-| Large | `large` → 44 | `lg` → 40×40 | `lg` → type only |
+| Smallest | `mini` → 24 tall | `mini` → 24×24 | `mini` → type hug |
+| Small | `small` → 32 | `sm` → 32×32 | — (Figma Small → `default`; see [Link Button](./link-button/README.md)) |
+| Default | `default` → 40 | `default` → 36×36 | `default` → type hug |
+| Large | `large` → 44 | `lg` → 40×40 | `lg` → type hug |
 | Extra large | `extraLarge` → 52 | — | — |
 
 Same name ≠ same pixels. Do not “fix” one scale to the other.

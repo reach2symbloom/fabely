@@ -40,7 +40,6 @@ const VARIANTS: { variant: ButtonLinkVariant; label: string }[] = [
 
 const SIZES: { size: ButtonLinkSize; label: string }[] = [
   { size: 'mini', label: 'Mini' },
-  { size: 'sm', label: 'Small' },
   { size: 'default', label: 'Default' },
   { size: 'lg', label: 'Large' },
 ];
@@ -325,6 +324,10 @@ export const Overview: Story = {
           </li>
           <li>
             Hover and pressed only add underline; colors stay on the Style axis.
+          </li>
+          <li>
+            Figma Size=Small maps to <code>default</code> (no <code>sm</code> —
+            hug height collapsed Small/Default). See README for nested instances.
           </li>
         </ul>
       }

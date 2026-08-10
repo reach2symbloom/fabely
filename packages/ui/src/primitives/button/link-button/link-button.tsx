@@ -9,7 +9,7 @@ import { cn } from '../../../lib/utils';
  * Fabely Link Button — Figma set `11:2014`.
  *
  * Text-only / icon+label chrome with **underline on hover & pressed**. No fill,
- * border, or padding chrome beyond Small’s vertical `--spacing-3xs`.
+ * border, or padding — height hugs the type line-box.
  *
  * Prefer this for in-flow text actions (show more, inline CTAs). For real
  * navigation `<a>` elements, compose with {@link buttonLinkVariants} so Base UI
@@ -18,6 +18,7 @@ import { cn } from '../../../lib/utils';
 const buttonLinkVariants = cva(
   [
     'inline-flex shrink-0 items-center justify-center gap-[length:var(--spacing-xs)]',
+    'font-[family-name:var(--font-family-body)]',
     'whitespace-nowrap transition-all outline-none',
     'underline-offset-4 hover:underline data-[pressed]:underline',
     'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
@@ -39,38 +40,36 @@ const buttonLinkVariants = cva(
       },
       size: {
         /**
-         * Figma Size=Mini — body-xs / Regular→Medium in file (12/16 Medium).
+         * Figma Size=Mini — Paragraph Mini Medium (12/16).
          * Height is line-box only.
          */
         mini: [
-          'text-[length:var(--text-body-xs)]',
-          'leading-[var(--text-body-xs--line-height)]',
-          'font-[number:var(--font-weight-medium)]',
+          'text-[length:var(--text-paragraph-mini-medium-font-size)]',
+          'leading-[var(--text-paragraph-mini-medium-line-height)]',
+          'tracking-[var(--text-paragraph-mini-medium-letter-spacing)]',
+          '[font-weight:var(--text-paragraph-mini-medium-font-weight)]',
         ].join(' '),
         /**
-         * Figma Size=Small — body-sm Medium + py `--spacing-3xs`.
-         */
-        sm: [
-          'py-[length:var(--spacing-3xs)]',
-          'text-[length:var(--text-body-sm)]',
-          'leading-[var(--text-body-sm--line-height)]',
-          'font-[number:var(--font-weight-medium)]',
-        ].join(' '),
-        /**
-         * Figma Size=Default — body-sm Medium, no vertical pad.
+         * Figma Size=Default — Paragraph Small Medium (14/20). Line-box hug only.
+         *
+         * Figma also has Size=Small (same type + 2px vertical pad). Library drops
+         * that pad (hug height); map Figma Small → `default` when composing from
+         * nested instances. See link-button README.
          */
         default: [
-          'text-[length:var(--text-body-sm)]',
-          'leading-[var(--text-body-sm--line-height)]',
-          'font-[number:var(--font-weight-medium)]',
+          'text-[length:var(--text-paragraph-small-medium-font-size)]',
+          'leading-[var(--text-paragraph-small-medium-line-height)]',
+          'tracking-[var(--text-paragraph-small-medium-letter-spacing)]',
+          '[font-weight:var(--text-paragraph-small-medium-font-weight)]',
         ].join(' '),
         /**
-         * Figma Size=Large — body-base Regular (16/24).
+         * Figma Size=Large — Paragraph Regular Regular (16/24).
          */
         lg: [
-          'text-[length:var(--text-body-base)]',
-          'leading-[var(--text-body-base--line-height)]',
-          'font-[number:var(--font-weight-regular)]',
+          'text-[length:var(--text-paragraph-regular-regular-font-size)]',
+          'leading-[var(--text-paragraph-regular-regular-line-height)]',
+          'tracking-[var(--text-paragraph-regular-regular-letter-spacing)]',
+          '[font-weight:var(--text-paragraph-regular-regular-font-weight)]',
         ].join(' '),
       },
     },
