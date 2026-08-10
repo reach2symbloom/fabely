@@ -257,6 +257,13 @@ const preview: Preview = {
               ],
               'Carousel',
               'Chart',
+              [
+                'Overview',
+                'Basic',
+                'Tooltip line',
+                'No legend',
+                'RTL',
+              ],
               'Checkbox',
               'Collapsible',
               'Combobox',

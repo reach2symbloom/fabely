@@ -429,6 +429,13 @@
   --sidebar-primary-foreground: var(--tw-raw-white); /* Dark value is a broken Figma reference — see note above */
   --sidebar-border: var(--theme-neutrals-200);
   --sidebar-ring: var(--theme-neutrals-300);
+
+  /* chart colors — Figma "chart colors" collection (single shadcn mode) */
+  --chart-1: var(--theme-neutrals-300);
+  --chart-2: var(--theme-neutrals-400);
+  --chart-3: var(--tw-raw-neutral-500);
+  --chart-4: var(--tw-raw-neutral-600);
+  --chart-5: var(--tw-raw-neutral-700);
 }
 
 .dark {
