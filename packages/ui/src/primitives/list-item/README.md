@@ -56,7 +56,9 @@ own (default ≈ 32, lg ≈ 40).
    Story mirrors: `data-hovered` / `data-pressed` / `data-focused`.
 2. **Active and Selected paint identically** (`@10` on Default; accent /
    destructive soft recipes use their pressed layer). Distinguished by
-   `data-selected` / `aria-selected`, not by fill.
+   `data-selected` / `aria-selected`, not by fill. Selected/disabled
+   utilities match only `=""` (Base UI) or `="true"` — not `="false"`
+   (cmdk), because Tailwind’s `data-selected:` is presence-only.
 3. Code name `ListItem` — Figma set is “Menu Item”.
 
 ## Token map (summary)

@@ -12,6 +12,8 @@
  * accordion-down/up against Base UI's --accordion-panel-height so those
  * utilities actually interpolate. */
 @import 'tw-animate-css';
+/* scroll-fade / no-scrollbar — shadcn scroll utilities (see scroll-fade.css). */
+@import './scroll-fade.css';
 @import '../foundations/index.css';
 /* Component-scoped tokens (alongside their atoms — see docs/DESIGN.md). */
 @import '../primitives/avatar/avatar.css';

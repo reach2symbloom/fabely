@@ -27,6 +27,25 @@ export type ListItemVariant = 'default' | 'accent' | 'destructive';
 /** Shared size-slot vocabulary — values are ListItem’s own (32 / 40). */
 export type ListItemSize = 'default' | 'lg';
 
+/**
+ * Tailwind v4 `data-selected:` compiles to `&[data-selected]` (any value),
+ * so hosts like cmdk that set `data-selected={false}` would paint every row.
+ * Match only Base UI’s empty token (`""`) and explicit `"true"`.
+ */
+function whenSelected(...utilities: string[]) {
+  return utilities.flatMap((utility) => [
+    `data-[selected=true]:${utility}`,
+    `data-[selected='']:${utility}`,
+  ]);
+}
+
+function whenDisabled(...utilities: string[]) {
+  return utilities.flatMap((utility) => [
+    `data-[disabled=true]:${utility}`,
+    `data-[disabled='']:${utility}`,
+  ]);
+}
+
 const listItemVariants = cva(
   [
     'group/list-item relative flex w-full min-w-0 items-center',
@@ -37,7 +56,7 @@ const listItemVariants = cva(
     'outline-none select-none',
     'transition-[color,background-color,border-color,opacity,box-shadow,background-image]',
     '[&_svg]:pointer-events-none [&_svg]:shrink-0',
-    'data-disabled:pointer-events-none data-disabled:opacity-50',
+    ...whenDisabled('pointer-events-none', 'opacity-50'),
   ],
   {
     variants: {
@@ -51,18 +70,22 @@ const listItemVariants = cva(
           'data-highlighted:bg-[var(--theme-alpha-black-switch-5)]',
           'active:bg-[var(--theme-alpha-black-switch-10)]',
           'data-[pressed]:bg-[var(--theme-alpha-black-switch-10)]',
-          'data-[selected]:bg-[var(--theme-alpha-black-switch-10)]',
+          ...whenSelected('bg-[var(--theme-alpha-black-switch-10)]'),
           'data-checked:bg-[var(--theme-alpha-black-switch-10)]',
-          'data-[selected]:hover:bg-[var(--theme-alpha-black-switch-10)]',
-          'data-[selected]:data-[hovered]:bg-[var(--theme-alpha-black-switch-10)]',
-          'data-[selected]:data-highlighted:bg-[var(--theme-alpha-black-switch-10)]',
+          ...whenSelected(
+            'hover:bg-[var(--theme-alpha-black-switch-10)]',
+            'data-[hovered]:bg-[var(--theme-alpha-black-switch-10)]',
+            'data-highlighted:bg-[var(--theme-alpha-black-switch-10)]',
+          ),
           'data-checked:data-highlighted:bg-[var(--theme-alpha-black-switch-10)]',
           'focus-visible:bg-[var(--theme-alpha-black-switch-5)]',
           'data-[focused]:bg-[var(--theme-alpha-black-switch-5)]',
           'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           'data-[focused]:shadow-[var(--effect-focus-ring-secondary)]',
-          'data-[selected]:focus-visible:bg-[var(--theme-alpha-black-switch-10)]',
-          'data-[selected]:data-[focused]:bg-[var(--theme-alpha-black-switch-10)]',
+          ...whenSelected(
+            'focus-visible:bg-[var(--theme-alpha-black-switch-10)]',
+            'data-[focused]:bg-[var(--theme-alpha-black-switch-10)]',
+          ),
         ],
         accent: [
           'text-[color:var(--foreground)]',
@@ -77,10 +100,12 @@ const listItemVariants = cva(
           'data-highlighted:[background-image:linear-gradient(var(--theme-alpha-black-switch-5),var(--theme-alpha-black-switch-5))]',
           'active:[background-image:linear-gradient(var(--theme-alpha-black-switch-10),var(--theme-alpha-black-switch-10))]',
           'data-[pressed]:[background-image:linear-gradient(var(--theme-alpha-black-switch-10),var(--theme-alpha-black-switch-10))]',
-          'data-[selected]:[background-image:linear-gradient(var(--theme-alpha-black-switch-10),var(--theme-alpha-black-switch-10))]',
-          'data-[selected]:hover:[background-image:linear-gradient(var(--theme-alpha-black-switch-10),var(--theme-alpha-black-switch-10))]',
-          'data-[selected]:data-[hovered]:[background-image:linear-gradient(var(--theme-alpha-black-switch-10),var(--theme-alpha-black-switch-10))]',
-          'data-[selected]:data-highlighted:[background-image:linear-gradient(var(--theme-alpha-black-switch-10),var(--theme-alpha-black-switch-10))]',
+          ...whenSelected(
+            '[background-image:linear-gradient(var(--theme-alpha-black-switch-10),var(--theme-alpha-black-switch-10))]',
+            'hover:[background-image:linear-gradient(var(--theme-alpha-black-switch-10),var(--theme-alpha-black-switch-10))]',
+            'data-[hovered]:[background-image:linear-gradient(var(--theme-alpha-black-switch-10),var(--theme-alpha-black-switch-10))]',
+            'data-highlighted:[background-image:linear-gradient(var(--theme-alpha-black-switch-10),var(--theme-alpha-black-switch-10))]',
+          ),
           'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           'data-[focused]:shadow-[var(--effect-focus-ring-secondary)]',
           'focus-visible:[background-image:linear-gradient(var(--theme-alpha-black-switch-5),var(--theme-alpha-black-switch-5))]',
@@ -95,10 +120,12 @@ const listItemVariants = cva(
           'data-highlighted:[background-image:linear-gradient(var(--theme-alpha-white-switch-95),var(--theme-alpha-white-switch-95)),linear-gradient(var(--destructive),var(--destructive))]',
           'active:[background-image:linear-gradient(var(--theme-alpha-white-switch-85),var(--theme-alpha-white-switch-85)),linear-gradient(var(--destructive),var(--destructive))]',
           'data-[pressed]:[background-image:linear-gradient(var(--theme-alpha-white-switch-85),var(--theme-alpha-white-switch-85)),linear-gradient(var(--destructive),var(--destructive))]',
-          'data-[selected]:[background-image:linear-gradient(var(--theme-alpha-white-switch-85),var(--theme-alpha-white-switch-85)),linear-gradient(var(--destructive),var(--destructive))]',
-          'data-[selected]:hover:[background-image:linear-gradient(var(--theme-alpha-white-switch-85),var(--theme-alpha-white-switch-85)),linear-gradient(var(--destructive),var(--destructive))]',
-          'data-[selected]:data-[hovered]:[background-image:linear-gradient(var(--theme-alpha-white-switch-85),var(--theme-alpha-white-switch-85)),linear-gradient(var(--destructive),var(--destructive))]',
-          'data-[selected]:data-highlighted:[background-image:linear-gradient(var(--theme-alpha-white-switch-85),var(--theme-alpha-white-switch-85)),linear-gradient(var(--destructive),var(--destructive))]',
+          ...whenSelected(
+            '[background-image:linear-gradient(var(--theme-alpha-white-switch-85),var(--theme-alpha-white-switch-85)),linear-gradient(var(--destructive),var(--destructive))]',
+            'hover:[background-image:linear-gradient(var(--theme-alpha-white-switch-85),var(--theme-alpha-white-switch-85)),linear-gradient(var(--destructive),var(--destructive))]',
+            'data-[hovered]:[background-image:linear-gradient(var(--theme-alpha-white-switch-85),var(--theme-alpha-white-switch-85)),linear-gradient(var(--destructive),var(--destructive))]',
+            'data-highlighted:[background-image:linear-gradient(var(--theme-alpha-white-switch-85),var(--theme-alpha-white-switch-85)),linear-gradient(var(--destructive),var(--destructive))]',
+          ),
           'focus-visible:[background-image:linear-gradient(var(--theme-alpha-white-switch-95),var(--theme-alpha-white-switch-95)),linear-gradient(var(--destructive),var(--destructive))]',
           'data-[focused]:[background-image:linear-gradient(var(--theme-alpha-white-switch-95),var(--theme-alpha-white-switch-95)),linear-gradient(var(--destructive),var(--destructive))]',
           'focus-visible:shadow-[var(--effect-focus-ring-error)]',
@@ -302,8 +329,9 @@ function ListItem({
       slot: 'list-item',
       variant,
       size,
-      selected: selected ? '' : undefined,
-      disabled: disabled ? '' : undefined,
+      /* Boolean true → data-*=`""` (Base UI). Do not pass `''` — falsy skips the attr. */
+      selected: selected ? true : undefined,
+      disabled: disabled ? true : undefined,
     },
   });
 }
