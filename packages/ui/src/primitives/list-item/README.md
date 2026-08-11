@@ -59,7 +59,10 @@ own (default ≈ 32, lg ≈ 40).
    `data-selected` / `aria-selected`, not by fill. Selected/disabled
    utilities match only `=""` (Base UI) or `="true"` — not `="false"`
    (cmdk), because Tailwind’s `data-selected:` is presence-only.
-3. Code name `ListItem` — Figma set is “Menu Item”.
+3. **Menu highlight vs focus ring** — when `data-highlighted` is set (Base UI
+   menus), the focus ring is suppressed. Hosts focus the active row, so a
+   ring would look like a separate focused state instead of quiet hover.
+4. Code name `ListItem` — Figma set is “Menu Item”.
 
 ## Token map (summary)
 

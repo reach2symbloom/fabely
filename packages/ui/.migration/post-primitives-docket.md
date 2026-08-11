@@ -68,8 +68,9 @@ partners have real sizes, tokens, and chrome.
 
 - [ ] **Scroll fade on overflow lists** — apply `scroll-fade`
       (from `src/styles/scroll-fade.css`) to remaining scroll containers:
-      Dropdown Menu / Select / Context Menu popups, Scroll Area viewport,
-      Sidebar, etc. CommandList + Combobox list already use `scroll-fade`.
+      Dropdown Menu / Select popups, Scroll Area viewport, Sidebar, etc.
+      CommandList + Combobox list + Context Menu Content already use
+      `scroll-fade`.
 - [ ] **Token / size ladders** — confirm shared ladders (Text ↔ Icon height
       parity, Input Group vs Button heights, SelectTrigger in groups) against
       Figma; document one source of truth in `docs/DESIGN.md` if still scattered.

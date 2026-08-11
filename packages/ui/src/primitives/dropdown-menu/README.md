@@ -15,8 +15,8 @@ Menus must not hand-roll row chrome — see `docs/DESIGN.md` (ListItem).
 `MenuGroupContext` and throws if used as a direct child of Content.
 
 This differs from Radix, where Label could sit loosely in Content. The
-same rule will apply when Context Menu and Menubar get their Foundations
-passes — wrap every label (and prefer wrapping items) in a Group.
+same rule applies to Context Menu (and will apply when Menubar gets its
+Foundations pass) — wrap every label (and prefer wrapping items) in a Group.
 
 ```tsx
 <DropdownMenuContent>

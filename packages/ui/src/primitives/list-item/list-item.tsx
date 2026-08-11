@@ -57,6 +57,14 @@ const listItemVariants = cva(
     'transition-[color,background-color,border-color,opacity,box-shadow,background-image]',
     '[&_svg]:pointer-events-none [&_svg]:shrink-0',
     ...whenDisabled('pointer-events-none', 'opacity-50'),
+    /*
+     * Menu hosts (Dropdown / Context / …) move DOM focus onto the highlighted
+     * row. Suppress the focus ring there — `data-highlighted` is the menu
+     * affordance; a ring reads as a separate “focused” state.
+     */
+    'data-highlighted:shadow-none',
+    'data-highlighted:focus-visible:shadow-none',
+    'data-highlighted:data-[focused]:shadow-none',
   ],
   {
     variants: {
