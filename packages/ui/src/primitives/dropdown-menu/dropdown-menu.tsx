@@ -139,12 +139,11 @@ function DropdownMenuShortcut({
 function isShortcutElement(
   child: React.ReactNode
 ): child is React.ReactElement<React.ComponentProps<'span'>> {
-  return (
-    React.isValidElement(child) &&
-    (child.type === DropdownMenuShortcut ||
-      (child.props as { 'data-slot'?: string })['data-slot'] ===
-        'dropdown-menu-shortcut')
-  );
+  if (!React.isValidElement(child)) return false;
+  if (child.type === DropdownMenuShortcut) return true;
+  const slot = (child.props as { 'data-slot'?: string })['data-slot'];
+  /* Menubar composes this shortcut with its own data-slot. */
+  return slot === 'dropdown-menu-shortcut' || slot === 'menubar-shortcut';
 }
 
 function isListItemSlot(child: React.ReactElement): boolean {
