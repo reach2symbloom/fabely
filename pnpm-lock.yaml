@@ -198,8 +198,8 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@shadcn/react':
-        specifier: ^0.2.1
-        version: 0.2.1(@types/react@19.2.14)(react@19.2.4)
+        specifier: ^0.3.0
+        version: 0.3.0(@types/react@19.2.14)(react@19.2.4)
       '@solar-icons/react':
         specifier: ^1.1.1
         version: 1.1.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -1910,8 +1910,8 @@ packages:
       rollup:
         optional: true
 
-  '@shadcn/react@0.2.1':
-    resolution: {integrity: sha512-5krgi3dRMKb5jH6a+qPzVJUy/54s0kKE4Rw4LjDfLqOdVQTWKUgxWf1kW8r912I0jX/Lzxqc+pgjkjWxUIK5BQ==}
+  '@shadcn/react@0.3.0':
+    resolution: {integrity: sha512-iKN0NuYe850VDHlxEfvppFrpa7CMV3zArTHusXlaSmeFeQhohGbIqclv6WwPTs/44I8EkXQpcuRt6sXEVKkWqQ==}
     peerDependencies:
       '@types/react': '>=19'
       react: '>=19'
@@ -5273,7 +5273,7 @@ snapshots:
       estree-walker: 2.0.2
       picomatch: 4.0.5
 
-  '@shadcn/react@0.2.1(@types/react@19.2.14)(react@19.2.4)':
+  '@shadcn/react@0.3.0(@types/react@19.2.14)(react@19.2.4)':
     optionalDependencies:
       '@types/react': 19.2.14
       react: 19.2.4

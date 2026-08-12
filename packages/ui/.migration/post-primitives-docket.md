@@ -106,6 +106,9 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Progress × Slider** — Controlled Progress story uses thin-pass Slider;
       re-skin once Slider is Foundations-matched. See
       [Progress README → Deferred](../src/primitives/progress/README.md#deferred).
+- [ ] **Questionnaire × Progress track / motion** — text progress is enough for
+      land; optional track via Progress `render` and host-owned item animation.
+      See [Questionnaire README → Deferred](../src/primitives/questionnaire/README.md#deferred).
 - [ ] **Marker × Spinner** — re-verify Status demos once Spinner is
       Foundations-matched. Message thread composition is landed; shimmer
       utility is in `packages/ui/src/styles/shimmer.css`. See
