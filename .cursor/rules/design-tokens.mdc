@@ -26,5 +26,7 @@ Primitives and composition tiers (atoms → templates) must pass `pnpm check:tok
 
 ## Motion
 
-- No duration/easing tokens exist yet. Do not invent them.
-- On second use of the same motion value, promote it to Foundations.
+- Prefer Foundations `--ease-*` / `--duration-*` (Tailwind `ease-*` /
+  `duration-*`) from `packages/ui/src/foundations/motion/tokens.css`.
+- Do not invent one-off `cubic-bezier(...)` or ms literals in primitives —
+  promote reused values to Foundations.

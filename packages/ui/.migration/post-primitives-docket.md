@@ -67,6 +67,10 @@ partners have real sizes, tokens, and chrome.
       Field and Input land; add Figma Mobile / full-screen Type variants if
       product needs them. See
       [Dialog README → Deferred](../src/primitives/dialog/README.md#deferred).
+- [ ] **Drawer × Field / Input / Radio** — re-verify Responsive (Dialog↔Drawer)
+      and Delivery Method demos once Field, Input, Label, and Radio Group are
+      Foundations-matched. See
+      [Drawer README → Deferred](../src/primitives/drawer/README.md#deferred).
 - [ ] **Cross-primitive demos** — walk shadcn docs for each Fabely primitive;
       flesh out examples that need siblings we did not have at land time
       (toolbars, split buttons, field + addon strips, pagination clusters, etc.).

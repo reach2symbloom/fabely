@@ -76,6 +76,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    /* Relative for Base UI Drawer overlay on iOS Safari after scroll. */
+    @apply relative bg-background text-foreground;
   }
 }

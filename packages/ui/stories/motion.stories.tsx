@@ -17,19 +17,58 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/**
- * Motion has no Foundations tokens yet — no duration/easing CSS variables,
- * no Figma motion collection. What exists today is accordion open/close:
- * `tw-animate-css` registers `--animate-accordion-*` (0.2s ease-out), and
- * `foundations/motion/accordion.css` redefines the keyframes against
- * `--accordion-panel-height`. This story surfaces those live DOM values
- * only — it does not invent a motion scale.
- */
+type TokenEntry = {
+  name: string;
+  cssVar: string;
+  utilityClass: string;
+  note: string;
+};
+
+const easeTokens: TokenEntry[] = [
+  {
+    name: 'drawer',
+    cssVar: '--ease-drawer',
+    utilityClass: 'ease-drawer',
+    note: 'Overlay / sheet — cubic-bezier(0.32, 0.72, 0, 1)',
+  },
+  {
+    name: 'emphasized',
+    cssVar: '--ease-emphasized',
+    utilityClass: 'ease-emphasized',
+    note: 'Panel enter/exit — cubic-bezier(0.22, 1, 0.36, 1)',
+  },
+  {
+    name: 'emphasized-in',
+    cssVar: '--ease-emphasized-in',
+    utilityClass: 'ease-emphasized-in',
+    note: 'Nested content opacity — cubic-bezier(0.45, 1.005, 0, 1.005)',
+  },
+];
+
+const durationTokens: TokenEntry[] = [
+  {
+    name: 'fast',
+    cssVar: '--duration-fast',
+    utilityClass: 'duration-fast',
+    note: '200ms — handle / quick fades',
+  },
+  {
+    name: 'normal',
+    cssVar: '--duration-normal',
+    utilityClass: 'duration-normal',
+    note: '300ms — content opacity',
+  },
+  {
+    name: 'drawer',
+    cssVar: '--duration-drawer',
+    utilityClass: 'duration-drawer',
+    note: '450ms — drawer overlay + panel',
+  },
+];
+
 type AccordionMotionEntry = {
   name: string;
-  /** Theme token from tw-animate-css, e.g. "--animate-accordion-down" */
   cssVar: string;
-  /** Utility class components apply, e.g. "animate-accordion-down" */
   utilityClass: string;
   note: string;
 };
@@ -39,13 +78,13 @@ const accordionMotion: AccordionMotionEntry[] = [
     name: 'accordion-down',
     cssVar: '--animate-accordion-down',
     utilityClass: 'animate-accordion-down',
-    note: 'tw-animate-css theme token; keyframes overridden in foundations/motion/accordion.css',
+    note: 'tw-animate-css; keyframes overridden in foundations/motion/accordion.css',
   },
   {
     name: 'accordion-up',
     cssVar: '--animate-accordion-up',
     utilityClass: 'animate-accordion-up',
-    note: 'tw-animate-css theme token; keyframes overridden in foundations/motion/accordion.css',
+    note: 'tw-animate-css; keyframes overridden in foundations/motion/accordion.css',
   },
 ];
 
@@ -56,7 +95,16 @@ type ResolvedMotion = {
   easing: string;
 };
 
-/** Reads theme-token text plus computed animation-* off a live utility class. */
+function useResolvedThemeVar(cssVar: string): string {
+  const [value, setValue] = useState('');
+  useEffect(() => {
+    setValue(
+      getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim(),
+    );
+  }, [cssVar]);
+  return value;
+}
+
 function useResolvedAccordionMotion(entry: AccordionMotionEntry): {
   probeRef: RefObject<HTMLDivElement | null>;
   resolved: ResolvedMotion;
@@ -100,11 +148,44 @@ const cellStyle: CSSProperties = {
   verticalAlign: 'middle',
 };
 
+function TokenRow({ entry }: { entry: TokenEntry }) {
+  const value = useResolvedThemeVar(entry.cssVar);
+  return (
+    <tr>
+      <td style={cellStyle}>{entry.name}</td>
+      <td style={cellStyle}>{entry.cssVar}</td>
+      <td style={cellStyle}>{entry.utilityClass}</td>
+      <td style={cellStyle}>{value || '…'}</td>
+      <td style={{ ...cellStyle, opacity: 0.75 }}>{entry.note}</td>
+    </tr>
+  );
+}
+
+function TokenTable({ entries }: { entries: TokenEntry[] }) {
+  return (
+    <table style={{ borderCollapse: 'collapse', width: '100%', marginBottom: 24 }}>
+      <thead>
+        <tr>
+          <th style={{ ...cellStyle, textAlign: 'left' }}>Name</th>
+          <th style={{ ...cellStyle, textAlign: 'left' }}>CSS Variable</th>
+          <th style={{ ...cellStyle, textAlign: 'left' }}>Utility</th>
+          <th style={{ ...cellStyle, textAlign: 'left' }}>Resolved</th>
+          <th style={{ ...cellStyle, textAlign: 'left' }}>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        {entries.map((entry) => (
+          <TokenRow key={entry.cssVar} entry={entry} />
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 function MotionRow({ entry }: { entry: AccordionMotionEntry }) {
   const { probeRef, resolved } = useResolvedAccordionMotion(entry);
   return (
     <tr>
-      {/* Off-screen probe: Tailwind utility must be on a real node for getComputedStyle */}
       <td style={{ ...cellStyle, width: 0, padding: 0, border: 'none' }}>
         <div
           ref={probeRef}
@@ -155,16 +236,51 @@ function AccordionMotionTable() {
   );
 }
 
+export const Tokens: Story = {
+  name: 'Duration & easing',
+  render: () => (
+    <div>
+      <PendingNotice>
+        Seeded from shadcn Base Drawer curves. No Figma motion collection — add
+        tokens here when a duration or easing is reused. Source:{' '}
+        <code>foundations/motion/tokens.css</code>.
+      </PendingNotice>
+
+      <SectionHeading>Easing</SectionHeading>
+      <TokenTable entries={easeTokens} />
+
+      <SectionHeading>Duration</SectionHeading>
+      <TokenTable entries={durationTokens} />
+
+      <SectionHeading>Preview</SectionHeading>
+      <div className="flex flex-wrap gap-6">
+        <div
+          className="size-16 rounded-[length:var(--radius)] bg-primary transition-transform duration-drawer ease-emphasized hover:translate-x-8"
+          title="duration-drawer + ease-emphasized"
+        />
+        <div
+          className="size-16 rounded-[length:var(--radius)] bg-secondary transition-transform duration-drawer ease-drawer hover:translate-x-8"
+          title="duration-drawer + ease-drawer"
+        />
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Hover the squares — left uses <code>ease-emphasized</code> (panel), right{' '}
+        <code>ease-drawer</code> (overlay).
+      </p>
+    </div>
+  ),
+};
+
 export const AccordionOpenClose: Story = {
   name: 'Accordion open/close',
   render: () => (
     <div>
       <PendingNotice>
-        <strong>No Motion tokens yet.</strong> Figma has no motion collection. Duration and
-        easing come from <code>tw-animate-css</code> defaults (
-        <code>--animate-accordion-*</code>). Foundations only overrides the accordion keyframes
-        so they interpolate against Base UI&apos;s <code>--accordion-panel-height</code>. Values
-        below are read from the live DOM — nothing here invents a duration or easing scale.
+        Accordion still uses <code>tw-animate-css</code>{' '}
+        <code>--animate-accordion-*</code> (0.2s ease-out). Foundations only
+        overrides keyframes for Base UI&apos;s{' '}
+        <code>--accordion-panel-height</code>. Shared duration/easing tokens are
+        on the Duration &amp; easing story.
       </PendingNotice>
 
       <SectionHeading>Accordion utilities (DOM-resolved)</SectionHeading>
@@ -176,15 +292,14 @@ export const AccordionOpenClose: Story = {
           <AccordionTrigger>Is it animated?</AccordionTrigger>
           <AccordionContent>
             Yes — open/close uses <code>animate-accordion-down</code> /{' '}
-            <code>animate-accordion-up</code>. Toggle to see the motion Foundations documents
-            today.
+            <code>animate-accordion-up</code>.
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
-          <AccordionTrigger>Are there duration tokens?</AccordionTrigger>
+          <AccordionTrigger>Where are duration tokens?</AccordionTrigger>
           <AccordionContent>
-            Not yet. When a second component needs the same duration or easing, promote it to a
-            Foundations Motion token rather than duplicating the literal.
+            See Foundations → Motion → Duration &amp; easing (
+            <code>ease-drawer</code>, <code>duration-drawer</code>, …).
           </AccordionContent>
         </AccordionItem>
       </Accordion>

@@ -360,6 +360,18 @@ const preview: Preview = {
               'Direction',
               ['Overview', 'Demo', 'useDirection'],
               'Drawer',
+              [
+                'Overview',
+                'Demo',
+                'Position',
+                'Swipe Handle',
+                'Nested',
+                'Non Modal',
+                'Snap Points',
+                'Responsive',
+                'Delivery Method',
+                'RTL',
+              ],
               'Dropdown Menu',
               [
                 'Overview',
