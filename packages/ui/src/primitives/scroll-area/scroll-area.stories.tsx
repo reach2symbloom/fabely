@@ -184,7 +184,7 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Scroll Area"
-      description="Augments native scroll with a Foundations scrollbar (Figma 4px neutrals-200 thumb)."
+      description="Augments native scroll with a Foundations scrollbar (2px white-alpha thumb)."
       playground={<ScrollAreaPlayground />}
       variants={
         <div className="flex flex-col gap-[var(--spacing-xl)]">
@@ -204,6 +204,10 @@ export const Overview: Story = {
           <li>
             Size the root with height/width (e.g.{' '}
             <code>h-72 w-48</code>) — the viewport fills the root.
+          </li>
+          <li>
+            Viewport uses <code>scroll-fade-y</code> for top/bottom edge fades
+            when content overflows.
           </li>
           <li>
             Vertical scrollbar is included by default. For horizontal overflow,
