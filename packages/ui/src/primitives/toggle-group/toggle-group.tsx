@@ -22,6 +22,8 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
 
+export type ToggleGroupRoundness = 'default' | 'round';
+
 /**
  * Item skins — Figma Skin=Ghost → `default`; Skin=Outline → `outline`.
  * Active fill is quiet `@5` (Figma Active?=Yes).
@@ -107,12 +109,14 @@ const ToggleGroupContext = React.createContext<
   VariantProps<typeof toggleGroupItemVariants> & {
     spacing?: number;
     orientation?: 'horizontal' | 'vertical';
+    roundness?: ToggleGroupRoundness;
   }
 >({
   size: 'default',
   variant: 'default',
   spacing: 2,
   orientation: 'horizontal',
+  roundness: 'default',
 });
 
 function ToggleGroup({
@@ -121,6 +125,7 @@ function ToggleGroup({
   size,
   spacing = 2,
   orientation = 'horizontal',
+  roundness = 'default',
   children,
   style,
   ...props
@@ -128,6 +133,8 @@ function ToggleGroup({
   VariantProps<typeof toggleGroupItemVariants> & {
     spacing?: number;
     orientation?: 'horizontal' | 'vertical';
+    /** Figma Roundness — `default` roundrect; `round` pill / full round. */
+    roundness?: ToggleGroupRoundness;
   }) {
   return (
     <ToggleGroupPrimitive
@@ -136,6 +143,7 @@ function ToggleGroup({
       data-size={size}
       data-spacing={spacing}
       data-orientation={orientation}
+      data-roundness={roundness}
       orientation={orientation}
       style={
         {
@@ -148,16 +156,32 @@ function ToggleGroup({
           'group/toggle-group flex w-fit items-center',
           /* spacing units × --spacing-2xs (4px) — shadcn default spacing=2 → 8px. */
           'gap-[length:calc(var(--spacing-2xs)*var(--gap))]',
-          'data-vertical:flex-col data-vertical:items-stretch',
-          /* Connected outline cluster — shared outer radius (Figma Default). */
-          'data-[spacing=0]:data-[variant=outline]:rounded-[length:var(--rounded-lg)]',
+          /* Base UI sets data-orientation — not a bare data-vertical attribute. */
+          'data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch',
+          /*
+           * Connected — outer shell owns radius + clip. overflow-clip contains
+           * item fills, internal borders, and focus rings.
+           */
+          'data-[spacing=0]:relative data-[spacing=0]:isolate',
+          'data-[spacing=0]:overflow-clip',
+          'data-[spacing=0]:rounded-[length:var(--rounded-lg)]',
+          'data-[spacing=0]:data-[roundness=round]:rounded-[length:var(--rounded-full)]',
+          /* Outline (any roundness) — shell stroke follows clipped radius. */
+          'data-[spacing=0]:data-[variant=outline]:border-[length:var(--stroke-thin)]',
+          'data-[spacing=0]:data-[variant=outline]:border-[color:var(--border)]',
+          /*
+           * Round + connected — also stroke the shell for Ghost so the outer
+           * ring frames circular items with no inner dividers.
+           */
+          'data-[spacing=0]:data-[roundness=round]:data-[variant=default]:border-[length:var(--stroke-thin)]',
+          'data-[spacing=0]:data-[roundness=round]:data-[variant=default]:border-[color:var(--border)]',
         ].join(' '),
         className
       )}
       {...props}
     >
       <ToggleGroupContext.Provider
-        value={{ variant, size, spacing, orientation }}
+        value={{ variant, size, spacing, orientation, roundness }}
       >
         {children}
       </ToggleGroupContext.Provider>
@@ -175,6 +199,9 @@ function ToggleGroupItem({
   const context = React.useContext(ToggleGroupContext);
   const resolvedVariant = context.variant || variant;
   const resolvedSize = context.size || size;
+  const roundness = context.roundness ?? 'default';
+  const connected = context.spacing === 0;
+  const connectedRound = connected && roundness === 'round';
 
   return (
     <TogglePrimitive
@@ -182,24 +209,34 @@ function ToggleGroupItem({
       data-variant={resolvedVariant}
       data-size={resolvedSize}
       data-spacing={context.spacing}
+      data-roundness={roundness}
       className={cn(
         toggleGroupItemVariants({
           variant: resolvedVariant,
           size: resolvedSize,
         }),
-        /* Spaced (default) — Figma Position=Single; connected squares inners. */
-        'rounded-[length:var(--rounded-lg)]',
-        'group-data-[spacing=0]/toggle-group:rounded-none',
-        'group-data-[spacing=0]/toggle-group:shadow-none',
-        /* Connected join — Figma Position Left / Middle / Right. */
-        'group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-s-[length:var(--rounded-lg)]',
-        'group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-e-[length:var(--rounded-lg)]',
-        'group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-[length:var(--rounded-lg)]',
-        'group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-[length:var(--rounded-lg)]',
-        'group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-s-0',
-        'group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0',
-        'group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-s',
-        'group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t',
+        /* Spaced / connected-round — circular (or pill) faces. */
+        roundness === 'round'
+          ? 'rounded-[length:var(--rounded-full)]'
+          : 'rounded-[length:var(--rounded-lg)]',
+        /* Connected + default roundness — square items; group clips the shell. */
+        connected && roundness === 'default' && 'rounded-none shadow-none',
+        connectedRound && 'shadow-none border-transparent',
+        /*
+         * Connected + outline + default roundness — internal dividers only.
+         * Round connected keeps outer shell border only (no inner borders).
+         */
+        connected &&
+          roundness === 'default' &&
+          resolvedVariant === 'outline' && [
+            'border-0',
+            'group-data-[orientation=horizontal]/toggle-group:border-s-[length:var(--stroke-thin)]',
+            'group-data-[orientation=horizontal]/toggle-group:border-s-[color:var(--border)]',
+            'group-data-[orientation=horizontal]/toggle-group:first:border-s-0',
+            'group-data-[orientation=vertical]/toggle-group:border-t-[length:var(--stroke-thin)]',
+            'group-data-[orientation=vertical]/toggle-group:border-t-[color:var(--border)]',
+            'group-data-[orientation=vertical]/toggle-group:first:border-t-0',
+          ],
         className
       )}
       {...props}
@@ -209,4 +246,8 @@ function ToggleGroupItem({
   );
 }
 
-export { ToggleGroup, ToggleGroupItem, toggleGroupItemVariants };
+export {
+  ToggleGroup,
+  ToggleGroupItem,
+  toggleGroupItemVariants,
+};

@@ -104,11 +104,11 @@ partners have real sizes, tokens, and chrome.
       Foundations-matched. See
       [Hover Card README → Deferred](../src/primitives/hover-card/README.md#deferred).
 - [ ] **Toggle Group × Toggle** — item chrome is Foundations-matched on Toggle
-      Group (Ghost/Outline · sm/default/lg · Position via `spacing={0}`) because
-      Toggle is still thin-pass. Share `toggleVariants` (or compose Toggle), add
-      Mini / Round, once Toggle lands. **Toggle Icon Button** (`164:20378`) is a
-      separate primitive (Text Button / Icon Button relationship) — also revisit
-      with Toggle. See
+      Group (Ghost/Outline · sm/default/lg · Position via `spacing={0}` ·
+      roundness) because Toggle is still thin-pass. Share `toggleVariants` (or
+      compose Toggle), add Mini, once Toggle lands. **Toggle Icon Button**
+      (`164:20378`) is a separate primitive (Text Button / Icon Button
+      relationship) — also revisit with Toggle. See
       [Toggle Group README → Deferred](../src/primitives/toggle-group/README.md#deferred).
 - [ ] **Marker × Spinner** — re-verify Status demos once Spinner is
       Foundations-matched. Message thread composition is landed; shimmer

@@ -536,6 +536,7 @@ const preview: Preview = {
                 'Outline',
                 'Size',
                 'Spacing',
+                'Round',
                 'Vertical',
                 'Disabled',
                 'Custom',

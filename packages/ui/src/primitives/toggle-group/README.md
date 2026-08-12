@@ -23,7 +23,7 @@ Button cells with **Position** (Left / Middle / Right / Single).
 ## Composition
 
 ```text
-ToggleGroup                 variant · size · spacing · orientation · multiple
+ToggleGroup                 variant · size · spacing · orientation · roundness · multiple
 ├── ToggleGroupItem         value · optional icons / label
 └── ToggleGroupItem
 ```
@@ -43,8 +43,8 @@ Base UI uses `multiple` (boolean). Single selection is the default
 | Size=Mini (24) | Deferred (not on shadcn size ladder) |
 | Position=* | Automatic when `spacing={0}` |
 | Active?=Yes | `data-pressed` / `aria-pressed` → quiet `@5` |
-| Roundness=Default | `--rounded-lg` end caps / singles |
-| Roundness=Round | Deferred until Toggle lands |
+| Roundness=Default | `roundness="default"` — connected: clipped group `--rounded-lg` + shell stroke; spaced: per-item |
+| Roundness=Round | `roundness="round"` — connected: pill shell + outer border (Ghost + Outline), circular items, **no** inner dividers; spaced: full-round items |
 
 ### Spacing (2026-05-17)
 
@@ -60,7 +60,8 @@ Base UI uses `multiple` (boolean). Single selection is the default
 | Ghost face | `--theme-alpha-white-switch-001` |
 | Active / hover fill | `--theme-alpha-black-switch-5` |
 | Outline stroke | `--stroke-thin` + `--border` |
-| Radius | `--rounded-lg` |
+| Radius (default) | `--rounded-lg` |
+| Radius (round) | `--rounded-full` |
 | Heights | sm `--spacing-2xl` · default `--spacing-9` · lg `--spacing-3xl` |
 | Gap (spacing=2) | `2 × --spacing-2xs` (8px) |
 | Focus | `--effect-focus-ring-secondary` |
@@ -71,17 +72,19 @@ Base UI uses `multiple` (boolean). Single selection is the default
 
 | Export | Notes |
 | --- | --- |
-| `ToggleGroup` | Base UI root; `spacing` default `2`; cascades `variant` / `size` |
+| `ToggleGroup` | Base UI root; `spacing` default `2`; `roundness` default `default`; cascades `variant` / `size` |
 | `ToggleGroupItem` | Base UI Toggle; inherits group context |
 | `toggleGroupItemVariants` | CVA for advanced composition |
+| `ToggleGroupRoundness` | `'default' \| 'round'` |
 
 Always pass `aria-label` (or `aria-labelledby`) on the group. Icon-only items
 need their own accessible name.
 
 ## Scope (this pass)
 
-Ghost / Outline · `sm` / `default` / `lg` · Position via `spacing={0}` —
-matching [Toggle Button](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=816-112827).
+Ghost / Outline · `sm` / `default` / `lg` · Position via `spacing={0}` ·
+`roundness` default / round — matching
+[Toggle Button](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=816-112827).
 
 ## Deferred
 
@@ -89,7 +92,7 @@ matching [Toggle Button](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fab
   [Toggle](../toggle/README.md) is still thin-pass. Once Toggle lands, share
   `toggleVariants` (or compose Toggle) and drop the duplicated item styles.
   See [post-primitives docket](../../../.migration/post-primitives-docket.md).
-- **Mini (24)** and **Round** — deferred; revisit when Toggle is built.
+- **Mini (24)** — deferred; revisit when Toggle is built.
 - **[Toggle Icon Button](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=164-20378)**
   (`164:20378`) — separate primitive (same relationship as Text Button /
   Icon Button). Revisit when Toggle is built.

@@ -29,7 +29,7 @@ import {
 } from '../../../stories/PrimitivePage';
 import { DirectionProvider } from '../direction';
 
-import { ToggleGroup, ToggleGroupItem } from './toggle-group';
+import { ToggleGroup, ToggleGroupItem, type ToggleGroupRoundness } from './toggle-group';
 
 const meta = {
   title: 'Design System/Primitives/Toggle Group',
@@ -48,6 +48,7 @@ type Orientation = 'horizontal' | 'vertical';
 const VARIANTS: Variant[] = ['default', 'outline'];
 const SIZES: Size[] = ['sm', 'default', 'lg'];
 const ORIENTATIONS: Orientation[] = ['horizontal', 'vertical'];
+const ROUNDNESSES: ToggleGroupRoundness[] = ['default', 'round'];
 
 /** shadcn Demo — single selection (Base UI `multiple={false}`). */
 function DemoExample() {
@@ -138,6 +139,64 @@ function SpacingExample() {
       >
         <ToggleGroupItem value="24h">Last 24 hours</ToggleGroupItem>
         <ToggleGroupItem value="7d">Last 7 days</ToggleGroupItem>
+      </ToggleGroup>
+    </div>
+  );
+}
+
+/** Figma Roundness=Round — pill shell; Ghost keeps outer ring, no inner dividers. */
+function RoundExample() {
+  return (
+    <div className="flex flex-col items-start gap-[var(--spacing-md)]">
+      <ToggleGroup
+        aria-label="Formatting ghost round connected"
+        defaultValue={['bold']}
+        variant="default"
+        spacing={0}
+        roundness="round"
+      >
+        <ToggleGroupItem value="bold" aria-label="Bold">
+          <BoldIcon />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="italic" aria-label="Italic">
+          <ItalicIcon />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="underline" aria-label="Underline">
+          <UnderlineIcon />
+        </ToggleGroupItem>
+      </ToggleGroup>
+      <ToggleGroup
+        aria-label="Formatting outline round connected"
+        defaultValue={['bold']}
+        variant="outline"
+        spacing={0}
+        roundness="round"
+      >
+        <ToggleGroupItem value="bold" aria-label="Bold">
+          <BoldIcon />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="italic" aria-label="Italic">
+          <ItalicIcon />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="underline" aria-label="Underline">
+          <UnderlineIcon />
+        </ToggleGroupItem>
+      </ToggleGroup>
+      <ToggleGroup
+        aria-label="Formatting round spaced"
+        defaultValue={['bold']}
+        variant="outline"
+        roundness="round"
+      >
+        <ToggleGroupItem value="bold" aria-label="Bold">
+          <BoldIcon />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="italic" aria-label="Italic">
+          <ItalicIcon />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="underline" aria-label="Underline">
+          <UnderlineIcon />
+        </ToggleGroupItem>
       </ToggleGroup>
     </div>
   );
@@ -248,7 +307,8 @@ function ToggleGroupPlayground() {
   const [variant, setVariant] = useState<Variant>('outline');
   const [size, setSize] = useState<Size>('default');
   const [orientation, setOrientation] = useState<Orientation>('horizontal');
-  const [spacing, setSpacing] = useState<'0' | '2'>('0');
+  const [spacing, setSpacing] = useState<'0' | '2'>('2');
+  const [roundness, setRoundness] = useState<ToggleGroupRoundness>('default');
 
   return (
     <PlaygroundPanel
@@ -261,6 +321,7 @@ function ToggleGroupPlayground() {
             size={size}
             orientation={orientation}
             spacing={Number(spacing)}
+            roundness={roundness}
           >
             <ToggleGroupItem value="bold" aria-label="Bold">
               <BoldIcon />
@@ -281,27 +342,39 @@ function ToggleGroupPlayground() {
             value={variant}
             onChange={(v) => setVariant(v as Variant)}
             options={VARIANTS.map((value) => ({ value, label: value }))}
+            fullWidth
           />
           <InlineSegmentedControl
             label="Size"
             value={size}
             onChange={(v) => setSize(v as Size)}
             options={SIZES.map((value) => ({ value, label: value }))}
+            fullWidth
           />
           <InlineSegmentedControl
             label="Orientation"
             value={orientation}
             onChange={(v) => setOrientation(v as Orientation)}
             options={ORIENTATIONS.map((value) => ({ value, label: value }))}
+            fullWidth
           />
           <InlineSegmentedControl
             label="Spacing"
             value={spacing}
             onChange={(v) => setSpacing(v as '0' | '2')}
             options={[
-              { value: '0', label: '0 (connected)' },
-              { value: '2', label: '2 (default)' },
+              { value: '0', label: 'Connected' },
+              { value: '2', label: 'Spaced' },
             ]}
+            fullWidth
+          />
+          <InlineSegmentedControl
+            label="Roundness"
+            value={roundness}
+            onChange={(v) => setRoundness(v as ToggleGroupRoundness)}
+            options={ROUNDNESSES.map((value) => ({ value, label: value }))}
+            fullWidth
+            className="col-span-2"
           />
         </div>
       }
@@ -329,6 +402,9 @@ export const Overview: Story = {
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Spacing">
             <SpacingExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Round">
+            <RoundExample />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Vertical">
             <VerticalExample />
@@ -360,7 +436,8 @@ export const Overview: Story = {
           <li>
             Default <code>spacing=&#123;2&#125;</code> gaps items; use{' '}
             <code>spacing=&#123;0&#125;</code> for a connected strip (Figma
-            Position join).
+            Position join). Use <code>roundness=&quot;round&quot;</code> for a
+            pill shell (connected) or full-round items (spaced).
           </li>
           <li>
             Pass <code>variant</code> / <code>size</code> on the group to
@@ -402,6 +479,10 @@ export const Size: Story = {
 
 export const Spacing: Story = {
   render: () => <SpacingExample />,
+};
+
+export const Round: Story = {
+  render: () => <RoundExample />,
 };
 
 export const Vertical: Story = {
