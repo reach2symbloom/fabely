@@ -61,7 +61,7 @@ SidebarProvider
 | Item height | `--spacing-9` (36) | |
 | Icons | `--icon-sm` | Lucide |
 | Group label | Caption mini + uppercase | `--muted-foreground` |
-| Motion | `--duration-fast` | Width / fade (linear for width) |
+| Header / footer / group pad | `--spacing-xs` (8) | Keeps icon rail (3rem) centered |
 | Focus | `--effect-focus-ring-sidebar` | With `ring-sidebar-ring` |
 | Mobile host | [Sheet](../sheet/README.md) | Edge panel |
 

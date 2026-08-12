@@ -347,7 +347,8 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-header"
       data-sidebar="header"
       className={cn(
-        'flex flex-col gap-[var(--spacing-xs)] p-[var(--spacing-md)] [--radius:var(--rounded-md)]',
+        /* p-xs (8): icon rail is 3rem — md pad leaves no room for size-8 buttons. */
+        'flex flex-col gap-[var(--spacing-xs)] p-[var(--spacing-xs)] [--radius:var(--rounded-md)]',
         className,
       )}
       {...props}
@@ -361,7 +362,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-footer"
       data-sidebar="footer"
       className={cn(
-        'flex flex-col gap-[var(--spacing-xs)] p-[var(--spacing-md)]',
+        'flex flex-col gap-[var(--spacing-xs)] p-[var(--spacing-xs)]',
         className,
       )}
       {...props}
@@ -513,7 +514,7 @@ const sidebarMenuButtonVariants = cva(
     'text-sidebar-foreground ring-sidebar-ring outline-hidden',
     'transition-[width,height,padding] duration-[var(--duration-fast)]',
     'group-has-data-[sidebar=menu-action]/menu-item:pe-8',
-    'group-data-[collapsible=icon]:size-[length:var(--spacing-2xl)]! group-data-[collapsible=icon]:p-[var(--spacing-xs)]!',
+    'group-data-[collapsible=icon]:size-[length:var(--spacing-2xl)]! group-data-[collapsible=icon]:p-[var(--spacing-xs)]! group-data-[collapsible=icon]:justify-center',
     'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
     'focus-visible:ring-2 focus-visible:shadow-[var(--effect-focus-ring-sidebar)]',
     'active:bg-sidebar-accent active:text-sidebar-accent-foreground',
@@ -533,7 +534,7 @@ const sidebarMenuButtonVariants = cva(
       size: {
         default: 'h-[length:var(--spacing-9)]',
         sm: 'h-[length:var(--spacing-2xl)] text-[length:var(--text-paragraph-mini-regular-font-size)]',
-        lg: 'h-14 px-[var(--spacing-sm)] group-data-[collapsible=icon]:p-0!',
+        lg: 'h-14 px-[var(--spacing-sm)] group-data-[collapsible=icon]:size-[length:var(--spacing-2xl)]! group-data-[collapsible=icon]:p-0!',
       },
     },
     defaultVariants: {

@@ -432,7 +432,7 @@ export function SidebarDemo({
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-[length:var(--spacing-4xl)] shrink-0 items-center gap-[var(--spacing-xs)] border-b border-border px-[var(--spacing-md)] transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-[length:var(--spacing-3xl)]">
+        <header className="flex h-[length:var(--spacing-3xl)] shrink-0 items-center gap-[var(--spacing-xs)] border-b border-border px-[var(--spacing-md)]">
           <SidebarTrigger className="-ms-[var(--spacing-2xs)]" />
           <span className="text-[length:var(--text-paragraph-small-regular-font-size)] text-muted-foreground">
             A sidebar that collapses to icons
