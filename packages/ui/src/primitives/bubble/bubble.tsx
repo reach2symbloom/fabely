@@ -7,7 +7,7 @@
  * speaker (mirrored corner).
  *
  * Speakers are `from="user" | "other"` — alignment, sharp near-speaker
- * corner, and default fill (other → black-switch 10%, user → secondary). Optional
+ * corner, and default fill (other → theme-neutrals 100/700, user → secondary). Optional
  * `variant="destructive"` for error / failed-action surfaces.
  *
  * Composition:
@@ -77,11 +77,10 @@ const bubbleVariants = cva(
         from: 'other',
         variant: 'default',
         class: [
-          /* Distinct faded neutral — not `--primary` (warm taupe) and not
-             `--muted` (collides with `--secondary` in dark). Switch alpha
-             lifts off the canvas in both themes. */
-          'bg-[var(--theme-alpha-black-switch-10)]',
-          'text-[color:var(--foreground)]',
+          /* One step off user `--secondary`: light 100 vs 200; dark 700 vs 800. */
+          'bg-[var(--theme-neutrals-100)]',
+          'dark:bg-[var(--theme-neutrals-700)]',
+          'text-[color:var(--text)]',
         ],
       },
       {

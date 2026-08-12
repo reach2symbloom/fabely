@@ -114,7 +114,7 @@ function SpeakersExample() {
     <Thread>
       <Bubble from="other">
         <BubbleContent>
-          Other speaker — faded alpha fill, start-aligned, sharp bottom-start.
+          Other speaker — theme-neutrals 100/700, start-aligned, sharp bottom-start.
         </BubbleContent>
       </Bubble>
       <Bubble from="user">

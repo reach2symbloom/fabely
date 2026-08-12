@@ -104,9 +104,10 @@ partners have real sizes, tokens, and chrome.
       Foundations-matched. Message thread composition is landed; shimmer
       utility is in `packages/ui/src/styles/shimmer.css`. See
       [Marker README → Deferred](../src/primitives/marker/README.md#deferred).
-- [ ] **Message × Message Scroller** — wire conversation scroll once Message
-      Scroller is Foundations-matched. See
-      [Message README → Deferred](../src/primitives/message/README.md#deferred).
+- [ ] **Message Scroller × Chat UI shell** — Storybook (or app recipe) for full
+      shadcn streaming demo: Empty + Input Group + send/reset + transport,
+      without AI SDK in `@fabely/ui`. See
+      [Message Scroller README → Deferred](../src/primitives/message-scroller/README.md#deferred).
 - [ ] **Field × control partners** — Field depends on many siblings; after
       each Foundations-matches, re-verify Field demos and Figma Type variants
       (Label, Textarea, Select, Slider, Radio Group, Checkbox hosts, Switch,

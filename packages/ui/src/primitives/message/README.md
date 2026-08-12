@@ -59,8 +59,8 @@ Map `align="end"` ↔ Bubble `from="user"`; `align="start"` ↔ `from="other"`.
 
 ## Deferred
 
-- [ ] **Message Scroller** — conversation scroll container still thin-pass
 - [ ] **Spinner** — status Marker demos may still use thin-pass Spinner
+- [x] **Message Scroller** — Foundations-matched (Chat UI transcript scroller)
 
 ## Related
 
