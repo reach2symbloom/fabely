@@ -522,6 +522,16 @@ const preview: Preview = {
               'Sidebar',
               'Skeleton',
               'Slider',
+              [
+                'Overview',
+                'Demo',
+                'Range',
+                'Multiple Thumbs',
+                'Vertical',
+                'Controlled',
+                'Disabled',
+                'RTL',
+              ],
               'Spinner',
               [
                 'Overview',

@@ -17,7 +17,8 @@ FieldSet / Legend, FieldSeparator.
 
 **Text Value** controls use Foundations [Input](../input/README.md)
 (`variant="default"`). [Textarea](../textarea/README.md) is matched. Select /
-Checkbox / Radio / Slider stay on those primitives (thin-pass until matched).
+Checkbox / Radio stay on those primitives. Slider is Foundations-matched;
+Field Slider host demos still deferred (checklist below).
 
 ## Composition
 
@@ -69,7 +70,8 @@ Field composes many partners. **Revisit this primitive after each lands**
 - [ ] **Label** — FieldLabel host type / disabled / invalid
 - [x] **Textarea** — Field Textarea demos + Figma Type=Textarea
 - [ ] **Select** — Field Select demos + Figma Type=Select
-- [ ] **Slider** — Field Slider demos + Figma Type=Slider
+- [ ] **Slider** — Field Slider demos + Figma Type=Slider (Slider leaf matched;
+  host revisit only)
 - [ ] **Radio Group** — Field Radio demos + Figma Type=Radio
 - [ ] **Checkbox** — Field Checkbox / choice-card demos (Checkbox already
   matched; re-check Field hosts once Label is matched)
