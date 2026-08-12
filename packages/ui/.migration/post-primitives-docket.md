@@ -76,9 +76,8 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Input × Input Group / Field** — Input Group shell is Foundations-matched;
       re-check Field host demos and any remaining decoration vs addon guidance.
       See [Input README → Deferred](../src/primitives/input/README.md#deferred).
-- [ ] **Input Group × Kbd / Spinner** — re-verify demos once those partners are
-      Foundations-matched; Textarea host is matched. Optional Custom Input
-      story. See
+- [ ] **Input Group × Kbd** — re-verify demos once Kbd is Foundations-matched;
+      Spinner / Textarea hosts are matched. Optional Custom Input story. See
       [Input Group README → Deferred](../src/primitives/input-group/README.md#deferred).
 - [ ] **Input OTP × non-Overview stories** — Pattern, Separator, Disabled,
       Controlled, Invalid, Four Digits, Alphanumeric, Form, RTL, and Sizes
@@ -114,8 +113,8 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Toggle Icon Button** (`164:20378`) — separate primitive (Text Button /
       Icon Button relationship). See
       [Toggle README → Deferred](../src/primitives/toggle/README.md#deferred).
-- [ ] **Marker × Spinner** — re-verify Status demos once Spinner is
-      Foundations-matched. Message thread composition is landed; shimmer
+- [ ] **Marker × Spinner** — Spinner is Foundations-matched; spot-check Status
+      demos when convenient. Message thread composition is landed; shimmer
       utility is in `packages/ui/src/styles/shimmer.css`. See
       [Marker README → Deferred](../src/primitives/marker/README.md#deferred).
 - [ ] **Message Scroller × Chat UI shell** — Storybook (or app recipe) for full
@@ -136,6 +135,16 @@ partners have real sizes, tokens, and chrome.
 
 ### Design system hygiene
 
+- [ ] **IMPORTANT — Figma custom components vs shadcn** — global gate for the
+      primitives pass. For **every** primitive (and when closing the pass), open
+      its Figma page **and** the file’s **Custom components** section. Check for
+      Fabely-authored sets / organisms that should be used *instead of* (or in
+      addition to) the shadcn demo tree. Do not assume the shadcn docs are the
+      full inventory. Land those customs or add an explicit Deferred + checkbox
+      here — never silently skip them. Example: Spinner’s page-load **Spinner
+      large** / **Loader Atoms** live beside the leaf Spinner and need their own
+      pass. Re-walk remaining thin-pass primitives with this gate before marking
+      the pass done.
 - [ ] **Slots refactor audit (Figma ↔ code)** — after the primitives pass is
       complete, walk layout / shell primitives (Item, Card, Empty, Field,
       Alert, Dialog/Drawer headers, section-style compositions, etc.) against

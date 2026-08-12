@@ -523,6 +523,16 @@ const preview: Preview = {
               'Skeleton',
               'Slider',
               'Spinner',
+              [
+                'Overview',
+                'Demo',
+                'Size',
+                'Button',
+                'Badge',
+                'Input Group',
+                'Empty',
+                'RTL',
+              ],
               'Switch',
               'Table',
               [

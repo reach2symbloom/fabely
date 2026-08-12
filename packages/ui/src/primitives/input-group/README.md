@@ -69,8 +69,8 @@ Place Addon **after** the control in the DOM; use `align` for visual position.
 
 ## Deferred
 
-- Re-verify **Kbd** / **Spinner** demos once those are Foundations-matched;
-  Textarea host is matched — spot-check block addon demos when convenient
+- Re-verify **Kbd** demos once Foundations-matched; Spinner host is matched —
+  spot-check when convenient
 - Optional Custom Input (`data-slot="input-group-control"` third-party) story
 - Re-check Combobox / Command / Empty hosts that embed Input Group
 - Optional: flat `--spacing-2xs` when only Prepend/Append text if product wants
