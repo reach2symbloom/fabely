@@ -6,4 +6,8 @@ Per `docs/DESIGN.md`'s Component Layer workflow: match Figma faithfully first, t
 
 Vendor-derived wrappers live under [`../primitives/`](../primitives/) — not here. A Primitive may later be composed into an Atom once we design a Fabely composition around it.
 
-No components exist yet — this directory is scaffolding for future atom-level composition.
+## Components
+
+| Atom | Notes |
+| --- | --- |
+| [Bookmark Button](./bookmark-button/README.md) | Toggle + Lucide Bookmark — fill in/out when pressed |

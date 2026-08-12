@@ -35,7 +35,7 @@ Base UI uses `multiple` (boolean). Single selection is the default
 
 | Figma | Code |
 | --- | --- |
-| Skin=Ghost | `variant="default"` |
+| Skin=Ghost | `variant="ghost"` |
 | Skin=Outline | `variant="outline"` |
 | Size=Small (32) | `size="sm"` |
 | Size=Default (36) | `size="default"` |
@@ -66,7 +66,7 @@ Base UI uses `multiple` (boolean). Single selection is the default
 | Gap (spacing=2) | `2 × --spacing-2xs` (8px) |
 | Focus | `--effect-focus-ring-secondary` |
 | Icons | Lucide · `--icon-sm` |
-| Motion | `--duration-fast` / `--ease-emphasized` |
+| Motion | `--duration-fast` / `--ease-emphasized` (color / fill transitions) |
 
 ## API
 
@@ -74,8 +74,9 @@ Base UI uses `multiple` (boolean). Single selection is the default
 | --- | --- |
 | `ToggleGroup` | Base UI root; `spacing` default `2`; `roundness` default `default`; cascades `variant` / `size` |
 | `ToggleGroupItem` | Base UI Toggle; inherits group context |
-| `toggleGroupItemVariants` | CVA for advanced composition |
-| `ToggleGroupRoundness` | `'default' \| 'round'` |
+| `toggleVariants` | Shared CVA from [Toggle](../toggle/README.md) — item chrome |
+| `toggleGroupItemVariants` | Alias of `toggleVariants` (compat) |
+| `ToggleGroupRoundness` | `'default' \| 'round'` (alias of `ToggleRoundness`) |
 
 Always pass `aria-label` (or `aria-labelledby`) on the group. Icon-only items
 need their own accessible name.
@@ -85,20 +86,22 @@ need their own accessible name.
 Ghost / Outline · `sm` / `default` / `lg` · Position via `spacing={0}` ·
 `roundness` default / round — matching
 [Toggle Button](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=816-112827).
+Item skins share [`toggleVariants`](../toggle/toggle-variants.ts) with
+[Toggle](../toggle/README.md); connected shell / divider CSS stays here.
 
 ## Deferred
 
-- **Toggle partner** — item chrome lives here because
-  [Toggle](../toggle/README.md) is still thin-pass. Once Toggle lands, share
-  `toggleVariants` (or compose Toggle) and drop the duplicated item styles.
-  See [post-primitives docket](../../../.migration/post-primitives-docket.md).
-- **Mini (24)** — deferred; revisit when Toggle is built.
+- **Mini (24)** — deferred with Toggle; not on the shadcn size ladder.
 - **[Toggle Icon Button](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=164-20378)**
   (`164:20378`) — separate primitive (same relationship as Text Button /
-  Icon Button). Revisit when Toggle is built.
+  Icon Button). See
+  [post-primitives docket](../../../.migration/post-primitives-docket.md).
+- **Press ripple / global push effect** — deferred with Toggle; shared
+  Foundations recipe later. See
+  [post-primitives docket](../../../.migration/post-primitives-docket.md).
 
 ## Related
 
-- [Toggle](../toggle/README.md) — single toggle (thin-pass)
+- [Toggle](../toggle/README.md) — single toggle (shares `toggleVariants`)
 - [Button Group](../button-group/README.md) — actions, not selection state
 - Docs: https://ui.shadcn.com/docs/components/base/toggle-group

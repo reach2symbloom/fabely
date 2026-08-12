@@ -10,110 +10,39 @@
  * `816:112827`) — Skin Outline / Ghost, Size, Position, Active, Roundness.
  * Position is derived via sibling CSS when `spacing={0}` (connected).
  *
- * Item chrome lives here — partner [Toggle](../toggle/README.md) is still
- * thin-pass. Vendor (`src/components/ui/toggle-group.tsx`) stays untouched.
+ * Item chrome: shared [`toggleVariants`](../toggle/toggle-variants.ts) from
+ * [Toggle](../toggle/README.md). Connected Position CSS (spacing=0 shell,
+ * dividers, outer radius) lives here. Vendor
+ * (`src/components/ui/toggle-group.tsx`) stays untouched.
  */
 'use client';
 
 import * as React from 'react';
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
 import { ToggleGroup as ToggleGroupPrimitive } from '@base-ui/react/toggle-group';
-import { cva, type VariantProps } from 'class-variance-authority';
+import type { VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
 
-export type ToggleGroupRoundness = 'default' | 'round';
+import {
+  toggleVariants,
+  type ToggleRoundness,
+} from '../toggle/toggle-variants';
 
-/**
- * Item skins — Figma Skin=Ghost → `default`; Skin=Outline → `outline`.
- * Active fill is quiet `@5` (Figma Active?=Yes).
- */
-const toggleGroupItemVariants = cva(
-  [
-    'group/toggle-group-item inline-flex shrink-0 items-center justify-center',
-    'gap-[length:var(--spacing-xs)]',
-    'font-[family-name:var(--font-family-body)]',
-    '[font-weight:var(--font-weight-paragraph-medium)]',
-    'whitespace-nowrap',
-    'text-[color:var(--foreground)]',
-    'outline-none select-none',
-    'transition-[color,background-color,border-color,opacity,box-shadow]',
-    'duration-[var(--duration-fast)] ease-[var(--ease-emphasized)]',
-    'disabled:pointer-events-none disabled:opacity-50',
-    '[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-current',
-    "[&_svg:not([class*='size-'])]:size-[length:var(--icon-sm)]",
-    'hover:bg-[var(--theme-alpha-black-switch-5)]',
-    'data-pressed:bg-[var(--theme-alpha-black-switch-5)]',
-    'aria-pressed:bg-[var(--theme-alpha-black-switch-5)]',
-    'focus-visible:z-10',
-    'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
-  ].join(' '),
-  {
-    variants: {
-      variant: {
-        /** Figma Skin=Ghost — near-invisible face until hover / pressed. */
-        default: [
-          'bg-[var(--theme-alpha-white-switch-001)]',
-          'border border-transparent',
-        ].join(' '),
-        /** Figma Skin=Outline — stroke + quiet active fill. */
-        outline: [
-          'border-[length:var(--stroke-thin)] border-[color:var(--border)]',
-          'bg-transparent',
-        ].join(' '),
-      },
-      size: {
-        /** Figma Size=Small (32). */
-        sm: [
-          'h-[length:var(--spacing-2xl)] min-w-[length:var(--spacing-2xl)]',
-          'gap-[length:var(--spacing-1-5)]',
-          'px-[length:var(--spacing-1-5)] py-[length:var(--spacing-1-375)]',
-          'text-[length:var(--text-paragraph-small-medium-font-size)]',
-          'leading-[var(--text-paragraph-small-medium-line-height)]',
-          'tracking-[var(--text-paragraph-small-medium-letter-spacing)]',
-          'has-data-[icon=inline-end]:pe-[length:var(--spacing-xs)]',
-          'has-data-[icon=inline-start]:ps-[length:var(--spacing-xs)]',
-        ].join(' '),
-        /** Figma Size=Default (36). */
-        default: [
-          'h-[length:var(--spacing-9)] min-w-[length:var(--spacing-9)]',
-          'gap-[length:var(--spacing-xs)]',
-          'px-[length:var(--spacing-xs)] py-[length:var(--spacing-1-875)]',
-          'text-[length:var(--text-paragraph-small-medium-font-size)]',
-          'leading-[var(--text-paragraph-small-medium-line-height)]',
-          'tracking-[var(--text-paragraph-small-medium-letter-spacing)]',
-          'has-data-[icon=inline-end]:pe-[length:var(--spacing-1-5)]',
-          'has-data-[icon=inline-start]:ps-[length:var(--spacing-1-5)]',
-        ].join(' '),
-        /** Figma Size=Large (40). */
-        lg: [
-          'h-[length:var(--spacing-3xl)] min-w-[length:var(--spacing-3xl)]',
-          'gap-[length:var(--spacing-xs)]',
-          'px-[length:var(--spacing-sm)] py-[length:var(--spacing-2-375)]',
-          'text-[length:var(--text-paragraph-small-medium-font-size)]',
-          'leading-[var(--text-paragraph-small-medium-line-height)]',
-          'tracking-[var(--text-paragraph-small-medium-letter-spacing)]',
-          'has-data-[icon=inline-end]:pe-[length:var(--spacing-xs)]',
-          'has-data-[icon=inline-start]:ps-[length:var(--spacing-xs)]',
-        ].join(' '),
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
-    },
-  }
-);
+export type ToggleGroupRoundness = ToggleRoundness;
+
+/** @deprecated Prefer `toggleVariants` from Toggle — alias for item chrome. */
+const toggleGroupItemVariants = toggleVariants;
 
 const ToggleGroupContext = React.createContext<
-  VariantProps<typeof toggleGroupItemVariants> & {
+  VariantProps<typeof toggleVariants> & {
     spacing?: number;
     orientation?: 'horizontal' | 'vertical';
     roundness?: ToggleGroupRoundness;
   }
 >({
   size: 'default',
-  variant: 'default',
+  variant: 'ghost',
   spacing: 2,
   orientation: 'horizontal',
   roundness: 'default',
@@ -121,7 +50,7 @@ const ToggleGroupContext = React.createContext<
 
 function ToggleGroup({
   className,
-  variant,
+  variant = 'ghost',
   size,
   spacing = 2,
   orientation = 'horizontal',
@@ -130,7 +59,7 @@ function ToggleGroup({
   style,
   ...props
 }: ToggleGroupPrimitive.Props &
-  VariantProps<typeof toggleGroupItemVariants> & {
+  VariantProps<typeof toggleVariants> & {
     spacing?: number;
     orientation?: 'horizontal' | 'vertical';
     /** Figma Roundness — `default` roundrect; `round` pill / full round. */
@@ -173,8 +102,8 @@ function ToggleGroup({
            * Round + connected — also stroke the shell for Ghost so the outer
            * ring frames circular items with no inner dividers.
            */
-          'data-[spacing=0]:data-[roundness=round]:data-[variant=default]:border-[length:var(--stroke-thin)]',
-          'data-[spacing=0]:data-[roundness=round]:data-[variant=default]:border-[color:var(--border)]',
+          'data-[spacing=0]:data-[roundness=round]:data-[variant=ghost]:border-[length:var(--stroke-thin)]',
+          'data-[spacing=0]:data-[roundness=round]:data-[variant=ghost]:border-[color:var(--border)]',
         ].join(' '),
         className
       )}
@@ -192,10 +121,10 @@ function ToggleGroup({
 function ToggleGroupItem({
   className,
   children,
-  variant = 'default',
+  variant = 'ghost',
   size = 'default',
   ...props
-}: TogglePrimitive.Props & VariantProps<typeof toggleGroupItemVariants>) {
+}: TogglePrimitive.Props & VariantProps<typeof toggleVariants>) {
   const context = React.useContext(ToggleGroupContext);
   const resolvedVariant = context.variant || variant;
   const resolvedSize = context.size || size;
@@ -211,14 +140,11 @@ function ToggleGroupItem({
       data-spacing={context.spacing}
       data-roundness={roundness}
       className={cn(
-        toggleGroupItemVariants({
+        toggleVariants({
           variant: resolvedVariant,
           size: resolvedSize,
+          roundness,
         }),
-        /* Spaced / connected-round — circular (or pill) faces. */
-        roundness === 'round'
-          ? 'rounded-[length:var(--rounded-full)]'
-          : 'rounded-[length:var(--rounded-lg)]',
         /* Connected + default roundness — square items; group clips the shell. */
         connected && roundness === 'default' && 'rounded-none shadow-none',
         connectedRound && 'shadow-none border-transparent',
@@ -250,4 +176,5 @@ export {
   ToggleGroup,
   ToggleGroupItem,
   toggleGroupItemVariants,
+  toggleVariants,
 };

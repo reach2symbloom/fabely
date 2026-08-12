@@ -529,6 +529,16 @@ const preview: Preview = {
               'Textarea',
               'Toast',
               'Toggle',
+              [
+                'Overview',
+                'Demo',
+                'Outline',
+                'With Text',
+                'Size',
+                'Disabled',
+                'RTL',
+                'Custom',
+              ],
               'Toggle Group',
               [
                 'Overview',

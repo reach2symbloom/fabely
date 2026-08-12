@@ -103,13 +103,17 @@ partners have real sizes, tokens, and chrome.
       (compact); re-verify / share panel recipe once **Popover** is
       Foundations-matched. See
       [Hover Card README → Deferred](../src/primitives/hover-card/README.md#deferred).
-- [ ] **Toggle Group × Toggle** — item chrome is Foundations-matched on Toggle
-      Group (Ghost/Outline · sm/default/lg · Position via `spacing={0}` ·
-      roundness) because Toggle is still thin-pass. Share `toggleVariants` (or
-      compose Toggle), add Mini, once Toggle lands. **Toggle Icon Button**
-      (`164:20378`) is a separate primitive (Text Button / Icon Button
-      relationship) — also revisit with Toggle. See
-      [Toggle Group README → Deferred](../src/primitives/toggle-group/README.md#deferred).
+- [x] **Toggle Group × Toggle** — shared `toggleVariants` (Ghost/Outline ·
+      sm/default/lg · roundness) from Toggle; Toggle Group keeps connected
+      Position CSS (`spacing={0}` shell / dividers). See
+      [Toggle](../src/primitives/toggle/README.md) /
+      [Toggle Group](../src/primitives/toggle-group/README.md).
+- [ ] **Toggle Mini (24)** — Figma Size=Mini; not on shadcn size ladder.
+      Deferred on both Toggle and Toggle Group. See
+      [Toggle README → Deferred](../src/primitives/toggle/README.md#deferred).
+- [ ] **Toggle Icon Button** (`164:20378`) — separate primitive (Text Button /
+      Icon Button relationship). See
+      [Toggle README → Deferred](../src/primitives/toggle/README.md#deferred).
 - [ ] **Marker × Spinner** — re-verify Status demos once Spinner is
       Foundations-matched. Message thread composition is landed; shimmer
       utility is in `packages/ui/src/styles/shimmer.css`. See
@@ -151,6 +155,11 @@ partners have real sizes, tokens, and chrome.
       Figma; document one source of truth in `docs/DESIGN.md` if still scattered.
 - [ ] **Invented / deferred motion** — second use of any duration/easing →
       Foundations (per design-tokens rule); sweep primitives for leftovers.
+- [ ] **Global press ripple / push effect** — shared Foundations interaction
+      (click-origin ink) for buttons, toggles, and similar controls. Toggle
+      prototype was pulled (clip/overshoot made duration unreadable). Design
+      once, reuse everywhere — not per-primitive. See
+      [Toggle README → Deferred](../src/primitives/toggle/README.md#deferred).
 - [ ] **Vendor vs owned** — list any remaining thin re-exports that should stay
       vendor forever vs get a Fabely ownership pass.
 

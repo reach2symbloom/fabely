@@ -41,11 +41,11 @@ const meta = {
 export default meta;
 type Story = StoryObj;
 
-type Variant = 'default' | 'outline';
+type Variant = 'ghost' | 'outline';
 type Size = 'sm' | 'default' | 'lg';
 type Orientation = 'horizontal' | 'vertical';
 
-const VARIANTS: Variant[] = ['default', 'outline'];
+const VARIANTS: Variant[] = ['ghost', 'outline'];
 const SIZES: Size[] = ['sm', 'default', 'lg'];
 const ORIENTATIONS: Orientation[] = ['horizontal', 'vertical'];
 const ROUNDNESSES: ToggleGroupRoundness[] = ['default', 'round'];
@@ -151,7 +151,7 @@ function RoundExample() {
       <ToggleGroup
         aria-label="Formatting ghost round connected"
         defaultValue={['bold']}
-        variant="default"
+        variant="ghost"
         spacing={0}
         roundness="round"
       >
