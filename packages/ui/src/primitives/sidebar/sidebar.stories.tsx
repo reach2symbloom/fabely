@@ -32,7 +32,7 @@ import {
   PrimitivePage,
 } from '../../../stories/PrimitivePage';
 
-import { SIDEBAR_STORY_FRAME, SidebarDemo } from './sidebar-demo';
+import { SIDEBAR_STORY_FRAME_PROPS, SidebarDemo } from './sidebar-demo';
 import {
   Sidebar,
   SidebarContent,
@@ -92,7 +92,7 @@ function InsetToggle({ label }: { label: string }) {
 /** shadcn SidebarHeader */
 function HeaderExample() {
   return (
-    <SidebarProvider className={SIDEBAR_STORY_FRAME}>
+    <SidebarProvider {...SIDEBAR_STORY_FRAME_PROPS}>
       <Sidebar>
         <SidebarHeader>
           <SidebarMenu>
@@ -146,7 +146,7 @@ function HeaderExample() {
 /** shadcn SidebarFooter */
 function FooterExample() {
   return (
-    <SidebarProvider className={SIDEBAR_STORY_FRAME}>
+    <SidebarProvider {...SIDEBAR_STORY_FRAME_PROPS}>
       <Sidebar>
         <SidebarContent>
           <SidebarGroup>
@@ -186,7 +186,7 @@ function FooterExample() {
 /** shadcn SidebarGroup (+ action + collapsible) */
 function GroupExample() {
   return (
-    <SidebarProvider className={SIDEBAR_STORY_FRAME}>
+    <SidebarProvider {...SIDEBAR_STORY_FRAME_PROPS}>
       <Sidebar>
         <SidebarContent>
           <SidebarGroup>
@@ -241,7 +241,7 @@ function GroupExample() {
 /** shadcn SidebarMenu */
 function MenuExample() {
   return (
-    <SidebarProvider className={SIDEBAR_STORY_FRAME}>
+    <SidebarProvider {...SIDEBAR_STORY_FRAME_PROPS}>
       <Sidebar>
         <SidebarContent>
           <SidebarGroup>
@@ -289,7 +289,7 @@ function ControlledExample() {
     <SidebarProvider
       open={open}
       onOpenChange={setOpen}
-      className={SIDEBAR_STORY_FRAME}
+      {...SIDEBAR_STORY_FRAME_PROPS}
     >
       <Sidebar>
         <SidebarContent>

@@ -157,13 +157,13 @@ function TeamSwitcher({
             <div className="flex aspect-square size-[length:var(--spacing-2xl)] items-center justify-center rounded-[length:var(--rounded-md)] bg-sidebar-primary text-sidebar-primary-foreground">
               <activeTeam.logo />
             </div>
-            <div className="grid flex-1 text-start text-[length:var(--text-paragraph-small-regular-font-size)] leading-tight">
+            <div className="grid flex-1 text-start text-[length:var(--text-paragraph-small-regular-font-size)] leading-tight in-data-[collapsible=icon]:hidden">
               <span className="truncate font-medium">{activeTeam.name}</span>
               <span className="truncate text-[length:var(--text-paragraph-mini-regular-font-size)]">
                 {activeTeam.plan}
               </span>
             </div>
-            <ChevronsUpDownIcon className="ms-auto" />
+            <ChevronsUpDownIcon className="ms-auto in-data-[collapsible=icon]:hidden" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--anchor-width) min-w-56 rounded-[length:var(--rounded-md)]"
@@ -261,7 +261,7 @@ function NavProjects({
   const { isMobile } = useSidebar();
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+    <SidebarGroup className="in-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => (
@@ -331,13 +331,13 @@ function NavUser({
               <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-start text-[length:var(--text-paragraph-small-regular-font-size)] leading-tight">
+            <div className="grid flex-1 text-start text-[length:var(--text-paragraph-small-regular-font-size)] leading-tight in-data-[collapsible=icon]:hidden">
               <span className="truncate font-medium">{user.name}</span>
               <span className="truncate text-[length:var(--text-paragraph-mini-regular-font-size)]">
                 {user.email}
               </span>
             </div>
-            <ChevronsUpDownIcon className="ms-auto" />
+            <ChevronsUpDownIcon className="ms-auto in-data-[collapsible=icon]:hidden" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--anchor-width) min-w-56 rounded-[length:var(--rounded-md)]"
@@ -397,13 +397,17 @@ function NavUser({
   );
 }
 
-/** Frame that keeps `fixed` sidebar chrome inside Storybook demos. */
-export const SIDEBAR_STORY_FRAME = [
-  'relative isolate flex h-[min(40rem,70vh)] min-h-0! w-full overflow-hidden border border-border bg-background',
-  '[&_[data-slot=sidebar-container]]:absolute!',
-  '[&_[data-slot=sidebar-container]]:inset-y-0!',
-  '[&_[data-slot=sidebar-container]]:h-full!',
-].join(' ');
+/**
+ * Frame that keeps sidebar chrome inside Storybook demos.
+ * Sets `data-sidebar-story-frame` so the primitive remaps `fixed` → `absolute`.
+ */
+export const SIDEBAR_STORY_FRAME =
+  'relative isolate flex h-[min(40rem,70vh)] min-h-0! w-full overflow-hidden border border-border bg-background';
+
+export const SIDEBAR_STORY_FRAME_PROPS = {
+  className: SIDEBAR_STORY_FRAME,
+  'data-sidebar-story-frame': '',
+} as const;
 
 export function SidebarDemo({
   side = 'left',
@@ -417,7 +421,11 @@ export function SidebarDemo({
   dir?: 'ltr' | 'rtl';
 }) {
   return (
-    <SidebarProvider className={className ?? SIDEBAR_STORY_FRAME} dir={dir}>
+    <SidebarProvider
+      className={className ?? SIDEBAR_STORY_FRAME}
+      data-sidebar-story-frame=""
+      dir={dir}
+    >
       <Sidebar side={side} collapsible={collapsible} dir={dir}>
         <SidebarHeader>
           <TeamSwitcher teams={data.teams} />

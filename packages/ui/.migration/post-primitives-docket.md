@@ -91,18 +91,21 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Item × Avatar / image media** — re-check left-slot alignment against
       Figma Item once Avatar polish settles. See
       [Item README → Deferred](../src/primitives/item/README.md#deferred).
-- [ ] **Kbd × Tooltip Glow** — re-verify auto Glow inside Tooltip content once
-      Tooltip is Foundations-matched. See
-      [Kbd README → Deferred](../src/primitives/kbd/README.md#deferred).
+- [x] **Kbd × Tooltip Glow** — Tooltip Foundations-matched (`default` /
+      `inverse`); Kbd auto-Glow scoped to `inverse` + `.dark` tooltip hosts.
+      Re-verify light `default` + shortcuts if product needs that pair. See
+      [Kbd README](../src/primitives/kbd/README.md) ·
+      [Tooltip README](../src/primitives/tooltip/README.md).
 - [ ] **Kbd × light-mode final check** — Default / Glow / Tooltip / Input Group /
       Button in light theme (Glow charcoal only when needed; Default never on a
       dark panel; contrast). See
       [Kbd README → Deferred](../src/primitives/kbd/README.md#deferred).
-- [ ] **Hover Card × Popover / Tooltip** — Popover is Foundations-matched
-      (`--popover` fill); Hover Card stays on `--background`. Re-verify / share
-      panel recipe once Tooltip lands. See
+- [ ] **Hover Card × Popover / Tooltip** — Popover and Tooltip are
+      Foundations-matched; re-verify / share panel recipe vs Hover Card
+      (`--background`). See
       [Hover Card README → Deferred](../src/primitives/hover-card/README.md#deferred)
-      · [Popover README](../src/primitives/popover/README.md).
+      · [Popover README](../src/primitives/popover/README.md)
+      · [Tooltip README](../src/primitives/tooltip/README.md).
 - [ ] **Progress × Slider** — Controlled Progress story uses thin-pass Slider;
       re-skin once Slider is Foundations-matched. See
       [Progress README → Deferred](../src/primitives/progress/README.md#deferred).
