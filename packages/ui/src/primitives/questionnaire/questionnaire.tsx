@@ -143,7 +143,7 @@ function QuestionnaireChoice({
       className={cn(
         'group/questionnaire-choice relative flex cursor-pointer items-start',
         'gap-[var(--spacing-sm)]',
-        'rounded-[length:var(--rounded-xl)]',
+        'rounded-[length:var(--rounded-lg)]',
         'border-[length:var(--stroke-thin)] border-[color:var(--border)]',
         'bg-[color:var(--background)]',
         'px-[var(--spacing-md)] py-[var(--spacing-sm)]',

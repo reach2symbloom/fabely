@@ -48,7 +48,7 @@ Map the same collection into `QuestionnaireItem` parts.
 | Root / item / choices gaps | `--spacing-xl` / `--spacing-md` / `--spacing-sm` |
 | Progress type | Paragraph Mini Medium + `--muted-foreground` |
 | Title / description | Paragraph Regular Medium / Small Regular |
-| Choice card | `--rounded-xl`, `--border`, hover `--theme-alpha-black-switch-5` |
+| Choice card | `--rounded-lg` (12), `--border`, hover `--theme-alpha-black-switch-5` |
 | Choice checked | `--primary` border + quiet fill |
 | Choice indicator | Checkbox / Radio geometry (`--spacing-md`, `--rounded-sm` / full) |
 | Freeform input | Input default fill (`--theme-alpha-black-switch-333`) |

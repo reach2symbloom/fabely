@@ -601,7 +601,7 @@ export const Overview: Story = {
           />
         }
         variants={
-          <>
+          <div className="flex flex-col gap-[var(--spacing-xl)]">
             <PrimitiveGalleryItem label="Multiple">
               <MultipleExample />
             </PrimitiveGalleryItem>
@@ -617,7 +617,7 @@ export const Overview: Story = {
             <PrimitiveGalleryItem label="Dialog">
               <DialogExample />
             </PrimitiveGalleryItem>
-          </>
+          </div>
         }
         usageGuidance={
           <ul className="list-disc space-y-[var(--spacing-xs)] ps-[var(--spacing-md)]">
