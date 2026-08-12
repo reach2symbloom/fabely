@@ -48,7 +48,7 @@ const general: ColorToken[] = [
 const focus: ColorToken[] = [
   { name: 'ring', cssVar: '--ring', reference: 'Light: --theme-neutrals-300 / Dark: --theme-neutrals-700' },
   { name: 'ring primary', cssVar: '--ring-primary', reference: 'Light: --tw-raw-neutral-400 / Dark: --theme-neutrals-700' },
-  { name: 'ring error', cssVar: '--ring-error', reference: 'Light: --tw-raw-error-100 / Dark: --tw-raw-error-ghost' },
+  { name: 'ring error', cssVar: '--ring-error', reference: '--tw-raw-error-ghost @ 12% (both themes)' },
   { name: 'ring success', cssVar: '--ring-success', reference: 'Light: --tw-raw-success-ghost / Dark: --tw-raw-success-700' },
   { name: 'ring alert', cssVar: '--ring-alert', reference: 'Light: --tw-raw-alert-100 / Dark: --tw-raw-alert-700' },
 ];

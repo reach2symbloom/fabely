@@ -83,7 +83,7 @@
   --tw-raw-success-950: #0C2319;
 
   /* tw-raw / error */
-  --tw-raw-error-ghost: #C43551; /* 12% opacity per Figma */
+  --tw-raw-error-ghost: #C43551; /* opaque base; apply opacity at use (Figma ghost @ 12%) */
   --tw-raw-error-50: #FFEAEC;
   --tw-raw-error-100: #FFC9CF;
   --tw-raw-error-200: #FFA2AE;
@@ -416,7 +416,8 @@
   /* shadcn colors / focus */
   --ring: var(--theme-neutrals-300);
   --ring-primary: var(--tw-raw-neutral-400);
-  --ring-error: var(--tw-raw-error-100);
+  /* Figma focus/ring error = #C43551 @ 12% (#C435511F) — same both themes. */
+  --ring-error: color-mix(in srgb, var(--tw-raw-error-ghost) 12%, transparent);
   --ring-success: var(--tw-raw-success-ghost);
   --ring-alert: var(--tw-raw-alert-100);
 
@@ -472,7 +473,7 @@
   /* shadcn colors / focus */
   --ring: var(--theme-neutrals-700);
   --ring-primary: var(--theme-neutrals-700);
-  --ring-error: var(--tw-raw-error-ghost);
+  /* --ring-error inherits :root — Figma #C43551 @ 12% both themes */
   --ring-success: var(--tw-raw-success-700);
   --ring-alert: var(--tw-raw-alert-700);
 

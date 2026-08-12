@@ -74,12 +74,14 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Empty × Input Group** — re-verify Input Group empty-state demo once
       Input Group is Foundations-matched. See
       [Empty README → Deferred](../src/primitives/empty/README.md#deferred).
-- [ ] **Input × Input Group / Field** — re-verify Input Group demos once Input
-      Group is Foundations-matched; re-check Field host demos after Field lands;
-      optional Ghost Mini Heading 4 type if product needs it. See
-      [Input README → Deferred](../src/primitives/input/README.md#deferred).
+- [ ] **Input × Input Group / Field** — Input Group shell is Foundations-matched;
+      re-check Field host demos and any remaining decoration vs addon guidance.
+      See [Input README → Deferred](../src/primitives/input/README.md#deferred).
+- [ ] **Input Group × Textarea / Kbd / Spinner** — re-verify demos once those
+      partners are Foundations-matched; optional Custom Input story. See
+      [Input Group README → Deferred](../src/primitives/input-group/README.md#deferred).
 - [ ] **Hover Card × Popover / Tooltip** — no dedicated Figma Hover Card; surface
-      uses Dialog/Dropdown floating tokens. Re-verify / share panel recipe once
+      uses background + floating panel tokens. Re-verify / share panel recipe once
       Popover and Tooltip are Foundations-matched. See
       [Hover Card README → Deferred](../src/primitives/hover-card/README.md#deferred).
 - [ ] **Field × control partners** — Field depends on many siblings; after

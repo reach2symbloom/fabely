@@ -40,6 +40,8 @@ const inputShellChrome = [
   /* Invalid via nested control (Figma Error). */
   'has-[[data-slot=input][aria-invalid=true]]:border-[color:var(--destructive)]',
   'has-[[data-slot=input][aria-invalid=true]]:bg-[color:var(--background)]',
+  'has-[[data-slot=input][aria-invalid=true]]:[&_[data-slot=input-decoration-left]]:text-[color:var(--destructive)]',
+  'has-[[data-slot=input][aria-invalid=true]]:[&_[data-slot=input-decoration-right]]:text-[color:var(--destructive)]',
 ].join(' ');
 
 const inputVariants = cva(

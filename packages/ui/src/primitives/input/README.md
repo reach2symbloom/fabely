@@ -49,9 +49,9 @@ Button) when that lands.
 
 ## Deferred
 
-- **Input Group** — Figma prepend / append text and shadcn Input Group demos stay
-  thin-pass until that primitive is Foundations-matched.
 - **Fade Button / interactive decorations** — slots accept them; re-verify sizing
   once Fade Button (or Icon Button-in-field) lands.
 - **Ghost Mini display type** — Figma Ghost Mini placeholder uses Heading 4
   Light; we keep Paragraph Mini Regular for a consistent field control.
+- **Input Group hosts** — re-check Field / Combobox / Empty demos that compose
+  Input Group after those partners settle (Input Group shell is Foundations).
