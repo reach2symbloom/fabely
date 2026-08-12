@@ -103,6 +103,9 @@ partners have real sizes, tokens, and chrome.
       panel recipe once Tooltip lands. See
       [Hover Card README → Deferred](../src/primitives/hover-card/README.md#deferred)
       · [Popover README](../src/primitives/popover/README.md).
+- [ ] **Progress × Slider** — Controlled Progress story uses thin-pass Slider;
+      re-skin once Slider is Foundations-matched. See
+      [Progress README → Deferred](../src/primitives/progress/README.md#deferred).
 - [ ] **Marker × Spinner** — re-verify Status demos once Spinner is
       Foundations-matched. Message thread composition is landed; shimmer
       utility is in `packages/ui/src/styles/shimmer.css`. See
