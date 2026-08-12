@@ -71,6 +71,17 @@ const projects = [
   { name: 'Feedback', url: '#', icon: SendIcon },
 ] as const;
 
+/**
+ * Pin fixed sidebar chrome inside the demo frame so Storybook Overview
+ * (multiple instances) does not cover the docs viewport.
+ */
+const SIDEBAR_STORY_FRAME = [
+  'relative flex min-h-[320px] w-full max-w-3xl overflow-hidden border border-border',
+  '[&_[data-slot=sidebar-container]]:absolute!',
+  '[&_[data-slot=sidebar-container]]:inset-y-0!',
+  '[&_[data-slot=sidebar-container]]:h-full!',
+].join(' ');
+
 function ProjectsMenu() {
   return (
     <SidebarContent>
@@ -93,20 +104,37 @@ function ProjectsMenu() {
   );
 }
 
+function InsetChrome({ label }: { label: string }) {
+  const { open, toggleSidebar } = useSidebar();
+  return (
+    <div className="flex flex-wrap items-center gap-[var(--spacing-xs)] border-b border-border p-[var(--spacing-md)]">
+      <SidebarTrigger />
+      <Button variant="outline" size="small" onClick={toggleSidebar}>
+        {open ? <PanelLeftCloseIcon /> : <PanelLeftOpenIcon />}
+        <span>{open ? 'Close' : 'Open'} sidebar</span>
+      </Button>
+      <span className="text-[length:var(--text-paragraph-small-regular-font-size)] text-muted-foreground">
+        {label}
+      </span>
+    </div>
+  );
+}
+
 /** shadcn sidebar-menu */
 function MenuExample() {
   return (
-    <SidebarProvider className="min-h-[320px] w-full max-w-3xl border border-border">
+    <SidebarProvider className={SIDEBAR_STORY_FRAME}>
       <Sidebar>
+        <SidebarHeader className="flex-row items-center justify-between">
+          <span className="px-[var(--spacing-sm)] text-[length:var(--text-paragraph-mini-regular-font-size)] text-muted-foreground">
+            Menu
+          </span>
+          <SidebarTrigger />
+        </SidebarHeader>
         <ProjectsMenu />
       </Sidebar>
       <SidebarInset>
-        <div className="flex items-center gap-[var(--spacing-xs)] p-[var(--spacing-md)]">
-          <SidebarTrigger />
-          <span className="text-[length:var(--text-paragraph-small-regular-font-size)] text-muted-foreground">
-            Menu
-          </span>
-        </div>
+        <InsetChrome label="Menu" />
       </SidebarInset>
     </SidebarProvider>
   );
@@ -115,38 +143,39 @@ function MenuExample() {
 /** shadcn sidebar-header */
 function HeaderExample() {
   return (
-    <SidebarProvider className="min-h-[240px] w-full max-w-3xl border border-border">
+    <SidebarProvider className={SIDEBAR_STORY_FRAME}>
       <Sidebar>
         <SidebarHeader>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <SidebarMenuButton className="data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground" />
-                  }
-                >
-                  Select Workspace
-                  <ChevronDownIcon className="ms-auto" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-(--anchor-width)">
-                  <DropdownMenuItem>
-                    <span>Acme Inc</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <span>Acme Corp.</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          </SidebarMenu>
+          <div className="flex items-center justify-between gap-[var(--spacing-xs)]">
+            <SidebarMenu className="flex-1">
+              <SidebarMenuItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <SidebarMenuButton className="data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground" />
+                    }
+                  >
+                    Select Workspace
+                    <ChevronDownIcon className="ms-auto" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-(--anchor-width)">
+                    <DropdownMenuItem>
+                      <span>Acme Inc</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <span>Acme Corp.</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </SidebarMenuItem>
+            </SidebarMenu>
+            <SidebarTrigger />
+          </div>
         </SidebarHeader>
         <ProjectsMenu />
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-[length:var(--spacing-3xl)] items-center px-[var(--spacing-md)]">
-          <SidebarTrigger />
-        </header>
+        <InsetChrome label="Header" />
       </SidebarInset>
     </SidebarProvider>
   );
@@ -155,8 +184,11 @@ function HeaderExample() {
 /** shadcn sidebar-footer */
 function FooterExample() {
   return (
-    <SidebarProvider className="min-h-[320px] w-full max-w-3xl border border-border">
+    <SidebarProvider className={SIDEBAR_STORY_FRAME}>
       <Sidebar>
+        <SidebarHeader className="flex-row items-center justify-end">
+          <SidebarTrigger />
+        </SidebarHeader>
         <ProjectsMenu />
         <SidebarFooter>
           <SidebarMenu>
@@ -170,12 +202,7 @@ function FooterExample() {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <div className="flex items-center gap-[var(--spacing-xs)] p-[var(--spacing-md)]">
-          <SidebarTrigger />
-          <span className="text-[length:var(--text-paragraph-small-regular-font-size)] text-muted-foreground">
-            Footer
-          </span>
-        </div>
+        <InsetChrome label="Footer" />
       </SidebarInset>
     </SidebarProvider>
   );
@@ -198,14 +225,17 @@ function ControlledExample() {
     <SidebarProvider
       open={open}
       onOpenChange={setOpen}
-      className="min-h-[320px] w-full max-w-3xl border border-border"
+      className={SIDEBAR_STORY_FRAME}
     >
       <Sidebar>
+        <SidebarHeader className="flex-row items-center justify-end">
+          <SidebarTrigger />
+        </SidebarHeader>
         <ProjectsMenu />
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <div className="flex items-center gap-[var(--spacing-xs)] p-[var(--spacing-md)]">
+        <div className="flex items-center gap-[var(--spacing-xs)] border-b border-border p-[var(--spacing-md)]">
           <ControlledToggle />
         </div>
       </SidebarInset>
@@ -217,8 +247,14 @@ function ControlledExample() {
 function RtlExample() {
   return (
     <div dir="rtl">
-      <SidebarProvider className="min-h-[320px] w-full max-w-3xl border border-border">
+      <SidebarProvider className={SIDEBAR_STORY_FRAME}>
         <Sidebar side="right">
+          <SidebarHeader className="flex-row items-center justify-between">
+            <span className="px-[var(--spacing-sm)] text-[length:var(--text-paragraph-mini-regular-font-size)] text-muted-foreground">
+              القائمة
+            </span>
+            <SidebarTrigger />
+          </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupLabel>المشاريع</SidebarGroupLabel>
@@ -238,12 +274,7 @@ function RtlExample() {
           </SidebarContent>
         </Sidebar>
         <SidebarInset>
-          <div className="flex items-center gap-[var(--spacing-xs)] p-[var(--spacing-md)]">
-            <SidebarTrigger />
-            <span className="text-[length:var(--text-paragraph-small-regular-font-size)] text-muted-foreground">
-              العربية
-            </span>
-          </div>
+          <InsetChrome label="العربية" />
         </SidebarInset>
       </SidebarProvider>
     </div>
@@ -259,18 +290,19 @@ function SidebarPlayground() {
   return (
     <PlaygroundPanel
       preview={
-        <SidebarProvider className="min-h-[320px] w-full max-w-3xl border border-border">
+        <SidebarProvider className={SIDEBAR_STORY_FRAME}>
           <Sidebar side={side} collapsible={collapsible}>
+            <SidebarHeader className="flex-row items-center justify-between">
+              <span className="px-[var(--spacing-sm)] text-[length:var(--text-paragraph-mini-regular-font-size)] text-muted-foreground">
+                Playground
+              </span>
+              <SidebarTrigger />
+            </SidebarHeader>
             <ProjectsMenu />
             <SidebarRail />
           </Sidebar>
           <SidebarInset>
-            <div className="flex items-center gap-[var(--spacing-xs)] p-[var(--spacing-md)]">
-              <SidebarTrigger />
-              <span className="text-[length:var(--text-paragraph-small-regular-font-size)] text-muted-foreground">
-                Playground
-              </span>
-            </div>
+            <InsetChrome label="Toggle or ⌘B / Ctrl+B" />
           </SidebarInset>
         </SidebarProvider>
       }
