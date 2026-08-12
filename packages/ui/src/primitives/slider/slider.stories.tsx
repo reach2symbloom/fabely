@@ -31,20 +31,45 @@ type Story = StoryObj<typeof meta>;
 
 /** Docs Usage — https://ui.shadcn.com/docs/components/base/slider */
 function DemoExample() {
-  return <Slider defaultValue={[30]} className="w-60" max={100} step={10} />;
+  return <Slider defaultValue={[30]} className="w-60" max={100} step={1} />;
+}
+
+/** Discrete notches — opt-in via `interaction="discrete"`. */
+function DiscreteExample() {
+  return (
+    <Slider
+      defaultValue={[30]}
+      className="w-60"
+      max={100}
+      step={10}
+      interaction="discrete"
+    />
+  );
 }
 
 /** shadcn Range preview / slider-example SliderRange */
 function RangeExample() {
   return (
-    <Slider defaultValue={[25, 50]} className="w-60" max={100} step={5} />
+    <Slider
+      defaultValue={[25, 50]}
+      className="w-60"
+      max={100}
+      step={5}
+      interaction="discrete"
+    />
   );
 }
 
 /** shadcn Multiple Thumbs / slider-example SliderMultiple */
 function MultipleThumbsExample() {
   return (
-    <Slider defaultValue={[10, 20, 70]} className="w-60" max={100} step={10} />
+    <Slider
+      defaultValue={[10, 20, 70]}
+      className="w-60"
+      max={100}
+      step={10}
+      interaction="discrete"
+    />
   );
 }
 
@@ -58,6 +83,7 @@ function VerticalExample() {
         className="h-40"
         max={100}
         step={10}
+        interaction="discrete"
       />
       <Slider
         defaultValue={[25]}
@@ -65,6 +91,7 @@ function VerticalExample() {
         className="h-40"
         max={100}
         step={10}
+        interaction="discrete"
       />
     </div>
   );
@@ -89,6 +116,7 @@ function ControlledExample() {
         min={0}
         max={1}
         step={0.1}
+        interaction="discrete"
         className="w-full"
       />
     </div>
@@ -120,7 +148,7 @@ function RtlExample() {
           step={1}
           className="w-full"
         />
-        <Slider defaultValue={[25, 50]} max={100} step={5} className="w-full" />
+        <Slider defaultValue={[25, 50]} max={100} step={5} interaction="discrete" className="w-full" />
       </div>
     </DirectionProvider>
   );
@@ -131,6 +159,9 @@ function SliderPlayground() {
     'horizontal',
   );
   const [mode, setMode] = useState<'default' | 'range' | 'multiple'>('default');
+  const [interaction, setInteraction] = useState<'smooth' | 'discrete'>(
+    'smooth',
+  );
   const [disabled, setDisabled] = useState(false);
 
   const defaultValue =
@@ -147,13 +178,14 @@ function SliderPlayground() {
           }
         >
           <Slider
-            key={`${orientation}-${mode}`}
+            key={`${orientation}-${mode}-${interaction}`}
             defaultValue={defaultValue}
             orientation={orientation}
+            interaction={interaction}
             disabled={disabled}
             className={orientation === 'vertical' ? 'h-40' : 'w-full'}
             max={100}
-            step={10}
+            step={interaction === 'discrete' ? 10 : 1}
           />
         </div>
       }
@@ -179,6 +211,17 @@ function SliderPlayground() {
               { value: 'multiple', label: 'Multiple' },
             ]}
             onChange={(v) => setMode(v as 'default' | 'range' | 'multiple')}
+            fullWidth
+            className="col-span-2"
+          />
+          <InlineSegmentedControl
+            label="Interaction"
+            value={interaction}
+            options={[
+              { value: 'smooth', label: 'Smooth' },
+              { value: 'discrete', label: 'Discrete' },
+            ]}
+            onChange={(v) => setInteraction(v as 'smooth' | 'discrete')}
             fullWidth
             className="col-span-2"
           />
@@ -239,6 +282,9 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Demo">
             <DemoExample />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Discrete">
+            <DiscreteExample />
+          </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Range">
             <RangeExample />
           </PrimitiveGalleryItem>
@@ -272,10 +318,9 @@ export const Overview: Story = {
             a height (shadcn demos use <code>h-40</code>).
           </li>
           <li>
-            Discrete <code>step</code> values (≤ 21 stops, e.g. step 5 / 10 /
-            0.1 on a unit range) render little dots on the track. Drag stays
-            smooth and snaps on release; arrow keys move stop-to-stop. Fine
-            steps like 1 on 0–100 stay clean with no dots.
+            <code>interaction=&quot;smooth&quot;</code> (default) has no track
+            notches. <code>interaction=&quot;discrete&quot;</code> draws step
+            stops (≤ 21) and snaps drag + keys stop-to-stop.
           </li>
           <li>
             Value fill is Primary gradient; track is{' '}
@@ -309,6 +354,10 @@ export const Overview: Story = {
 
 export const Demo: Story = {
   render: () => <DemoExample />,
+};
+
+export const Discrete: Story = {
+  render: () => <DiscreteExample />,
 };
 
 export const Range: Story = {

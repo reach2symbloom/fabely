@@ -19,14 +19,19 @@ Slider
 
 Public API matches Base UI / shadcn Slider (`value` / `defaultValue` /
 `onValueChange`, `min` / `max` / `step`, `orientation`, `disabled`,
-`thumbAlignment`). `value` / `defaultValue` may be a `number` or `number[]`;
-thumb count follows array length (a bare number → one thumb).
+`thumbAlignment`), plus Fabely `interaction`. `value` / `defaultValue` may be
+a `number` or `number[]`; thumb count follows array length (a bare number →
+one thumb).
 
 | Figma | Code |
 | --- | --- |
 | Type=Default | `defaultValue={[n]}` (one thumb) |
 | Type=Range narrow / wide | `defaultValue={[a, b]}` (two thumbs) |
 | Horizontal / Vertical | `orientation` |
+
+| Prop | Default | Notes |
+| --- | --- | --- |
+| `interaction` | `"smooth"` | `"smooth"` — no track notches. `"discrete"` — dots at each `step` stop (capped at 21); drag and keys snap stop-to-stop. |
 
 ## Tokens
 
@@ -41,7 +46,7 @@ thumb count follows array length (a bare number → one thumb).
 | Thumb fill | `--theme-neutrals-700` |
 | Thumb elevation | `--shadow-md-black` |
 | Thumb focus | `--effect-focus-ring-secondary` |
-| Discrete dots | Auto when stop count ≤ 21 — `--theme-neutrals-500`, `--spacing-2xs`. Pointer scrubs smoothly; snaps on release. Keys move stop-to-stop. |
+| Discrete dots | `interaction="discrete"` only — `--theme-alpha-white-no-switch-25`, `--stroke-regular` (2px). Placed on the edge-aligned thumb path (`--spacing-xl` inset) so marks line up with the thumb. Hidden when stop count > 21. |
 
 ## Deferred
 
