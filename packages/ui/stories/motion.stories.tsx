@@ -43,6 +43,12 @@ const easeTokens: TokenEntry[] = [
     utilityClass: 'ease-emphasized-in',
     note: 'Nested content opacity — cubic-bezier(0.45, 1.005, 0, 1.005)',
   },
+  {
+    name: 'out',
+    cssVar: '--ease-out',
+    utilityClass: 'ease-out',
+    note: 'Figma Smart Animate EASE_OUT — cubic-bezier(0, 0, 0.58, 1)',
+  },
 ];
 
 const durationTokens: TokenEntry[] = [
@@ -56,7 +62,7 @@ const durationTokens: TokenEntry[] = [
     name: 'normal',
     cssVar: '--duration-normal',
     utilityClass: 'duration-normal',
-    note: '300ms — content opacity',
+    note: '300ms — Smart Animate / content opacity',
   },
   {
     name: 'drawer',

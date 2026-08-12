@@ -524,6 +524,17 @@ const preview: Preview = {
               'Slider',
               'Spinner',
               'Switch',
+              [
+                'Overview',
+                'Demo',
+                'Description',
+                'Choice Card',
+                'Disabled',
+                'Invalid',
+                'Size',
+                'RTL',
+                'Switch Light',
+              ],
               'Table',
               'Tabs',
               [

@@ -82,9 +82,11 @@ const fieldVariants = cva(
     'group/field flex w-full',
     /* Label ↔ control ↔ helper: 2xs (4) + 2px → `--spacing-1-5` (6). */
     'gap-[var(--spacing-1-5)]',
-    /* Checkbox / radio + label rows need more air than stacked Text Value. */
+    /* Checkbox / radio / switch + label rows need more air than stacked Text Value. */
     'has-[[role=checkbox]]:gap-[var(--spacing-sm)]',
     'has-[[role=radio]]:gap-[var(--spacing-sm)]',
+    'has-[[role=switch]]:gap-[var(--spacing-sm)]',
+    'has-[[data-slot=switch]]:gap-[var(--spacing-sm)]',
     /* Invalid colors label + FieldError only — not Description (Figma). */
   ].join(' '),
   {
@@ -93,9 +95,9 @@ const fieldVariants = cva(
         vertical: 'flex-col *:w-full [&>.sr-only]:w-auto',
         /* Figma Horizontal Field — label column 120px, control flexes. */
         horizontal:
-          'flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:w-[120px] *:data-[slot=field-label]:shrink-0 *:data-[slot=field-label]:grow-0 has-[[role=checkbox]]:*:data-[slot=field-label]:w-auto has-[[role=radio]]:*:data-[slot=field-label]:w-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px',
+          'flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:w-[120px] *:data-[slot=field-label]:shrink-0 *:data-[slot=field-label]:grow-0 has-[[role=checkbox]]:*:data-[slot=field-label]:w-auto has-[[role=radio]]:*:data-[slot=field-label]:w-auto has-[[role=switch]]:*:data-[slot=field-label]:w-auto has-[[data-slot=switch]]:*:data-[slot=field-label]:w-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio],[role=switch]]:mt-px',
         responsive:
-          'flex-col *:w-full [&>.sr-only]:w-auto @md/field-group:flex-row @md/field-group:items-center @md/field-group:*:w-auto @md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:*:data-[slot=field-label]:w-[120px] @md/field-group:*:data-[slot=field-label]:shrink-0 @md/field-group:*:data-[slot=field-label]:grow-0 @md/field-group:has-[[role=checkbox]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[[role=radio]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px',
+          'flex-col *:w-full [&>.sr-only]:w-auto @md/field-group:flex-row @md/field-group:items-center @md/field-group:*:w-auto @md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:*:data-[slot=field-label]:w-[120px] @md/field-group:*:data-[slot=field-label]:shrink-0 @md/field-group:*:data-[slot=field-label]:grow-0 @md/field-group:has-[[role=checkbox]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[[role=radio]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[[role=switch]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[[data-slot=switch]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio],[role=switch]]:mt-px',
       },
     },
     defaultVariants: {
@@ -125,7 +127,7 @@ function FieldContent({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="field-content"
       className={cn(
-        'group/field-content flex flex-1 flex-col gap-[var(--spacing-1-5)]',
+        'group/field-content flex min-w-0 flex-1 flex-col gap-[var(--spacing-1-5)]',
         className,
       )}
       {...props}
@@ -152,7 +154,8 @@ function FieldLabel({
         'group-data-[invalid=true]/field:text-destructive',
         /* Choice-card host (Field nested inside Label). */
         'has-data-checked:bg-[color:var(--accent)]',
-        'has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col',
+        'has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:min-w-80',
+        'has-[>[data-slot=field]]:flex-col',
         'has-[>[data-slot=field]]:rounded-[length:var(--radius)]',
         'has-[>[data-slot=field]]:border has-[>[data-slot=field]]:border-[color:var(--border)]',
         '*:data-[slot=field]:p-[var(--spacing-md)]',
@@ -168,7 +171,7 @@ function FieldTitle({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="field-label"
       className={cn(
-        'flex w-fit items-center gap-[var(--spacing-xs)]',
+        'flex w-fit max-w-full items-center gap-[var(--spacing-xs)]',
         'font-[family-name:var(--text-paragraph-small-medium-font-family)]',
         '[font-weight:var(--text-paragraph-small-medium-font-weight)]',
         'text-[length:var(--text-paragraph-small-medium-font-size)]',

@@ -52,6 +52,10 @@ partners have real sizes, tokens, and chrome.
       Field and Input are Foundations-matched; restore Explorer / Outline Tabs
       on File Tree (Tabs is Foundations-matched). See
       [Collapsible README → Deferred](../src/primitives/collapsible/README.md#deferred).
+- [ ] **Switch Group / Rich** — Switch Group and Rich Switch Container
+      compositions on the Switch page; Cycle switch out of scope. Toggle Light
+      is shipped as `SwitchLight`. See
+      [Switch README → Deferred](../src/primitives/switch/README.md#deferred).
 - [ ] **Tabs AI toggle / Size5 / Solar / Thread / Fill=False Large** — Figma
       Tabs (segmented) odd sizes (AI toggle, Size5), Solar icon set, Thread
       tabs / counter molecule, and Fill=False Large elevated inactive chrome —
