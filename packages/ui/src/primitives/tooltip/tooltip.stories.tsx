@@ -21,144 +21,157 @@ import {
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
  * Overview first — Playground, Variants gallery, usage, a11y — then focused
- * example pages. shadcn Tooltip guide (Base UI Tooltip).
+ * example pages. Figma Tooltip (`133:14788`) + inverse chip for dense chrome.
  */
 
 type Side = 'top' | 'bottom' | 'left' | 'right';
+type TooltipVariant = 'default' | 'inverse';
 
 const meta = {
   title: 'Design System/Primitives/Tooltip',
   component: Tooltip,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
-  decorators: [
-    (Story) => (
-      <TooltipProvider>
-        <Story />
-      </TooltipProvider>
-    ),
-  ],
 } satisfies Meta;
 
 export default meta;
 type Story = StoryObj;
 
-const SIDES: Side[] = ['left', 'top', 'bottom', 'right'];
+/* ---------- Canonical examples ---------- */
 
-function DemoExample() {
+function DefaultExample() {
   return (
     <Tooltip>
       <TooltipTrigger render={<Button variant="outline" />}>
         Hover
       </TooltipTrigger>
-      <TooltipContent>Add to library</TooltipContent>
+      <TooltipContent>Tooltip text</TooltipContent>
     </Tooltip>
   );
 }
 
-function SideExample() {
+function InverseExample() {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-[var(--spacing-md)]">
-      {SIDES.map((side) => (
+    <Tooltip>
+      <TooltipTrigger render={<Button variant="outline" />}>
+        Hover
+      </TooltipTrigger>
+      <TooltipContent variant="inverse">Playground</TooltipContent>
+    </Tooltip>
+  );
+}
+
+function SidesExample() {
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-[var(--spacing-xl)]">
+      {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
         <Tooltip key={side}>
-          <TooltipTrigger render={<Button variant="outline" />}>
+          <TooltipTrigger render={<Button variant="outline" size="small" />}>
             {side}
           </TooltipTrigger>
-          <TooltipContent side={side}>
-            Tooltip on the <strong>{side}</strong>
-          </TooltipContent>
+          <TooltipContent side={side}>Tooltip text</TooltipContent>
         </Tooltip>
       ))}
     </div>
   );
 }
 
-function KeyboardShortcutExample() {
+function WithKbdExample() {
   return (
-    <div className="flex flex-wrap items-center gap-[var(--spacing-md)]">
-      <Tooltip>
-        <TooltipTrigger render={<Button variant="outline" size="small" />}>
-          Save
-        </TooltipTrigger>
-        <TooltipContent className="flex items-center gap-[var(--spacing-2xs)]">
-          Save
-          <KbdGroup>
-            <Kbd>⌘</Kbd>
-            <Kbd>S</Kbd>
-          </KbdGroup>
-        </TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger render={<Button variant="outline" size="small" />}>
-          Print
-        </TooltipTrigger>
-        <TooltipContent className="flex items-center gap-[var(--spacing-2xs)]">
-          Print
-          <Kbd>⌘P</Kbd>
-        </TooltipContent>
-      </Tooltip>
-    </div>
+    <TooltipProvider>
+      <div className="flex gap-[var(--spacing-md)]">
+        <Tooltip>
+          <TooltipTrigger render={<Button variant="outline" size="small" />}>
+            Save
+          </TooltipTrigger>
+          <TooltipContent
+            variant="inverse"
+            className="flex items-center gap-[var(--spacing-2xs)]"
+          >
+            Save
+            <KbdGroup>
+              <Kbd>⌘</Kbd>
+              <Kbd>S</Kbd>
+            </KbdGroup>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger render={<Button variant="outline" size="small" />}>
+            Print
+          </TooltipTrigger>
+          <TooltipContent
+            variant="inverse"
+            className="flex items-center gap-[var(--spacing-2xs)]"
+          >
+            Print
+            <KbdGroup>
+              <Kbd>⌘</Kbd>
+              <Kbd>P</Kbd>
+            </KbdGroup>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>
   );
 }
 
-/** Disabled controls do not fire pointer events — wrap in a focusable span. */
-function DisabledButtonExample() {
+function VariantsExample() {
   return (
-    <Tooltip>
-      <TooltipTrigger
-        render={<span className="inline-flex" tabIndex={0} />}
-      >
-        <Button disabled>Submit</Button>
-      </TooltipTrigger>
-      <TooltipContent>You do not have permission</TooltipContent>
-    </Tooltip>
-  );
-}
-
-function RtlExample() {
-  return (
-    <div
-      dir="rtl"
-      className="flex flex-col items-center gap-[var(--spacing-md)]"
-    >
-      <p className="text-[color:var(--muted-foreground)]">العربية (RTL)</p>
+    <div className="flex flex-wrap items-center gap-[var(--spacing-xl)]">
       <Tooltip>
-        <TooltipTrigger render={<Button variant="outline" />}>
-          مرّر هنا
+        <TooltipTrigger render={<Button variant="outline" size="small" />}>
+          Default
         </TooltipTrigger>
-        <TooltipContent side="bottom" align="start">
-          تلميح يظهر بمحاذاة البداية في تخطيط من اليمين لليسار
-        </TooltipContent>
+        <TooltipContent variant="default">Figma surface</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger render={<Button variant="outline" size="small" />}>
+          Inverse
+        </TooltipTrigger>
+        <TooltipContent variant="inverse">High contrast</TooltipContent>
       </Tooltip>
     </div>
   );
 }
 
 function TooltipPlayground() {
+  const [variant, setVariant] = useState<TooltipVariant>('default');
   const [side, setSide] = useState<Side>('top');
 
   return (
     <PlaygroundPanel
       preview={
-        <div className="flex min-h-40 items-center justify-center">
-          <Tooltip>
-            <TooltipTrigger render={<Button variant="outline" />}>
-              Hover
-            </TooltipTrigger>
-            <TooltipContent side={side}>Tooltip text</TooltipContent>
-          </Tooltip>
-        </div>
+        <Tooltip>
+          <TooltipTrigger render={<Button variant="outline" />}>
+            Hover me
+          </TooltipTrigger>
+          <TooltipContent variant={variant} side={side}>
+            Tooltip text
+          </TooltipContent>
+        </Tooltip>
       }
       controls={
         <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
-          <div className="col-span-2">
-            <InlineSegmentedControl
-              label="Side"
-              value={side}
-              onChange={(v) => setSide(v as Side)}
-              options={SIDES.map((value) => ({ value, label: value }))}
-            />
-          </div>
+          <InlineSegmentedControl
+            label="Variant"
+            value={variant}
+            onChange={setVariant}
+            options={[
+              { value: 'default', label: 'Default' },
+              { value: 'inverse', label: 'Inverse' },
+            ]}
+          />
+          <InlineSegmentedControl
+            label="Side"
+            value={side}
+            onChange={setSide}
+            options={[
+              { value: 'top', label: 'Top' },
+              { value: 'right', label: 'Right' },
+              { value: 'bottom', label: 'Bottom' },
+              { value: 'left', label: 'Left' },
+            ]}
+          />
         </div>
       }
     />
@@ -170,64 +183,50 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Tooltip"
-      description="Short label on hover or focus. Foundations chrome from Figma Tooltip (Side axis); shadcn Tooltip + TooltipProvider API."
+      description="Figma Tooltip surface plus an inverse chip for dense chrome (sidebar). Opens with no hover delay."
       playground={<TooltipPlayground />}
       variants={
-        <div className="flex flex-wrap gap-[var(--spacing-md)]">
-          <PrimitiveGalleryItem label="Demo">
-            <DemoExample />
+        <>
+          <PrimitiveGalleryItem label="Default">
+            <DefaultExample />
           </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Side">
-            <SideExample />
+          <PrimitiveGalleryItem label="Inverse">
+            <InverseExample />
           </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="With Keyboard Shortcut">
-            <KeyboardShortcutExample />
+          <PrimitiveGalleryItem label="Sides">
+            <SidesExample />
           </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Disabled Button">
-            <DisabledButtonExample />
+          <PrimitiveGalleryItem label="With Kbd">
+            <WithKbdExample />
           </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="RTL">
-            <RtlExample />
-          </PrimitiveGalleryItem>
-        </div>
+        </>
       }
       usageGuidance={
-        <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
+        <ul className="list-disc space-y-[var(--spacing-2xs)] ps-[var(--spacing-md)] text-[length:var(--text-paragraph-small-regular-font-size)] text-muted-foreground">
           <li>
-            Wrap the app (or Storybook) once with{' '}
-            <code>TooltipProvider</code>. Compose{' '}
-            <code>Tooltip</code> → <code>TooltipTrigger</code> +{' '}
-            <code>TooltipContent</code>.
+            Prefer <code>variant=&quot;default&quot;</code> for page chrome;
+            use <code>inverse</code> on dark rails and icon-only controls
+            (Sidebar collapsed labels).
           </li>
           <li>
-            Position with <code>side</code> / <code>align</code> on Content
-            (Figma Side: Top / Bottom / Left / Right). Custom triggers use{' '}
-            <code>render</code>.
+            Delay is <code>0</code> by default — do not reintroduce a 600ms
+            Base UI Trigger delay unless intentional.
           </li>
           <li>
-            Disabled controls need a wrapping focusable element (e.g.{' '}
-            <code>span</code> with <code>tabIndex=&#123;0&#125;</code>) so the
-            tooltip can still open.
-          </li>
-          <li>
-            Pair shortcut hints with <code>Kbd</code> / <code>KbdGroup</code>{' '}
-            inside Content.
+            Compose shortcuts with <code>Kbd</code> / <code>KbdGroup</code>{' '}
+            inside inverse (or dark) tooltips so Glow pairing holds.
           </li>
         </ul>
       }
       accessibility={
-        <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
+        <ul className="list-disc space-y-[var(--spacing-2xs)] ps-[var(--spacing-md)] text-[length:var(--text-paragraph-small-regular-font-size)] text-muted-foreground">
           <li>
-            Tooltips supplement a control — do not put critical actions or the
-            only copy of a label only inside the tooltip.
+            Tooltips appear on hover and keyboard focus; keep copy short and
+            redundant with a visible label when possible.
           </li>
           <li>
-            Prefer a focusable trigger (button / link). Keyboard focus should
-            reveal the same content as hover.
-          </li>
-          <li>
-            Keep content short (a label or shortcut). Longer previews belong in
-            Hover Card or Popover.
+            Do not put essential actions only inside a tooltip — triggers must
+            remain operable without it.
           </li>
         </ul>
       }
@@ -235,25 +234,23 @@ export const Overview: Story = {
   ),
 };
 
-export const Demo: Story = {
-  render: () => <DemoExample />,
+export const Default: Story = {
+  render: () => <DefaultExample />,
 };
 
-export const Side: Story = {
-  parameters: { layout: 'padded' },
-  render: () => <SideExample />,
+export const Inverse: Story = {
+  render: () => <InverseExample />,
 };
 
-export const WithKeyboardShortcut: Story = {
-  name: 'With Keyboard Shortcut',
-  render: () => <KeyboardShortcutExample />,
+export const Sides: Story = {
+  render: () => <SidesExample />,
 };
 
-export const DisabledButton: Story = {
-  name: 'Disabled Button',
-  render: () => <DisabledButtonExample />,
+export const WithKbd: Story = {
+  name: 'With Kbd',
+  render: () => <WithKbdExample />,
 };
 
-export const RTL: Story = {
-  render: () => <RtlExample />,
+export const Variants: Story = {
+  render: () => <VariantsExample />,
 };

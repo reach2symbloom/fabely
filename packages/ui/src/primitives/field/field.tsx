@@ -82,22 +82,21 @@ const fieldVariants = cva(
     'group/field flex w-full',
     /* Label ↔ control ↔ helper: 2xs (4) + 2px → `--spacing-1-5` (6). */
     'gap-[var(--spacing-1-5)]',
-    /* Checkbox / radio / switch + label rows need more air than stacked Text Value. */
+    /* Checkbox / radio + label rows need more air than stacked Text Value. */
     'has-[[role=checkbox]]:gap-[var(--spacing-sm)]',
     'has-[[role=radio]]:gap-[var(--spacing-sm)]',
-    'has-[[role=switch]]:gap-[var(--spacing-sm)]',
-    'has-[[data-slot=switch]]:gap-[var(--spacing-sm)]',
     /* Invalid colors label + FieldError only — not Description (Figma). */
   ].join(' '),
   {
     variants: {
       orientation: {
         vertical: 'flex-col *:w-full [&>.sr-only]:w-auto',
-        /* Figma Horizontal Field — label column 120px, control flexes. */
+        /* Figma Horizontal Field — label column 120px, control flexes.
+         * Radio/Checkbox beside multi-line content: Aligner `pt` = `--spacing-3xs`. */
         horizontal:
-          'flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:w-[120px] *:data-[slot=field-label]:shrink-0 *:data-[slot=field-label]:grow-0 has-[[role=checkbox]]:*:data-[slot=field-label]:w-auto has-[[role=radio]]:*:data-[slot=field-label]:w-auto has-[[role=switch]]:*:data-[slot=field-label]:w-auto has-[[data-slot=switch]]:*:data-[slot=field-label]:w-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio],[role=switch]]:mt-px',
+          'flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:w-[120px] *:data-[slot=field-label]:shrink-0 *:data-[slot=field-label]:grow-0 has-[[role=checkbox]]:*:data-[slot=field-label]:w-auto has-[[role=radio]]:*:data-[slot=field-label]:w-auto has-[[role=switch]]:*:data-[slot=field-label]:w-auto has-[[data-slot=switch]]:*:data-[slot=field-label]:w-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio],[role=switch]]:mt-[length:var(--spacing-3xs)]',
         responsive:
-          'flex-col *:w-full [&>.sr-only]:w-auto @md/field-group:flex-row @md/field-group:items-center @md/field-group:*:w-auto @md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:*:data-[slot=field-label]:w-[120px] @md/field-group:*:data-[slot=field-label]:shrink-0 @md/field-group:*:data-[slot=field-label]:grow-0 @md/field-group:has-[[role=checkbox]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[[role=radio]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[[role=switch]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[[data-slot=switch]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio],[role=switch]]:mt-px',
+          'flex-col *:w-full [&>.sr-only]:w-auto @md/field-group:flex-row @md/field-group:items-center @md/field-group:*:w-auto @md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:*:data-[slot=field-label]:w-[120px] @md/field-group:*:data-[slot=field-label]:shrink-0 @md/field-group:*:data-[slot=field-label]:grow-0 @md/field-group:has-[[role=checkbox]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[[role=radio]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[[role=switch]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[[data-slot=switch]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio],[role=switch]]:mt-[length:var(--spacing-3xs)]',
       },
     },
     defaultVariants: {
@@ -127,7 +126,7 @@ function FieldContent({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="field-content"
       className={cn(
-        'group/field-content flex min-w-0 flex-1 flex-col gap-[var(--spacing-1-5)]',
+        'group/field-content flex flex-1 flex-col gap-[var(--spacing-1-5)]',
         className,
       )}
       {...props}
@@ -135,13 +134,23 @@ function FieldContent({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+type FieldLabelChoice = 'card' | 'icon' | 'block';
+
 function FieldLabel({
   className,
+  choice,
   ...props
-}: React.ComponentProps<typeof Label>) {
+}: React.ComponentProps<typeof Label> & {
+  /**
+   * Rich Radio Chip host when wrapping Field (`19:5987`).
+   * Omit for plain labels. Default nested-Field chrome = Card.
+   */
+  choice?: FieldLabelChoice;
+}) {
   return (
     <Label
       data-slot="field-label"
+      data-choice={choice}
       className={cn(
         'group/field-label peer/field-label flex w-fit gap-[var(--spacing-xs)] select-none',
         'font-[family-name:var(--text-paragraph-small-medium-font-family)]',
@@ -152,13 +161,59 @@ function FieldLabel({
         'text-[color:var(--foreground)]',
         'group-data-[disabled=true]/field:opacity-50',
         'group-data-[invalid=true]/field:text-destructive',
-        /* Choice-card host (Field nested inside Label). */
-        'has-data-checked:bg-[color:var(--accent)]',
-        'has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:min-w-80',
-        'has-[>[data-slot=field]]:flex-col',
-        'has-[>[data-slot=field]]:rounded-[length:var(--radius)]',
-        'has-[>[data-slot=field]]:border has-[>[data-slot=field]]:border-[color:var(--border)]',
-        '*:data-[slot=field]:p-[var(--spacing-md)]',
+        /* —— Card (default when Field is nested) — Figma Size=Card ——
+         * Unchecked: hairline + alpha-10. Checked: primary gradient border +
+         * focus ring (Avatar / Button primaryOutline recipe). */
+        'has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col',
+        'has-[>[data-slot=field]]:rounded-[length:var(--rounded-lg)]',
+        'has-[>[data-slot=field]]:border-[length:var(--stroke-hairline)]',
+        'has-[>[data-slot=field]]:border-solid',
+        'has-[>[data-slot=field]]:border-[color:var(--theme-alpha-black-switch-10)]',
+        '*:data-[slot=field]:p-[var(--spacing-sm)]',
+        'has-data-checked:border-[length:var(--stroke-thin)]',
+        'has-data-checked:border-transparent',
+        'has-data-checked:overflow-clip',
+        'has-data-checked:[background:linear-gradient(var(--background),var(--background))_padding-box,var(--gradient-primary-top-bottom)_border-box]',
+        'has-data-checked:shadow-[var(--effect-focus-ring-primary)]',
+        /* —— Icon SM/LG — hug width; fixed 40px height; pad `--spacing-2-5`.
+         * Unchecked fill/border must NOT stay on when checked. */
+        'data-[choice=icon]:relative',
+        'data-[choice=icon]:inline-flex',
+        'data-[choice=icon]:w-fit',
+        'data-[choice=icon]:max-w-fit',
+        'data-[choice=icon]:shrink-0',
+        'data-[choice=icon]:gap-0',
+        'data-[choice=icon]:items-center',
+        'data-[choice=icon]:h-[length:var(--spacing-3xl)]',
+        'data-[choice=icon]:has-[>[data-slot=field]]:w-fit',
+        'data-[choice=icon]:has-[>[data-slot=field]]:flex-row',
+        'data-[choice=icon]:has-[>[data-slot=field]]:items-center',
+        'data-[choice=icon]:has-[>[data-slot=field]]:border-[length:var(--stroke-thin)]',
+        'data-[choice=icon]:not-has-data-checked:border-[color:var(--border)]',
+        'data-[choice=icon]:not-has-data-checked:bg-[color:var(--background)]',
+        'data-[choice=icon]:*:data-[slot=field]:h-full',
+        'data-[choice=icon]:*:data-[slot=field]:w-fit',
+        'data-[choice=icon]:*:data-[slot=field]:p-[var(--spacing-2-5)]',
+        'data-[choice=icon]:has-data-checked:border-[length:var(--stroke-thin)]',
+        'data-[choice=icon]:has-data-checked:border-transparent',
+        'data-[choice=icon]:has-data-checked:overflow-clip',
+        'data-[choice=icon]:has-data-checked:[background:linear-gradient(var(--background),var(--background))_padding-box,var(--gradient-primary-top-bottom)_border-box]',
+        'data-[choice=icon]:has-data-checked:shadow-[var(--effect-focus-ring-primary)]',
+        /* —— Block — Figma Icon=True, Size=LG, Orientation=Vertical —— */
+        'data-[choice=block]:relative',
+        'data-[choice=block]:gap-0',
+        'data-[choice=block]:has-[>[data-slot=field]]:w-[110px]',
+        'data-[choice=block]:has-[>[data-slot=field]]:border-[length:var(--stroke-thin)]',
+        'data-[choice=block]:not-has-data-checked:border-[color:var(--theme-alpha-black-switch-10)]',
+        'data-[choice=block]:not-has-data-checked:bg-[color:var(--tw-raw-black)]',
+        'data-[choice=block]:*:data-[slot=field]:px-[var(--spacing-2-5)]',
+        'data-[choice=block]:*:data-[slot=field]:pt-[var(--spacing-2xs)]',
+        'data-[choice=block]:*:data-[slot=field]:pb-[var(--spacing-xs)]',
+        'data-[choice=block]:has-data-checked:border-[length:var(--stroke-thin)]',
+        'data-[choice=block]:has-data-checked:border-transparent',
+        'data-[choice=block]:has-data-checked:overflow-clip',
+        'data-[choice=block]:has-data-checked:[background:linear-gradient(var(--tw-raw-black),var(--tw-raw-black))_padding-box,var(--gradient-primary-top-bottom)_border-box]',
+        'data-[choice=block]:has-data-checked:shadow-[var(--effect-focus-ring-primary)]',
         className,
       )}
       {...props}
@@ -171,7 +226,7 @@ function FieldTitle({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="field-label"
       className={cn(
-        'flex w-fit max-w-full items-center gap-[var(--spacing-xs)]',
+        'flex w-fit items-center gap-[var(--spacing-xs)]',
         'font-[family-name:var(--text-paragraph-small-medium-font-family)]',
         '[font-weight:var(--text-paragraph-small-medium-font-weight)]',
         'text-[length:var(--text-paragraph-small-medium-font-size)]',
@@ -326,3 +381,4 @@ export {
   FieldTitle,
   fieldVariants,
 };
+export type { FieldLabelChoice };

@@ -24,9 +24,11 @@ partners have real sizes, tokens, and chrome.
       demos we skipped). Promote or trim selectors that only exist for thin-pass
       chrome. See [Button Group README → Deferred](../src/primitives/button-group/README.md#deferred).
 - [ ] **Date Picker × Popover / Field / Input** — Date Picker guide landed;
-      re-verify Popover chrome and Field / Input / Input Group hosts once those
-      are Foundations-matched; optional Persian (`react-day-picker/persian`).
-      See [Date Picker README → Deferred](../src/primitives/date-picker/README.md#deferred).
+      Popover chrome is Foundations-matched — re-verify calendar host
+      (`w-auto p-0`) and Field / Input / Input Group hosts; optional Persian
+      (`react-day-picker/persian`). See
+      [Date Picker README → Deferred](../src/primitives/date-picker/README.md#deferred)
+      · [Popover README → Deferred](../src/primitives/popover/README.md#deferred).
 - [ ] **Card × form partners** — re-verify login / Spacing / RTL demos once
       Input, Label, and Field are Foundations-matched. See
       [Card README → Deferred](../src/primitives/card/README.md#deferred).
@@ -75,9 +77,9 @@ partners have real sizes, tokens, and chrome.
       Field and Input land; add Figma Mobile / full-screen Type variants if
       product needs them. See
       [Dialog README → Deferred](../src/primitives/dialog/README.md#deferred).
-- [ ] **Drawer × Field / Input / Radio** — re-verify Responsive (Dialog↔Drawer)
-      and Delivery Method demos once Field, Input, Label, and Radio Group are
-      Foundations-matched. See
+- [ ] **Drawer × Field / Input / Radio** — Field, Input, and Radio Group are
+      Foundations-matched — re-verify Responsive (Dialog↔Drawer) and Delivery
+      Method demos; Label still thin-pass. See
       [Drawer README → Deferred](../src/primitives/drawer/README.md#deferred).
 - [ ] **Empty × Input Group** — re-verify Input Group empty-state demo once
       Input Group is Foundations-matched. See
@@ -97,20 +99,21 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Item × Avatar / image media** — re-check left-slot alignment against
       Figma Item once Avatar polish settles. See
       [Item README → Deferred](../src/primitives/item/README.md#deferred).
-- [ ] **Kbd × Tooltip** — Foundations Tooltip is Neutrals (New)/150 (cream /
-      charcoal). Confirm Default switch alphas (not Glow) read correctly in
-      light and dark inside Tooltip Content. See
-      [Kbd README → Deferred](../src/primitives/kbd/README.md#deferred) and
-      [Tooltip README → Deferred](../src/primitives/tooltip/README.md#deferred).
+- [x] **Kbd × Tooltip Glow** — Tooltip Foundations-matched (`default` /
+      `inverse`); Kbd auto-Glow scoped to `inverse` + `.dark` tooltip hosts.
+      Re-verify light `default` + shortcuts if product needs that pair. See
+      [Kbd README](../src/primitives/kbd/README.md) ·
+      [Tooltip README](../src/primitives/tooltip/README.md).
 - [ ] **Kbd × light-mode final check** — Default / Glow / Tooltip / Input Group /
       Button in light theme (Glow charcoal only when needed; Default never on a
       dark panel; contrast). See
       [Kbd README → Deferred](../src/primitives/kbd/README.md#deferred).
-- [ ] **Hover Card × Popover / Tooltip** — no dedicated Figma Hover Card; surface
-      uses background + floating panel tokens. Tooltip landed on Neutrals/150
-      (compact); re-verify / share panel recipe once **Popover** is
-      Foundations-matched. See
-      [Hover Card README → Deferred](../src/primitives/hover-card/README.md#deferred).
+- [ ] **Hover Card × Popover / Tooltip** — Popover and Tooltip are
+      Foundations-matched; re-verify / share panel recipe vs Hover Card
+      (`--background`). See
+      [Hover Card README → Deferred](../src/primitives/hover-card/README.md#deferred)
+      · [Popover README](../src/primitives/popover/README.md)
+      · [Tooltip README](../src/primitives/tooltip/README.md).
 - [x] **Toggle Group × Toggle** — shared `toggleVariants` (Ghost/Outline ·
       sm/default/lg · roundness) from Toggle; Toggle Group keeps connected
       Position CSS (`spacing={0}` shell / dividers). See
@@ -122,10 +125,21 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Toggle Icon Button** (`164:20378`) — separate primitive (Text Button /
       Icon Button relationship). See
       [Toggle README → Deferred](../src/primitives/toggle/README.md#deferred).
+- [x] **Progress × Slider** — Slider Foundations-matched; re-verify Controlled
+      Progress story host when convenient. See
+      [Progress README → Deferred](../src/primitives/progress/README.md#deferred).
+- [ ] **Questionnaire × Progress track / motion** — text progress is enough for
+      land; optional track via Progress `render` and host-owned item animation.
+      See [Questionnaire README → Deferred](../src/primitives/questionnaire/README.md#deferred).
 - [ ] **Marker × Spinner** — Spinner is Foundations-matched; spot-check Status
       demos when convenient. Message thread composition is landed; shimmer
       utility is in `packages/ui/src/styles/shimmer.css`. See
       [Marker README → Deferred](../src/primitives/marker/README.md#deferred).
+- [ ] **Skeleton × Wave wash** — Figma Skeleton loader / atoms (`5846:22761`)
+      Wave vs Pulse · Position · Theme. Pulse covered by `animate-pulse`;
+      Wave needs a Foundations-safe keyframe / alpha gradient. Device
+      Mobile/Desktop loaders (`5846:23361`) optional after. See
+      [Skeleton README → Deferred](../src/primitives/skeleton/README.md#deferred).
 - [ ] **Message Scroller × Chat UI shell** — Storybook (or app recipe) for full
       shadcn streaming demo: Empty + Input Group + send/reset + transport,
       without AI SDK in `@fabely/ui`. See

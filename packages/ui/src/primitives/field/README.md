@@ -50,14 +50,16 @@ FieldSet
 | Description | Paragraph Small Regular | Inline message + Lucide `Info` (`--icon-sm`) |
 | Error | Paragraph Small Regular | Inline message + `CircleAlert`; `text-destructive` |
 | Legend | Paragraph Regular Medium | `label` variant → Small Medium |
-| Choice-card host | `--radius` + `--border` + `--spacing-md` | Field nested in FieldLabel |
+| Choice-card host (Card) | `--rounded-lg`; hairline + `--theme-alpha-black-switch-10`; pad `--spacing-sm`; checked → primary gradient border + `--effect-focus-ring-primary` | `FieldLabel` wrapping Field (`choice="card"` or omit) |
+| Choice-card host (Icon) | `--background` fill; `--border`; pad `--spacing-2-5`; h 40; checked → primary gradient border + ring | `choice="icon"` |
+| Choice-card host (Block) | `--tw-raw-black` fill; alpha-10; 110px wide; checked → primary gradient border + ring | `choice="block"` |
 
 ## API
 
 | Export | Notes |
 | --- | --- |
 | `Field` | `orientation`: `vertical` \| `horizontal` \| `responsive`; `data-invalid` |
-| `FieldLabel` / `FieldTitle` | Label type; choice-card when wrapping Field |
+| `FieldLabel` / `FieldTitle` | Label type; choice-card when wrapping Field (`choice`: `card` \| `icon` \| `block`) |
 | `FieldDescription` / `FieldError` | Helper / `role="alert"` |
 | `FieldContent` | Groups label + description beside controls |
 | `FieldGroup` / `FieldSet` / `FieldLegend` / `FieldSeparator` | Grouping |
@@ -72,11 +74,14 @@ Field composes many partners. **Revisit this primitive after each lands**
 - [ ] **Select** — Field Select demos + Figma Type=Select
 - [ ] **Slider** — Field Slider demos + Figma Type=Slider (Slider leaf matched;
   host revisit only)
-- [ ] **Radio Group** — Field Radio demos + Figma Type=Radio
+- [ ] **Radio Group** — Field Radio demos + Figma Type=Radio — control chrome
+      landed; re-verify Field host demos in Storybook. See
+      [Radio Group README](../radio-group/README.md).
 - [ ] **Checkbox** — Field Checkbox / choice-card demos (Checkbox already
   matched; re-check Field hosts once Label is matched)
 - [ ] **Switch** — Field Switch demos
-- [ ] **Separator** — FieldSeparator chrome
+- [x] **Separator** — FieldSeparator composes Foundations-matched Separator
+  (`size` / `spacing` available if Field needs denser chrome later).
 - [ ] **Inline message (OC)** — swap Lucide `Info` / `CircleAlert` on
   Description / Error for the shared OC when it lands
 

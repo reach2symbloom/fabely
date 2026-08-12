@@ -227,7 +227,10 @@ export const TooltipStory: Story = {
           <TooltipTrigger render={<Button variant="outline" size="small" />}>
             Save
           </TooltipTrigger>
-          <TooltipContent className="flex items-center gap-[var(--spacing-2xs)]">
+          <TooltipContent
+            variant="inverse"
+            className="flex items-center gap-[var(--spacing-2xs)]"
+          >
             Save
             <KbdGroup>
               <Kbd>⌘</Kbd>
@@ -239,7 +242,10 @@ export const TooltipStory: Story = {
           <TooltipTrigger render={<Button variant="outline" size="small" />}>
             Print
           </TooltipTrigger>
-          <TooltipContent className="flex items-center gap-[var(--spacing-2xs)]">
+          <TooltipContent
+            variant="inverse"
+            className="flex items-center gap-[var(--spacing-2xs)]"
+          >
             Print
             <KbdGroup>
               <Kbd>⌘</Kbd>

@@ -21,7 +21,7 @@ Mode specimen (Default over Glow):
 | Figma | Code |
 | --- | --- |
 | Mode Default (`780:42511`) | `variant="default"` |
-| Mode Glow (`12116:7781`) | `variant="glow"` (dark specimen surfaces) |
+| Mode Glow (`12116:7781`) | `variant="glow"` (also auto inside inverse / dark Tooltip) |
 | key | children |
 
 ## Composition
@@ -68,6 +68,6 @@ in light mode).
 - [ ] **Light-mode final check** — walk Default / Glow / Tooltip / Input Group /
       Button demos in light theme; confirm Glow specimen charcoal only appears
       when needed, Default never sits on a dark panel, and contrast holds.
-- [ ] **Tooltip pairing** — Foundations Tooltip uses Neutrals (New)/150 (cream
-      light / charcoal dark). Default switch alphas are the intended in-tooltip
-      chrome; confirm Glow is not forced. See post-primitives docket.
+- [ ] **Tooltip pairing** — `default` Tooltip uses Neutrals/150 (Default switch
+      alphas); `inverse` / dark hosts auto-Glow. Confirm both in light + dark.
+      See post-primitives docket.
