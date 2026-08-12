@@ -10,7 +10,7 @@ Per `docs/DESIGN.md`: match Figma faithfully first, consume Foundations semantic
 
 Figma-matched: [Accordion](./accordion/README.md), [Alert](./alert/README.md), [Avatar](./avatar/README.md), [Badge](./badge/README.md), [Breadcrumb](./breadcrumb/README.md), [Bubble](./bubble/README.md), [Button](./button/README.md), [Button Group](./button-group/README.md), [Calendar](./calendar/README.md), [Card](./card/README.md), [Carousel](./carousel/README.md), [Chart](./chart/README.md), [Checkbox](./checkbox/README.md), [Collapsible](./collapsible/README.md), [Combobox](./combobox/README.md), [Command](./command/README.md), [Context Menu](./context-menu/README.md), [Dropdown Menu](./dropdown-menu/README.md), [ListItem](./list-item/README.md).
 
-Guide compositions (not vendor re-exports): [Data Table](./data-table/README.md) — TanStack Table v9 on Table.
+Guide compositions (not vendor re-exports): [Data Table](./data-table/README.md) — TanStack Table v9 on Table; [Date Picker](./date-picker/README.md) — Popover + Calendar.
 
 Thin-pass stubs (unstyled re-exports, not yet matched to Figma): every other file under `src/components/ui` except `direction` (skipped).
 

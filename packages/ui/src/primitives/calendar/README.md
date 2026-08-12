@@ -67,7 +67,8 @@ Always prefer controlled `selected` / `onSelect` (or range equivalents). Pass
 
 ## Deferred
 
-- **Date Picker** (Calendar in Popover) — needs Popover Foundations pass
+- **Date Picker Popover chrome** — [Date Picker](../date-picker/README.md) landed;
+  re-verify once Popover is Foundations-matched
 - **Persian / Hijri** (`react-day-picker/persian`) — opt-in swap, not default
 - Presets / date-time demos that need Card + Input polish
 

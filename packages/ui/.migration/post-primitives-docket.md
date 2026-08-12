@@ -23,10 +23,10 @@ partners have real sizes, tokens, and chrome.
       for Input, Input Group, Select, Popover (and any other shadcn Button Group
       demos we skipped). Promote or trim selectors that only exist for thin-pass
       chrome. See [Button Group README → Deferred](../src/primitives/button-group/README.md#deferred).
-- [ ] **Calendar × Date Picker** — compose Calendar in Popover once Popover is
-      Foundations-matched; add presets / date-time demos that need Card + Input.
-      Optional: Persian (`react-day-picker/persian`) as documented opt-in.
-      See [Calendar README → Deferred](../src/primitives/calendar/README.md#deferred).
+- [ ] **Date Picker × Popover / Field / Input** — Date Picker guide landed;
+      re-verify Popover chrome and Field / Input / Input Group hosts once those
+      are Foundations-matched; optional Persian (`react-day-picker/persian`).
+      See [Date Picker README → Deferred](../src/primitives/date-picker/README.md#deferred).
 - [ ] **Card × form partners** — re-verify login / Spacing / RTL demos once
       Input, Label, and Field are Foundations-matched. See
       [Card README → Deferred](../src/primitives/card/README.md#deferred).
