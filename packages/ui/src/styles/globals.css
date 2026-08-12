@@ -14,6 +14,8 @@
 @import 'tw-animate-css';
 /* scroll-fade / no-scrollbar — shadcn scroll utilities (see scroll-fade.css). */
 @import './scroll-fade.css';
+/* shimmer — streaming text highlight (see shimmer.css / ui.shadcn.com/docs/utils/shimmer). */
+@import './shimmer.css';
 @import '../foundations/index.css';
 /* Component-scoped tokens (alongside their atoms — see docs/DESIGN.md). */
 @import '../primitives/avatar/avatar.css';
