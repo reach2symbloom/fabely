@@ -73,7 +73,7 @@ SidebarProvider
 - Sticky footer fade / scrollable presets from Figma Scrollable* variants on
   related panels.
 - Tooltip uses `variant="inverse"` for collapsed icon labels (delay 0).
-  Skeleton remains a thin-pass partner used internally.
+  Skeleton is Foundations-matched (`--theme-alpha-black-switch-333`).
 
 ## Related
 

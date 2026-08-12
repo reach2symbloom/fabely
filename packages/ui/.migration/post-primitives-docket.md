@@ -116,6 +116,11 @@ partners have real sizes, tokens, and chrome.
       Foundations-matched. Message thread composition is landed; shimmer
       utility is in `packages/ui/src/styles/shimmer.css`. See
       [Marker README → Deferred](../src/primitives/marker/README.md#deferred).
+- [ ] **Skeleton × Wave wash** — Figma Skeleton loader / atoms (`5846:22761`)
+      Wave vs Pulse · Position · Theme. Pulse covered by `animate-pulse`;
+      Wave needs a Foundations-safe keyframe / alpha gradient. Device
+      Mobile/Desktop loaders (`5846:23361`) optional after. See
+      [Skeleton README → Deferred](../src/primitives/skeleton/README.md#deferred).
 - [ ] **Message Scroller × Chat UI shell** — Storybook (or app recipe) for full
       shadcn streaming demo: Empty + Input Group + send/reset + transport,
       without AI SDK in `@fabely/ui`. See
