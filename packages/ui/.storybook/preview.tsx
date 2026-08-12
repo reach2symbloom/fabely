@@ -530,6 +530,17 @@ const preview: Preview = {
               'Toast',
               'Toggle',
               'Toggle Group',
+              [
+                'Overview',
+                'Demo',
+                'Outline',
+                'Size',
+                'Spacing',
+                'Vertical',
+                'Disabled',
+                'Custom',
+                'RTL',
+              ],
               'Tooltip',
               [
                 'Overview',
