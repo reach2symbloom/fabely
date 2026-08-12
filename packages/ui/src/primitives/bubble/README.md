@@ -6,7 +6,7 @@ The Fabely Bubble primitive — conversational message surface for chat.
 
 Import from this primitive rather than `src/components/ui/bubble`. Speakers
 Speakers are modeled as `from="user" | "other"` (alignment, sharp
-near-speaker corner, and default fill: **other → primary**, **user →
+near-speaker corner, and default fill: **other → black-switch 10%**, **user →
 secondary**). Keep `variant="destructive"` for error / failed-action
 surfaces — no other shadcn color variants.
 
@@ -16,8 +16,10 @@ Visual source of truth: **Chat bubbles** in
 [Fabely Design System](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16340-807)
 (`fileKey` `gV94L0qCmvwQkddNbEktry`, node `16340:807`, page Chat elements).
 
-One authored example is the **user** bubble. The same fill, padding, gap,
-and radius scale apply to the other speaker with the sharp corner mirrored.
+One authored example is the **user** bubble (`--secondary`). The other
+speaker mirrors radius / spacing with a faded **`--theme-alpha-black-switch-10`**
+fill (not `--primary` / warm taupe, and not `--muted`, which equals
+`--secondary` in dark).
 
 ## Composition
 
@@ -37,7 +39,7 @@ BubbleGroup
 
 | Role | Foundations |
 | --- | --- |
-| Fill / text (other) | `--primary` / `--primary-foreground` |
+| Fill / text (other) | `--theme-alpha-black-switch-10` / `--foreground` |
 | Fill / text (user) | `--secondary` / `--text` |
 | Fill / text (destructive) | `--destructive` @ 10% (20% dark) / `--destructive` |
 | Padding | `--spacing-md` (12) |
@@ -69,7 +71,7 @@ We keep a `--stroke-medium` ring: `--card` in light, `--border` in dark.
 
 | Prop / part | Notes |
 | --- | --- |
-| `Bubble` `from` | `"user"` (end, secondary) \| `"other"` (start, primary); default `"other"` |
+| `Bubble` `from` | `"user"` (end, secondary) \| `"other"` (start, black-switch 10%); default `"other"` |
 | `Bubble` `variant` | `"default"` \| `"destructive"`; default `"default"` |
 | `BubbleContent` `render` | Polymorphic content (`<button />`, `<a />`, …) |
 | `BubbleReactions` `side` / `align` | `"top" \| "bottom"` / `"start" \| "end"` |

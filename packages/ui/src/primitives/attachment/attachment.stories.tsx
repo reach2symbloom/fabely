@@ -520,7 +520,7 @@ export const Overview: Story = {
             alone.
           </li>
           <li>
-            <code>AttachmentRightIcon</code> uses our Button (<code>ghost</code> /{' '}
+            <code>AttachmentRightIcon</code> uses our IconButton (<code>ghost</code> /{' '}
             <code>mini</code> by default — Fabely stand-in for shadcn{' '}
             <code>icon-xs</code>). Always pass <code>aria-label</code> on
             icon-only actions.

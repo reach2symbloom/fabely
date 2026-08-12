@@ -63,8 +63,7 @@ Shimmer utility: `packages/ui/src/styles/shimmer.css` (imported via
 
 ## Deferred
 
-- [ ] **Message** — re-verify thread composition once Message is
-  Foundations-matched
 - [ ] **Spinner** — Status demos use thin-pass Spinner until matched
+- [x] **Message** — Foundations-matched; thread composition demos live on Message
 
-Docket: post-primitives when Message / Spinner land.
+Docket: post-primitives when Spinner lands.

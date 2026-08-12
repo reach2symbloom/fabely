@@ -12,7 +12,7 @@ Import Attachment parts from this primitive rather than the vendor path. Future 
 
 ## Wraps upstream
 
-Vendor file is untouched. Parts override vendor classes via `className`. `AttachmentRightIcon` composes **our Button**. `AttachmentTrigger` and `AttachmentGroup` re-export the vendor parts.
+Vendor file is untouched. Parts override vendor classes via `className`. `AttachmentRightIcon` composes **our IconButton** (`ghost`). `AttachmentTrigger` and `AttachmentGroup` re-export the vendor parts.
 
 ### API
 
@@ -20,7 +20,7 @@ Vendor file is untouched. Parts override vendor classes via `className`. `Attach
 | --- | --- |
 | `Attachment` | `state`: `idle` \| `uploading` \| `processing` \| `error` \| `done` (default `done`); `size`: `default` \| `sm` \| `xs`; `orientation`: `horizontal` \| `vertical` |
 | `AttachmentMedia` | `variant`: `icon` \| `image` |
-| `AttachmentRightIcon` | our Button props; defaults `variant="ghost"`, `size="mini"`, `roundness="round"` (shadcn name: `AttachmentAction`, default size `icon-xs`) |
+| `AttachmentRightIcon` | our **IconButton**; defaults `variant="ghost"`, `size="mini"`, `roundness="round"` (shadcn name: `AttachmentAction`, default size `icon-xs`) |
 | `AttachmentRightIcons` | group for one or more right icons (shadcn name: `AttachmentActions`) |
 | `AttachmentTrigger` | `render` for link/dialog composition |
 | `AttachmentGroup` | scrollable snapping row |
@@ -58,7 +58,7 @@ AttachmentGroup
 | Description | `--muted-foreground` |
 | Content trailing padding | default `--spacing-2-5` (10px); sm `--spacing-xs` (8px); xs `--spacing-1-5` (6px) |
 | Right-icon group gap | `--spacing-3xs` (2px) |
-| Right-icon button | our Button; circular hover via `roundness="round"` → `--rounded-full` |
+| Right-icon button | our IconButton ghost; circular hover via `roundness="round"` → `--rounded-full` |
 
 ## Left on vendor defaults
 

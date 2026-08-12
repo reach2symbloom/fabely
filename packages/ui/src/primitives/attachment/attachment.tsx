@@ -6,7 +6,7 @@
  * the actions slot to RightIcon (see README).
  *
  * Accordion precedent: override via `className` on wrapped vendor parts;
- * do not fork the vendor file. `AttachmentRightIcon` composes our Button.
+ * do not fork the vendor file. `AttachmentRightIcon` composes our IconButton.
  */
 import * as React from 'react';
 import {
@@ -20,8 +20,8 @@ import {
   AttachmentGroup,
 } from '@/components/ui/attachment';
 import { cn } from '@/lib/utils';
-import { Button } from '../button';
-import type { ButtonProps } from '../button';
+import { IconButton } from '../button';
+import type { IconButtonProps } from '../button';
 
 /**
  * Non-error icon plate — `--theme-alpha-black-switch-333` steps away from
@@ -146,9 +146,9 @@ function AttachmentRightIcons({
 }
 
 /**
- * Right icon button (shadcn `AttachmentAction`). Our Button with circular
- * hover (`roundness="round"`). Default `mini` stands in for shadcn
- * `icon-xs`; `ghost` stays the quiet default.
+ * Right icon button (shadcn `AttachmentAction`). Our IconButton ghost with
+ * circular hover (`roundness="round"`). Default `mini` stands in for shadcn
+ * `icon-xs`.
  */
 function AttachmentRightIcon({
   className,
@@ -156,9 +156,9 @@ function AttachmentRightIcon({
   size = 'mini',
   roundness = 'round',
   ...props
-}: ButtonProps) {
+}: IconButtonProps) {
   return (
-    <Button
+    <IconButton
       data-slot="attachment-right-icon"
       variant={variant}
       size={size}
