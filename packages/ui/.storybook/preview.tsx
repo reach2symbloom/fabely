@@ -544,6 +544,17 @@ const preview: Preview = {
                 'RTL',
               ],
               'Switch',
+              [
+                'Overview',
+                'Demo',
+                'Description',
+                'Choice Card',
+                'Disabled',
+                'Invalid',
+                'Size',
+                'RTL',
+                'Switch Light',
+              ],
               'Table',
               [
                 'Overview',

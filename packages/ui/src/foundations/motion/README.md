@@ -9,6 +9,7 @@ motion collection — values are promoted when a curve or duration is reused
 | `--ease-drawer` | `cubic-bezier(0.32, 0.72, 0, 1)` | `ease-drawer` |
 | `--ease-emphasized` | `cubic-bezier(0.22, 1, 0.36, 1)` | `ease-emphasized` |
 | `--ease-emphasized-in` | `cubic-bezier(0.45, 1.005, 0, 1.005)` | `ease-emphasized-in` |
+| `--ease-out` | `cubic-bezier(0, 0, 0.58, 1)` | `ease-out` |
 | `--duration-fast` | `200ms` | `duration-fast` |
 | `--duration-normal` | `300ms` | `duration-normal` |
 | `--duration-drawer` | `450ms` | `duration-drawer` |

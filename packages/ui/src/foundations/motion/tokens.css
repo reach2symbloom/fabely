@@ -17,6 +17,8 @@
   --ease-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
   /* Nested content opacity (shadcn drawer content). */
   --ease-emphasized-in: cubic-bezier(0.45, 1.005, 0, 1.005);
+  /* Figma Smart Animate EASE_OUT — Toggle Light (`5846:24869`) et al. */
+  --ease-out: cubic-bezier(0, 0, 0.58, 1);
 
   --duration-fast: 200ms;
   --duration-normal: 300ms;
