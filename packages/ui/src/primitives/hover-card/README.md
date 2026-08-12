@@ -45,8 +45,9 @@ HoverCard
 
 ## Deferred
 
-- Re-verify surface once **Popover** / **Tooltip** are Foundations-matched —
-  share one floating-panel recipe if they converge
+- Re-verify surface once **Tooltip** is Foundations-matched — share one
+  floating-panel recipe with [Popover](../popover/README.md) if they converge
+  (Popover uses `--popover`; this uses `--background`)
 - Optional Figma Hover Card set if design adds one later
 
 ## Related

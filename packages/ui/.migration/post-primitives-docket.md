@@ -24,9 +24,11 @@ partners have real sizes, tokens, and chrome.
       demos we skipped). Promote or trim selectors that only exist for thin-pass
       chrome. See [Button Group README → Deferred](../src/primitives/button-group/README.md#deferred).
 - [ ] **Date Picker × Popover / Field / Input** — Date Picker guide landed;
-      re-verify Popover chrome and Field / Input / Input Group hosts once those
-      are Foundations-matched; optional Persian (`react-day-picker/persian`).
-      See [Date Picker README → Deferred](../src/primitives/date-picker/README.md#deferred).
+      Popover chrome is Foundations-matched — re-verify calendar host
+      (`w-auto p-0`) and Field / Input / Input Group hosts; optional Persian
+      (`react-day-picker/persian`). See
+      [Date Picker README → Deferred](../src/primitives/date-picker/README.md#deferred)
+      · [Popover README → Deferred](../src/primitives/popover/README.md#deferred).
 - [ ] **Card × form partners** — re-verify login / Spacing / RTL demos once
       Input, Label, and Field are Foundations-matched. See
       [Card README → Deferred](../src/primitives/card/README.md#deferred).
@@ -96,10 +98,11 @@ partners have real sizes, tokens, and chrome.
       Button in light theme (Glow charcoal only when needed; Default never on a
       dark panel; contrast). See
       [Kbd README → Deferred](../src/primitives/kbd/README.md#deferred).
-- [ ] **Hover Card × Popover / Tooltip** — no dedicated Figma Hover Card; surface
-      uses background + floating panel tokens. Re-verify / share panel recipe once
-      Popover and Tooltip are Foundations-matched. See
-      [Hover Card README → Deferred](../src/primitives/hover-card/README.md#deferred).
+- [ ] **Hover Card × Popover / Tooltip** — Popover is Foundations-matched
+      (`--popover` fill); Hover Card stays on `--background`. Re-verify / share
+      panel recipe once Tooltip lands. See
+      [Hover Card README → Deferred](../src/primitives/hover-card/README.md#deferred)
+      · [Popover README](../src/primitives/popover/README.md).
 - [ ] **Marker × Spinner** — re-verify Status demos once Spinner is
       Foundations-matched. Message thread composition is landed; shimmer
       utility is in `packages/ui/src/styles/shimmer.css`. See
