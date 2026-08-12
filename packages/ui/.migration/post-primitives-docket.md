@@ -89,6 +89,13 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Item × Avatar / image media** — re-check left-slot alignment against
       Figma Item once Avatar polish settles. See
       [Item README → Deferred](../src/primitives/item/README.md#deferred).
+- [ ] **Kbd × Tooltip Glow** — re-verify auto Glow inside Tooltip content once
+      Tooltip is Foundations-matched. See
+      [Kbd README → Deferred](../src/primitives/kbd/README.md#deferred).
+- [ ] **Kbd × light-mode final check** — Default / Glow / Tooltip / Input Group /
+      Button in light theme (Glow charcoal only when needed; Default never on a
+      dark panel; contrast). See
+      [Kbd README → Deferred](../src/primitives/kbd/README.md#deferred).
 - [ ] **Hover Card × Popover / Tooltip** — no dedicated Figma Hover Card; surface
       uses background + floating panel tokens. Re-verify / share panel recipe once
       Popover and Tooltip are Foundations-matched. See

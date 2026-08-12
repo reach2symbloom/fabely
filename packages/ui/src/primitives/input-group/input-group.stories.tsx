@@ -193,7 +193,7 @@ function KbdExample() {
   return (
     <div className="w-80 max-w-full">
       <LimitationNotice>
-        Kbd is still thin-pass — chrome may not match Foundations yet.
+        Kbd addon — Foundations Kbd inside InputGroupAddon.
       </LimitationNotice>
       <InputGroup>
         <InputGroupInput placeholder="Search…" />

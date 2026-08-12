@@ -477,6 +477,15 @@ const preview: Preview = {
                 'Footer',
               ],
               'Kbd',
+              [
+                'Overview',
+                'Group',
+                'Button',
+                'Tooltip',
+                'Input Group',
+                'Glow',
+                'RTL',
+              ],
               'Label',
               'ListItem',
               [
