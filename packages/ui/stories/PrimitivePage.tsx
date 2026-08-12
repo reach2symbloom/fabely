@@ -61,7 +61,7 @@ export const PRIMITIVE_PLAYGROUND_CONTROL_GRID =
  *
  * Page inset: `--spacing-6xl` (80px).
  * Title → description gap: `--spacing-xl` (24px).
- * Description: Paragraph Regular tokens; max 75% of page width.
+ * Description: Paragraph Regular tokens; `min-width` 400px, `max-width` 720px.
  * Section headings: Heading 4 tokens (subordinate to Heading 2 title).
  * Variants (Figma vocabulary) + Playground: full page width.
  *
@@ -87,7 +87,7 @@ export function PrimitivePage({
         {title}
       </h1>
       <p
-        className="w-[75%] max-w-full text-muted-foreground"
+        className="min-w-[400px] w-full max-w-[720px] text-muted-foreground"
         style={storyDescriptionStyle}
       >
         {description}

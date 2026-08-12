@@ -38,7 +38,6 @@ Progress                    size="thin" | "thick"
 | Thin height | `--spacing-2xs` (4) |
 | Thick height | `--spacing-xs` (8) |
 | Indicator fill | `--gradient-primary-left-right` |
-| Indicator glow | `--effect-glow-primary-2` |
 | Root gap (bar ↔ %) | `--spacing-md` (16) |
 | Value type | Paragraph Mini Medium + `--muted-foreground` |
 | Motion | `--duration-fast` |
@@ -54,8 +53,8 @@ Progress                    size="thin" | "thick"
 ## Deferred
 
 - Controlled story uses thin-pass [Slider](../slider/README.md).
-- Thick Figma set uses per-step glow SVG overlays — CSS clip-path + glow token
-  approximates; revisit if pixel QA needs the exact assets.
+- Thick Figma set uses per-step glow SVG overlays — omitted here; revisit if
+  pixel QA needs them. RTL mirrors the slant onto inline-end.
 
 ## Related
 

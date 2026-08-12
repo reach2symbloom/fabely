@@ -141,17 +141,51 @@ function ProgressPlayground() {
             onChange={(v) => setShowPercent(v === 'on')}
             fullWidth
           />
-          <div className="col-span-2">
-            <InlineSegmentedControl
-              label="Progress"
-              value={String(value)}
-              options={FIGMA_PROGRESS_STEPS.map((v) => ({
-                value: String(v),
-                label: String(v),
-              }))}
-              onChange={(v) => setValue(Number(v))}
-              fullWidth
+          {/* 13 Figma steps don't fit a segmented row — slider + snap chips. */}
+          <div className="col-span-2 flex flex-col gap-[var(--spacing-xs)]">
+            <div className="font-sans text-xs text-muted-foreground">
+              Progress · {value}%
+            </div>
+            <Slider
+              value={[value]}
+              onValueChange={(next) => {
+                const n = Array.isArray(next) ? next[0] : next;
+                if (typeof n === 'number') setValue(n);
+              }}
+              min={0}
+              max={100}
+              step={1}
+              className="w-full"
             />
+            <div
+              role="radiogroup"
+              aria-label="Progress snap"
+              className="grid grid-cols-7 gap-[var(--spacing-2xs)]"
+            >
+              {FIGMA_PROGRESS_STEPS.map((step) => {
+                const selected = value === step;
+                return (
+                  <button
+                    key={step}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => setValue(step)}
+                    className={[
+                      'rounded-[length:var(--rounded-sm)] border px-[var(--spacing-2xs)] py-[var(--spacing-3xs)]',
+                      'font-sans text-[length:var(--text-paragraph-mini-medium-font-size)]',
+                      'leading-[var(--text-paragraph-mini-medium-line-height)]',
+                      'transition-colors',
+                      selected
+                        ? 'border-[color:var(--theme-alpha-black-switch-40)] bg-[var(--theme-alpha-black-switch-15)] text-foreground'
+                        : 'border-transparent text-muted-foreground hover:text-foreground',
+                    ].join(' ')}
+                  >
+                    {step}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       }
@@ -170,8 +204,7 @@ export const Overview: Story = {
         <>
           Task completion bar from Figma Progress (Size Thin / Thick, optional
           trailing %). Indicator uses{' '}
-          <code>--gradient-primary-left-right</code> +{' '}
-          <code>--effect-glow-primary-2</code>; track is{' '}
+          <code>--gradient-primary-left-right</code>. Track is{' '}
           <code>--theme-alpha-black-switch-333</code>. Composition API matches{' '}
           <a href="https://ui.shadcn.com/docs/components/base/progress">
             shadcn Progress

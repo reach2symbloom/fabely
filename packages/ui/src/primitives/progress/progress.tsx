@@ -54,25 +54,36 @@ const progressTrackVariants = cva(
 
 const progressIndicatorVariants = cva(
   [
-    'h-full origin-inline-start',
-    'rounded-[length:var(--rounded-lg)]',
-    'bg-[image:var(--gradient-primary-left-right)]',
-    'shadow-[var(--effect-glow-primary-2)]',
-    'transition-all duration-[var(--duration-fast)]',
+    /* Absolute so Base UI width/% + inset-inline-start share the track box. */
+    'absolute inset-y-0 origin-inline-start',
+    '[background-image:var(--gradient-primary-left-right)]',
+    'transition-[width,clip-path] duration-[var(--duration-fast)]',
   ],
   {
     variants: {
       size: {
-        thin: '',
-        thick: '',
+        thin: 'rounded-[length:var(--rounded-lg)]',
+        /* Start cap only — end is slanted (or fully round when complete). */
+        thick: 'rounded-s-[length:var(--rounded-lg)]',
       },
       slant: {
         false: '',
-        /* Figma Thick: leading edge is a forward slash (top longer than bottom). */
-        true: '[clip-path:polygon(0_0,100%_0,calc(100%-var(--spacing-xs))_100%,0_100%)]',
+        /*
+         * Figma Thick: top of the leading edge extends past the bottom (`\`).
+         * Leading edge is inline-end — mirror under `dir=rtl`.
+         */
+        true: [
+          'rounded-e-none',
+          '[clip-path:polygon(0_0,100%_0,calc(100%-var(--spacing-xs))_100%,0_100%)]',
+          'rtl:[clip-path:polygon(0_0,100%_0,100%_100%,var(--spacing-xs)_100%)]',
+        ].join(' '),
+      },
+      complete: {
+        false: '',
+        true: 'rounded-e-[length:var(--rounded-lg)]',
       },
     },
-    defaultVariants: { size: 'thin', slant: false },
+    defaultVariants: { size: 'thin', slant: false, complete: false },
   },
 );
 
@@ -130,7 +141,14 @@ function ProgressIndicator({
       data-slot="progress-indicator"
       data-size={size}
       data-complete={complete || undefined}
-      className={cn(progressIndicatorVariants({ size, slant }), className)}
+      className={cn(
+        progressIndicatorVariants({
+          size,
+          slant,
+          complete: complete && size === 'thick',
+        }),
+        className,
+      )}
       {...props}
     />
   );
