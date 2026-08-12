@@ -165,7 +165,8 @@ export const Overview: Story = {
           </li>
           <li>
             Figma <code>Mode=Glow</code> maps to <code>variant=&quot;glow&quot;</code>{' '}
-            — also applied automatically inside Tooltip content.
+            for dark specimen surfaces. Inside Foundations Tooltip, prefer
+            Default (switch alphas).
           </li>
           <li>
             Compose into Button, Tooltip, or Input Group addons; do not invent

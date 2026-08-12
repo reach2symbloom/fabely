@@ -15,7 +15,8 @@ import { cn } from '@/lib/utils';
 
 /**
  * Figma Mode axis: Default (quiet alpha fill) · Glow (white alpha on dark
- * surfaces). Glow also applies automatically inside Tooltip content.
+ * surfaces). Prefer Default inside Foundations Tooltip (cream / charcoal);
+ * use Glow on intentional dark specimen surfaces.
  */
 export type KbdVariant = 'default' | 'glow';
 
@@ -48,9 +49,6 @@ const kbdVariants = cva(
           'bg-[color:var(--theme-alpha-black-switch-5)]',
           /* Figma: alpha/black/switch/alpha-50 */
           'text-[color:var(--theme-alpha-black-switch-50)]',
-          /* Tooltip host — Figma Mode=Glow tokens without requiring the prop. */
-          'in-data-[slot=tooltip-content]:bg-[color:var(--theme-alpha-white-no-switch-25)]',
-          'in-data-[slot=tooltip-content]:text-[color:var(--theme-alpha-white-no-switch-60)]',
         ].join(' '),
         glow: [
           /* Figma: alpha/white/no-switch/alpha-25 (white @ 25% on dark) */
