@@ -2,6 +2,10 @@
 
 Visually or semantically separates content.
 
+**Alias:** if you say **divider**, you mean this primitive (`Separator`). Figma’s
+set is named **Separator (Divider)**; code and shadcn keep the export name
+`Separator` — there is no separate `Divider` component.
+
 ## Purpose
 
 Import from this primitive rather than `src/components/ui/separator`. Public

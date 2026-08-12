@@ -215,7 +215,7 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Separator"
-      description="Visually or semantically separates content — Figma Separator (Divider) with Thin/Thick and spacing."
+      description="Visually or semantically separates content — Figma Separator (Divider). “Divider” means this Separator primitive."
       playground={<SeparatorPlayground />}
       variants={
         <div className="flex flex-col gap-[var(--spacing-xl)]">
