@@ -39,7 +39,7 @@ import {
  * milestone approach.
  *
  * Deferred partners (README → Deferred / post-primitives docket): Field, Input,
- * Tabs (file-tree header).
+ * Tabs file-tree header composition.
  */
 
 const meta = {
@@ -266,13 +266,13 @@ function FileTreeNode({ item }: { item: FileTreeItem }) {
   );
 }
 
-/** shadcn File Tree — Tabs header deferred; plain Explorer title. */
+/** shadcn File Tree — Tabs header composition deferred; plain Explorer title. */
 function FileTreeExample() {
   return (
     <div className="flex w-[min(100%,16rem)] flex-col gap-[var(--spacing-md)]">
       <LimitationNotice>
-        shadcn File Tree uses Tabs for Explorer / Outline — Tabs is still
-        thin-pass, so this story uses a Card title instead.
+        shadcn File Tree uses Tabs for Explorer / Outline — composition is
+        deferred; this story uses a Card title instead.
       </LimitationNotice>
       <Card size="sm">
         <CardHeader>

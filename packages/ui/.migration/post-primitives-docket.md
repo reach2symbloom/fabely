@@ -50,8 +50,13 @@ partners have real sizes, tokens, and chrome.
       [Data Table README → Deferred](../src/primitives/data-table/README.md#deferred).
 - [ ] **Collapsible × Field / Input / Tabs** — re-verify Settings Panel once
       Field and Input are Foundations-matched; restore Explorer / Outline Tabs
-      on File Tree once Tabs lands. See
+      on File Tree (Tabs is Foundations-matched). See
       [Collapsible README → Deferred](../src/primitives/collapsible/README.md#deferred).
+- [ ] **Tabs AI toggle / Size5 / Solar / Thread / Fill=False Large** — Figma
+      Tabs (segmented) odd sizes (AI toggle, Size5), Solar icon set, Thread
+      tabs / counter molecule, and Fill=False Large elevated inactive chrome —
+      not on the shadcn Tabs surface. See
+      [Tabs README → Deferred](../src/primitives/tabs/README.md#deferred).
 - [ ] **Combobox × Input Group / sizes** — re-verify ComboboxInput host once
       Input Group is Foundations-matched; add Input Group addon demo; expose
       Figma Size (Large / Small / Mini) and Style Ghost if product needs them.
