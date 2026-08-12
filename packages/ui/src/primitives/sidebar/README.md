@@ -23,8 +23,9 @@ Action / Badge / Sub), Separator, Input, Skeleton.
 | Sidebar Group Label | `SidebarGroupLabel` (caption mini, uppercase) |
 | Sidebar Badge | `SidebarMenuBadge` |
 
-Example shells are **240px** (`15rem`) with `--sidebar` fill and
-`--sidebar-border` edge.
+Example shells in Figma are ~240px; code keeps the shadcn default **`16rem`**
+(`SIDEBAR_WIDTH`). Override via `--sidebar-width` on `SidebarProvider` when
+product needs the tighter Figma width.
 
 ## Composition
 
@@ -35,11 +36,18 @@ SidebarProvider
 │   ├── SidebarContent
 │   │   └── SidebarGroup
 │   │       ├── SidebarGroupLabel
-│   │       └── SidebarMenu → SidebarMenuItem → SidebarMenuButton
+│   │       ├── SidebarGroupAction
+│   │       ├── SidebarGroupContent
+│   │       └── SidebarMenu
+│   │           └── SidebarMenuItem
+│   │               ├── SidebarMenuButton
+│   │               ├── SidebarMenuAction
+│   │               ├── SidebarMenuBadge
+│   │               └── SidebarMenuSub
 │   ├── SidebarFooter
 │   └── SidebarRail
-└── SidebarInset
-    └── SidebarTrigger
+├── SidebarInset
+└── SidebarTrigger
 ```
 
 ## Token substitutions
@@ -47,7 +55,7 @@ SidebarProvider
 | Role | Foundations | Notes |
 | --- | --- | --- |
 | Surface / text / accent / border / ring | `--sidebar*` | From Foundations colors |
-| Expanded width | `15rem` (240) | Figma example shell |
+| Expanded width | `16rem` | shadcn default; override `--sidebar-width` |
 | Icon width | `3rem` | Collapsed rail |
 | Item radius | `--rounded-md` (8) | Figma 1st-level items |
 | Item height | `--spacing-9` (36) | |

@@ -7,11 +7,17 @@ import {
   PanelLeftCloseIcon,
   PanelLeftOpenIcon,
   PieChartIcon,
-  SendIcon,
+  PlusIcon,
+  User2Icon,
 } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '../button';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '../collapsible';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,16 +32,19 @@ import {
   PrimitivePage,
 } from '../../../stories/PrimitivePage';
 
+import { SIDEBAR_STORY_FRAME, SidebarDemo } from './sidebar-demo';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
@@ -46,8 +55,8 @@ import {
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
- * Overview first — Playground + shadcn Sidebar docs demos (Menu / Header /
- * Controlled / RTL).
+ * Overview first — Playground + shadcn Sidebar docs (Demo collapses to icons,
+ * Header / Footer / Group / Menu / Controlled / RTL).
  *
  * Docs: https://ui.shadcn.com/docs/components/base/sidebar
  * Figma: https://www.figma.com/design/gV94L0qCmvwQkddNbEktry?node-id=842-51929
@@ -67,44 +76,9 @@ const projects = [
   { name: 'Design Engineering', url: '#', icon: FrameIcon },
   { name: 'Sales & Marketing', url: '#', icon: PieChartIcon },
   { name: 'Travel', url: '#', icon: MapIcon },
-  { name: 'Support', url: '#', icon: LifeBuoyIcon },
-  { name: 'Feedback', url: '#', icon: SendIcon },
 ] as const;
 
-/**
- * Pin fixed sidebar chrome inside the demo frame so Storybook Overview
- * (multiple instances) does not cover the docs viewport.
- */
-const SIDEBAR_STORY_FRAME = [
-  'relative flex min-h-[320px] w-full max-w-3xl overflow-hidden border border-border',
-  '[&_[data-slot=sidebar-container]]:absolute!',
-  '[&_[data-slot=sidebar-container]]:inset-y-0!',
-  '[&_[data-slot=sidebar-container]]:h-full!',
-].join(' ');
-
-function ProjectsMenu() {
-  return (
-    <SidebarContent>
-      <SidebarGroup>
-        <SidebarGroupLabel>Projects</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            {projects.map((project) => (
-              <SidebarMenuItem key={project.name}>
-                <SidebarMenuButton render={<a href={project.url} />}>
-                  <project.icon />
-                  <span>{project.name}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </SidebarContent>
-  );
-}
-
-function InsetChrome({ label }: { label: string }) {
+function InsetToggle({ label }: { label: string }) {
   const { open, toggleSidebar } = useSidebar();
   return (
     <div className="flex flex-wrap items-center gap-[var(--spacing-xs)] border-b border-border p-[var(--spacing-md)]">
@@ -120,89 +94,184 @@ function InsetChrome({ label }: { label: string }) {
   );
 }
 
-/** shadcn sidebar-menu */
-function MenuExample() {
-  return (
-    <SidebarProvider className={SIDEBAR_STORY_FRAME}>
-      <Sidebar>
-        <SidebarHeader className="flex-row items-center justify-between">
-          <span className="px-[var(--spacing-sm)] text-[length:var(--text-paragraph-mini-regular-font-size)] text-muted-foreground">
-            Menu
-          </span>
-          <SidebarTrigger />
-        </SidebarHeader>
-        <ProjectsMenu />
-      </Sidebar>
-      <SidebarInset>
-        <InsetChrome label="Menu" />
-      </SidebarInset>
-    </SidebarProvider>
-  );
-}
-
-/** shadcn sidebar-header */
+/** shadcn SidebarHeader */
 function HeaderExample() {
   return (
     <SidebarProvider className={SIDEBAR_STORY_FRAME}>
       <Sidebar>
         <SidebarHeader>
-          <div className="flex items-center justify-between gap-[var(--spacing-xs)]">
-            <SidebarMenu className="flex-1">
-              <SidebarMenuItem>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <SidebarMenuButton className="data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground" />
-                    }
-                  >
-                    Select Workspace
-                    <ChevronDownIcon className="ms-auto" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-(--anchor-width)">
-                    <DropdownMenuItem>
-                      <span>Acme Inc</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <span>Acme Corp.</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </SidebarMenuItem>
-            </SidebarMenu>
-            <SidebarTrigger />
-          </div>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <SidebarMenuButton className="data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground" />
+                  }
+                >
+                  Select Workspace
+                  <ChevronDownIcon className="ms-auto" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-(--anchor-width)">
+                  <DropdownMenuItem>
+                    <span>Acme Inc</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <span>Acme Corp.</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarHeader>
-        <ProjectsMenu />
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Application</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {projects.map((project) => (
+                  <SidebarMenuItem key={project.name}>
+                    <SidebarMenuButton>
+                      <project.icon />
+                      <span>{project.name}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
       </Sidebar>
       <SidebarInset>
-        <InsetChrome label="Header" />
+        <InsetToggle label="Header" />
       </SidebarInset>
     </SidebarProvider>
   );
 }
 
-/** shadcn sidebar-footer */
+/** shadcn SidebarFooter */
 function FooterExample() {
   return (
     <SidebarProvider className={SIDEBAR_STORY_FRAME}>
       <Sidebar>
-        <SidebarHeader className="flex-row items-center justify-end">
-          <SidebarTrigger />
-        </SidebarHeader>
-        <ProjectsMenu />
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Application</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {projects.map((project) => (
+                  <SidebarMenuItem key={project.name}>
+                    <SidebarMenuButton>
+                      <project.icon />
+                      <span>{project.name}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton>
-                <LifeBuoyIcon />
-                <span>Support</span>
+                <User2Icon />
+                Username
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <InsetChrome label="Footer" />
+        <InsetToggle label="Footer" />
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+
+/** shadcn SidebarGroup (+ action + collapsible) */
+function GroupExample() {
+  return (
+    <SidebarProvider className={SIDEBAR_STORY_FRAME}>
+      <Sidebar>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Application</SidebarGroupLabel>
+            <SidebarGroupAction>
+              <PlusIcon />
+              <span className="sr-only">Add Project</span>
+            </SidebarGroupAction>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {projects.map((project) => (
+                  <SidebarMenuItem key={project.name}>
+                    <SidebarMenuButton>
+                      <project.icon />
+                      <span>{project.name}</span>
+                    </SidebarMenuButton>
+                    <SidebarMenuBadge>24</SidebarMenuBadge>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          <Collapsible defaultOpen className="group/collapsible">
+            <SidebarGroup>
+              <SidebarGroupLabel render={<CollapsibleTrigger />}>
+                Help
+                <ChevronDownIcon className="ms-auto transition-transform group-data-panel-open/button:rotate-180" />
+              </SidebarGroupLabel>
+              <CollapsibleContent>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton>
+                        <LifeBuoyIcon />
+                        <span>Support</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </SidebarGroup>
+          </Collapsible>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset>
+        <InsetToggle label="Group" />
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+
+/** shadcn SidebarMenu */
+function MenuExample() {
+  return (
+    <SidebarProvider className={SIDEBAR_STORY_FRAME}>
+      <Sidebar>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Projects</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {projects.map((project) => (
+                  <SidebarMenuItem key={project.name}>
+                    <SidebarMenuButton
+                      render={<a href={project.url} />}
+                      isActive={project.name === 'Travel'}
+                    >
+                      <project.icon />
+                      <span>{project.name}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarRail />
+      </Sidebar>
+      <SidebarInset>
+        <InsetToggle label="Menu" />
       </SidebarInset>
     </SidebarProvider>
   );
@@ -218,7 +287,7 @@ function ControlledToggle() {
   );
 }
 
-/** shadcn sidebar-controlled */
+/** shadcn Controlled Sidebar */
 function ControlledExample() {
   const [open, setOpen] = useState(true);
   return (
@@ -228,10 +297,23 @@ function ControlledExample() {
       className={SIDEBAR_STORY_FRAME}
     >
       <Sidebar>
-        <SidebarHeader className="flex-row items-center justify-end">
-          <SidebarTrigger />
-        </SidebarHeader>
-        <ProjectsMenu />
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Projects</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {projects.map((project) => (
+                  <SidebarMenuItem key={project.name}>
+                    <SidebarMenuButton>
+                      <project.icon />
+                      <span>{project.name}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
@@ -240,44 +322,6 @@ function ControlledExample() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  );
-}
-
-/** shadcn sidebar-rtl (Arabic labels) */
-function RtlExample() {
-  return (
-    <div dir="rtl">
-      <SidebarProvider className={SIDEBAR_STORY_FRAME}>
-        <Sidebar side="right">
-          <SidebarHeader className="flex-row items-center justify-between">
-            <span className="px-[var(--spacing-sm)] text-[length:var(--text-paragraph-mini-regular-font-size)] text-muted-foreground">
-              القائمة
-            </span>
-            <SidebarTrigger />
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupLabel>المشاريع</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {projects.slice(0, 3).map((project) => (
-                    <SidebarMenuItem key={project.name}>
-                      <SidebarMenuButton>
-                        <project.icon />
-                        <span>{project.name}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-        </Sidebar>
-        <SidebarInset>
-          <InsetChrome label="العربية" />
-        </SidebarInset>
-      </SidebarProvider>
-    </div>
   );
 }
 
@@ -290,21 +334,7 @@ function SidebarPlayground() {
   return (
     <PlaygroundPanel
       preview={
-        <SidebarProvider className={SIDEBAR_STORY_FRAME}>
-          <Sidebar side={side} collapsible={collapsible}>
-            <SidebarHeader className="flex-row items-center justify-between">
-              <span className="px-[var(--spacing-sm)] text-[length:var(--text-paragraph-mini-regular-font-size)] text-muted-foreground">
-                Playground
-              </span>
-              <SidebarTrigger />
-            </SidebarHeader>
-            <ProjectsMenu />
-            <SidebarRail />
-          </Sidebar>
-          <SidebarInset>
-            <InsetChrome label="Toggle or ⌘B / Ctrl+B" />
-          </SidebarInset>
-        </SidebarProvider>
+        <SidebarDemo side={side} collapsible={collapsible} />
       }
       controls={
         <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
@@ -341,15 +371,15 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Sidebar"
-      description="Composable application sidebar — Foundations chrome from Figma Sidebar (items, group labels, shell); shadcn Sidebar provider API."
+      description="A composable, themeable sidebar — Foundations chrome from Figma Sidebar; shadcn Sidebar provider API. Demo collapses to icons."
       playground={<SidebarPlayground />}
       variants={
         <div className="flex flex-col gap-[var(--spacing-md)]">
+          <PrimitiveGalleryItem label="Demo">
+            <SidebarDemo />
+          </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Menu">
             <MenuExample />
-          </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Header">
-            <HeaderExample />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Controlled">
             <ControlledExample />
@@ -359,26 +389,24 @@ export const Overview: Story = {
       usageGuidance={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            Wrap the layout in <code>SidebarProvider</code>; compose Header /
-            Content / Footer with Groups and Menu buttons.
+            Always wrap with <code>SidebarProvider</code>; compose Header /
+            Content / Footer with Groups and Menu.
           </li>
           <li>
-            Use <code>collapsible=&quot;icon&quot;</code> for the Figma collapsed
-            rail; tooltips appear on menu buttons when collapsed.
+            <code>collapsible=&quot;icon&quot;</code> matches the docs demo
+            (rail of icons); use <code>offcanvas</code> to slide fully away.
           </li>
           <li>
-            Mobile uses the Foundations-matched Sheet (edge panel) automatically.
+            Toggle via <code>SidebarTrigger</code>, <code>SidebarRail</code>,
+            or <kbd>⌘/Ctrl+B</kbd>.
           </li>
         </ul>
       }
       accessibility={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            <code>SidebarTrigger</code> is an Icon Button with{' '}
-            <code>aria-label=&quot;Toggle Sidebar&quot;</code>.
-          </li>
-          <li>
-            Keyboard shortcut <kbd>⌘/Ctrl+B</kbd> toggles the sidebar.
+            <code>SidebarTrigger</code> is an Icon Button with a toggle label;
+            icon flips in RTL.
           </li>
           <li>
             Prefer real labels on menu buttons; collapsed icon mode relies on
@@ -390,8 +418,10 @@ export const Overview: Story = {
   ),
 };
 
-export const Menu: Story = {
-  render: () => <MenuExample />,
+/** https://ui.shadcn.com/docs/components/base/sidebar — sidebar-demo */
+export const Demo: Story = {
+  name: 'Demo',
+  render: () => <SidebarDemo />,
 };
 
 export const Header: Story = {
@@ -402,10 +432,23 @@ export const Footer: Story = {
   render: () => <FooterExample />,
 };
 
+export const Group: Story = {
+  render: () => <GroupExample />,
+};
+
+export const Menu: Story = {
+  render: () => <MenuExample />,
+};
+
 export const Controlled: Story = {
   render: () => <ControlledExample />,
 };
 
+/** https://ui.shadcn.com/docs/components/base/sidebar — RTL */
 export const RTL: Story = {
-  render: () => <RtlExample />,
+  render: () => (
+    <div dir="rtl">
+      <SidebarDemo side="right" dir="rtl" />
+    </div>
+  ),
 };
