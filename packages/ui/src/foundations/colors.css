@@ -450,7 +450,9 @@
   --secondary-hover: var(--theme-neutrals-700);
   --secondary-foreground: var(--theme-neutrals-100);
   --accent-foreground: var(--theme-neutrals-100);
-  --muted: var(--theme-neutrals-900);
+  /* Raised surface — must read lighter than --background (900). Equal
+     neutrals-900 made muted fills (Item, Empty, …) invisible on the page. */
+  --muted: var(--theme-neutrals-800);
   --text: var(--theme-alpha-white-no-switch-75);
   --destructive: var(--tw-raw-error-300);
   --border: var(--theme-neutrals-700);

@@ -86,6 +86,9 @@ partners have real sizes, tokens, and chrome.
       Variants on Overview (not only separate pages); QA against Figma +
       shadcn when consolidating. See
       [Input OTP README → Deferred](../src/primitives/input-otp/README.md#deferred).
+- [ ] **Item × Avatar / image media** — re-check left-slot alignment against
+      Figma Item once Avatar polish settles. See
+      [Item README → Deferred](../src/primitives/item/README.md#deferred).
 - [ ] **Hover Card × Popover / Tooltip** — no dedicated Figma Hover Card; surface
       uses background + floating panel tokens. Re-verify / share panel recipe once
       Popover and Tooltip are Foundations-matched. See
@@ -103,6 +106,16 @@ partners have real sizes, tokens, and chrome.
 
 ### Design system hygiene
 
+- [ ] **Slots refactor audit (Figma ↔ code)** — after the primitives pass is
+      complete, walk layout / shell primitives (Item, Card, Empty, Field,
+      Alert, Dialog/Drawer headers, section-style compositions, etc.) against
+      Figma native slots and `.cursor/rules/figma-slots.mdc`. Goal: open
+      content stays slot contracts (`children` / named parts), enumerable
+      axes stay variants/props — no variant explosion or prop matrices for
+      “what goes in the hole.” Check Storybook shows the slot contract, not
+      only one frozen tree; flag Figma components that still use detach /
+      swap menus where a slot should exist. Framing:
+      [The Case for Slots](https://southleft.substack.com/p/the-case-for-slots).
 - [ ] **Scroll fade on overflow lists** — apply `scroll-fade`
       (from `src/styles/scroll-fade.css`) to remaining scroll containers:
       Dropdown Menu / Select popups, Scroll Area viewport, Sidebar, etc.
