@@ -7,28 +7,27 @@ A set of checkable buttons where only one can be selected at a time.
 Import from this primitive rather than `src/components/ui/radio-group`. Public
 API matches [shadcn Radio Group](https://ui.shadcn.com/docs/components/base/radio-group)
 (Base UI [Radio Group](https://base-ui.com/react/components/radio-group) +
-[Radio](https://base-ui.com/react/components/radio)): `value` /
-`defaultValue` / `onValueChange`, `disabled`, per-item `aria-invalid`.
+[Radio](https://base-ui.com/react/components/radio)).
 
 ## Figma source
 
-[Fabely Design System → Radio](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System)
-— component sets **Radio** and **Radio Group** (`Checked?` × `State`). Twin to
-[Checkbox](../checkbox/README.md) so Field hosts can swap control types.
+- [Radio](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16-1796)
+  — `Checked?` × `State` (Default / Focus / Error / Error Focus / Disabled)
+- [Rich Radio Chip](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=19-5987)
+  — choice-card host chrome lives on [Field](../field/README.md) `FieldLabel`
 
 ## Token substitutions
 
 | Source | Foundations | Notes |
 | --- | --- | --- |
-| Control 16×16 · circle | `--spacing-md` · `rounded-full` | Same box as Checkbox |
-| Unchecked fill / stroke | `--background` / `--input` | |
-| Checked fill | `--primary` | Dot `--primary-foreground` |
-| Indicator dot | `--spacing-xs` (8) | |
-| Error stroke / fill | `--destructive` | |
-| Focus ring | `--effect-focus-ring-primary` | Error → `--effect-focus-ring-error` |
-| Group gap | `--spacing-sm` (12) | Matches Field radio rows |
-| Indicator enter/exit | `scale-50` · `--duration-fast` | Base UI starting/ending style |
-| Disabled checked dot | `opacity-60` | Same mute as Checkbox glyph |
+| Control 16×16 · circle | `--spacing-md` · `rounded-full` | |
+| Unchecked fill / stroke | `--background` / `--input` | + `--shadow-xs-black` |
+| Checked Default fill | `--gradient-primary-left-right` | Stone gradient (not secondary purple) |
+| Checked Default dot | `--theme-neutrals-900` (#27272A) | |
+| Error checked fill / dot | `--destructive` / `--tw-raw-white` | |
+| Focus ring | `--effect-focus-ring-secondary` | Checked → `--effect-focus-ring-primary` |
+| Group gap | `--spacing-sm` (12) | |
+| Choice-card checked | `--background` + `--ring-primary` border + primary focus ring | Not `--accent` |
 
 ## Composition
 
@@ -38,25 +37,17 @@ RadioGroup
 └── RadioGroupItem
 ```
 
-Pair with [Field](../field/README.md) (`FieldLabel`, `FieldDescription`,
-`FieldSet` / `FieldLegend`) for labeled layouts, descriptions, choice cards,
-and fieldsets — see shadcn docs.
+Pair with Field (`FieldLabel`, `FieldDescription`, `FieldSet` / `FieldLegend`)
+for labeled layouts and choice cards.
 
 ## API
 
 | Export | Notes |
 | --- | --- |
 | `RadioGroup` | Root; grid + `--spacing-sm` gap |
-| `RadioGroupItem` | Single radio; Lucide-free primary-fill dot |
-
-## Deferred
-
-- Pixel-QA against Figma Radio matrix if product needs exact State specimen
-  parity beyond Checkbox twin tokens.
-- [Field README → Deferred](../field/README.md#deferred) Radio demos — re-check
-  once this lands in Storybook consumers.
+| `RadioGroupItem` | Single radio |
 
 ## Related
 
-- [Checkbox](../checkbox/README.md) · [Field](../field/README.md) · [Label](../label/README.md)
+- [Checkbox](../checkbox/README.md) · [Field](../field/README.md)
 - Docs: [shadcn Radio Group](https://ui.shadcn.com/docs/components/base/radio-group)

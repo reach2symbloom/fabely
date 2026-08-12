@@ -150,10 +150,12 @@ function FieldLabel({
         'text-[color:var(--foreground)]',
         'group-data-[disabled=true]/field:opacity-50',
         'group-data-[invalid=true]/field:text-destructive',
-        /* Choice-card host (Field nested inside Label). */
-        'has-data-checked:bg-[color:var(--accent)]',
+        /* Choice-card host (Field nested inside Label) — Figma Rich Radio Chip. */
+        'has-data-checked:bg-[color:var(--background)]',
+        'has-data-checked:border-[color:var(--ring-primary)]',
+        'has-data-checked:shadow-[var(--effect-focus-ring-primary)]',
         'has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col',
-        'has-[>[data-slot=field]]:rounded-[length:var(--radius)]',
+        'has-[>[data-slot=field]]:rounded-[length:var(--rounded-lg)]',
         'has-[>[data-slot=field]]:border has-[>[data-slot=field]]:border-[color:var(--border)]',
         '*:data-[slot=field]:p-[var(--spacing-md)]',
         className,
