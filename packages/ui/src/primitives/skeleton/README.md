@@ -6,7 +6,10 @@ Placeholder shape while content is loading.
 
 Import from this primitive rather than `src/components/ui/skeleton`. Public
 API matches [shadcn Skeleton](https://ui.shadcn.com/docs/components/base/skeleton)
-— a single `div` sized/shaped via `className`.
+— a single `div` sized/shaped via `className`. Storybook demos follow the
+base-nova docs previews (`skeleton-demo`, `skeleton-avatar`,
+`skeleton-card`, `skeleton-text`, `skeleton-form`, `skeleton-table`,
+`skeleton-rtl`) plus Figma placeholder recipes.
 
 ## Figma source
 

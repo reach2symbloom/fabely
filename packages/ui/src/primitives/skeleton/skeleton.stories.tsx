@@ -8,19 +8,17 @@ import {
   PrimitiveGalleryItem,
   PrimitivePage,
 } from '../../../stories/PrimitivePage';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from '../card';
+import { Card, CardContent, CardHeader } from '../card';
 
 import { Skeleton } from './skeleton';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
- * Overview first — Playground + Figma placeholder gallery, then shadcn-aligned
- * Demo / Avatar / Card / Text examples.
+ * Overview first — Playground + gallery mirroring shadcn base-nova docs
+ * previews (`skeleton-demo` … `skeleton-rtl`), plus Figma placeholder recipes.
  *
+ * Docs: https://ui.shadcn.com/docs/components/base/skeleton
+ * Sources: apps/v4/examples/base/skeleton-*.tsx (base-nova)
  * Figma: https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=842-52052
  */
 
@@ -36,68 +34,104 @@ const meta = {
 export default meta;
 type Story = StoryObj;
 
-/* ---------- Canonical examples ---------- */
+/* ---------- shadcn base-nova docs previews ---------- */
 
-/** Figma composed Skeleton (`303:246698`) — Avatar + Line + Object. */
+/** `skeleton-demo` — avatar + two lines. */
 function DemoExample() {
   return (
-    <div className="flex w-[min(100%,20rem)] items-start gap-[var(--spacing-sm)]">
+    <div className="flex items-center gap-[var(--spacing-md)]">
       <Skeleton className="size-[length:var(--spacing-4xl)] shrink-0 rounded-full" />
-      <div className="flex min-w-0 flex-1 flex-col gap-[var(--spacing-sm)]">
-        <Skeleton className="h-[length:var(--spacing-md)] w-full" />
-        <Skeleton className="h-[8.25rem] w-full" />
+      <div className="flex flex-col gap-[var(--spacing-xs)]">
+        <Skeleton className="h-[length:var(--spacing-md)] w-[15.625rem]" />
+        <Skeleton className="h-[length:var(--spacing-md)] w-[12.5rem]" />
       </div>
     </div>
   );
 }
 
-/** Figma Placeholder Avatar (`222:27480`). */
+/** `skeleton-avatar` — size-10 circle + two lines. */
 function AvatarExample() {
   return (
-    <div className="flex items-center gap-[var(--spacing-md)]">
-      <Skeleton className="size-[length:var(--spacing-4xl)] rounded-full" />
-      <div className="flex flex-col gap-[var(--spacing-xs)]">
-        <Skeleton className="h-[length:var(--spacing-md)] w-[10rem]" />
-        <Skeleton className="h-[length:var(--spacing-md)] w-[7.5rem]" />
+    <div className="flex w-fit items-center gap-[var(--spacing-md)]">
+      <Skeleton className="size-[length:var(--spacing-3xl)] shrink-0 rounded-full" />
+      <div className="grid gap-[var(--spacing-xs)]">
+        <Skeleton className="h-[length:var(--spacing-md)] w-[9.375rem]" />
+        <Skeleton className="h-[length:var(--spacing-md)] w-[6.25rem]" />
       </div>
     </div>
   );
 }
 
-/** shadcn Card skeleton composition. */
+/** `skeleton-card` — header lines + aspect-video media. */
 function CardExample() {
   return (
-    <Card className="w-[min(100%,22rem)]">
-      <CardHeader className="gap-[var(--spacing-sm)]">
+    <Card className="w-full max-w-xs">
+      <CardHeader className="gap-[var(--spacing-xs)]">
         <Skeleton className="h-[length:var(--spacing-md)] w-2/3" />
         <Skeleton className="h-[length:var(--spacing-md)] w-1/2" />
       </CardHeader>
-      <CardContent className="flex flex-col gap-[var(--spacing-sm)]">
-        <Skeleton className="h-[7.5rem] w-full" />
-        <Skeleton className="h-[length:var(--spacing-md)] w-full" />
-        <Skeleton className="h-[length:var(--spacing-md)] w-4/5" />
+      <CardContent>
+        <Skeleton className="aspect-video w-full" />
       </CardContent>
     </Card>
   );
 }
 
-/** Figma Placeholder Line (`222:27481`) stack — shadcn Text demo. */
+/** `skeleton-text` — three lines. */
 function TextExample() {
   return (
-    <div className="flex w-[min(100%,16rem)] flex-col gap-[var(--spacing-xs)]">
+    <div className="flex w-full max-w-xs flex-col gap-[var(--spacing-xs)]">
       <Skeleton className="h-[length:var(--spacing-md)] w-full" />
-      <Skeleton className="h-[length:var(--spacing-md)] w-11/12" />
-      <Skeleton className="h-[length:var(--spacing-md)] w-4/5" />
-      <Skeleton className="h-[length:var(--spacing-md)] w-2/3" />
+      <Skeleton className="h-[length:var(--spacing-md)] w-full" />
+      <Skeleton className="h-[length:var(--spacing-md)] w-3/4" />
     </div>
   );
 }
 
-/** Figma Placeholder Object (`222:27487`). */
-function ObjectExample() {
-  return <Skeleton className="h-[8.25rem] w-[min(100%,16.25rem)]" />;
+/** `skeleton-form` — labels + h-8 fields + submit bone. */
+function FormExample() {
+  return (
+    <div className="flex w-full max-w-xs flex-col gap-[1.75rem]">
+      <div className="flex flex-col gap-[var(--spacing-sm)]">
+        <Skeleton className="h-[length:var(--spacing-md)] w-20" />
+        <Skeleton className="h-[length:var(--spacing-2xl)] w-full" />
+      </div>
+      <div className="flex flex-col gap-[var(--spacing-sm)]">
+        <Skeleton className="h-[length:var(--spacing-md)] w-24" />
+        <Skeleton className="h-[length:var(--spacing-2xl)] w-full" />
+      </div>
+      <Skeleton className="h-[length:var(--spacing-2xl)] w-24" />
+    </div>
+  );
 }
 
+/** `skeleton-table` — five rows × three columns. */
+function TableExample() {
+  return (
+    <div className="flex w-full max-w-sm flex-col gap-[var(--spacing-xs)]">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <div className="flex gap-[var(--spacing-md)]" key={index}>
+          <Skeleton className="h-[length:var(--spacing-md)] flex-1" />
+          <Skeleton className="h-[length:var(--spacing-md)] w-24" />
+          <Skeleton className="h-[length:var(--spacing-md)] w-20" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** `skeleton-rtl` — demo composition under `dir="rtl"`. */
+function RtlExample() {
+  return (
+    <div dir="rtl">
+      <DemoExample />
+    </div>
+  );
+}
+
+/* ---------- Figma placeholder recipes ---------- */
+
+/** Figma Placeholder Avatar / Line / Object (`222:27480` … `222:27487`). */
 function PlaceholdersExample() {
   return (
     <div className="flex flex-col gap-[var(--spacing-xl)]">
@@ -117,7 +151,7 @@ function PlaceholdersExample() {
         <p className="text-[length:var(--text-paragraph-mini-regular-font-size)] text-muted-foreground">
           Object
         </p>
-        <ObjectExample />
+        <Skeleton className="h-[8.25rem] w-[min(100%,16.25rem)]" />
       </div>
     </div>
   );
@@ -161,15 +195,12 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Skeleton"
-      description="Figma placeholder blocks (Avatar, Line, Object) with pulse — size and shape via className."
+      description="Use to show a placeholder while content is loading."
       playground={<SkeletonPlayground />}
       variants={
         <>
           <PrimitiveGalleryItem label="Demo">
             <DemoExample />
-          </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Placeholders">
-            <PlaceholdersExample />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Avatar">
             <AvatarExample />
@@ -180,35 +211,53 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Text">
             <TextExample />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Form">
+            <FormExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Table">
+            <TableExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="RTL">
+            <RtlExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Figma placeholders">
+            <PlaceholdersExample />
+          </PrimitiveGalleryItem>
         </>
       }
       usageGuidance={
         <ul className="list-disc space-y-[var(--spacing-2xs)] ps-[var(--spacing-md)] text-[length:var(--text-paragraph-small-regular-font-size)] text-muted-foreground">
           <li>
-            Size the bone with <code>className</code> — do not invent height /
-            width tokens. Prefer Foundations spacing for known Figma sizes
-            (Avatar <code>--spacing-4xl</code>, Line <code>--spacing-md</code>).
+            Story pages mirror{' '}
+            <a href="https://ui.shadcn.com/docs/components/base/skeleton">
+              shadcn Skeleton
+            </a>{' '}
+            base-nova previews (
+            <code>skeleton-demo</code>, <code>skeleton-avatar</code>,{' '}
+            <code>skeleton-card</code>, <code>skeleton-text</code>,{' '}
+            <code>skeleton-form</code>, <code>skeleton-table</code>,{' '}
+            <code>skeleton-rtl</code>).
           </li>
           <li>
-            Default radius is <code>--rounded-md</code>; use{' '}
-            <code>rounded-full</code> for Avatar.
+            Size and shape via <code>className</code>. Default radius is{' '}
+            <code>--rounded-md</code>; use <code>rounded-full</code> for
+            Avatar.
           </li>
           <li>
-            Compose layouts (card headers, text stacks) from multiple{' '}
-            <code>Skeleton</code>s — the primitive stays a single bone.
+            Figma Avatar / Line / Object:
+            <code>--spacing-4xl</code> / <code>--spacing-md</code> / content
+            height.
           </li>
         </ul>
       }
       accessibility={
         <ul className="list-disc space-y-[var(--spacing-2xs)] ps-[var(--spacing-md)] text-[length:var(--text-paragraph-small-regular-font-size)] text-muted-foreground">
           <li>
-            Decorative only — wrap loading regions with{' '}
-            <code>aria-busy</code> / live status text on the host, not on each
-            bone.
+            Decorative only — put <code>aria-busy</code> / status text on the
+            loading host, not on each bone.
           </li>
           <li>
-            Prefer reduced-motion-friendly pulse; Wave wash from Figma loader
-            atoms is deferred.
+            Pulse is the default motion; Figma Wave wash is deferred.
           </li>
         </ul>
       }
@@ -218,10 +267,6 @@ export const Overview: Story = {
 
 export const Demo: Story = {
   render: () => <DemoExample />,
-};
-
-export const Placeholders: Story = {
-  render: () => <PlaceholdersExample />,
 };
 
 export const Avatar: Story = {
@@ -235,4 +280,22 @@ export const CardStory: Story = {
 
 export const Text: Story = {
   render: () => <TextExample />,
+};
+
+export const Form: Story = {
+  render: () => <FormExample />,
+};
+
+export const Table: Story = {
+  render: () => <TableExample />,
+};
+
+export const RTL: Story = {
+  name: 'RTL',
+  render: () => <RtlExample />,
+};
+
+export const Placeholders: Story = {
+  name: 'Figma placeholders',
+  render: () => <PlaceholdersExample />,
 };
