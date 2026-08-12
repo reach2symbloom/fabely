@@ -79,14 +79,9 @@ const projects = [
 ] as const;
 
 function InsetToggle({ label }: { label: string }) {
-  const { open, toggleSidebar } = useSidebar();
   return (
-    <div className="flex flex-wrap items-center gap-[var(--spacing-xs)] border-b border-border p-[var(--spacing-md)]">
+    <div className="flex items-center gap-[var(--spacing-xs)] border-b border-border p-[var(--spacing-md)]">
       <SidebarTrigger />
-      <Button variant="outline" size="small" onClick={toggleSidebar}>
-        {open ? <PanelLeftCloseIcon /> : <PanelLeftOpenIcon />}
-        <span>{open ? 'Close' : 'Open'} sidebar</span>
-      </Button>
       <span className="text-[length:var(--text-paragraph-small-regular-font-size)] text-muted-foreground">
         {label}
       </span>
@@ -375,8 +370,8 @@ export const Overview: Story = {
       playground={<SidebarPlayground />}
       variants={
         <div className="flex flex-col gap-[var(--spacing-md)]">
-          <PrimitiveGalleryItem label="Demo">
-            <SidebarDemo />
+          <PrimitiveGalleryItem label="Header">
+            <HeaderExample />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Menu">
             <MenuExample />
