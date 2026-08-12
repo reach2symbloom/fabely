@@ -369,7 +369,15 @@ function DropdownMenuCheckboxItem({
       disabled={disabled}
       className={cn('cursor-default', className)}
       render={
-        <ListItem selected={checked === true} disabled={disabled} />
+        /*
+         * Checked is the leading indicator only — do not paint ListItem
+         * selected / data-checked fill (multi-check menus like column
+         * visibility would look fully “hovered”).
+         */
+        <ListItem
+          disabled={disabled}
+          className="data-checked:bg-transparent data-checked:data-highlighted:bg-[var(--theme-alpha-black-switch-5)]"
+        />
       }
       {...props}
     >

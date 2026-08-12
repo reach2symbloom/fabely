@@ -336,8 +336,8 @@ export const Overview: Story = {
           </li>
           <li>
             Checkbox/radio selection uses <code>aria-checked</code> from the
-            menu primitive; selected paint via ListItem{' '}
-            <code>selected</code> / <code>data-checked</code>.
+            menu primitive; the checkmark indicator shows checked. Checkbox
+            rows do not use ListItem selected fill (hover / highlight only).
           </li>
         </ul>
       }

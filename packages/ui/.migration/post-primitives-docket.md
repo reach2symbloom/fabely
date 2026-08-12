@@ -39,10 +39,15 @@ partners have real sizes, tokens, and chrome.
       [Carousel README → Deferred](../src/primitives/carousel/README.md#deferred).
 - [ ] **Checkbox × Field / Label / Table** — re-verify Basic, Description,
       Disabled, Group, Invalid, and RTL demos once Field and Label are
-      Foundations-matched; add the shadcn table selection demo once Table lands;
-      optionally compose Figma Checkbox Group (Inline / Block) instead of a
-      second primitive. See
+      Foundations-matched; re-skin Data Table selection rows once Table is
+      Foundations-matched (selection demo lives under Data Table); optionally
+      compose Figma Checkbox Group (Inline / Block) instead of a second
+      primitive. See
       [Checkbox README → Deferred](../src/primitives/checkbox/README.md#deferred).
+- [ ] **Data Table × Table / Input / Select** — re-skin grid chrome once Table
+      lands; re-verify filter field and page-size Select once those primitives
+      are Foundations-matched. See
+      [Data Table README → Deferred](../src/primitives/data-table/README.md#deferred).
 - [ ] **Collapsible × Field / Input / Tabs** — re-verify Settings Panel once
       Field and Input are Foundations-matched; restore Explorer / Outline Tabs
       on File Tree once Tabs lands. See

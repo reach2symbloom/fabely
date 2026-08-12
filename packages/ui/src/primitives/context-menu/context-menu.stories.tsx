@@ -600,7 +600,8 @@ export const Overview: Story = {
           <li>
             Checkbox/radio selection uses <code>aria-checked</code> from the
             menu primitive; selected paint via ListItem{' '}
-            <code>selected</code> / <code>data-checked</code>.
+            the checkmark indicator; checkbox rows do not use ListItem
+            selected fill (hover / highlight only).
           </li>
           <li>
             For RTL, wrap in <code>dir=&quot;rtl&quot;</code> and prefer{' '}
