@@ -503,6 +503,13 @@ const preview: Preview = {
               'Message Scroller',
               'Native Select',
               'Navigation Menu',
+              [
+                'Overview',
+                'Demo',
+                'With Icon',
+                'Link',
+                'RTL',
+              ],
               'Pagination',
               'Popover',
               'Progress',
