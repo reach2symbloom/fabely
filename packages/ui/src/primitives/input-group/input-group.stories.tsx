@@ -5,7 +5,6 @@ import {
   CreditCardIcon,
   EyeOffIcon,
   InfoIcon,
-  LoaderIcon,
   MailIcon,
   MoreHorizontalIcon,
   SearchIcon,
@@ -229,9 +228,6 @@ function DropdownExample() {
 function SpinnerExample() {
   return (
     <div className="flex w-80 max-w-full flex-col gap-[var(--spacing-md)]">
-      <LimitationNotice>
-        Spinner is still thin-pass — chrome may not match Foundations yet.
-      </LimitationNotice>
       <InputGroup>
         <InputGroupInput placeholder="Saving…" disabled />
         <InputGroupAddon align="inline-end">
@@ -241,7 +237,7 @@ function SpinnerExample() {
       <InputGroup>
         <InputGroupInput placeholder="Please wait…" disabled />
         <InputGroupAddon align="inline-end">
-          <LoaderIcon className="animate-spin" />
+          <Spinner />
         </InputGroupAddon>
       </InputGroup>
     </div>
@@ -251,9 +247,6 @@ function SpinnerExample() {
 function TextareaExample() {
   return (
     <div className="flex w-80 max-w-full flex-col gap-[var(--spacing-md)]">
-      <LimitationNotice>
-        Textarea is still thin-pass — re-verify once Foundations-matched.
-      </LimitationNotice>
       <InputGroup>
         <InputGroupTextarea placeholder="Write a message…" rows={4} />
         <InputGroupAddon align="block-end">
@@ -357,7 +350,7 @@ function playgroundAddonContent(
     return side === 'end' ? <Kbd>⌘K</Kbd> : <SearchIcon />;
   }
   /* spinner */
-  return side === 'end' ? <Spinner /> : <LoaderIcon className="animate-spin" />;
+  return <Spinner />;
 }
 
 /** One plain-language outcome line — only call out non-default / distinctive settings. */

@@ -49,7 +49,7 @@ Place Addon **after** the control in the DOM; use `align` for visual position.
 | `InputGroupAddon` | `align` default `inline-start`; inline addons share shell pad (no extra px) |
 | `InputGroupButton` | `size`: `xs` \| `sm` \| `icon-xs` \| `icon-sm`; inline addons hug shell with even `--spacing-3xs` (2px) inset + nested radius; block addons keep normal Button size — Button/Input unchanged |
 | `InputGroupInput` | Foundations Input + bare chrome; sets `data-slot="input-group-control"` |
-| `InputGroupTextarea` | Thin-pass Textarea host until Textarea is matched |
+| `InputGroupTextarea` | Foundations Textarea host; bare chrome inside the shell |
 | `InputGroupText` | Figma Prepend/Append — muted Paragraph; scales with group `size` |
 
 ## Token substitutions
@@ -69,8 +69,8 @@ Place Addon **after** the control in the DOM; use `align` for visual position.
 
 ## Deferred
 
-- Re-verify **Textarea** / **Kbd** / **Spinner** demos once those are
-  Foundations-matched
+- Re-verify **Kbd** demos once Foundations-matched; Spinner host is matched —
+  spot-check when convenient
 - Optional Custom Input (`data-slot="input-group-control"` third-party) story
 - Re-check Combobox / Command / Empty hosts that embed Input Group
 - Optional: flat `--spacing-2xs` when only Prepend/Append text if product wants

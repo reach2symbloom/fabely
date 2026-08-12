@@ -8,7 +8,7 @@ Primitives are mostly vendor-derived: we style them with Foundations but do not 
 
 Per `docs/DESIGN.md`: match Figma faithfully first, consume Foundations semantic tokens wherever a stable role exists, and foundation tokens directly during exploration.
 
-Figma-matched: [Accordion](./accordion/README.md), [Alert](./alert/README.md), [Avatar](./avatar/README.md), [Badge](./badge/README.md), [Breadcrumb](./breadcrumb/README.md), [Bubble](./bubble/README.md), [Button](./button/README.md), [Button Group](./button-group/README.md), [Calendar](./calendar/README.md), [Card](./card/README.md), [Carousel](./carousel/README.md), [Chart](./chart/README.md), [Checkbox](./checkbox/README.md), [Collapsible](./collapsible/README.md), [Combobox](./combobox/README.md), [Command](./command/README.md), [Context Menu](./context-menu/README.md), [Dialog](./dialog/README.md), [Drawer](./drawer/README.md), [Dropdown Menu](./dropdown-menu/README.md), [Empty](./empty/README.md), [Field](./field/README.md), [Input](./input/README.md), [Input Group](./input-group/README.md), [Input OTP](./input-otp/README.md), [Item](./item/README.md), [Kbd](./kbd/README.md), [ListItem](./list-item/README.md), [Navigation Menu](./navigation-menu/README.md), [Tabs](./tabs/README.md), [Toggle](./toggle/README.md), [Toggle Group](./toggle-group/README.md), [Tooltip](./tooltip/README.md).
+Figma-matched: [Accordion](./accordion/README.md), [Alert](./alert/README.md), [Avatar](./avatar/README.md), [Badge](./badge/README.md), [Breadcrumb](./breadcrumb/README.md), [Bubble](./bubble/README.md), [Button](./button/README.md), [Button Group](./button-group/README.md), [Calendar](./calendar/README.md), [Card](./card/README.md), [Carousel](./carousel/README.md), [Chart](./chart/README.md), [Checkbox](./checkbox/README.md), [Collapsible](./collapsible/README.md), [Combobox](./combobox/README.md), [Command](./command/README.md), [Context Menu](./context-menu/README.md), [Dialog](./dialog/README.md), [Drawer](./drawer/README.md), [Dropdown Menu](./dropdown-menu/README.md), [Empty](./empty/README.md), [Field](./field/README.md), [Input](./input/README.md), [Input Group](./input-group/README.md), [Input OTP](./input-otp/README.md), [Item](./item/README.md), [Kbd](./kbd/README.md), [ListItem](./list-item/README.md), [Navigation Menu](./navigation-menu/README.md), [Slider](./slider/README.md), [Spinner](./spinner/README.md), [Table](./table/README.md), [Tabs](./tabs/README.md), [Textarea](./textarea/README.md), [Toggle](./toggle/README.md), [Toggle Group](./toggle-group/README.md), [Tooltip](./tooltip/README.md).
 
 Foundations-matched (no dedicated Figma set): [Hover Card](./hover-card/README.md) (floating panel tokens); [Marker](./marker/README.md) (conversation system notes); [Menubar](./menubar/README.md) (bar + Dropdown Menu composition); [Message](./message/README.md) (conversation row around Bubble); [Message Scroller](./message-scroller/README.md) (Chat UI transcript scroller); [Native Select](./native-select/README.md) (native `<select>` / Input chrome); [Toast](./toast/README.md) (transient Base UI feedback).
 
@@ -26,6 +26,10 @@ Revisit that docket when thin-pass stubs are gone.
 
 When adding or documenting a new Primitive:
 
+0. **Figma custom components** — see the global gate on
+   [post-primitives-docket.md](../../.migration/post-primitives-docket.md)
+   (Design system hygiene). Open the Figma page + **Custom components**; land
+   or Deferred Fabely customs — don’t skip them because shadcn omits them.
 1. Colocate `*.stories.tsx` next to the wrapper under `src/primitives/<name>/`.
 2. Title stories `Design System/Primitives/<Name>` (flat, alphabetical — no atomic subfolder in the sidebar).
 3. Overview **must** use [`PrimitivePage`](../../stories/PrimitivePage.tsx) with all six props: `title`, `description`, `playground`, `variants`, `usageGuidance`, `accessibility`.

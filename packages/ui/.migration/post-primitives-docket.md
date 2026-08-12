@@ -39,14 +39,13 @@ partners have real sizes, tokens, and chrome.
       [Carousel README → Deferred](../src/primitives/carousel/README.md#deferred).
 - [ ] **Checkbox × Field / Label / Table** — re-verify Basic, Description,
       Disabled, Group, Invalid, and RTL demos once Field and Label are
-      Foundations-matched; re-skin Data Table selection rows once Table is
-      Foundations-matched (selection demo lives under Data Table); optionally
-      compose Figma Checkbox Group (Inline / Block) instead of a second
-      primitive. See
+      Foundations-matched; Table / Data Table selection chrome is matched —
+      spot-check when convenient; optionally compose Figma Checkbox Group
+      (Inline / Block) instead of a second primitive. See
       [Checkbox README → Deferred](../src/primitives/checkbox/README.md#deferred).
-- [ ] **Data Table × Table / Input / Select** — re-skin grid chrome once Table
-      lands; re-verify filter field and page-size Select once those primitives
-      are Foundations-matched. See
+- [ ] **Data Table × Input / Select** — Table row/cell chrome is matched;
+      optional drop of the temporary bordered shell; re-verify filter field and
+      page-size Select once those partners need a pass. See
       [Data Table README → Deferred](../src/primitives/data-table/README.md#deferred).
 - [ ] **Collapsible × Field / Input / Tabs** — re-verify Settings Panel once
       Field and Input are Foundations-matched; restore Explorer / Outline Tabs
@@ -82,8 +81,8 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Input × Input Group / Field** — Input Group shell is Foundations-matched;
       re-check Field host demos and any remaining decoration vs addon guidance.
       See [Input README → Deferred](../src/primitives/input/README.md#deferred).
-- [ ] **Input Group × Textarea / Kbd / Spinner** — re-verify demos once those
-      partners are Foundations-matched; optional Custom Input story. See
+- [ ] **Input Group × Kbd** — re-verify demos once Kbd is Foundations-matched;
+      Spinner / Textarea hosts are matched. Optional Custom Input story. See
       [Input Group README → Deferred](../src/primitives/input-group/README.md#deferred).
 - [ ] **Input OTP × non-Overview stories** — Pattern, Separator, Disabled,
       Controlled, Invalid, Four Digits, Alphanumeric, Form, RTL, and Sizes
@@ -119,8 +118,8 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Toggle Icon Button** (`164:20378`) — separate primitive (Text Button /
       Icon Button relationship). See
       [Toggle README → Deferred](../src/primitives/toggle/README.md#deferred).
-- [ ] **Marker × Spinner** — re-verify Status demos once Spinner is
-      Foundations-matched. Message thread composition is landed; shimmer
+- [ ] **Marker × Spinner** — Spinner is Foundations-matched; spot-check Status
+      demos when convenient. Message thread composition is landed; shimmer
       utility is in `packages/ui/src/styles/shimmer.css`. See
       [Marker README → Deferred](../src/primitives/marker/README.md#deferred).
 - [ ] **Message Scroller × Chat UI shell** — Storybook (or app recipe) for full
@@ -129,8 +128,9 @@ partners have real sizes, tokens, and chrome.
       [Message Scroller README → Deferred](../src/primitives/message-scroller/README.md#deferred).
 - [ ] **Field × control partners** — Field depends on many siblings; after
       each Foundations-matches, re-verify Field demos and Figma Type variants
-      (Label, Textarea, Select, Slider, Radio Group, Checkbox hosts, Switch,
-      Separator, Inline message OC). Input Text Value chrome is already matched.
+      (Label, Select, Slider, Radio Group, Checkbox hosts, Switch,
+      Separator, Inline message OC). Input / Textarea Text Value chrome is
+      already matched.
       Checklist: [Field README → Deferred](../src/primitives/field/README.md#deferred).
 - [ ] **Cross-primitive demos** — walk shadcn docs for each Fabely primitive;
       flesh out examples that need siblings we did not have at land time
@@ -140,6 +140,16 @@ partners have real sizes, tokens, and chrome.
 
 ### Design system hygiene
 
+- [ ] **IMPORTANT — Figma custom components vs shadcn** — global gate for the
+      primitives pass. For **every** primitive (and when closing the pass), open
+      its Figma page **and** the file’s **Custom components** section. Check for
+      Fabely-authored sets / organisms that should be used *instead of* (or in
+      addition to) the shadcn demo tree. Do not assume the shadcn docs are the
+      full inventory. Land those customs or add an explicit Deferred + checkbox
+      here — never silently skip them. Example: Spinner’s page-load **Spinner
+      large** / **Loader Atoms** live beside the leaf Spinner and need their own
+      pass. Re-walk remaining thin-pass primitives with this gate before marking
+      the pass done.
 - [ ] **Slots refactor audit (Figma ↔ code)** — after the primitives pass is
       complete, walk layout / shell primitives (Item, Card, Empty, Field,
       Alert, Dialog/Drawer headers, section-style compositions, etc.) against

@@ -24,6 +24,12 @@ Track follow-ups in `packages/ui/.migration/post-primitives-docket.md`.
 - When skipping a composition because a partner primitive is missing or
   thin-pass, **add a docket checkbox** (and a **Deferred** note on that
   primitive’s README) instead of silently dropping it.
+- **IMPORTANT — Figma custom components:** On every Foundations match, open
+  that primitive’s Figma page **and** the file’s **Custom components**
+  section. If Fabely authored a custom set / organism there (instead of or
+  beyond shadcn), land it or add an explicit **Deferred** note + docket
+  checkbox — never skip it because the shadcn docs omit it. See
+  `packages/ui/.migration/post-primitives-docket.md` → Design system hygiene.
 
 ## Do not
 
