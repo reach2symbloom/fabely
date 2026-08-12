@@ -10,7 +10,6 @@
 
 'use client';
 
-import { GripVerticalIcon } from 'lucide-react';
 import * as ResizablePrimitive from 'react-resizable-panels';
 
 import { cn } from '@/lib/utils';
@@ -41,7 +40,7 @@ function ResizableHandle({
   className,
   ...props
 }: ResizablePrimitive.SeparatorProps & {
-  /** Show the Figma 6-dot grip (Lucide GripVertical). */
+  /** Show the visible grip pill (shadcn `withHandle` / Figma handle). */
   withHandle?: boolean;
 }) {
   return (
@@ -49,21 +48,26 @@ function ResizableHandle({
       data-slot="resizable-handle"
       className={cn(
         'relative flex items-center justify-center',
-        /* Vertical bar (default) — horizontal panel group. */
+        /* Vertical bar — horizontal panel group (separator aria-orientation=vertical). */
         'w-px',
         'bg-[color:var(--border)]',
-        /* Expanded hit target — Figma handle track ~11px. */
-        "after:absolute after:inset-y-0 after:left-1/2 after:w-[length:var(--spacing-sm)] after:-translate-x-1/2 after:content-['']",
-        /* Horizontal bar — vertical panel group (`aria-orientation=horizontal`). */
+        /* Expanded hit target only — never paints, so it cannot look like growth. */
+        "after:absolute after:inset-y-0 after:left-1/2 after:w-[length:var(--spacing-xs)] after:-translate-x-1/2 after:content-['']",
+        /* Horizontal bar — vertical panel group (separator aria-orientation=horizontal). */
         'aria-[orientation=horizontal]:h-px',
         'aria-[orientation=horizontal]:w-full',
         'aria-[orientation=horizontal]:after:left-0',
-        'aria-[orientation=horizontal]:after:h-[length:var(--spacing-sm)]',
+        'aria-[orientation=horizontal]:after:h-[length:var(--spacing-xs)]',
         'aria-[orientation=horizontal]:after:w-full',
         'aria-[orientation=horizontal]:after:translate-x-0',
         'aria-[orientation=horizontal]:after:-translate-y-1/2',
+        /* Focus / drag: slightly lighter than `--border`, never `--foreground`. */
         'outline-none',
-        'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+        'data-[separator=focus]:bg-[color:var(--muted-foreground)]',
+        'data-[separator=active]:bg-[color:var(--muted-foreground)]',
+        'data-[separator=focus]:[&>[data-slot=resizable-handle-grip]]:bg-[color:var(--muted-foreground)]',
+        'data-[separator=active]:[&>[data-slot=resizable-handle-grip]]:bg-[color:var(--muted-foreground)]',
+        /* Rotate grip pill when the rail is horizontal. */
         'aria-[orientation=horizontal]:[&>[data-slot=resizable-handle-grip]]:rotate-90',
         className,
       )}
@@ -73,18 +77,14 @@ function ResizableHandle({
         <div
           data-slot="resizable-handle-grip"
           className={cn(
-            'z-10 flex shrink-0 items-center justify-center',
-            'rounded-[length:var(--rounded-sm)]',
-            'bg-[color:var(--muted)]',
-            'p-[var(--spacing-3xs)]',
-            'shadow-[var(--shadow-xs-black)]',
-            '[&_svg]:pointer-events-none [&_svg]:shrink-0',
-            '[&_svg]:size-[length:var(--icon-sm)]',
-            '[&_svg]:text-[color:var(--muted-foreground)]',
+            'pointer-events-none z-10 flex shrink-0',
+            /* shadcn: h-6 w-1 rounded-lg bg-border — fixed size, no scale on drag. */
+            'h-[length:var(--spacing-xl)]',
+            'w-[length:var(--spacing-2xs)]',
+            'rounded-[length:var(--rounded-lg)]',
+            'bg-[color:var(--border)]',
           )}
-        >
-          <GripVerticalIcon aria-hidden="true" />
-        </div>
+        />
       ) : null}
     </ResizablePrimitive.Separator>
   );

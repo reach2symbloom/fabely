@@ -23,15 +23,17 @@ ResizablePanelGroup
 └── ResizablePanel
 ```
 
+Size the **parent** of `ResizablePanelGroup`. The underlying `Group` sets
+inline `height/width: 100%`, so Tailwind height on the group itself is ignored.
+
 ## Token substitutions
 
 | Source | Foundations | Notes |
 | --- | --- | --- |
 | Divider rail | `--border` · `w-px` / `h-px` | Group `aria-orientation` flips axis |
 | Hit target | `--spacing-sm` (12) after-inset | ~Figma 11px track |
-| Grip chip | `--muted` fill · `--rounded-sm` · `--shadow-xs-black` · pad `--spacing-3xs` | `withHandle` |
-| Grip glyph | Lucide `GripVertical` · `--icon-sm` · `--muted-foreground` | Figma 6-dot |
-| Focus | `--effect-focus-ring-secondary` | |
+| Grip chip | `--border` fill · `--rounded-lg` · `h` `--spacing-xl` (24) · `w` `--spacing-2xs` (4) | `withHandle` — shadcn pill |
+| Focus / drag | `--muted-foreground` (not `--foreground`) | Subtle lift; no white flash |
 
 ## API
 
