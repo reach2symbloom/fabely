@@ -49,14 +49,16 @@ FieldSet
 | Description | Paragraph Small Regular | Inline message + Lucide `Info` (`--icon-sm`) |
 | Error | Paragraph Small Regular | Inline message + `CircleAlert`; `text-destructive` |
 | Legend | Paragraph Regular Medium | `label` variant → Small Medium |
-| Choice-card host | `--radius` + `--border` + `--spacing-md` | Field nested in FieldLabel |
+| Choice-card host (Card) | `--rounded-lg`; hairline + `--theme-alpha-black-switch-10`; pad `--spacing-sm`; checked → primary gradient border + `--effect-focus-ring-primary` | `FieldLabel` wrapping Field (`choice="card"` or omit) |
+| Choice-card host (Icon) | `--background` fill; `--border`; pad `--spacing-2-5`; h 40; checked → primary gradient border + ring | `choice="icon"` |
+| Choice-card host (Block) | `--tw-raw-black` fill; alpha-10; 110px wide; checked → primary gradient border + ring | `choice="block"` |
 
 ## API
 
 | Export | Notes |
 | --- | --- |
 | `Field` | `orientation`: `vertical` \| `horizontal` \| `responsive`; `data-invalid` |
-| `FieldLabel` / `FieldTitle` | Label type; choice-card when wrapping Field |
+| `FieldLabel` / `FieldTitle` | Label type; choice-card when wrapping Field (`choice`: `card` \| `icon` \| `block`) |
 | `FieldDescription` / `FieldError` | Helper / `role="alert"` |
 | `FieldContent` | Groups label + description beside controls |
 | `FieldGroup` / `FieldSet` / `FieldLegend` / `FieldSeparator` | Grouping |

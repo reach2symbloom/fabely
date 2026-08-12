@@ -254,8 +254,8 @@ function ChoiceCardExample() {
         Select the compute environment for your cluster.
       </FieldDescription>
       <RadioGroup defaultValue="k8s" className="gap-[var(--spacing-sm)]">
-        <FieldLabel htmlFor="field-choice-k8s">
-          <Field orientation="horizontal" className="items-start">
+        <FieldLabel htmlFor="field-choice-k8s" choice="card">
+          <Field orientation="horizontal" className="!items-start gap-[var(--spacing-sm)]">
             <RadioGroupItem value="k8s" id="field-choice-k8s" />
             <FieldContent>
               <FieldTitle>Kubernetes</FieldTitle>
@@ -265,8 +265,8 @@ function ChoiceCardExample() {
             </FieldContent>
           </Field>
         </FieldLabel>
-        <FieldLabel htmlFor="field-choice-vm">
-          <Field orientation="horizontal" className="items-start">
+        <FieldLabel htmlFor="field-choice-vm" choice="card">
+          <Field orientation="horizontal" className="!items-start gap-[var(--spacing-sm)]">
             <RadioGroupItem value="vm" id="field-choice-vm" />
             <FieldContent>
               <FieldTitle>Virtual Machine</FieldTitle>

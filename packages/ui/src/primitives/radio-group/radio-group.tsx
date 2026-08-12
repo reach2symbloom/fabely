@@ -35,23 +35,19 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
         'border-[length:var(--stroke-thin)] border-[color:var(--input)]',
         'bg-[color:var(--background)]',
         'shadow-[var(--shadow-xs-black)]',
-        'outline-none transition-[color,background-color,border-color,box-shadow,background-image]',
+        'outline-none transition-[color,background-color,border-color,box-shadow]',
         'duration-[var(--duration-fast)]',
-        /* Expanded hit target — same geometry as Checkbox / shadcn. */
-        'after:absolute after:-inset-x-3 after:-inset-y-2',
-        /* Figma Checked=True, State=Default — primary L→R gradient + neutrals-900 dot. */
-        'data-checked:border-transparent',
-        'data-checked:bg-[image:var(--gradient-primary-left-right)]',
-        'data-checked:shadow-none',
+        /* Expanded hit target — lives on the root so it is not clipped. */
+        "after:pointer-events-auto after:absolute after:-inset-x-3 after:-inset-y-2 after:content-['']",
+        /* Checked — fill is the inner disc; clear root face. */
+        'data-checked:border-transparent data-checked:bg-transparent data-checked:shadow-none',
         /* Focus — secondary ring unchecked; primary ring when checked. */
         'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
         'data-checked:focus-visible:shadow-[var(--effect-focus-ring-primary)]',
-        /* Error — destructive fill + white dot when checked. */
+        /* Error */
         'aria-invalid:border-[color:var(--destructive)]',
         'aria-invalid:shadow-none',
         'aria-invalid:data-checked:border-[color:var(--destructive)]',
-        'aria-invalid:data-checked:bg-none',
-        'aria-invalid:data-checked:bg-[color:var(--destructive)]',
         'aria-invalid:focus-visible:shadow-[var(--effect-focus-ring-error)]',
         'disabled:cursor-not-allowed disabled:opacity-50',
         'disabled:data-checked:opacity-30',
@@ -60,10 +56,26 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
       )}
       {...props}
     >
+      {/*
+        Gradient fills can paint as a square behind border-radius on the root.
+        Keep the disc as an inset circle so the control stays round.
+      */}
+      <span
+        aria-hidden="true"
+        data-slot="radio-group-item-face"
+        className={cn(
+          'pointer-events-none absolute inset-0 rounded-full',
+          'opacity-0 transition-opacity duration-[var(--duration-fast)]',
+          'group-data-checked/radio-group-item:opacity-100',
+          'group-data-checked/radio-group-item:[background-image:var(--gradient-primary-left-right)]',
+          'group-aria-invalid/radio-group-item:group-data-checked/radio-group-item:[background-image:none]',
+          'group-aria-invalid/radio-group-item:group-data-checked/radio-group-item:bg-[color:var(--destructive)]',
+        )}
+      />
       <RadioPrimitive.Indicator
         data-slot="radio-group-indicator"
         className={cn(
-          'flex size-full items-center justify-center',
+          'relative flex size-full items-center justify-center',
           'transition-[transform,opacity] duration-[var(--duration-fast)]',
           'data-starting-style:scale-50 data-starting-style:opacity-0',
           'data-ending-style:scale-50 data-ending-style:opacity-0',

@@ -528,7 +528,11 @@ const preview: Preview = {
               [
                 'Overview',
                 'Demo',
-                'Description',
+                'Rich Radio Container',
+                'Rich Radio Container Flipped',
+                'Rich Icon SM',
+                'Rich Icon LG',
+                'Rich Block',
                 'Choice Card',
                 'Fieldset',
                 'Disabled',

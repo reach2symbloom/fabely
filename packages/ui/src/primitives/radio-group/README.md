@@ -27,7 +27,8 @@ API matches [shadcn Radio Group](https://ui.shadcn.com/docs/components/base/radi
 | Error checked fill / dot | `--destructive` / `--tw-raw-white` | |
 | Focus ring | `--effect-focus-ring-secondary` | Checked → `--effect-focus-ring-primary` |
 | Group gap | `--spacing-sm` (12) | |
-| Choice-card checked | `--background` + `--ring-primary` border + primary focus ring | Not `--accent` |
+| Choice-card checked (Card) | `--background` fill + `--gradient-primary-top-bottom` border + primary focus ring | `FieldLabel choice="card"` |
+| Choice-card checked (Icon / Block) | same primary gradient border + ring (Block fill `--tw-raw-black`) | `choice="icon"` / `choice="block"` |
 
 ## Composition
 
@@ -38,7 +39,9 @@ RadioGroup
 ```
 
 Pair with Field (`FieldLabel`, `FieldDescription`, `FieldSet` / `FieldLegend`)
-for labeled layouts and choice cards.
+for labeled layouts and **Rich Radio Container** (Figma [19:5987](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=19-5987)):
+Card (radio + Line 1/2, optional Flipped), Icon SM/LG chips, and vertical Block
+tiles.
 
 ## API
 
