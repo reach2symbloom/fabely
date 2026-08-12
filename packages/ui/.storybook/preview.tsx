@@ -548,6 +548,12 @@ const preview: Preview = {
                 'RTL',
               ],
               'Scroll Area',
+              [
+                'Overview',
+                'Demo',
+                'Horizontal',
+                'RTL',
+              ],
               'Select',
               'Separator',
               'Sheet',
