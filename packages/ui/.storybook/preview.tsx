@@ -540,6 +540,13 @@ const preview: Preview = {
                 'RTL',
               ],
               'Resizable',
+              [
+                'Overview',
+                'Demo',
+                'Vertical',
+                'Handle',
+                'RTL',
+              ],
               'Scroll Area',
               'Select',
               'Separator',
