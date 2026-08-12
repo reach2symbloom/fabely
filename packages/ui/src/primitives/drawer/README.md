@@ -73,5 +73,5 @@ overlay coverage after scroll (Base UI / shadcn note).
 ## Related
 
 - [Dialog](../dialog/README.md) — responsive Dialog-on-desktop / Drawer-on-mobile
-- [Sheet](../sheet/README.md) — separate edge panel (thin-pass)
+- [Sheet](../sheet/README.md) — separate edge panel (Dialog-based; no swipe)
 - Docket: [post-primitives-docket.md](../../../.migration/post-primitives-docket.md)
