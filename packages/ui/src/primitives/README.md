@@ -10,7 +10,7 @@ Per `docs/DESIGN.md`: match Figma faithfully first, consume Foundations semantic
 
 Figma-matched: [Accordion](./accordion/README.md), [Alert](./alert/README.md), [Avatar](./avatar/README.md), [Badge](./badge/README.md), [Breadcrumb](./breadcrumb/README.md), [Bubble](./bubble/README.md), [Button](./button/README.md), [Button Group](./button-group/README.md), [Calendar](./calendar/README.md), [Card](./card/README.md), [Carousel](./carousel/README.md), [Chart](./chart/README.md), [Checkbox](./checkbox/README.md), [Collapsible](./collapsible/README.md), [Combobox](./combobox/README.md), [Command](./command/README.md), [Context Menu](./context-menu/README.md), [Dialog](./dialog/README.md), [Drawer](./drawer/README.md), [Dropdown Menu](./dropdown-menu/README.md), [Empty](./empty/README.md), [Field](./field/README.md), [Input](./input/README.md), [Input Group](./input-group/README.md), [Input OTP](./input-otp/README.md), [Item](./item/README.md), [Kbd](./kbd/README.md), [ListItem](./list-item/README.md).
 
-Foundations-matched (no dedicated Figma set — floating panel tokens): [Hover Card](./hover-card/README.md).
+Foundations-matched (no dedicated Figma set): [Hover Card](./hover-card/README.md) (floating panel tokens); [Marker](./marker/README.md) (conversation system notes).
 
 Guide compositions (not vendor re-exports): [Data Table](./data-table/README.md) — TanStack Table v9 on Table; [Date Picker](./date-picker/README.md) — Popover + Calendar.
 

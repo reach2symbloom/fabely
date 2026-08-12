@@ -100,6 +100,10 @@ partners have real sizes, tokens, and chrome.
       uses background + floating panel tokens. Re-verify / share panel recipe once
       Popover and Tooltip are Foundations-matched. See
       [Hover Card README → Deferred](../src/primitives/hover-card/README.md#deferred).
+- [ ] **Marker × Message / Spinner / shimmer** — re-verify thread composition and
+      Status / streaming demos once Message and Spinner are Foundations-matched
+      and the shimmer utility is in package styles. See
+      [Marker README → Deferred](../src/primitives/marker/README.md#deferred).
 - [ ] **Field × control partners** — Field depends on many siblings; after
       each Foundations-matches, re-verify Field demos and Figma Type variants
       (Label, Textarea, Select, Slider, Radio Group, Checkbox hosts, Switch,
