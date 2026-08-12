@@ -79,7 +79,8 @@ Field composes many partners. **Revisit this primitive after each lands**
 - [ ] **Checkbox** — Field Checkbox / choice-card demos (Checkbox already
   matched; re-check Field hosts once Label is matched)
 - [ ] **Switch** — Field Switch demos
-- [ ] **Separator** — FieldSeparator chrome
+- [x] **Separator** — FieldSeparator composes Foundations-matched Separator
+  (`size` / `spacing` available if Field needs denser chrome later).
 - [ ] **Inline message (OC)** — swap Lucide `Info` / `CircleAlert` on
   Description / Error for the shared OC when it lands
 
