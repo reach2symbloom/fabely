@@ -41,6 +41,11 @@ Individual glyphs are **library components**, not CSS design tokens:
 - **Lucide** (`lucide-react`) — primary system UI (buttons, inputs, nav, alerts, badges)
 - **Solar Bold Duotone** (`@solar-icons/react`, `weight="BoldDuotone"`) — illustrations / empty states / Lucide gaps only
 
+Solar secondary (lighter) duotone layers use `--icon-solar-secondary-opacity`
+(**0.2** / 20%). Full-opacity paths stay 100%. Wrap the tree in `FabelySolarProvider`
+(`packages/ui/src/foundations/solar-provider.tsx`) so SVGs get
+`data-fabely-solar` — Storybook preview already does.
+
 Catalog: Storybook → Foundations → Iconography → Icon Library → Lucide | Solar | Fabely Icons.
 
 Do not mix Lucide and Solar in the same interface. Prefer `currentColor` so icons inherit text / disabled styles.

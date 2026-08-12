@@ -1,5 +1,6 @@
 import type { Preview } from '@storybook/react-vite'
 import { useEffect } from 'react'
+import { FabelySolarProvider } from '../src/foundations/solar-provider'
 import '../src/styles/globals.css'
 import './theme.css'
 
@@ -41,7 +42,13 @@ const preview: Preview = {
       // Remounting on theme change re-runs every story's getComputedStyle()
       // reads (see ColorSwatchTable), so every foundation story — current and
       // future — picks up the toggle automatically with no per-story code.
-      return <Story key={theme} />
+      // FabelySolarProvider tags Solar SVGs so Bold Duotone secondary layers
+      // use --icon-solar-secondary-opacity (~80%) from iconography.css.
+      return (
+        <FabelySolarProvider key={theme}>
+          <Story />
+        </FabelySolarProvider>
+      )
     },
   ],
   parameters: {

@@ -186,7 +186,9 @@ export const Solar: Story = {
         <IconographyPageTitle>Solar</IconographyPageTitle>
         <IconographyNotice>
           Illustration icon set — complete catalog ({solarAll.length.toLocaleString()} icons from{' '}
-          <code>@solar-icons/react</code>) in <strong>Bold Duotone</strong>. Use for illustrative
+          <code>@solar-icons/react</code>) in <strong>Bold Duotone</strong>. Secondary
+          (lighter) layers use Foundations <code>--icon-solar-secondary-opacity</code>{' '}
+          (0.2 / 20%); full fills stay 100%. Use for illustrative
           accents and glyphs Lucide lacks. Do not mix with Lucide in the same interface.
         </IconographyNotice>
         <IconographySubHeading>Full catalog · Bold Duotone</IconographySubHeading>
