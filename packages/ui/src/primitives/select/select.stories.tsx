@@ -28,9 +28,10 @@ import {
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
- * Overview first — Playground + shadcn Select docs (Groups / Scrollable /
- * Disabled / Invalid / RTL).
+ * Overview first — Playground + shadcn Select docs demos (Align Item /
+ * Groups / Scrollable / Disabled / Invalid / RTL).
  *
+ * Docs: https://ui.shadcn.com/docs/components/base/select
  * Figma: https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16-1732
  */
 
@@ -95,8 +96,9 @@ const timezones = [
 function FruitItems({ includeDisabled = false }: { includeDisabled?: boolean }) {
   return (
     <SelectGroup>
-      {fruits.map((fruit) =>
-        fruit.disabled && !includeDisabled ? null : (
+      {fruits
+        .filter((fruit) => includeDisabled || !fruit.disabled)
+        .map((fruit) => (
           <SelectItem
             key={fruit.value}
             value={fruit.value}
@@ -104,13 +106,12 @@ function FruitItems({ includeDisabled = false }: { includeDisabled?: boolean }) 
           >
             {fruit.label}
           </SelectItem>
-        ),
-      )}
+        ))}
     </SelectGroup>
   );
 }
 
-/** shadcn select-demo — fruit picker. */
+/** shadcn select-demo — fruit picker (`items` on Root per docs Usage). */
 function DemoExample({
   size = 'default',
   disabled = false,
@@ -120,8 +121,9 @@ function DemoExample({
   disabled?: boolean;
   invalid?: boolean;
 }) {
+  const items = fruits.map(({ value, label }) => ({ value, label }));
   return (
-    <Select defaultValue="apple" disabled={disabled}>
+    <Select items={items} defaultValue="apple" disabled={disabled}>
       <SelectTrigger
         className="w-[length:var(--spacing-10xl)]"
         size={size}
@@ -319,6 +321,9 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Demo">
             <DemoExample />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Align Item With Trigger">
+            <AlignItemExample />
+          </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Groups">
             <GroupsExample />
           </PrimitiveGalleryItem>
@@ -339,6 +344,11 @@ export const Overview: Story = {
       usageGuidance={
         <ul className="list-disc space-y-[var(--spacing-xs)] ps-[var(--spacing-md)]">
           <li>
+            Pass <code>items</code> on <code>Select</code> (Base UI) when you
+            have a value/label list; still render <code>SelectItem</code>s in
+            the content tree.
+          </li>
+          <li>
             Prefer this for designed popups; use{' '}
             <code>NativeSelect</code> for OS / lightweight fields.
           </li>
@@ -346,6 +356,10 @@ export const Overview: Story = {
             Wrap items in <code>SelectGroup</code>. Use{' '}
             <code>SelectLabel</code> / <code>SelectSeparator</code> for
             sections.
+          </li>
+          <li>
+            <code>alignItemWithTrigger</code> on <code>SelectContent</code>{' '}
+            (default true) lines the selected row up with the trigger.
           </li>
           <li>
             Invalid: <code>data-invalid</code> on Field +{' '}
