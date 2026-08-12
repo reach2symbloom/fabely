@@ -80,6 +80,12 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Input Group × Textarea / Kbd / Spinner** — re-verify demos once those
       partners are Foundations-matched; optional Custom Input story. See
       [Input Group README → Deferred](../src/primitives/input-group/README.md#deferred).
+- [ ] **Input OTP × non-Overview stories** — Pattern, Separator, Disabled,
+      Controlled, Invalid, Four Digits, Alphanumeric, Form, RTL, and Sizes
+      should likely live in the Overview playground, or at least show as
+      Variants on Overview (not only separate pages); QA against Figma +
+      shadcn when consolidating. See
+      [Input OTP README → Deferred](../src/primitives/input-otp/README.md#deferred).
 - [ ] **Hover Card × Popover / Tooltip** — no dedicated Figma Hover Card; surface
       uses background + floating panel tokens. Re-verify / share panel recipe once
       Popover and Tooltip are Foundations-matched. See

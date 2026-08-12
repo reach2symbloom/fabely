@@ -119,12 +119,24 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 export function PrimitiveGalleryItem({
   label,
   children,
+  /**
+   * Figma Fill — tile spans the Variants row and children stretch to its
+   * width (vs default Hug / centered content).
+   */
+  fill = false,
 }: {
   label: string;
   children: ReactNode;
+  fill?: boolean;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-border p-6">
+    <div
+      className={
+        fill
+          ? 'flex w-full basis-full flex-col items-stretch gap-3 rounded-lg border border-border p-6'
+          : 'flex flex-col items-center gap-3 rounded-lg border border-border p-6'
+      }
+    >
       {children}
       <span className="font-sans text-xs text-muted-foreground">{label}</span>
     </div>

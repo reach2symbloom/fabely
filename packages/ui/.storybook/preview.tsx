@@ -453,7 +453,7 @@ const preview: Preview = {
                 'Textarea',
                 'RTL',
               ],
-              'Input Otp',
+              'Input OTP',
               'Item',
               'Kbd',
               'Label',
