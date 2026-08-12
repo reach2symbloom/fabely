@@ -78,6 +78,10 @@ partners have real sizes, tokens, and chrome.
       Group is Foundations-matched; re-check Field host demos after Field lands;
       optional Ghost Mini Heading 4 type if product needs it. See
       [Input README → Deferred](../src/primitives/input/README.md#deferred).
+- [ ] **Hover Card × Popover / Tooltip** — no dedicated Figma Hover Card; surface
+      uses Dialog/Dropdown floating tokens. Re-verify / share panel recipe once
+      Popover and Tooltip are Foundations-matched. See
+      [Hover Card README → Deferred](../src/primitives/hover-card/README.md#deferred).
 - [ ] **Field × control partners** — Field depends on many siblings; after
       each Foundations-matches, re-verify Field demos and Figma Type variants
       (Label, Textarea, Select, Slider, Radio Group, Checkbox hosts, Switch,

@@ -412,6 +412,12 @@ const preview: Preview = {
                 'RTL',
               ],
               'Hover Card',
+              [
+                'Overview',
+                'Basic',
+                'Sides',
+                'RTL',
+              ],
               'Input',
               [
                 'Overview',
