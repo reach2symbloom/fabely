@@ -29,7 +29,7 @@ Column defs typically use `DataTableColumnHeader`, `Checkbox` (row select),
 | Export | Notes |
 | --- | --- |
 | `dataTableFeatures` / `DataTableFeatures` | TanStack v9 feature bag — pass as first generic on column helpers |
-| `DataTable` | Shell: sorting / filter / visibility / selection state + table chrome |
+| `DataTable` | Shell: sorting / filter / visibility / selection state + table chrome. Row click toggles selection; interactive controls (checkbox, menus) are excluded. |
 | `DataTableColumnHeader` | Sort + hide menu on a header |
 | `DataTableViewOptions` | Column visibility dropdown |
 | `DataTablePagination` | Page size, selection count, page controls |

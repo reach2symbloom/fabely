@@ -133,19 +133,42 @@ function DataTable<TData extends RowData>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() ? 'selected' : undefined}
-                  className="hover:bg-[var(--theme-alpha-black-switch-5)] data-[state=selected]:bg-[var(--theme-alpha-black-switch-10)]"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      <table.FlexRender cell={cell} />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              table.getRowModel().rows.map((row) => {
+                const canSelect = row.getCanSelect();
+                return (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() ? 'selected' : undefined}
+                    className={cn(
+                      'hover:bg-[var(--theme-alpha-black-switch-333)] data-[state=selected]:bg-[var(--theme-alpha-black-switch-5)]',
+                      canSelect && 'cursor-pointer',
+                    )}
+                    onClick={(event) => {
+                      if (!canSelect) return;
+                      /*
+                       * Row click toggles selection. Ignore clicks that hit
+                       * secondary controls (checkbox, ⋮ menu, links, etc.) so
+                       * those require a direct activation.
+                       */
+                      const target = event.target as HTMLElement;
+                      if (
+                        target.closest(
+                          'button, a, input, label, textarea, select, [role="checkbox"], [role="menuitem"], [data-slot="checkbox"], [data-slot="dropdown-menu-trigger"]',
+                        )
+                      ) {
+                        return;
+                      }
+                      row.toggleSelected();
+                    }}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        <table.FlexRender cell={cell} />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell

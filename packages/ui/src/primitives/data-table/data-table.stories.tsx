@@ -323,8 +323,9 @@ export const Overview: Story = {
       accessibility={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            Selection checkboxes need accessible names (
-            <code>aria-label</code> on header and row controls).
+            Clicking a row toggles selection; checkboxes and the actions menu
+            stop that (direct click only). Selection checkboxes need{' '}
+            <code>aria-label</code>s.
           </li>
           <li>
             Row-action Icon Buttons require an <code>aria-label</code> on the
