@@ -74,6 +74,10 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Empty × Input Group** — re-verify Input Group empty-state demo once
       Input Group is Foundations-matched. See
       [Empty README → Deferred](../src/primitives/empty/README.md#deferred).
+- [ ] **Input × Input Group / Field** — re-verify Input Group and Field demos
+      once those partners are Foundations-matched; optional Ghost Mini Heading 4
+      type if product needs it. See
+      [Input README → Deferred](../src/primitives/input/README.md#deferred).
 - [ ] **Cross-primitive demos** — walk shadcn docs for each Fabely primitive;
       flesh out examples that need siblings we did not have at land time
       (toolbars, split buttons, field + addon strips, pagination clusters, etc.).
