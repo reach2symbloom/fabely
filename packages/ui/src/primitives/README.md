@@ -12,7 +12,9 @@ Figma-matched: [Accordion](./accordion/README.md), [Alert](./alert/README.md), [
 
 Guide compositions (not vendor re-exports): [Data Table](./data-table/README.md) — TanStack Table v9 on Table; [Date Picker](./date-picker/README.md) — Popover + Calendar.
 
-Thin-pass stubs (unstyled re-exports, not yet matched to Figma): every other file under `src/components/ui` except `direction` (skipped).
+Providers / utilities (no Figma set): [Direction](./direction/README.md) — Base UI `DirectionProvider` / `useDirection`.
+
+Thin-pass stubs (unstyled re-exports, not yet matched to Figma): every other file under `src/components/ui`.
 
 **After this pass:** compositions deferred because a partner was missing or
 thin-pass live in [`.migration/post-primitives-docket.md`](../../.migration/post-primitives-docket.md).

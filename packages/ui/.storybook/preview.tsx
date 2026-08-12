@@ -357,6 +357,8 @@ const preview: Preview = {
                 'Scrollable Content',
                 'RTL',
               ],
+              'Direction',
+              ['Overview', 'Demo', 'useDirection'],
               'Drawer',
               'Dropdown Menu',
               [
