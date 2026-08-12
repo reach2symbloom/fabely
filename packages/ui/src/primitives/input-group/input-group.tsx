@@ -19,6 +19,7 @@ import type { ButtonProps, ButtonSize, IconButtonSize } from '../button';
 import { Input } from '../input';
 import type { InputProps } from '../input';
 import { Textarea } from '../textarea';
+import type { TextareaProps } from '../textarea';
 
 type InputGroupSize = NonNullable<InputProps['size']>;
 type InputGroupVariant = NonNullable<InputProps['variant']>;
@@ -451,11 +452,17 @@ function InputGroupInput({
 
 function InputGroupTextarea({
   className,
+  roundness,
+  resizable = false,
+  showCharacterCount,
   ...props
-}: React.ComponentProps<'textarea'>) {
+}: TextareaProps) {
   return (
     <Textarea
       data-slot="input-group-control"
+      roundness={roundness}
+      resizable={resizable}
+      showCharacterCount={showCharacterCount}
       className={cn(
         CONTROL_BARE,
         CONTROL_BLOCK_PAD,

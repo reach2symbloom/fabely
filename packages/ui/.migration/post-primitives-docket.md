@@ -77,8 +77,9 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Input × Input Group / Field** — Input Group shell is Foundations-matched;
       re-check Field host demos and any remaining decoration vs addon guidance.
       See [Input README → Deferred](../src/primitives/input/README.md#deferred).
-- [ ] **Input Group × Textarea / Kbd / Spinner** — re-verify demos once those
-      partners are Foundations-matched; optional Custom Input story. See
+- [ ] **Input Group × Kbd / Spinner** — re-verify demos once those partners are
+      Foundations-matched; Textarea host is matched. Optional Custom Input
+      story. See
       [Input Group README → Deferred](../src/primitives/input-group/README.md#deferred).
 - [ ] **Input OTP × non-Overview stories** — Pattern, Separator, Disabled,
       Controlled, Invalid, Four Digits, Alphanumeric, Form, RTL, and Sizes
@@ -124,8 +125,9 @@ partners have real sizes, tokens, and chrome.
       [Message Scroller README → Deferred](../src/primitives/message-scroller/README.md#deferred).
 - [ ] **Field × control partners** — Field depends on many siblings; after
       each Foundations-matches, re-verify Field demos and Figma Type variants
-      (Label, Textarea, Select, Slider, Radio Group, Checkbox hosts, Switch,
-      Separator, Inline message OC). Input Text Value chrome is already matched.
+      (Label, Select, Slider, Radio Group, Checkbox hosts, Switch,
+      Separator, Inline message OC). Input / Textarea Text Value chrome is
+      already matched.
       Checklist: [Field README → Deferred](../src/primitives/field/README.md#deferred).
 - [ ] **Cross-primitive demos** — walk shadcn docs for each Fabely primitive;
       flesh out examples that need siblings we did not have at land time

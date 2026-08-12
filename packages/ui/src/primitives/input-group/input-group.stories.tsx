@@ -251,9 +251,6 @@ function SpinnerExample() {
 function TextareaExample() {
   return (
     <div className="flex w-80 max-w-full flex-col gap-[var(--spacing-md)]">
-      <LimitationNotice>
-        Textarea is still thin-pass — re-verify once Foundations-matched.
-      </LimitationNotice>
       <InputGroup>
         <InputGroupTextarea placeholder="Write a message…" rows={4} />
         <InputGroupAddon align="block-end">
