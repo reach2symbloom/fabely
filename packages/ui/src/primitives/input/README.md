@@ -9,10 +9,15 @@ Vendor `src/components/ui/input.tsx` stays untouched.
 
 ```
 Input
+├── decorationLeft?   (open slot — icon / Fade Button / …)
+├── <input>
+└── decorationRight?  (open slot — icon / Fade Button / …)
 ```
 
-Single control — labels, helpers, and errors compose via Field. Icons / prepend /
-append text compose via Input Group.
+Labels, helpers, and errors compose via Field. Prepend / append **text** and
+richer addon strips compose via Input Group. Decorations are open slots (not
+icon-only): pass a Lucide glyph today, or an interactive control (e.g. Fade
+Button) when that lands.
 
 ## Props
 
@@ -21,6 +26,7 @@ append text compose via Input Group.
 | `variant` | `default` \| `ghost` | Figma Style |
 | `size` | `mini` \| `small` \| `default` \| `large` | Figma Mini / Small / Regular / Large |
 | `roundness` | `default` \| `round` | Figma Roundness; Mini Default uses `--rounded-md` |
+| `decorationLeft` / `decorationRight` | `ReactNode` | Open slots; bare SVG scales with `size` |
 | native | `type`, `disabled`, `aria-invalid`, … | Base UI / HTML input |
 
 ## Tokens
@@ -30,6 +36,8 @@ append text compose via Input Group.
 | Default fill | `--theme-alpha-black-switch-333` |
 | Value / file label | `--foreground` |
 | Placeholder | `--muted-foreground` |
+| Decorations | Open slot; bare SVG → `--icon-xs` / `sm` / `sm` / `md` (20 max); Figma is 16 flat |
+| Decorations ↔ field gap | `--spacing-2xs` / `1-5` / `xs` / `sm` by size |
 | Focus ring | `--effect-focus-ring-secondary` |
 | Focus border (Default roundness) | `--neutrals-new-400` |
 | Focus border (Round) | `--theme-alpha-black-switch-15` |
@@ -41,8 +49,9 @@ append text compose via Input Group.
 
 ## Deferred
 
-- **Input Group** — Figma prepend / append / decoration left-right; shadcn Input
-  Group demos stay thin-pass until that primitive is Foundations-matched. Docket
-  when composing.
+- **Input Group** — Figma prepend / append text and shadcn Input Group demos stay
+  thin-pass until that primitive is Foundations-matched.
+- **Fade Button / interactive decorations** — slots accept them; re-verify sizing
+  once Fade Button (or Icon Button-in-field) lands.
 - **Ghost Mini display type** — Figma Ghost Mini placeholder uses Heading 4
   Light; we keep Paragraph Mini Regular for a consistent field control.

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon, SearchIcon, XIcon } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
@@ -78,10 +78,6 @@ function BasicExample() {
 function FieldExample() {
   return (
     <div className="flex w-full max-w-xs flex-col gap-4">
-      <LimitationNotice>
-        Field is still thin-pass — layout only until that primitive is
-        Foundations-matched.
-      </LimitationNotice>
       <Field>
         <FieldLabel htmlFor="input-username">Username</FieldLabel>
         <Input id="input-username" placeholder="shadcn" autoComplete="username" />
@@ -96,9 +92,6 @@ function FieldExample() {
 function FieldGroupExample() {
   return (
     <div className="flex w-full max-w-xs flex-col gap-4">
-      <LimitationNotice>
-        Field Group / Field partners are thin-pass.
-      </LimitationNotice>
       <form
         className="flex flex-col gap-4"
         onSubmit={(event) => event.preventDefault()}
@@ -135,9 +128,6 @@ function FieldGroupExample() {
 function DisabledExample() {
   return (
     <div className="flex w-full max-w-xs flex-col gap-4">
-      <LimitationNotice>
-        Field <code>data-disabled</code> host styles are thin-pass.
-      </LimitationNotice>
       <Field data-disabled>
         <FieldLabel htmlFor="input-disabled">Email</FieldLabel>
         <Input
@@ -155,10 +145,6 @@ function DisabledExample() {
 function InvalidExample() {
   return (
     <div className="flex w-full max-w-xs flex-col gap-4">
-      <LimitationNotice>
-        Field <code>data-invalid</code> host text is thin-pass; Input chrome
-        uses <code>aria-invalid</code>.
-      </LimitationNotice>
       <Field data-invalid>
         <FieldLabel htmlFor="input-invalid">Invalid Input</FieldLabel>
         <Input
@@ -187,9 +173,6 @@ function FileExample() {
 function InlineExample() {
   return (
     <div className="flex w-full max-w-xs flex-col gap-4">
-      <LimitationNotice>
-        Horizontal Field orientation is thin-pass.
-      </LimitationNotice>
       <Field orientation="horizontal">
         <FieldLabel htmlFor="input-inline">Search</FieldLabel>
         <div className="flex flex-1 gap-2">
@@ -294,7 +277,7 @@ function FormExample() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
       <LimitationNotice>
-        Select is still thin-pass; Field partners are thin-pass.
+        Select is still thin-pass.
       </LimitationNotice>
       <form
         className="flex flex-col gap-4"
@@ -407,6 +390,31 @@ function VariantsExample() {
   );
 }
 
+function DecorationsExample() {
+  return (
+    <div className="flex w-full max-w-sm flex-col gap-3">
+      {(
+        [
+          ['mini', 'Mini'],
+          ['small', 'Small'],
+          ['default', 'Regular'],
+          ['large', 'Large'],
+        ] as const
+      ).map(([size, label]) => (
+        <div key={size} className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">{label}</span>
+          <Input
+            size={size}
+            placeholder={`${label} search`}
+            decorationLeft={<SearchIcon />}
+            decorationRight={<XIcon />}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function InputPlayground() {
   const [variant, setVariant] = useState<InputVariant>('default');
   const [size, setSize] = useState<InputSize>('default');
@@ -414,6 +422,9 @@ function InputPlayground() {
   const [state, setState] = useState<'empty' | 'value' | 'invalid' | 'disabled'>(
     'empty',
   );
+  const [decorations, setDecorations] = useState<
+    'none' | 'left' | 'right' | 'both'
+  >('none');
 
   return (
     <PlaygroundPanel
@@ -427,6 +438,16 @@ function InputPlayground() {
             defaultValue={state === 'value' || state === 'invalid' ? 'Ch 1:' : undefined}
             aria-invalid={state === 'invalid' || undefined}
             disabled={state === 'disabled'}
+            decorationLeft={
+              decorations === 'left' || decorations === 'both' ? (
+                <SearchIcon />
+              ) : undefined
+            }
+            decorationRight={
+              decorations === 'right' || decorations === 'both' ? (
+                <XIcon />
+              ) : undefined
+            }
           />
         </div>
       }
@@ -476,6 +497,19 @@ function InputPlayground() {
               ]}
             />
           </div>
+          <div className="col-span-2">
+            <InlineSegmentedControl
+              label="Decorations"
+              value={decorations}
+              onChange={(value) => setDecorations(value)}
+              options={[
+                { value: 'none', label: 'None' },
+                { value: 'left', label: 'Left' },
+                { value: 'right', label: 'Right' },
+                { value: 'both', label: 'Both' },
+              ]}
+            />
+          </div>
         </div>
       }
     />
@@ -502,6 +536,9 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Style">
             <VariantsExample />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Decorations">
+            <DecorationsExample />
+          </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="States">
             <div className="flex w-full max-w-xs flex-col gap-3">
               <Input placeholder="Placeholder" />
@@ -515,9 +552,11 @@ export const Overview: Story = {
       usageGuidance={
         <>
           <p>
-            Use bare <code>Input</code> for the control chrome. Pair with{' '}
-            <code>Field</code> for label / description / error, and{' '}
-            <code>Input Group</code> for icons or prepend / append text.
+            Use bare <code>Input</code> for the control chrome.{' '}
+            <code>decorationLeft</code> / <code>decorationRight</code> are open
+            slots (Figma Decorations) — Lucide icons now, Fade Button or similar
+            later. Pair with <code>Field</code> for label / description / error,
+            and <code>Input Group</code> for prepend / append text.
           </p>
           <p>
             Mark validation with <code>aria-invalid</code> on the input (and{' '}
@@ -617,4 +656,8 @@ export const Roundness: Story = {
 export const Variants: Story = {
   name: 'Style',
   render: () => <VariantsExample />,
+};
+
+export const Decorations: Story = {
+  render: () => <DecorationsExample />,
 };
