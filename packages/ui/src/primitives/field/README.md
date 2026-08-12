@@ -42,6 +42,7 @@ FieldSet
 | Source | Foundations | Notes |
 | --- | --- | --- |
 | Label ↔ control ↔ message gap | `--spacing-1-5` | 6px (Figma 2xs + 2) |
+| Checkbox / radio ↔ label gap | `--spacing-sm` | 12px — choice rows only |
 | Horizontal label column | `120px` | Figma Horizontal Field |
 | FieldGroup / FieldSet stack | `--spacing-xl` | Between fields / sections |
 | Label / Title | Paragraph Small Medium | `--foreground`; invalid → destructive |

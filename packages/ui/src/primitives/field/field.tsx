@@ -82,6 +82,9 @@ const fieldVariants = cva(
     'group/field flex w-full',
     /* Label ↔ control ↔ helper: 2xs (4) + 2px → `--spacing-1-5` (6). */
     'gap-[var(--spacing-1-5)]',
+    /* Checkbox / radio + label rows need more air than stacked Text Value. */
+    'has-[[role=checkbox]]:gap-[var(--spacing-sm)]',
+    'has-[[role=radio]]:gap-[var(--spacing-sm)]',
     /* Invalid colors label + FieldError only — not Description (Figma). */
   ].join(' '),
   {
@@ -90,9 +93,9 @@ const fieldVariants = cva(
         vertical: 'flex-col *:w-full [&>.sr-only]:w-auto',
         /* Figma Horizontal Field — label column 120px, control flexes. */
         horizontal:
-          'flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:w-[120px] *:data-[slot=field-label]:shrink-0 *:data-[slot=field-label]:grow-0 has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px',
+          'flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:w-[120px] *:data-[slot=field-label]:shrink-0 *:data-[slot=field-label]:grow-0 has-[[role=checkbox]]:*:data-[slot=field-label]:w-auto has-[[role=radio]]:*:data-[slot=field-label]:w-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px',
         responsive:
-          'flex-col *:w-full [&>.sr-only]:w-auto @md/field-group:flex-row @md/field-group:items-center @md/field-group:*:w-auto @md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:*:data-[slot=field-label]:w-[120px] @md/field-group:*:data-[slot=field-label]:shrink-0 @md/field-group:*:data-[slot=field-label]:grow-0 @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px',
+          'flex-col *:w-full [&>.sr-only]:w-auto @md/field-group:flex-row @md/field-group:items-center @md/field-group:*:w-auto @md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:*:data-[slot=field-label]:w-[120px] @md/field-group:*:data-[slot=field-label]:shrink-0 @md/field-group:*:data-[slot=field-label]:grow-0 @md/field-group:has-[[role=checkbox]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[[role=radio]]:*:data-[slot=field-label]:w-auto @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px',
       },
     },
     defaultVariants: {
