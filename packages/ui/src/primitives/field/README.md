@@ -70,7 +70,10 @@ Field composes many partners. **Revisit this primitive after each lands**
 - [ ] **Textarea** — Field Textarea demos + Figma Type=Textarea
 - [ ] **Select** — Field Select demos + Figma Type=Select
 - [ ] **Slider** — Field Slider demos + Figma Type=Slider
-- [ ] **Radio Group** — Field Radio demos + Figma Type=Radio
+- [ ] **Radio Group** — Field Radio demos + Figma Type=Radio — control chrome
+      landed; re-verify Field host demos in Storybook. See
+      [Radio Group README](../src/primitives/radio-group/README.md) ·
+      [Field README → Deferred](../src/primitives/field/README.md#deferred).
 - [ ] **Checkbox** — Field Checkbox / choice-card demos (Checkbox already
   matched; re-check Field hosts once Label is matched)
 - [ ] **Switch** — Field Switch demos

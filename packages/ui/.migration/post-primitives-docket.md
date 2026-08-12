@@ -69,9 +69,9 @@ partners have real sizes, tokens, and chrome.
       Field and Input land; add Figma Mobile / full-screen Type variants if
       product needs them. See
       [Dialog README → Deferred](../src/primitives/dialog/README.md#deferred).
-- [ ] **Drawer × Field / Input / Radio** — re-verify Responsive (Dialog↔Drawer)
-      and Delivery Method demos once Field, Input, Label, and Radio Group are
-      Foundations-matched. See
+- [ ] **Drawer × Field / Input / Radio** — Field, Input, and Radio Group are
+      Foundations-matched — re-verify Responsive (Dialog↔Drawer) and Delivery
+      Method demos; Label still thin-pass. See
       [Drawer README → Deferred](../src/primitives/drawer/README.md#deferred).
 - [ ] **Empty × Input Group** — re-verify Input Group empty-state demo once
       Input Group is Foundations-matched. See
