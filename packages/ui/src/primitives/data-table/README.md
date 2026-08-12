@@ -17,7 +17,7 @@ pagination pieces. Compose your own `columns` and `data`; do not treat
 ```text
 DataTable
 ├── toolbar (optional Input filter · DataTableViewOptions)
-├── Table (thin-pass) · bordered · --rounded-md
+├── Table (Foundations-matched) · bordered shell · --rounded-md
 └── DataTablePagination (optional)
 ```
 
@@ -36,9 +36,10 @@ Column defs typically use `DataTableColumnHeader`, `Checkbox` (row select),
 
 ## Deferred
 
-- Re-skin Table row / cell chrome once [Table](../table/README.md) is
-  Foundations-matched
-- Re-verify filter field once [Input](../input/README.md) lands
+- [x] Table row / cell chrome — [Table](../table/README.md) is Foundations-matched;
+      optional: drop the temporary bordered shell if product grids want bare Table
+- Re-verify filter field once [Input](../input/README.md) lands (Input is matched —
+  spot-check when convenient)
 - Re-verify page-size control once [Select](../select/README.md) lands
 
 ## Related

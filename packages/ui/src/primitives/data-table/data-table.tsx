@@ -4,8 +4,7 @@
  * Not a registry component: shadcn ships a guide, not a single `data-table`
  * package. Import these helpers (and compose columns yourself) rather than
  * inventing a one-size-fits-all grid. Table chrome stays on the Table
- * primitive (still thin-pass); partners use Foundations-matched primitives
- * where available.
+ * primitive; partners use Foundations-matched primitives where available.
  *
  * Guide: https://ui.shadcn.com/docs/components/base/data-table
  */

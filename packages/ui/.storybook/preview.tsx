@@ -525,6 +525,13 @@ const preview: Preview = {
               'Spinner',
               'Switch',
               'Table',
+              [
+                'Overview',
+                'Demo',
+                'Footer',
+                'Actions',
+                'RTL',
+              ],
               'Tabs',
               'Textarea',
               [
