@@ -43,8 +43,8 @@ Command
 
 ## Deferred
 
-- **Dialog** — `CommandDialog` hosts thin-pass Dialog; re-verify chrome once
-  Dialog is Foundations-matched.
+- **Dialog** — `CommandDialog` should pick up Foundations Dialog chrome;
+  re-verify overlay / radius / close against [Dialog](../dialog/README.md).
 - **Input Group** — search field still uses vendor InputGroup internals.
 - **Command Item Square icon** — Figma Style=Square icon (36 Icon Button) not
   exposed as a prop this pass; Small icon / Lucide child composition covers

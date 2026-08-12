@@ -59,10 +59,14 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Combobox × deletable Chip** — swap inline `ComboboxChip` remove chrome
       for the shared deletable Chip primitive once it exists. See
       [Combobox README → Deferred](../src/primitives/combobox/README.md#deferred).
-- [ ] **Command × Dialog / Input Group** — re-verify CommandDialog once Dialog
-      is Foundations-matched; re-verify search field host once Input Group
+- [ ] **Command × Dialog / Input Group** — re-verify CommandDialog against
+      Foundations Dialog chrome; re-verify search field host once Input Group
       lands; optional Figma Command Item Style=Square icon. See
       [Command README → Deferred](../src/primitives/command/README.md#deferred).
+- [ ] **Dialog × Field / Input / mobile** — re-verify profile / share demos once
+      Field and Input land; add Figma Mobile / full-screen Type variants if
+      product needs them. See
+      [Dialog README → Deferred](../src/primitives/dialog/README.md#deferred).
 - [ ] **Cross-primitive demos** — walk shadcn docs for each Fabely primitive;
       flesh out examples that need siblings we did not have at land time
       (toolbars, split buttons, field + addon strips, pagination clusters, etc.).

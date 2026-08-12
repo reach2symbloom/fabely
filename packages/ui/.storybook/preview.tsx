@@ -348,6 +348,15 @@ const preview: Preview = {
                 'RTL',
               ],
               'Dialog',
+              [
+                'Overview',
+                'Demo',
+                'Custom Close Button',
+                'No Close Button',
+                'Sticky Footer',
+                'Scrollable Content',
+                'RTL',
+              ],
               'Drawer',
               'Dropdown Menu',
               [

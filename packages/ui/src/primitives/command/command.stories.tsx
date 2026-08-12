@@ -41,7 +41,7 @@ import {
  * Overview first — Playground, Variants, usage, a11y — then focused pages
  * aligned with shadcn Command docs + Figma Command / Command Item.
  *
- * Deferred: Dialog host, Input Group, Square icon style (README → Deferred).
+ * Deferred: Input Group host, Square icon style (README → Deferred).
  */
 
 const meta = {
@@ -114,7 +114,7 @@ function BasicExample() {
   return (
     <div className="flex flex-col gap-4">
       <LimitationNotice>
-        CommandDialog uses thin-pass Dialog until Dialog is Foundations-matched.
+        CommandDialog hosts Foundations Dialog chrome.
       </LimitationNotice>
       <Button
         variant="outline"
