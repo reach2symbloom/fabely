@@ -14,13 +14,21 @@ import {
   Progress,
   ProgressLabel,
   ProgressValue,
+  type ProgressSize,
 } from './progress';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
- * Overview first — Playground, Variants gallery, usage, a11y — then focused
- * example pages. Patterns follow shadcn Progress docs (Base UI Progress).
+ * Overview first — Playground mirrors Figma Progress axes (Size / Progress /
+ * Show), then shadcn Label / Controlled / RTL examples.
+ *
+ * Figma: https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=5010-29
  */
+
+/** Figma Progress property steps (Thin + Thick). */
+const FIGMA_PROGRESS_STEPS = [
+  0, 10, 20, 25, 33, 40, 50, 60, 66, 75, 80, 90, 100,
+] as const;
 
 const meta = {
   title: 'Design System/Primitives/Progress',
@@ -32,23 +40,31 @@ const meta = {
 export default meta;
 type Story = StoryObj;
 
-/* ---------- Canonical examples (shadcn docs) ---------- */
+/* ---------- Canonical examples ---------- */
 
-function DemoExample() {
+function ThinGalleryExample() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-[var(--spacing-md)]">
-      <Progress value={0} />
-      <Progress value={25} />
-      <Progress value={50} />
-      <Progress value={75} />
-      <Progress value={100} />
+      {FIGMA_PROGRESS_STEPS.map((v) => (
+        <Progress key={v} value={v} size="thin" />
+      ))}
+    </div>
+  );
+}
+
+function ThickGalleryExample() {
+  return (
+    <div className="flex w-full max-w-sm flex-col gap-[var(--spacing-md)]">
+      {FIGMA_PROGRESS_STEPS.map((v) => (
+        <Progress key={v} value={v} size="thick" />
+      ))}
     </div>
   );
 }
 
 function LabelExample() {
   return (
-    <Progress value={56} className="w-full max-w-sm">
+    <Progress value={56} size="thick" className="w-full max-w-sm">
       <ProgressLabel>Upload progress</ProgressLabel>
       <ProgressValue />
     </Progress>
@@ -60,7 +76,9 @@ function ControlledExample() {
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-[var(--spacing-md)]">
-      <Progress value={value} className="w-full" />
+      <Progress value={value} size="thick" className="w-full">
+        <ProgressValue />
+      </Progress>
       {/* Slider is still thin-pass — deferred partner chrome. */}
       <Slider
         value={[value]}
@@ -80,54 +98,61 @@ function RtlExample() {
   return (
     <div dir="rtl" className="flex w-full max-w-sm flex-col gap-[var(--spacing-md)]">
       <p className="text-[color:var(--muted-foreground)]">العربية (RTL)</p>
-      <Progress value={56} className="w-full">
-        <ProgressLabel>تقدم الرفع</ProgressLabel>
+      <Progress value={56} size="thick" className="w-full">
         <ProgressValue />
       </Progress>
     </div>
   );
 }
 
-/* ---------- Playground ---------- */
+/* ---------- Playground (Figma axes) ---------- */
 
 function ProgressPlayground() {
-  const [value, setValue] = useState(56);
-  const [showLabel, setShowLabel] = useState(true);
+  const [value, setValue] = useState(50);
+  const [size, setSize] = useState<ProgressSize>('thick');
+  const [showPercent, setShowPercent] = useState(true);
 
   return (
     <PlaygroundPanel
       preview={
-        <Progress value={value} className="w-full max-w-sm">
-          {showLabel ? (
-            <>
-              <ProgressLabel>Upload progress</ProgressLabel>
-              <ProgressValue />
-            </>
-          ) : null}
+        <Progress value={value} size={size} className="w-full max-w-sm">
+          {showPercent ? <ProgressValue /> : null}
         </Progress>
       }
       controls={
         <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
           <InlineSegmentedControl
-            label="Value"
-            value={String(value)}
-            options={[0, 25, 50, 56, 75, 100].map((v) => ({
-              value: String(v),
-              label: String(v),
-            }))}
-            onChange={(v) => setValue(Number(v))}
+            label="Size"
+            value={size}
+            options={[
+              { value: 'thin', label: 'Thin' },
+              { value: 'thick', label: 'Thick' },
+            ]}
+            onChange={(v) => setSize(v as ProgressSize)}
             fullWidth
           />
           <InlineSegmentedControl
-            label="Label / value"
-            value={showLabel ? 'on' : 'off'}
+            label="Show %"
+            value={showPercent ? 'on' : 'off'}
             options={[
               { value: 'off', label: 'Off' },
               { value: 'on', label: 'On' },
             ]}
-            onChange={(v) => setShowLabel(v === 'on')}
+            onChange={(v) => setShowPercent(v === 'on')}
             fullWidth
           />
+          <div className="col-span-2">
+            <InlineSegmentedControl
+              label="Progress"
+              value={String(value)}
+              options={FIGMA_PROGRESS_STEPS.map((v) => ({
+                value: String(v),
+                label: String(v),
+              }))}
+              onChange={(v) => setValue(Number(v))}
+              fullWidth
+            />
+          </div>
         </div>
       }
     />
@@ -143,19 +168,25 @@ export const Overview: Story = {
       title="Progress"
       description={
         <>
-          Task completion bar. No Figma source — Foundations restyle of the{' '}
+          Task completion bar from Figma Progress (Size Thin / Thick, optional
+          trailing %). Indicator uses{' '}
+          <code>--gradient-primary-left-right</code> +{' '}
+          <code>--effect-glow-primary-2</code>; track is{' '}
+          <code>--theme-alpha-black-switch-333</code>. Composition API matches{' '}
           <a href="https://ui.shadcn.com/docs/components/base/progress">
             shadcn Progress
-          </a>{' '}
-          API (Base UI Progress). Track uses <code>--muted</code>; indicator{' '}
-          <code>--primary</code>.
+          </a>
+          .
         </>
       }
       playground={<ProgressPlayground />}
       variants={
         <div className="flex flex-col gap-6">
-          <PrimitiveGalleryItem label="Demo">
-            <DemoExample />
+          <PrimitiveGalleryItem label="Thin">
+            <ThinGalleryExample />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Thick">
+            <ThickGalleryExample />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Label">
             <LabelExample />
@@ -171,33 +202,31 @@ export const Overview: Story = {
       usageGuidance={
         <ul className="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
           <li>
-            Pass <code>value</code> (0–100) on <code>Progress</code>. Track +
-            Indicator are composed automatically.
+            Figma axes: <code>size=&quot;thin&quot; | &quot;thick&quot;</code>,{' '}
+            <code>value</code> (0–100), optional <code>ProgressValue</code>{' '}
+            trailing % (Show).
           </li>
           <li>
-            Optional chrome: <code>ProgressLabel</code> +{' '}
-            <code>ProgressValue</code> as children (wrap above the track).
+            Thick indicators use a slanted leading edge below 100%; Thin is a
+            flat 4px bar.
           </li>
           <li>
-            Override width via <code>className</code> (e.g.{' '}
-            <code>w-full max-w-sm</code>).
+            Optional header: <code>ProgressLabel</code> +{' '}
+            <code>ProgressValue</code> (shadcn Label pattern — wraps above the
+            track).
           </li>
           <li>
-            For custom track chrome, compose <code>ProgressTrack</code> /{' '}
-            <code>ProgressIndicator</code> yourself (exported).
+            Track + Indicator auto-compose inside <code>Progress</code>; export
+            them for custom shells.
           </li>
         </ul>
       }
       accessibility={
         <ul className="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
           <li>
-            Root is a progressbar (Base UI). Prefer a visible{' '}
-            <code>ProgressLabel</code> or <code>aria-label</code> when context
-            is not clear.
-          </li>
-          <li>
-            <code>ProgressValue</code> exposes the formatted percent for
-            sighted users; keep it in sync with <code>value</code>.
+            Root is a progressbar (Base UI). Prefer visible{' '}
+            <code>ProgressValue</code> / <code>ProgressLabel</code> or{' '}
+            <code>aria-label</code> when context is unclear.
           </li>
           <li>
             See{' '}
@@ -214,8 +243,12 @@ export const Overview: Story = {
 
 /* ---------- Individual example pages ---------- */
 
-export const Demo: Story = {
-  render: () => <DemoExample />,
+export const Thin: Story = {
+  render: () => <ThinGalleryExample />,
+};
+
+export const Thick: Story = {
+  render: () => <ThickGalleryExample />,
 };
 
 export const Label: Story = {

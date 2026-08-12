@@ -1,64 +1,61 @@
 # Progress
 
-Displays an indicator showing the completion progress of a task, typically as
-a progress bar.
+Displays an indicator showing the completion progress of a task.
 
 ## Purpose
 
 Import from this primitive rather than `src/components/ui/progress`. Public
 API matches [shadcn Progress](https://ui.shadcn.com/docs/components/base/progress)
-(Base UI [Progress](https://base-ui.com/react/components/progress)).
+(Base UI [Progress](https://base-ui.com/react/components/progress)), plus Figma
+`size`.
 
-## No Figma source — Foundations restyle
+## Figma source
 
-**No dedicated Figma Progress set.** Per `docs/DESIGN.md` and the Accordion /
-Pagination precedent, this milestone restyles the shadcn API with Foundations
-colors, radius, spacing, type, and motion.
+[Fabely Design System → Progress](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=5010-29)
+
+| Axis | Values |
+| --- | --- |
+| Size | `thin` (4px) · `thick` (8px, slanted leading edge) |
+| Progress | 0–100 (`value`) |
+| Show | optional trailing `%` via `ProgressValue` |
 
 ## Composition
 
 ```text
-Progress
-├── ProgressLabel          (optional)
-├── ProgressValue          (optional)
-└── ProgressTrack          (auto-composed by Progress)
+Progress                    size="thin" | "thick"
+├── ProgressLabel           (optional — wraps above track)
+├── ProgressValue           (optional — trailing % / header end)
+└── ProgressTrack           (auto)
     └── ProgressIndicator
 ```
 
 ## Token substitutions
 
-| Vendor | Foundations | Notes |
-| --- | --- | --- |
-| Root `gap-3` | `--spacing-sm` (12) | Exact |
-| Track `h-3` | `--spacing-sm` (12) | Nearest published size token |
-| Track `rounded-full` | `--rounded-full` | Exact |
-| Track `bg-muted` | `--muted` | Exact |
-| Indicator `bg-primary` | `--primary` | Exact |
-| Indicator `transition-all` | + `--duration-fast` | Motion token |
-| Label `text-sm font-medium` | Paragraph Small Medium | Exact role |
-| Value `text-sm` muted + `ml-auto` | Paragraph Small Regular + `ms-auto` | Logical margin for RTL |
-
-## Left on vendor / layout defaults
-
-| Value | Why |
+| Role | Foundations |
 | --- | --- |
-| `flex flex-wrap` on root | Layout so label/value sit above full-width track |
-| `tabular-nums` on value | Numeric alignment |
-| Auto-compose Track inside Root | Matches shadcn API |
+| Track fill | `--theme-alpha-black-switch-333` |
+| Track / indicator radius | `--rounded-lg` (12) |
+| Thin height | `--spacing-2xs` (4) |
+| Thick height | `--spacing-xs` (8) |
+| Indicator fill | `--gradient-primary-left-right` |
+| Indicator glow | `--effect-glow-primary-2` |
+| Root gap (bar ↔ %) | `--spacing-md` (16) |
+| Value type | Paragraph Mini Medium + `--muted-foreground` |
+| Motion | `--duration-fast` |
 
 ## API
 
 | Export | Notes |
 | --- | --- |
-| `Progress` | Root; `value`; auto Track + Indicator |
-| `ProgressLabel` / `ProgressValue` | Optional header row |
+| `Progress` | Root; `value`; `size` `thin` \| `thick` (default `thin`) |
+| `ProgressLabel` / `ProgressValue` | Optional chrome |
 | `ProgressTrack` / `ProgressIndicator` | Exported for custom composition |
 
 ## Deferred
 
-- Controlled story uses thin-pass [Slider](../slider/README.md) — re-skin once
-  Slider is Foundations-matched.
-- Optional Figma Progress set → pixel pass if Library authors one.
+- Controlled story uses thin-pass [Slider](../slider/README.md).
+- Thick Figma set uses per-step glow SVG overlays — CSS clip-path + glow token
+  approximates; revisit if pixel QA needs the exact assets.
 
 ## Related
 
