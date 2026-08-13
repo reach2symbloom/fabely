@@ -16,8 +16,8 @@ Searched primitives / atoms / molecules / organisms. Compose, do not copy:
 | Piece | Approach |
 | --- | --- |
 | Chapter menu | **Dropdown Menu** — wrap. Trigger is the Fade chevron, not the whole shell (an Input cannot live inside a `<button>`). Content stubbed until Chapter Menu lands. |
-| Chevron | **Icon Button `fade`** — compose as `DropdownMenuTrigger` (`render={<IconButton />}`). Call-site hug: `--icon-sm`. Vertically centered on the two-line stack. |
-| Inline rename | **Input Group** `variant="ghost"` `size="mini"` — Figma Prepend is text (`Ch. N:`), which lives on Input Group (`InputGroupText`), not Input `decorationLeft` (icons). |
+| Chevron | **Icon Button `fadeGold`** — compose as `DropdownMenuTrigger` (`render={<IconButton />}`). Call-site hug: `--icon-sm`. Sits on the chapter row, `--spacing-3xs` after the hugging field. Group hover / open uses the same gold as the primitive hover (`--tw-raw-alert-600`). |
+| Inline rename | **Input Group** `variant="quiet"` `size="mini"` — Figma Prepend is text (`Ch. N:`), which lives on Input Group (`InputGroupText`), not Input `decorationLeft` (icons). Quiet is the Input primitive variant with independent hover (`--theme-alpha-black-switch-333`) and a semantic `--border` on focus (no ring, no value-slot fill). |
 
 ## Authoritative Figma
 
@@ -25,27 +25,34 @@ Searched primitives / atoms / molecules / organisms. Compose, do not copy:
 — **first variant** (`State=Empty, Hover=False`, `16038:15485`):
 
 - Book title (Paragraph Regular, muted) over an **Input** instance
-  (Ghost, Mini, Prepend on: `Ch. 1:` + placeholder `Untitled`, Heading 4).
+  (Mini, Prepend on: `Ch. 1:` + placeholder `Untitled`, Heading 4).
+  Empty copy: `Untitled book` / `Untitled`. Filled copy: `The Lumithra
+  Prophecy` / `The Eldergrove`. Code uses Input `quiet` (hover fill +
+  `--border` focus) rather than Figma Ghost, which has no rest hover and a
+  focus ring.
 - Sibling **Fade button** (chevron-down), centered on the stack.
 - Hover / open fills the outer `--rounded-lg` with
   `--theme-alpha-black-switch-333`. Empty vs Filled is contrast on the
-  chapter line (switch-25 vs switch-100).
-- Chevron sits `--spacing-3xs` (2px) after the chapter text (Frame 145
-  itemSpacing). Input mini end-pad is cleared so that gap is the space
-  between the words and the glyph, not 6px + 2px.
+  chapter line (`--theme-alpha-black-switch-25` vs `-50`). Book title is
+  `--theme-neutrals-400`.
+- Chevron sits `--spacing-3xs` (2px) after the input box. The chapter
+  field hugs the placeholder / value (`field-sizing-content`) and keeps
+  Input mini pad (`--spacing-1-5`) on both sides; the chevron only moves
+  out as the name grows.
 
 ## Structure
 
 - Clicking the chapter name (or prepend) focuses the field — inline rename.
   `Untitled` is placeholder text, not a value. An empty blur restores it.
   Cmd / Ctrl+A selects the field (the menu is not an ancestor, so it cannot
-  steal the shortcut). The field fills the chrome beside the chevron and does
-  not hug the value, so a one-letter name keeps the same click target.
+  steal the shortcut). The field hugs the placeholder / typed name with
+  mini end-pad; the chevron stays `--spacing-3xs` after the box and tracks
+  that width.
 - Clicking the chevron, book title, or shell padding opens the Chapter Menu
   stub. Rename does **not** live in that panel.
 - Two interactive controls, not one nested trigger.
 
-## Gaps (call-site, not new Input variants)
+## Gaps (call-site)
 
 - **Type:** Figma Ghost Mini uses Heading 4 Light for prepend + value. Input /
   Input Group keep Paragraph Mini. Override via `className` (Foundations

@@ -40,8 +40,9 @@ Text and Icon Button consume **`buttonVariantClasses`** from [`shared.ts`](./sha
 
 `primary` · `primaryOutline` · `secondary` · `tertiary` · `outline` · `ghost` · `destructive` · `fiaFilled` · `fiaOutline`
 
-Icon Button also exposes **`fade`** (Figma Fade button) — quieter rest icon,
-hover to full switch-100, no fill. Not on Text Button.
+Icon Button also exposes **`fade`** / **`fadeGold`** (Figma Fade button) —
+quieter rest icon, hover to full opacity (`fadeGold` paints `--tw-raw-alert-600`).
+Not on Text Button.
 
 Hover / pressed / focus / disabled follow the same library-authored model
 (quiet `@5` / `@10`, filled opacity ladder, Primary always-on rest ring).

@@ -3,6 +3,10 @@
  * live DOM (getComputedStyle / getBoundingClientRect) and labels each mark
  * with the resolved pixel value plus the Foundations token that matches it.
  *
+ * Presentation is Figma-style redline: the subject stays un-annotated in the
+ * center; dimension lines and labels sit outside its bounding box in stacked
+ * lanes (padding nearest, gaps next, overall size furthest).
+ *
  * Do not use this in shipped components — it exists so stories can catch
  * token/name vs rendered-px mismatches against Figma.
  */
@@ -39,6 +43,20 @@ type TokenEntry = {
   rank: number;
 };
 
+type Side = 'top' | 'right' | 'bottom' | 'left';
+
+type RawSpan = {
+  id: string;
+  kind: MeasurementProperty;
+  title: string;
+  px: number;
+  token: string | null;
+  side: Side;
+  /** Measured interval in overlay-local coordinates. */
+  u1: number;
+  u2: number;
+};
+
 type Mark = {
   id: string;
   kind: MeasurementProperty;
@@ -51,6 +69,9 @@ type Mark = {
   y2: number;
   labelX: number;
   labelY: number;
+  labelTx: string;
+  labelTy: string;
+  witnesses: Array<{ x1: number; y1: number; x2: number; y2: number }>;
 };
 
 const DEFAULT_TARGETS: MeasurementTarget[] = [
@@ -150,8 +171,7 @@ function buildCatalog(): TokenEntry[] {
   for (const name of collectTokenNames()) {
     const px = tokenToPx(name);
     if (px == null) continue;
-    const rank =
-      TOKEN_RANK.find((row) => row.test(name))?.rank ?? 99;
+    const rank = TOKEN_RANK.find((row) => row.test(name))?.rank ?? 99;
     entries.push({ name, px, rank });
   }
   return entries;
@@ -210,22 +230,28 @@ function visibleChildren(el: HTMLElement): HTMLElement[] {
   });
 }
 
-function collectMarks(
+function kindLane(kind: MeasurementProperty): number {
+  if (kind === 'padding') return 0;
+  if (kind === 'gap') return 1;
+  return 2;
+}
+
+function catalogPx(catalog: TokenEntry[], name: string, fallback: number): number {
+  return catalog.find((t) => t.name === name)?.px ?? tokenToPx(name) ?? fallback;
+}
+
+/**
+ * Live engine: read spans from the DOM. Placement (lanes, labels) is a
+ * separate pass so a Figma-style redline never draws on the subject.
+ */
+function collectSpans(
   subject: HTMLElement,
   overlay: HTMLElement,
   targets: MeasurementTarget[],
   catalog: TokenEntry[],
-): Mark[] {
+): RawSpan[] {
   const origin = overlay.getBoundingClientRect();
-  const marks: Mark[] = [];
-  const offset =
-    catalog.find((t) => t.name === '--spacing-lg')?.px ??
-    tokenToPx('--spacing-lg') ??
-    20;
-  const labelOff =
-    catalog.find((t) => t.name === '--spacing-xl')?.px ??
-    tokenToPx('--spacing-xl') ??
-    24;
+  const spans: RawSpan[] = [];
 
   for (const target of targets) {
     const el = target.selector
@@ -237,104 +263,85 @@ function collectMarks(
 
     if (target.measure.includes('width')) {
       const px = el.getBoundingClientRect().width;
-      marks.push({
+      spans.push({
         id: `${target.name}-width`,
         kind: 'width',
         title: `${target.name} width`,
         px,
         token: matchToken(px, catalog, 'size'),
-        x1: box.x,
-        y1: box.y - offset,
-        x2: box.x + box.w,
-        y2: box.y - offset,
-        labelX: box.x + box.w / 2,
-        labelY: box.y - labelOff,
+        side: 'top',
+        u1: box.x,
+        u2: box.x + box.w,
       });
     }
 
     if (target.measure.includes('height')) {
       const px = el.getBoundingClientRect().height;
-      marks.push({
+      spans.push({
         id: `${target.name}-height`,
         kind: 'height',
         title: `${target.name} height`,
         px,
         token: matchToken(px, catalog, 'size'),
-        x1: box.x + box.w + offset,
-        y1: box.y,
-        x2: box.x + box.w + offset,
-        y2: box.y + box.h,
-        labelX: box.x + box.w + labelOff,
-        labelY: box.y + box.h / 2,
+        side: 'right',
+        u1: box.y,
+        u2: box.y + box.h,
       });
     }
 
     if (target.measure.includes('padding')) {
-      const sides: Array<{
-        side: string;
-        px: number;
-        x1: number;
-        y1: number;
-        x2: number;
-        y2: number;
-        labelX: number;
-        labelY: number;
-      }> = [
-        {
-          side: 'top',
-          px: parsePx(cs.paddingTop),
-          x1: box.x,
-          y1: box.y,
-          x2: box.x + box.w,
-          y2: box.y + parsePx(cs.paddingTop),
-          labelX: box.x + box.w / 2,
-          labelY: box.y + parsePx(cs.paddingTop) / 2,
-        },
-        {
-          side: 'right',
-          px: parsePx(cs.paddingRight),
-          x1: box.x + box.w - parsePx(cs.paddingRight),
-          y1: box.y,
-          x2: box.x + box.w,
-          y2: box.y + box.h,
-          labelX: box.x + box.w - parsePx(cs.paddingRight) / 2,
-          labelY: box.y + box.h / 2,
-        },
-        {
-          side: 'bottom',
-          px: parsePx(cs.paddingBottom),
-          x1: box.x,
-          y1: box.y + box.h - parsePx(cs.paddingBottom),
-          x2: box.x + box.w,
-          y2: box.y + box.h,
-          labelX: box.x + box.w / 2,
-          labelY: box.y + box.h - parsePx(cs.paddingBottom) / 2,
-        },
-        {
-          side: 'left',
-          px: parsePx(cs.paddingLeft),
-          x1: box.x,
-          y1: box.y,
-          x2: box.x + parsePx(cs.paddingLeft),
-          y2: box.y + box.h,
-          labelX: box.x + parsePx(cs.paddingLeft) / 2,
-          labelY: box.y + box.h / 2,
-        },
-      ];
-      for (const side of sides) {
-        if (side.px <= 0) continue;
-        marks.push({
-          id: `${target.name}-padding-${side.side}`,
+      const pad = {
+        top: parsePx(cs.paddingTop),
+        right: parsePx(cs.paddingRight),
+        bottom: parsePx(cs.paddingBottom),
+        left: parsePx(cs.paddingLeft),
+      };
+      if (pad.top > 0) {
+        spans.push({
+          id: `${target.name}-padding-top`,
           kind: 'padding',
-          title: `${target.name} padding-${side.side}`,
-          px: side.px,
-          token: matchToken(side.px, catalog, 'space'),
-          x1: side.x1,
-          y1: side.y1,
-          x2: side.x2,
-          y2: side.y2,
-          labelX: side.labelX,
-          labelY: side.labelY,
+          title: `${target.name} padding-top`,
+          px: pad.top,
+          token: matchToken(pad.top, catalog, 'space'),
+          side: 'left',
+          u1: box.y,
+          u2: box.y + pad.top,
+        });
+      }
+      if (pad.bottom > 0) {
+        spans.push({
+          id: `${target.name}-padding-bottom`,
+          kind: 'padding',
+          title: `${target.name} padding-bottom`,
+          px: pad.bottom,
+          token: matchToken(pad.bottom, catalog, 'space'),
+          side: 'left',
+          u1: box.y + box.h - pad.bottom,
+          u2: box.y + box.h,
+        });
+      }
+      if (pad.left > 0) {
+        spans.push({
+          id: `${target.name}-padding-left`,
+          kind: 'padding',
+          title: `${target.name} padding-left`,
+          px: pad.left,
+          token: matchToken(pad.left, catalog, 'space'),
+          side: 'bottom',
+          u1: box.x,
+          u2: box.x + pad.left,
+        });
+      }
+      if (pad.right > 0) {
+        spans.push({
+          id: `${target.name}-padding-right`,
+          kind: 'padding',
+          title: `${target.name} padding-right`,
+          px: pad.right,
+          token: matchToken(pad.right, catalog, 'space'),
+          side: 'bottom',
+          u1: box.x + box.w - pad.right,
+          u2: box.x + box.w,
         });
       }
     }
@@ -342,118 +349,206 @@ function collectMarks(
     if (target.measure.includes('gap')) {
       const kids = visibleChildren(el);
       const column = cs.flexDirection.startsWith('column');
-      let px = parsePx(column ? cs.rowGap : cs.columnGap);
-      let x1 = box.x;
-      let y1 = box.y;
-      let x2 = box.x;
-      let y2 = box.y;
-      let labelX = box.x;
-      let labelY = box.y;
       if (kids.length >= 2) {
         const a = toLocal(kids[0].getBoundingClientRect(), origin);
         const b = toLocal(kids[1].getBoundingClientRect(), origin);
         if (column) {
-          px = b.y - (a.y + a.h);
-          x1 = box.x + box.w / 2;
-          y1 = a.y + a.h;
-          x2 = box.x + box.w / 2;
-          y2 = b.y;
-          labelX = box.x + box.w / 2;
-          labelY = (y1 + y2) / 2;
+          const px = b.y - (a.y + a.h);
+          spans.push({
+            id: `${target.name}-gap`,
+            kind: 'gap',
+            title: `${target.name} gap`,
+            px,
+            token: matchToken(px, catalog, 'space'),
+            side: 'left',
+            u1: a.y + a.h,
+            u2: b.y,
+          });
         } else {
-          px = b.x - (a.x + a.w);
-          x1 = a.x + a.w;
-          y1 = box.y + box.h / 2;
-          x2 = b.x;
-          y2 = box.y + box.h / 2;
-          labelX = (x1 + x2) / 2;
-          labelY = box.y + box.h / 2;
+          const px = b.x - (a.x + a.w);
+          spans.push({
+            id: `${target.name}-gap`,
+            kind: 'gap',
+            title: `${target.name} gap`,
+            px,
+            token: matchToken(px, catalog, 'space'),
+            side: 'bottom',
+            u1: a.x + a.w,
+            u2: b.x,
+          });
         }
-      }
-      if (px > 0 || kids.length >= 2) {
-        marks.push({
-          id: `${target.name}-gap`,
-          kind: 'gap',
-          title: `${target.name} gap`,
-          px,
-          token: matchToken(px, catalog, 'space'),
-          x1,
-          y1,
-          x2,
-          y2,
-          labelX,
-          labelY,
-        });
       }
     }
   }
+
+  return spans;
+}
+
+function layoutMarks(
+  spans: RawSpan[],
+  subject: { x: number; y: number; w: number; h: number },
+  catalog: TokenEntry[],
+): Mark[] {
+  const inset = catalogPx(catalog, '--spacing-lg', 20);
+  const pitch = catalogPx(catalog, '--spacing-3xl', 40);
+  const labelGap = catalogPx(catalog, '--spacing-sm', 12);
+
+  const bySide: Record<Side, RawSpan[]> = {
+    top: [],
+    right: [],
+    bottom: [],
+    left: [],
+  };
+  for (const span of spans) bySide[span.side].push(span);
+
+  const marks: Mark[] = [];
+
+  (Object.keys(bySide) as Side[]).forEach((side) => {
+    const group = bySide[side];
+    if (group.length === 0) return;
+    const unique = [...new Set(group.map((s) => kindLane(s.kind)))].sort(
+      (a, b) => a - b,
+    );
+    const remap = new Map(unique.map((lane, i) => [lane, i]));
+
+    for (const span of group) {
+      const lane = remap.get(kindLane(span.kind)) ?? 0;
+      const dist = inset + lane * pitch;
+      const u1 = Math.min(span.u1, span.u2);
+      const u2 = Math.max(span.u1, span.u2);
+      const mid = (u1 + u2) / 2;
+      const short = u2 - u1 < 48;
+
+      if (side === 'top' || side === 'bottom') {
+        const dimY =
+          side === 'top' ? subject.y - dist : subject.y + subject.h + dist;
+        const edgeY = side === 'top' ? subject.y : subject.y + subject.h;
+        const labelY =
+          side === 'top' ? dimY - labelGap : dimY + labelGap;
+        let labelX = mid;
+        let labelTx = '-50%';
+        if (short && span.kind === 'padding') {
+          if (span.id.endsWith('-left')) {
+            labelX = u1;
+            labelTx = '-100%';
+          } else if (span.id.endsWith('-right')) {
+            labelX = u2;
+            labelTx = '0';
+          }
+        }
+        marks.push({
+          ...span,
+          x1: u1,
+          y1: dimY,
+          x2: u2,
+          y2: dimY,
+          labelX,
+          labelY,
+          labelTx,
+          labelTy: side === 'top' ? '-100%' : '0',
+          witnesses: [
+            { x1: u1, y1: edgeY, x2: u1, y2: dimY },
+            { x1: u2, y1: edgeY, x2: u2, y2: dimY },
+          ],
+        });
+      } else {
+        const dimX =
+          side === 'left' ? subject.x - dist : subject.x + subject.w + dist;
+        const edgeX = side === 'left' ? subject.x : subject.x + subject.w;
+        const labelX =
+          side === 'left' ? dimX - labelGap : dimX + labelGap;
+        marks.push({
+          ...span,
+          x1: dimX,
+          y1: u1,
+          x2: dimX,
+          y2: u2,
+          labelX,
+          labelY: mid,
+          labelTx: side === 'left' ? '-100%' : '0',
+          labelTy: '-50%',
+          witnesses: [
+            { x1: edgeX, y1: u1, x2: dimX, y2: u1 },
+            { x1: edgeX, y1: u2, x2: dimX, y2: u2 },
+          ],
+        });
+      }
+    }
+  });
 
   return marks;
 }
 
 function DimLine({ mark, tick }: { mark: Mark; tick: number }) {
   const horizontal = mark.y1 === mark.y2;
-  const color = 'var(--tw-raw-secondary-400)';
+  /*
+   * Contrast vs story `--background` (WCAG, relative luminance):
+   *   --foreground  light #080B0C on #E7E5E4 = 15.73:1
+   *                 dark  #F9F9F9 on #27272A = 14.15:1
+   *   --muted-foreground (guides)  light ~#616262 = 4.87:1 / dark ~#A5A5A6 = 6.05:1
+   * Previous labels used `--tw-raw-secondary-600` (#422DA8) = 1.54:1 in dark.
+   */
+  const color = 'var(--foreground)';
+  const guide = 'var(--muted-foreground)';
   return (
     <g>
-      {mark.kind === 'padding' ? (
-        <rect
-          x={Math.min(mark.x1, mark.x2)}
-          y={Math.min(mark.y1, mark.y2)}
-          width={Math.abs(mark.x2 - mark.x1)}
-          height={Math.abs(mark.y2 - mark.y1)}
-          fill={color}
-          opacity={0.18}
+      {mark.witnesses.map((w, i) => (
+        <line
+          key={`${mark.id}-w${i}`}
+          x1={w.x1}
+          y1={w.y1}
+          x2={w.x2}
+          y2={w.y2}
+          stroke={guide}
+          strokeWidth={1}
+          strokeDasharray="2 3"
         />
-      ) : (
+      ))}
+      <line
+        x1={mark.x1}
+        y1={mark.y1}
+        x2={mark.x2}
+        y2={mark.y2}
+        stroke={color}
+        strokeWidth={1}
+      />
+      {horizontal ? (
         <>
           <line
             x1={mark.x1}
-            y1={mark.y1}
+            y1={mark.y1 - tick}
+            x2={mark.x1}
+            y2={mark.y1 + tick}
+            stroke={color}
+            strokeWidth={1}
+          />
+          <line
+            x1={mark.x2}
+            y1={mark.y2 - tick}
             x2={mark.x2}
+            y2={mark.y2 + tick}
+            stroke={color}
+            strokeWidth={1}
+          />
+        </>
+      ) : (
+        <>
+          <line
+            x1={mark.x1 - tick}
+            y1={mark.y1}
+            x2={mark.x1 + tick}
+            y2={mark.y1}
+            stroke={color}
+            strokeWidth={1}
+          />
+          <line
+            x1={mark.x2 - tick}
+            y1={mark.y2}
+            x2={mark.x2 + tick}
             y2={mark.y2}
             stroke={color}
             strokeWidth={1}
           />
-          {horizontal ? (
-            <>
-              <line
-                x1={mark.x1}
-                y1={mark.y1 - tick}
-                x2={mark.x1}
-                y2={mark.y1 + tick}
-                stroke={color}
-                strokeWidth={1}
-              />
-              <line
-                x1={mark.x2}
-                y1={mark.y2 - tick}
-                x2={mark.x2}
-                y2={mark.y2 + tick}
-                stroke={color}
-                strokeWidth={1}
-              />
-            </>
-          ) : (
-            <>
-              <line
-                x1={mark.x1 - tick}
-                y1={mark.y1}
-                x2={mark.x1 + tick}
-                y2={mark.y1}
-                stroke={color}
-                strokeWidth={1}
-              />
-              <line
-                x1={mark.x2 - tick}
-                y1={mark.y2}
-                x2={mark.x2 + tick}
-                y2={mark.y2}
-                stroke={color}
-                strokeWidth={1}
-              />
-            </>
-          )}
         </>
       )}
     </g>
@@ -486,12 +581,12 @@ export function MeasurementOverlay({
 
     const measure = () => {
       if (catalog.length === 0) catalog = buildCatalog();
-      const nextTick =
-        catalog.find((t) => t.name === '--spacing-2xs')?.px ??
-        tokenToPx('--spacing-2xs') ??
-        4;
+      const nextTick = catalogPx(catalog, '--spacing-2xs', 4);
       setTick(nextTick);
-      setMarks(collectMarks(subject, stage, targets, catalog));
+      const origin = stage.getBoundingClientRect();
+      const box = toLocal(subject.getBoundingClientRect(), origin);
+      const spans = collectSpans(subject, stage, targets, catalog);
+      setMarks(layoutMarks(spans, box, catalog));
     };
 
     let cancelled = false;
@@ -530,13 +625,13 @@ export function MeasurementOverlay({
   if (!enabled) return <>{children}</>;
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn('relative inline-block max-w-full', className)}>
       <div
         ref={stageRef}
-        className="relative box-border"
-        style={{ padding: 'var(--spacing-6xl)' }}
+        className="relative box-border overflow-visible"
+        style={{ padding: 'var(--tw-raw-spacing-48)' }}
       >
-        <div ref={subjectRef} inert>
+        <div ref={subjectRef} className="w-fit" inert>
           {children}
         </div>
         <svg
@@ -550,11 +645,12 @@ export function MeasurementOverlay({
         {marks.map((mark) => (
           <span
             key={`${mark.id}-label`}
-            className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-[length:var(--rounded-sm)] bg-[color:var(--background)] px-[var(--spacing-2xs)] py-[var(--spacing-3xs)] text-[color:var(--tw-raw-secondary-600)] shadow-[var(--shadow-sm-black)]"
+            className="pointer-events-none absolute z-10 whitespace-nowrap rounded-[length:var(--rounded-sm)] bg-[color:var(--background)] px-[var(--spacing-2xs)] py-[var(--spacing-3xs)] text-[color:var(--foreground)] shadow-[var(--shadow-sm-black)]"
             style={{
               ...captionStyle,
               left: mark.labelX,
               top: mark.labelY,
+              transform: `translate(${mark.labelTx}, ${mark.labelTy})`,
             }}
             title={mark.title}
           >

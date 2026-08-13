@@ -9,7 +9,7 @@
  * Figma axes → props:
  * - Size Regular | Large | Small | Mini → `size` default | large | small | mini
  * - Roundness Default | Round → `roundness`
- * - Style Default | Ghost → `variant`
+ * - Style Default | Ghost | Quiet → `variant`
  */
 
 'use client';
@@ -71,6 +71,19 @@ const inputVariants = cva(
           'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           'aria-invalid:bg-[color:var(--background)]',
         ].join(' '),
+        /**
+         * Inline / in-chrome field: rest transparent, hover fills alpha-333
+         * independently of focus. Focus is a semantic `--border` — no ring
+         * and no extra fill (the value slot must not paint over prepend).
+         */
+        quiet: [
+          'bg-transparent',
+          'hover:bg-[color:var(--theme-alpha-black-switch-333)]',
+          'focus-visible:border-[color:var(--border)]',
+          'focus-visible:shadow-none',
+          'aria-invalid:bg-[color:var(--background)]',
+          'aria-invalid:hover:bg-[color:var(--background)]',
+        ].join(' '),
       },
       size: {
         mini: [
@@ -131,6 +144,13 @@ const inputVariants = cva(
         size: 'mini',
         class: 'rounded-[length:var(--rounded-md)]',
       },
+      {
+        variant: 'quiet',
+        class: [
+          'focus-visible:border-[color:var(--border)]',
+          'focus-visible:shadow-none',
+        ].join(' '),
+      },
     ],
     defaultVariants: {
       variant: 'default',
@@ -155,6 +175,15 @@ const inputShellVariants = cva(inputShellChrome, {
         'focus-within:border-[color:var(--theme-alpha-black-switch-333)]',
         'focus-within:shadow-[var(--effect-focus-ring-secondary)]',
         'has-[[data-slot=input][aria-invalid=true]]:bg-[color:var(--background)]',
+        'has-[[data-slot=input][aria-invalid=true]]:focus-within:shadow-[var(--effect-focus-ring-error)]',
+      ].join(' '),
+      quiet: [
+        'bg-transparent',
+        'hover:bg-[color:var(--theme-alpha-black-switch-333)]',
+        'focus-within:border-[color:var(--border)]',
+        'focus-within:shadow-none',
+        'has-[[data-slot=input][aria-invalid=true]]:bg-[color:var(--background)]',
+        'has-[[data-slot=input][aria-invalid=true]]:hover:bg-[color:var(--background)]',
         'has-[[data-slot=input][aria-invalid=true]]:focus-within:shadow-[var(--effect-focus-ring-error)]',
       ].join(' '),
     },
@@ -200,6 +229,13 @@ const inputShellVariants = cva(inputShellChrome, {
       roundness: 'default',
       size: 'mini',
       class: 'rounded-[length:var(--rounded-md)]',
+    },
+    {
+      variant: 'quiet',
+      class: [
+        'focus-within:border-[color:var(--border)]',
+        'focus-within:shadow-none',
+      ].join(' '),
     },
   ],
   defaultVariants: {

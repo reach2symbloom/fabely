@@ -65,7 +65,7 @@ function ChapterNavButton({
   const isEmpty = name.trim() === '';
   const chapterContrast = isEmpty
     ? 'text-[color:var(--theme-alpha-black-switch-25)]'
-    : 'text-[color:var(--theme-alpha-black-switch-100)]';
+    : 'text-[color:var(--theme-alpha-black-switch-50)]';
 
   function commitName(next: string) {
     setName(next);
@@ -101,8 +101,9 @@ function ChapterNavButton({
 
   return (
     <div
+      data-slot="chapter-nav"
       className={cn(
-        'group/chapter-nav inline-flex w-full min-w-0 items-center',
+        'group/chapter-nav inline-flex w-fit max-w-full min-w-0 flex-col',
         'rounded-[length:var(--rounded-lg)]',
         'p-[var(--spacing-2xs)]',
         'gap-[var(--spacing-3xs)]',
@@ -115,26 +116,30 @@ function ChapterNavButton({
       data-open={open ? '' : undefined}
       onClick={handleShellClick}
     >
-      <div className="flex min-w-0 flex-1 flex-col justify-center gap-[var(--spacing-3xs)]">
-        <span
-          className={cn(
-            'ps-[var(--spacing-1-5)]',
-            'font-[family-name:var(--text-paragraph-regular-regular-font-family)]',
-            '[font-weight:var(--text-paragraph-regular-regular-font-weight)]',
-            'text-[length:var(--text-paragraph-regular-regular-font-size)]',
-            'leading-[var(--text-paragraph-regular-regular-line-height)]',
-            'tracking-[var(--text-paragraph-regular-regular-letter-spacing)]',
-            'text-muted-foreground',
-            'truncate',
-          )}
-        >
-          {bookTitle}
-        </span>
+      <span
+        data-slot="chapter-nav-title"
+        className={cn(
+          'ps-[var(--spacing-1-5)]',
+          'font-[family-name:var(--text-paragraph-regular-regular-font-family)]',
+          '[font-weight:var(--text-paragraph-regular-regular-font-weight)]',
+          'text-[length:var(--text-paragraph-regular-regular-font-size)]',
+          'leading-[var(--text-paragraph-regular-regular-line-height)]',
+          'tracking-[var(--text-paragraph-regular-regular-letter-spacing)]',
+          'text-[color:var(--theme-neutrals-400)]',
+          'truncate',
+        )}
+      >
+        {bookTitle}
+      </span>
+      <div
+        data-slot="chapter-nav-row"
+        className="inline-flex min-w-0 max-w-full items-center gap-[var(--spacing-3xs)]"
+      >
         <InputGroup
-          variant="ghost"
+          variant="quiet"
           size="mini"
           className={cn(
-            'w-full min-w-0 pe-0',
+            'w-fit max-w-full min-w-0 overflow-visible',
             /* Figma Mini instance is 32px; Input mini slot is 24px. */
             'h-[length:var(--spacing-2xl)] min-h-[length:var(--spacing-2xl)]',
           )}
@@ -148,9 +153,9 @@ function ChapterNavButton({
             onBlur={handleNameBlur}
             className={cn(
               heading4Type,
-              'text-[color:var(--theme-alpha-black-switch-100)]',
+              'field-sizing-content w-auto min-w-0 flex-none',
+              'text-[color:var(--theme-alpha-black-switch-50)]',
               'placeholder:text-[color:var(--theme-alpha-black-switch-25)]',
-              'min-w-0',
             )}
           />
           <InputGroupAddon>
@@ -159,38 +164,38 @@ function ChapterNavButton({
             </InputGroupText>
           </InputGroupAddon>
         </InputGroup>
-      </div>
-      <div className="inline-flex shrink-0">
         <DropdownMenu open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger
-          render={
-            <IconButton
-              variant="fade"
-              size="sm"
-              aria-label="Open chapter menu"
-              className={cn(
-                'shrink-0 size-[length:var(--icon-sm)] p-0',
-                'group-hover/chapter-nav:[&_svg]:opacity-100',
-                'group-data-open/chapter-nav:[&_svg]:opacity-100',
-              )}
-            />
-          }
-        >
-          <ChevronDownIcon />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          <p
-            className={cn(
-              'font-[family-name:var(--text-paragraph-small-regular-font-family)]',
-              'text-[length:var(--text-paragraph-small-regular-font-size)]',
-              'leading-[var(--text-paragraph-small-regular-line-height)]',
-              'text-muted-foreground',
-            )}
+          <DropdownMenuTrigger
+            render={
+              <IconButton
+                variant="fadeGold"
+                size="sm"
+                aria-label="Open chapter menu"
+                className={cn(
+                  'shrink-0 size-[length:var(--icon-sm)] p-0',
+                  'group-hover/chapter-nav:[&_svg]:opacity-100',
+                  'group-hover/chapter-nav:text-[color:var(--tw-raw-alert-600)]',
+                  'group-data-open/chapter-nav:[&_svg]:opacity-100',
+                  'group-data-open/chapter-nav:text-[color:var(--tw-raw-alert-600)]',
+                )}
+              />
+            }
           >
-            Chapter menu
-          </p>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <ChevronDownIcon />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <p
+              className={cn(
+                'font-[family-name:var(--text-paragraph-small-regular-font-family)]',
+                'text-[length:var(--text-paragraph-small-regular-font-size)]',
+                'leading-[var(--text-paragraph-small-regular-line-height)]',
+                'text-muted-foreground',
+              )}
+            >
+              Chapter menu
+            </p>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
