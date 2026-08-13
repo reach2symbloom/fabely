@@ -1,0 +1,26 @@
+/*
+ * Foundations / Motion — duration & easing
+ *
+ * Figma has no motion collection. Values are promoted from repeated use
+ * (shadcn Base Drawer + design-eng standards). Prefer these tokens over
+ * raw cubic-bezier() / ms literals in primitives.
+ *
+ * Registered in `@theme inline` so Tailwind utilities work:
+ *   ease-drawer · ease-emphasized · ease-emphasized-in
+ *   duration-fast · duration-normal · duration-drawer
+ */
+
+@theme inline {
+  /* Overlay / sheet slide — iOS-like (shadcn drawer overlay). */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Panel enter/exit — strong ease-out (shadcn drawer popup). */
+  --ease-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Nested content opacity (shadcn drawer content). */
+  --ease-emphasized-in: cubic-bezier(0.45, 1.005, 0, 1.005);
+  /* Figma Smart Animate EASE_OUT — Toggle Light (`5846:24869`) et al. */
+  --ease-out: cubic-bezier(0, 0, 0.58, 1);
+
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-drawer: 450ms;
+}

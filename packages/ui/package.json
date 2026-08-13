@@ -8,28 +8,47 @@
     "react-dom": "^19"
   },
   "devDependencies": {
-    "typescript": "5.7.3",
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
-    "storybook": "^10.5.4",
-    "@storybook/icons": "^2.1.0",
-    "@storybook/react-vite": "^10.5.4",
     "@chromatic-com/storybook": "^5.2.1",
-    "@storybook/addon-vitest": "^10.5.4",
     "@storybook/addon-a11y": "^10.5.4",
     "@storybook/addon-docs": "^10.5.4",
     "@storybook/addon-mcp": "^0.7.0",
-    "vitest": "^4.1.10",
-    "playwright": "^1.62.0",
+    "@storybook/addon-vitest": "^10.5.4",
+    "@storybook/icons": "^2.1.0",
+    "@storybook/react-vite": "^10.5.4",
+    "@tailwindcss/vite": "^4.1.9",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
     "@vitest/browser-playwright": "^4.1.10",
-    "@vitest/coverage-v8": "^4.1.10"
+    "@vitest/coverage-v8": "^4.1.10",
+    "playwright": "^1.62.0",
+    "storybook": "^10.5.4",
+    "tailwindcss": "^4.1.9",
+    "tw-animate-css": "1.3.3",
+    "typescript": "5.7.3",
+    "vitest": "^4.1.10"
   },
   "scripts": {
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "check:tokens": "bash scripts/check-tokens.sh owned",
+    "check:tokens:vendor": "bash scripts/check-tokens.sh vendor"
   },
   "dependencies": {
+    "@base-ui/react": "^1.6.0",
+    "@shadcn/react": "^0.3.0",
     "@solar-icons/react": "^1.1.1",
-    "lucide-react": "^0.564.0"
+    "@tanstack/react-table": "^9.1.2",
+    "chrono-node": "^2.10.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "1.1.1",
+    "date-fns": "4.1.0",
+    "embla-carousel-react": "8.6.0",
+    "input-otp": "1.4.2",
+    "lucide-react": "^0.564.0",
+    "react-day-picker": "^10.0.1",
+    "react-resizable-panels": "^4.12.2",
+    "recharts": "3.8.0",
+    "tailwind-merge": "^3.3.1"
   }
 }

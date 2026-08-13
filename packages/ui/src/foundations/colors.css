@@ -16,7 +16,10 @@
   --tw-raw-white: #F9F9F9;
   --tw-raw-black: #080B0C;
 
-  /* tw-raw / primary-gradient */
+  /* tw-raw / primary-gradient — the two pole colors for the Primary
+     gradient (see the Gradients section below; Figma has no "gradient"
+     variable type, so these two colors are the only Figma-authored asset
+     for it) */
   --tw-raw-primary-gradient-1: #A6A09B;
   --tw-raw-primary-gradient-2: #645E59;
 
@@ -80,7 +83,7 @@
   --tw-raw-success-950: #0C2319;
 
   /* tw-raw / error */
-  --tw-raw-error-ghost: #C43551; /* 12% opacity per Figma */
+  --tw-raw-error-ghost: #C43551; /* opaque base; apply opacity at use (Figma ghost @ 12%) */
   --tw-raw-error-50: #FFEAEC;
   --tw-raw-error-100: #FFC9CF;
   --tw-raw-error-200: #FFA2AE;
@@ -137,6 +140,33 @@
   /* tw-raw / scene-desk */
   --tw-raw-scene-desk-ghost: #9DACEA; /* 12% opacity per Figma */
   --tw-raw-scene-desk-500: #9DACEA; /* main */
+}
+
+/*
+ * Foundations / Colors — Gradients
+ * A category within Colors for reusable brand gradient treatments, not
+ * component-specific effects (see foundations/effects for those). Unlike
+ * the rest of this file, there's no separate raw layer to alias for
+ * Gradients specifically — Figma's variable system has no "gradient"
+ * variable type, so the raw pole colors above (tw-raw-primary-gradient-1/2)
+ * are the only Figma-authored asset; each gradient here is built directly
+ * from them (or future pole-color pairs) via var().
+ *
+ * Each gradient is a named group (Primary is the first; more may be added
+ * the same way) of four two-stop linear-gradient()s, one per canonical
+ * direction (top-bottom, bottom-top, left-right, right-left). Naming:
+ * --gradient-{name}-{direction}.
+ *
+ * Primary
+ * Built from --tw-raw-primary-gradient-1/2 above. No new color values are
+ * introduced here.
+ */
+
+:root {
+  --gradient-primary-top-bottom: linear-gradient(to bottom, var(--tw-raw-primary-gradient-1), var(--tw-raw-primary-gradient-2));
+  --gradient-primary-bottom-top: linear-gradient(to top, var(--tw-raw-primary-gradient-1), var(--tw-raw-primary-gradient-2));
+  --gradient-primary-left-right: linear-gradient(to right, var(--tw-raw-primary-gradient-1), var(--tw-raw-primary-gradient-2));
+  --gradient-primary-right-left: linear-gradient(to left, var(--tw-raw-primary-gradient-1), var(--tw-raw-primary-gradient-2));
 }
 
 /*
@@ -369,7 +399,7 @@
   --accent: var(--tw-raw-secondary-ghost); /* same in Light and Dark */
   --accent-foreground: var(--tw-raw-white);
   --muted: var(--theme-neutrals-100);
-  --muted-foreground: var(--theme-alpha-black-switch-50); /* switch token — flips automatically in .dark */
+  --muted-foreground: var(--theme-alpha-black-switch-60); /* switch token — flips automatically in .dark */
   --text: var(--theme-alpha-black-no-switch-75);
   --destructive: var(--tw-raw-error-500);
   --border: var(--theme-neutrals-300);
@@ -378,11 +408,16 @@
   --card-foreground: var(--theme-neutrals-950);
   --popover: var(--tw-raw-white);
   --popover-foreground: var(--tw-raw-neutral-950);
+  /* Modal / sheet scrim — raw black @ 30%, non-switching (stays dark in
+     both themes). Consumed by Alert Dialog now; Dialog, Sheet, and Drawer
+     use the same token when those primitives are built. */
+  --overlay: var(--theme-alpha-black-no-switch-30);
 
   /* shadcn colors / focus */
   --ring: var(--theme-neutrals-300);
   --ring-primary: var(--tw-raw-neutral-400);
-  --ring-error: var(--tw-raw-error-100);
+  /* Figma focus/ring error = #C43551 @ 12% (#C435511F) — same both themes. */
+  --ring-error: color-mix(in srgb, var(--tw-raw-error-ghost) 12%, transparent);
   --ring-success: var(--tw-raw-success-ghost);
   --ring-alert: var(--tw-raw-alert-100);
 
@@ -395,6 +430,13 @@
   --sidebar-primary-foreground: var(--tw-raw-white); /* Dark value is a broken Figma reference — see note above */
   --sidebar-border: var(--theme-neutrals-200);
   --sidebar-ring: var(--theme-neutrals-300);
+
+  /* chart colors — Figma "chart colors" collection (single shadcn mode) */
+  --chart-1: var(--theme-neutrals-300);
+  --chart-2: var(--theme-neutrals-400);
+  --chart-3: var(--tw-raw-neutral-500);
+  --chart-4: var(--tw-raw-neutral-600);
+  --chart-5: var(--tw-raw-neutral-700);
 }
 
 .dark {
@@ -408,20 +450,32 @@
   --secondary-hover: var(--theme-neutrals-700);
   --secondary-foreground: var(--theme-neutrals-100);
   --accent-foreground: var(--theme-neutrals-100);
-  --muted: var(--theme-neutrals-900);
+  /* Raised surface — must read lighter than --background (900). Equal
+     neutrals-900 made muted fills (Item, Empty, …) invisible on the page. */
+  --muted: var(--theme-neutrals-800);
   --text: var(--theme-alpha-white-no-switch-75);
   --destructive: var(--tw-raw-error-300);
   --border: var(--theme-neutrals-700);
   --input: var(--theme-neutrals-800);
   --card: var(--theme-neutrals-900);
-  --card-foreground: var(--theme-alpha-white-switch-100);
+  /* NOT --theme-alpha-white-switch-100: "switch" tokens are for translucent
+     overlay-style colors that intentionally invert their base between
+     themes (see --muted-foreground/--sidebar-accent above) — in .dark,
+     white-switch resolves to a *black*-based color, which silently made
+     card text render near-black on this near-black card background.
+     Every sibling on-dark-surface foreground here (--foreground,
+     --popover-foreground, etc.) instead points straight at a light
+     theme-neutrals/tw-raw value with no indirection; --card-foreground
+     mirrors that same pattern, and its light-mode counterpart's own
+     theme-neutrals-950 for symmetry. */
+  --card-foreground: var(--theme-neutrals-50);
   --popover: var(--tw-raw-neutral-950);
   --popover-foreground: var(--tw-raw-white);
 
   /* shadcn colors / focus */
   --ring: var(--theme-neutrals-700);
   --ring-primary: var(--theme-neutrals-700);
-  --ring-error: var(--tw-raw-error-ghost);
+  /* --ring-error inherits :root — Figma #C43551 @ 12% both themes */
   --ring-success: var(--tw-raw-success-700);
   --ring-alert: var(--tw-raw-alert-700);
 

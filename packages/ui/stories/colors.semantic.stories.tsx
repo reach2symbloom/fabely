@@ -26,7 +26,7 @@ const general: ColorToken[] = [
   {
     name: 'muted foreground',
     cssVar: '--muted-foreground',
-    reference: '--theme-alpha-black-switch-50 (switch token — flips automatically)',
+    reference: '--theme-alpha-black-switch-60 (switch token — flips automatically)',
   },
   { name: 'text', cssVar: '--text', reference: 'Light: --theme-alpha-black-no-switch-75 / Dark: --theme-alpha-white-no-switch-75' },
   { name: 'destructive', cssVar: '--destructive', reference: 'Light: --tw-raw-error-500 / Dark: --tw-raw-error-300' },
@@ -36,13 +36,19 @@ const general: ColorToken[] = [
   { name: 'card foreground', cssVar: '--card-foreground', reference: 'Light: --theme-neutrals-950 / Dark: --theme-alpha-white-switch-100' },
   { name: 'popover', cssVar: '--popover', reference: 'Light: --tw-raw-white / Dark: --tw-raw-neutral-950' },
   { name: 'popover foreground', cssVar: '--popover-foreground', reference: 'Light: --tw-raw-neutral-950 / Dark: --tw-raw-white' },
+  {
+    name: 'overlay',
+    cssVar: '--overlay',
+    reference: '--theme-alpha-black-no-switch-30 (Light & Dark — non-switching scrim)',
+    note: 'Modal / sheet backdrop. Alert Dialog now; Dialog, Sheet, Drawer when built.',
+  },
 ];
 
 // shadcn colors / focus
 const focus: ColorToken[] = [
   { name: 'ring', cssVar: '--ring', reference: 'Light: --theme-neutrals-300 / Dark: --theme-neutrals-700' },
   { name: 'ring primary', cssVar: '--ring-primary', reference: 'Light: --tw-raw-neutral-400 / Dark: --theme-neutrals-700' },
-  { name: 'ring error', cssVar: '--ring-error', reference: 'Light: --tw-raw-error-100 / Dark: --tw-raw-error-ghost' },
+  { name: 'ring error', cssVar: '--ring-error', reference: '--tw-raw-error-ghost @ 12% (both themes)' },
   { name: 'ring success', cssVar: '--ring-success', reference: 'Light: --tw-raw-success-ghost / Dark: --tw-raw-success-700' },
   { name: 'ring alert', cssVar: '--ring-alert', reference: 'Light: --tw-raw-alert-100 / Dark: --tw-raw-alert-700' },
 ];

@@ -10,6 +10,7 @@ import {
   uiCellStyle,
   codeCellStyle,
 } from './IconographyDocChrome';
+import { InlineSegmentedControl } from './InlineSegmentedControl';
 
 type SizeName = '2XS' | 'XS' | 'SM' | 'MD' | 'LG' | 'XL' | '2XL' | '3XL';
 type SizeArgs = { size: SizeName };
@@ -97,60 +98,6 @@ function useResolvedValue(cssVar: string) {
     setValue(getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim());
   }, [cssVar]);
   return value;
-}
-
-function InlineSegmentedControl<T extends string>({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: T;
-  options: T[];
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div style={{ marginBottom: 12 }}>
-      <div style={{ fontFamily: 'var(--font-family-sans)', fontSize: 12, opacity: 0.7, marginBottom: 6 }}>
-        {label}
-      </div>
-      <div
-        role="radiogroup"
-        aria-label={label}
-        style={{
-          display: 'inline-flex',
-          flexWrap: 'wrap',
-          gap: 4,
-          padding: 4,
-          border: '1px solid var(--border)',
-          borderRadius: 8,
-        }}
-      >
-        {options.map((opt) => (
-          <button
-            key={opt}
-            type="button"
-            role="radio"
-            aria-checked={value === opt}
-            onClick={() => onChange(opt)}
-            style={{
-              fontFamily: 'var(--font-family-sans)',
-              fontSize: 13,
-              padding: '6px 14px',
-              borderRadius: 6,
-              border: 'none',
-              cursor: 'pointer',
-              background: value === opt ? 'var(--primary)' : 'transparent',
-              color: value === opt ? 'var(--primary-foreground)' : 'inherit',
-            }}
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 function SpecimenPanel({ children }: { children: ReactNode }) {
@@ -351,6 +298,7 @@ export const SizeTokens: SizeStory = {
           value={size}
           options={['2XS', 'XS', 'SM', 'MD', 'LG', 'XL', '2XL', '3XL']}
           onChange={(v) => updateArgs({ size: v })}
+          className="mb-3"
         />
         <SizePreview size={size} />
 

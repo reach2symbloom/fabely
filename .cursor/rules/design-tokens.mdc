@@ -1,0 +1,32 @@
+---
+description: Design token usage — spacing vs dimensions, icons, colors, motion; values live in Foundations
+alwaysApply: true
+---
+
+# Design Tokens
+
+Values live in Foundations (`packages/ui/src/foundations/`). This rule states usage only. Rationale: `docs/DESIGN.md`.
+
+Primitives and composition tiers (atoms → templates) must pass `pnpm check:tokens` (CI gate). Vendor output under `src/components/ui` is not hand-edited — `pnpm check:tokens:vendor` is informational only.
+
+## Dimensions
+
+- Spacing tokens are for rhythm only (padding, gaps, margins) — never for sizing components.
+- Do not invent height/width tokens: those sizes are usually content-, padding-, and line-height-driven, and Figma does not define them.
+- Border-radius uses Foundations radius tokens — never raw `rounded-[…px|rem]`.
+
+## Icons
+
+- Size always from `--icon-*`, including when sizing via icon-context selectors (`[&>svg]:…`, `[&_svg]:…`, `svg:…`). Never hardcoded px on icons.
+- Glyphs: Lucide for system UI, Solar Bold Duotone for illustrative accents. Never mix sets in one interface.
+
+## Colors
+
+- Semantic color classes only. Never hex literals.
+
+## Motion
+
+- Prefer Foundations `--ease-*` / `--duration-*` (Tailwind `ease-*` /
+  `duration-*`) from `packages/ui/src/foundations/motion/tokens.css`.
+- Do not invent one-off `cubic-bezier(...)` or ms literals in primitives —
+  promote reused values to Foundations.

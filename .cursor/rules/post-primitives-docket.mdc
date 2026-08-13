@@ -1,0 +1,37 @@
+---
+description: Remind to revisit the post-primitives docket when the shadcn primitives pass finishes
+alwaysApply: true
+---
+
+# Post-primitives docket reminder
+
+Track follow-ups in `packages/ui/.migration/post-primitives-docket.md`.
+
+## When to remind the user
+
+**Proactively remind** (short nudge + link the docket) when any of these happen:
+
+1. The last thin-pass stub under `packages/ui/src/primitives/` is being
+   Figma-matched or consciously closed out.
+2. `packages/ui/src/primitives/README.md` no longer lists thin-pass stubs (or
+   the user says primitives / shadcn pass is “done”).
+3. The user asks what to do next after primitives, or starts a broad “polish /
+   composition” pass across the design system.
+
+## While primitives are still in progress
+
+- Do **not** nag every session.
+- When skipping a composition because a partner primitive is missing or
+  thin-pass, **add a docket checkbox** (and a **Deferred** note on that
+  primitive’s README) instead of silently dropping it.
+- **IMPORTANT — Figma custom components:** On every Foundations match, open
+  that primitive’s Figma page **and** the file’s **Custom components**
+  section. If Fabely authored a custom set / organism there (instead of or
+  beyond shadcn), land it or add an explicit **Deferred** note + docket
+  checkbox — never skip it because the shadcn docs omit it. See
+  `packages/ui/.migration/post-primitives-docket.md` → Design system hygiene.
+
+## Do not
+
+- Block finishing a primitive on docket items.
+- Invent new backlog files — extend the docket above.

@@ -9,6 +9,7 @@ import {
   uiCellStyle,
   codeCellStyle,
 } from './TypographyDocChrome';
+import { InlineSegmentedControl } from './InlineSegmentedControl';
 
 type Weight = 'Regular' | 'Medium' | 'Bold';
 type WeightArgs = { weight: Weight };
@@ -113,61 +114,6 @@ function WeightCell({ label, resolved }: { label: string; resolved: string }) {
       <br />
       <span style={{ fontFamily: codeCellStyle.fontFamily, fontSize: 12, opacity: 0.75 }}>({resolved || '…'})</span>
     </td>
-  );
-}
-
-/** Clickable inline control (not just the native Controls addon) so the
- * primary documentation experience exposes the relevant choice directly on
- * the page. Syncs with Storybook's args store via useArgs (in each story's
- * render), so it and the native Controls panel always agree. Generic so
- * Weight, Heading level, and Caption size all reuse the same component. */
-function InlineSegmentedControl<T extends string>({
-  value,
-  options,
-  onChange,
-  ariaLabel,
-}: {
-  value: T;
-  options: { value: T; label: string }[];
-  onChange: (v: T) => void;
-  ariaLabel: string;
-}) {
-  return (
-    <div
-      role="radiogroup"
-      aria-label={ariaLabel}
-      style={{
-        display: 'inline-flex',
-        gap: 4,
-        padding: 4,
-        border: '1px solid var(--border)',
-        borderRadius: 8,
-        marginBottom: 16,
-      }}
-    >
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          type="button"
-          role="radio"
-          aria-checked={value === opt.value}
-          onClick={() => onChange(opt.value)}
-          style={{
-            fontFamily: 'var(--font-family-sans)',
-            fontWeight: 'var(--font-weight-sans-regular)',
-            fontSize: 13,
-            padding: '6px 16px',
-            borderRadius: 6,
-            border: 'none',
-            cursor: 'pointer',
-            background: value === opt.value ? 'var(--primary)' : 'transparent',
-            color: value === opt.value ? 'var(--primary-foreground)' : 'inherit',
-          }}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
   );
 }
 
@@ -320,6 +266,7 @@ const paragraphSizes: { name: string; slug: string }[] = [
   { name: 'Paragraph Regular', slug: 'paragraph-regular' },
   { name: 'Paragraph Small', slug: 'paragraph-small' },
   { name: 'Paragraph Mini', slug: 'paragraph-mini' },
+  { name: 'Paragraph Micro', slug: 'paragraph-micro' },
 ];
 
 // Documentation label is "Sharp Serif" (the current concrete implementation),
@@ -354,6 +301,7 @@ export const Headings: HeadingsStory = {
           options={headingLevelOptions}
           onChange={(l) => updateArgs({ level: l })}
           ariaLabel="Heading level"
+          className="mb-4"
         />
         <LiveSpecimenPanel slug={slug} />
 
@@ -381,7 +329,7 @@ export const Paragraph: WeightStory = {
       <div>
         <TypographyPageTitle>Paragraph</TypographyPageTitle>
         <TypographyNotice>
-          Fabely's body-text scale — six sizes (XXL down to Mini), all Gellix. Each size is
+          Fabely's body-text scale — seven sizes (XXL down to Micro), all Gellix. Each size is
           available in three semantic weights: <strong>Regular</strong>, <strong>Medium</strong>,
           and <strong>Bold</strong>.
         </TypographyNotice>
@@ -392,6 +340,7 @@ export const Paragraph: WeightStory = {
           options={weightOptions}
           onChange={(w) => updateArgs({ weight: w })}
           ariaLabel="Weight"
+          className="mb-4"
         />
         <LiveSpecimenPanel slug={`paragraph-regular-${weightSlug(weight)}`} />
 
@@ -404,6 +353,17 @@ export const Paragraph: WeightStory = {
           (500) suits UI labels or subtle in-paragraph emphasis. <strong>Bold</strong> is
           implemented by Gellix's <em>Semibold</em> face (600) — Figma's semantic name is Bold,
           but the underlying font file is Semibold, not the file literally named Bold (700).
+        </TypographyNotice>
+
+        <TypographySectionHeading>Architecture Notes</TypographySectionHeading>
+        <TypographyNotice>
+          <strong>Micro</strong> is the one size in this scale not sourced from Figma — every
+          other size traces to Figma's Styles panel. It originates from the Fabely Avatar atom's
+          Extra Tiny size, whose Figma component left its text unbound to any real style. Only
+          Micro Bold's metrics are directly confirmed; Regular and Medium apply this scale's own
+          rule (identical metrics across weight siblings, only font-weight differs) rather than
+          being independently confirmed. See <code>typography.css</code>'s header comment for the
+          full provenance.
         </TypographyNotice>
       </div>
     );
@@ -434,6 +394,7 @@ export const Manuscript: WeightStory = {
           options={weightOptions}
           onChange={(w) => updateArgs({ weight: w })}
           ariaLabel="Weight"
+          className="mb-4"
         />
         <div
           style={{
@@ -533,6 +494,7 @@ export const Captions: CaptionsStory = {
           options={captionSizeOptions}
           onChange={(s) => updateArgs({ size: s })}
           ariaLabel="Caption size"
+          className="mb-4"
         />
         <LiveSpecimenPanel slug={slug} />
 

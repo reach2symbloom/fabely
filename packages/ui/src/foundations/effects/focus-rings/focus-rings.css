@@ -27,6 +27,11 @@
 
 :root {
   --effect-focus-ring-primary: 0px 0px 0px 3px var(--ring-primary);
+  /* Always-on Primary button ring at rest — same geometry as primary,
+   * color mixed down via --opacity-focus-ring-rest (see opacity.css).
+   * :focus-visible swaps to --effect-focus-ring-primary at full strength. */
+  --effect-focus-ring-primary-rest: 0px 0px 0px 3px
+    color-mix(in srgb, var(--ring-primary) var(--opacity-focus-ring-rest), transparent);
   --effect-focus-ring-primary-glow:
     0px 0px 0px 3px var(--ring-primary),
     0px 0px 20px 0px var(--theme-neutrals-600);

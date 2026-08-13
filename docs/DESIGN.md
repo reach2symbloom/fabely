@@ -13,14 +13,25 @@ DESIGN.md evolves alongside the design system. It records architectural decision
 
 DESIGN.md is the architectural reference for the Fabely Design System.
 
-It explains *why* the design system is structured the way it is. Figma defines the visual source of truth, Storybook documents the implementation, and production code brings the system to life.
+It explains *why* the design system is structured the way it is. Storybook documents the implementation; production code ships it. Authority between Figma and the library is directional — see Source of truth below.
 
 ### Responsibilities
 
-- **Figma** → Visual design and design tokens
+- **Figma** → Vessel of communication: originates design intent and hands it off (visuals, tokens, component specs for work not yet built)
 - **DESIGN.md** → Architecture, philosophy, naming, and conventions
 - **Storybook** → Implementation and documentation
-- **Code** → Production implementation
+- **Code (library)** → Production implementation; master for components once built
+
+### Source of truth
+
+Figma originates design intent and hands it off. Once a component is built in the library, **the library becomes the master** — it is authoritative for that component's API, states, and interaction behavior. Figma is not maintained retroactively to match.
+
+**Direction of authority**
+
+- **Figma → library** for components not yet built
+- **Library wins** for components already built
+
+Example: Button's hover and pressed interaction model was defined in code. Figma had no pressed state and inconsistent outline hovers; the library is the source of truth for those behaviors.
 
 ---
 
@@ -138,7 +149,7 @@ Foundations should remain implementation-agnostic.
 
 ### Iconography
 
-**Size tokens** (`packages/ui/src/foundations/iconography.css`) are the canonical icon sizing scale: `--icon-2xs` … `--icon-3xl` (8–48px). Atoms, molecules, organisms, and vendored shadcn wrappers must consume these via `var(--icon-*)` — never hardcoded px or Tailwind `size-*` utilities for icons.
+**Size tokens** (`packages/ui/src/foundations/iconography.css`) are the canonical icon sizing scale: `--icon-2xs` … `--icon-3xl` (8–48px). Primitives, atoms, molecules, organisms, and templates must consume these via `var(--icon-*)` — never hardcoded px or Tailwind `size-*` utilities for icons. Raw vendor output under `src/components/ui` is regenerated, not hand-edited.
 
 **Icon glyphs** are not CSS tokens. They come from approved libraries:
 
@@ -160,11 +171,39 @@ Components should consume semantic tokens whenever a reusable semantic role exis
 
 # Component Layer
 
+Storybook hierarchy (and package layout under `packages/ui/src/`):
+
+```text
+Foundations → Primitives → Atoms → Molecules → Organisms → Templates
+```
+
+## Primitives
+
+Primitives are mostly wrapped shadcn / Base UI components. We restyle them with Foundations tokens but do not compose them at this layer. They are listed flat and alphabetically in Storybook — no atomic classification.
+
+A component may start as a Primitive and later be composed into an Atom (or higher) once we design a Fabely composition around it. Until then, the Primitive is the public surface consumers should import.
+
+### ListItem — shared row atom
+
+`ListItem` is the shared leaf-row atom for menus and lists. Dropdown Menu, Popover, Command, Select, Context Menu, and standalone lists compose it rather than hand-rolling their own row chrome.
+
+It is Fabely-authored (no shadcn equivalent — shadcn’s `Item` is a bordered card-like row, wrong shape). It still lives under **Primitives**, not Atoms: Primitives consume it, and **Primitives must not depend on Atoms**. Putting the shared row in Atoms would force every menu Primitive that needs a row to depend upward.
+
+**Rule:** Any new component that needs a list or menu row must use `ListItem`. Do not compose an equivalent row inline (custom padding, hover fills, focus rings, leading/trailing icon layouts) in DropdownMenuItem, CommandItem, SelectItem, ContextMenuItem, or ad hoc lists.
+
+Figma source is the **Menu Item** component set (`18:1010` on page Select & Combobox). The code name is deliberately `ListItem` — unscoped to any one menu surface.
+
+## Atoms, Molecules, Organisms, Templates
+
+These tiers are for components we design. Atoms are the smallest compositions we author; molecules group atoms; organisms form distinct interface sections; templates are page-level layout skeletons. Empty tiers remain as scaffolding until real compositions land.
+
+Vendor-derived wrappers do not belong in these tiers — they live under Primitives. Fabely-authored primitives that other Primitives must consume (e.g. `ListItem`) also live here rather than in Atoms — see ListItem above.
+
 ## Component Semantics
 
 Workflow:
 
-1. Match Figma faithfully.
+1. Match Figma faithfully for components not yet built (Figma → library). Once built, the library is master — see Source of truth.
 2. Identify recurring patterns.
 3. Create semantic component tokens where appropriate.
 4. Refactor components to consume those semantic tokens.
@@ -307,6 +346,40 @@ It complements DESIGN.md rather than replacing it.
 
 Documentation should explain what exists, demonstrate usage, and remain concise.
 
+## Component Story Structure
+
+Every Primitive, Atom, Molecule, and eventually Organism / Template follows the same Storybook page structure, first established with Badge (and shared via `packages/ui/stories/PrimitivePage.tsx` for Primitives):
+
+```text
+Primitives
+└── Badge
+    ├── Overview
+    ├── Default
+    ├── Variants
+    └── …
+```
+
+### Primitive Overview (thin pass)
+
+Every new Primitive Overview **must** render through `PrimitivePage` (`packages/ui/stories/PrimitivePage.tsx`). The component owns section order, spacing, and headings — stories supply content only and cannot reorder or omit sections.
+
+Required props / sections, in order:
+
+1. **title** — component name
+2. **description** — brief purpose + how this Primitive relates to the vendor wrapper / Foundations
+3. **playground** — interactive controls (inline `useState`, not Storybook args)
+4. **variants** — gallery composing every canonical variant story (reuse the same implementations; do not duplicate them). Named **Variants** to match Figma’s vocabulary, not “Examples.”
+5. **usageGuidance** — how to compose and which props to prefer
+6. **accessibility** — a11y notes for the Primitive
+
+If a section is not written yet, pass placeholder text (see `PRIMITIVE_PAGE_SECTION_PLACEHOLDER`) — do not omit the prop or invent alternate section headings.
+
+Reference implementation: Badge Overview.
+
+Each individual variant page stays focused on demonstrating one behavior or variation.
+
+This pattern does not apply to Foundations, which remain documentation-first with their existing structure. Primitives are listed flat and alphabetically under Design System → Primitives; the atomic tiers (Atoms → Templates) hold compositions we design.
+
 ---
 
 # Naming
@@ -343,3 +416,36 @@ Avoid implementation names unless documenting implementation details:
 - Expose implementation details as public APIs.
 - Hardcode reusable values.
 - Couple semantic names to specific implementations.
+
+### Dimensions
+
+Spacing tokens describe rhythm — padding, gaps, margins. They are not
+dimension tokens. A component whose size happens to match a spacing
+value is borrowing that number, not expressing intent.
+
+Component dimensions are component tokens: `--avatar-size-small`,
+`--badge-height-sm`. Define them alongside the component. They may
+resolve to a spacing value, but the semantic name is the public API.
+
+Never inline raw dimensions (`h-[18px]`, `w-[220px]`).
+
+### Size slots
+
+Size prop names (`mini`, `sm`, `default`, `lg`, …) are **shared
+vocabulary** across related primitives (e.g. Button and Icon Button).
+Each component owns its own values for those slots — the same name does
+not imply the same pixel dimensions. Button `default` is 40px tall;
+Icon Button `default` is 36×36. Do not “fix” one component’s size
+scale to another’s when the Figma (or library) specs differ.
+
+### Icons
+
+Icon size always comes from `--icon-*` (Foundations → Iconography).
+Never `size-4`, never `size-[14px]` — Tailwind's scale and raw pixels
+both bypass the system.
+
+Icon glyphs come from approved libraries only: Lucide for system UI,
+Solar Bold Duotone for illustrative accents, Fabely Icons for brand
+marks. Never mix sets within one interface.
+
+    <Icon className="size-[var(--icon-sm)]" />

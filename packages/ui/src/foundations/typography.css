@@ -47,8 +47,18 @@
  *
  * Paragraph and Paragraph Serif are two separate semantic typography
  * groups (per Figma's Styles panel), not variants of the same style:
- *   - Paragraph: Gellix, 6 sizes (xxl/xl/large/regular/small/mini), each in
- *     3 weights (Regular/Medium/Bold) -> 18 complete styles.
+ *   - Paragraph: Gellix, 7 sizes (xxl/xl/large/regular/small/mini/micro),
+ *     each in 3 weights (Regular/Medium/Bold) -> 21 complete styles. Micro
+ *     is the one size not sourced from Figma (every other size traces to
+ *     Figma's Styles panel) — it originates from the Fabely Avatar atom's
+ *     Extra Tiny size, whose Figma component left its text unbound to any
+ *     real style (using an unregistered "Geist" font found nowhere else in
+ *     Fabely's foundations — almost certainly a Figma authoring gap, not an
+ *     intentional 4th typeface). Only Micro Bold's metrics are directly
+ *     confirmed (from that component); Micro Regular/Medium apply the same
+ *     "identical metrics across weight siblings, only font-weight differs"
+ *     rule already established for every other size below, rather than
+ *     being independently confirmed.
  *   - Paragraph Serif: Sharp Serif, a single size (22px/31px, matching
  *     Paragraph XL's metric exactly) in 3 weights (Regular/Medium/Bold) ->
  *     3 complete styles.
@@ -169,7 +179,7 @@
   --text-caption-lg-paragraph-spacing: 8px;
   --text-caption-lg-letter-spacing: 5px;
 
-  /* Typography Styles / Paragraph (Gellix) — 6 sizes x 3 weights each.
+  /* Typography Styles / Paragraph (Gellix) — 7 sizes x 3 weights each.
      font-size/line-height/paragraph-spacing/letter-spacing are identical
      across a size's three weight siblings; only font-weight differs. */
   --text-paragraph-xxl-regular-font-family: var(--font-family-body);
@@ -285,6 +295,25 @@
   --text-paragraph-mini-bold-line-height: 16px;
   --text-paragraph-mini-bold-paragraph-spacing: 12px;
   --text-paragraph-mini-bold-letter-spacing: 0px;
+
+  --text-paragraph-micro-regular-font-family: var(--font-family-body);
+  --text-paragraph-micro-regular-font-weight: var(--font-weight-paragraph-regular);
+  --text-paragraph-micro-regular-font-size: 8px;
+  --text-paragraph-micro-regular-line-height: 12px;
+  --text-paragraph-micro-regular-paragraph-spacing: 8px;
+  --text-paragraph-micro-regular-letter-spacing: 0.12px;
+  --text-paragraph-micro-medium-font-family: var(--font-family-body);
+  --text-paragraph-micro-medium-font-weight: var(--font-weight-paragraph-medium);
+  --text-paragraph-micro-medium-font-size: 8px;
+  --text-paragraph-micro-medium-line-height: 12px;
+  --text-paragraph-micro-medium-paragraph-spacing: 8px;
+  --text-paragraph-micro-medium-letter-spacing: 0.12px;
+  --text-paragraph-micro-bold-font-family: var(--font-family-body);
+  --text-paragraph-micro-bold-font-weight: var(--font-weight-paragraph-bold);
+  --text-paragraph-micro-bold-font-size: 8px;
+  --text-paragraph-micro-bold-line-height: 12px;
+  --text-paragraph-micro-bold-paragraph-spacing: 8px;
+  --text-paragraph-micro-bold-letter-spacing: 0.12px;
 
   /* Typography Styles / Paragraph Serif (Sharp Serif) — a single size
      (matching Paragraph XL's 22px/31px metric exactly) in 3 weights.

@@ -1,0 +1,55 @@
+---
+description: Figma native slots vs variants/swaps — layout contracts that mirror code composition
+alwaysApply: true
+---
+
+# Figma slots (design ↔ code)
+
+Source framing: [The Case for Slots](https://southleft.substack.com/p/the-case-for-slots) (TJ / Southleft).
+Figma docs: [Use slots](https://help.figma.com/hc/en-us/articles/19708407034007) ·
+[Slots vs swaps vs variants](https://help.figma.com/hc/en-us/articles/19708410785559).
+
+## Mental model
+
+| Mechanism | What it is |
+| --- | --- |
+| **Variant** | Finite states you enumerate ahead of time |
+| **Instance swap** | Replace one *known* component with another *known* one from a list |
+| **Slot** | A named hole + **contract** for content you don’t know yet (including content that doesn’t exist today) |
+
+Slots are not “fancy swaps.” Swaps pick from a menu; slots define *how* content must behave while leaving *what* open.
+
+## Where it matters
+
+Prefer slots for **layout infrastructure** (grid, feature section, card shell, section header, media/actions rows) — not only for leaf controls (Button, Badge).
+
+Before slots, reusable layouts meant variant explosion or detach-and-rebuild. With slots: structure once, content flows into named areas, layout holds.
+
+## Nesting (“slot inception”)
+
+Figma does **not** nest a slot node inside a slot node. You **can** place a **slot-enabled component instance** inside another slot. Layers stay editable and linked to sources — no detach required.
+
+Typical stack: layout slot → card (with its own slots) → button group / media / actions.
+
+## Code mapping (Fabely)
+
+When reading Figma or authoring composition:
+
+- Named slots ↔ React `children` / named subcomponents (`ItemMedia`, `ItemActions`, `CardHeader`, …) — **open content, fixed chrome**
+- Axes that must stay enumerable (size, tone, state) stay **variants / props**
+- Prefer “contract + composition” over prop matrices that anticipate every future combination
+- In Storybook, demonstrate the **slot contract** (what may go in each hole), not only one fixed demo tree
+
+## Do / don’t
+
+- **Do** treat layout shells as first-class components with open content areas
+- **Do** keep slot contracts tight (alignment, gap, max lines) even when content is open
+- **Don’t** encode open content as endless variants or required instance-swap menus
+- **Don’t** detach layout instances to “just change the middle”
+
+## Post-primitives
+
+A full **Slots refactor audit (Figma ↔ code)** is queued on
+`packages/ui/.migration/post-primitives-docket.md` under Design system hygiene.
+Run it only after the primitives pass completes — do not block individual
+primitive landings on that audit.

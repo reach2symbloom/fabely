@@ -1,0 +1,16 @@
+/*
+ * Foundations / Opacity
+ * Interactive opacity steps promoted from recurring component use
+ * (Button hover / rest-state focus-ring treatment). Unitless values for
+ * the CSS `opacity` property; percentage form for color-mix() where noted.
+ */
+
+:root {
+  /* Filled-control ladder — each pressed step is one notch stronger than hover. */
+  --opacity-hover-soft: 0.9; /* Primary hover */
+  --opacity-hover: 0.8; /* Primary pressed; Destructive + Fia filled hover */
+  --opacity-pressed: 0.7; /* Destructive + Fia filled pressed */
+
+  /* Primary button always-on focus ring at rest (full ring on :focus-visible). */
+  --opacity-focus-ring-rest: 40%;
+}

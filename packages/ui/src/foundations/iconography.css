@@ -29,4 +29,17 @@
   --icon-xl: var(--spacing-2xl); /* 32px */
   --icon-2xl: var(--spacing-3xl); /* 40px */
   --icon-3xl: var(--spacing-4xl); /* 48px */
+
+  /*
+   * Solar Bold Duotone — secondary (“lighter”) path opacity. Package defaults
+   * are often 0.5 (sometimes higher); Fabely uses 20%. Paths with no opacity
+   * attribute stay fully opaque (100%).
+   * Applied via [data-fabely-solar] from FabelySolarProvider / Storybook.
+   */
+  --icon-solar-secondary-opacity: 0.2;
+}
+
+/* Override Solar’s baked presentation opacity on secondary layers only. */
+svg[data-fabely-solar] [opacity] {
+  opacity: var(--icon-solar-secondary-opacity);
 }
