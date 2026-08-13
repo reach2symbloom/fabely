@@ -8,7 +8,8 @@
  * Size slots share vocabulary with Text Button (`mini` / `default`); values
  * are Icon Button’s own (24 / 32 / 36 / 40). See docs/DESIGN.md “Size slots”.
  *
- * Shared variants: `../shared` (`buttonVariantClasses`).
+ * Shared variants: `../shared` (`buttonVariantClasses`), plus Icon-only
+ * `fade` from Figma Fade button (`12042:25189`).
  */
 import { Button as ButtonPrimitive } from '@base-ui/react/button';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -18,8 +19,32 @@ import {
   type ButtonRoundness,
 } from '../shared';
 
-/** Same variant axis as Text Button (shared `buttonVariantClasses`). */
-export type IconButtonVariant = keyof typeof buttonVariantClasses;
+/**
+ * Shared Button variants plus Icon-only `fade` (Figma Fade button).
+ * Fade is not on Text Button — rest is a quieter icon, not a labeled face.
+ */
+export type IconButtonVariant = keyof typeof buttonVariantClasses | 'fade';
+
+/**
+ * Figma Fade button (`12042:25189`) — rest is Figma alpha-40, hover alpha-100.
+ * Color stays opaque `--theme-alpha-black-switch-100`; rest uses
+ * `--opacity-fade` on the SVG so overlapping Lucide strokes (Plus, X)
+ * composite as one glyph. Painting alpha-40 as `currentColor` would darken
+ * the crossing. No hover fill (unlike Ghost). Face fill is Ghost’s
+ * near-invisible `--theme-alpha-white-switch-001`.
+ */
+const fadeVariantClasses = [
+  'bg-[var(--theme-alpha-white-switch-001)] border-transparent',
+  'text-[color:var(--theme-alpha-black-switch-100)]',
+  '[&_svg]:opacity-[var(--opacity-fade)]',
+  '[&_svg]:transition-opacity [&_svg]:duration-fast [&_svg]:ease-emphasized',
+  'hover:[&_svg]:opacity-100',
+  'active:[&_svg]:opacity-100',
+  'data-[pressed]:[&_svg]:opacity-100',
+  'focus-visible:[&_svg]:opacity-100',
+  'disabled:[&_svg]:opacity-100',
+  'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+];
 
 /** Shared size vocabulary — slots this control implements. */
 export type IconButtonSize = 'mini' | 'sm' | 'default' | 'lg';
@@ -44,6 +69,7 @@ const iconButtonVariants = cva(
     variants: {
       variant: {
         ...buttonVariantClasses,
+        fade: fadeVariantClasses,
       },
       size: {
         mini: [
@@ -56,16 +82,19 @@ const iconButtonVariants = cva(
           'p-[var(--spacing-xs)]',
           "[&_svg:not([class*='size-'])]:size-[length:var(--icon-sm)]",
         ],
+        /* Icon steps up from sm (`--icon-sm` → `--icon-md`). Pad `--spacing-1-5`
+           (not xs): 8+8+20+border exceeds 36 border-box. */
         default: [
           'size-[length:var(--spacing-9)]',
-          'p-[var(--spacing-xs)]',
-          "[&_svg:not([class*='size-'])]:size-[length:var(--icon-sm)]",
+          'p-[var(--spacing-1-5)]',
+          "[&_svg:not([class*='size-'])]:size-[length:var(--icon-md)]",
         ],
-        /* Pad `--spacing-xs` (not 2-5): 10+10+20+border exceeds 40 border-box. */
+        /* Icon steps up from default (`--icon-md` → `--icon-lg`). Pad
+           `--spacing-1-5` (not xs): 8+8+24+border exceeds 40 border-box. */
         lg: [
           'size-[length:var(--spacing-3xl)]',
-          'p-[var(--spacing-xs)]',
-          "[&_svg:not([class*='size-'])]:size-[length:var(--icon-md)]",
+          'p-[var(--spacing-1-5)]',
+          "[&_svg:not([class*='size-'])]:size-[length:var(--icon-lg)]",
         ],
       },
       roundness: {

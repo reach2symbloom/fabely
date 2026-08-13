@@ -49,8 +49,9 @@ Button) when that lands.
 
 ## Deferred
 
-- **Fade Button / interactive decorations** — slots accept them; re-verify sizing
-  once Fade Button (or Icon Button-in-field) lands.
+- **Fade / interactive decorations** — slots accept them. Icon Button
+  `variant="fade"` is the Fade button treatment; re-verify in-field sizing
+  when composing one as a decoration.
 - **Ghost Mini display type** — Figma Ghost Mini placeholder uses Heading 4
   Light; we keep Paragraph Mini Regular for a consistent field control.
 - **Input Group hosts** — Field, Combobox, and Empty already compose the

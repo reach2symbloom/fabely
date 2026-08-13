@@ -11,6 +11,11 @@
   --opacity-hover: 0.8; /* Primary pressed; Destructive + Fia filled hover */
   --opacity-pressed: 0.7; /* Destructive + Fia filled pressed */
 
+  /* Icon Button fade rest — Figma Fade button alpha-40, applied as glyph
+     opacity on an opaque switch-100 fill so two-stroke Lucide icons
+     (Plus, X, …) do not double up at the crossing. */
+  --opacity-fade: 0.4;
+
   /* Primary button always-on focus ring at rest (full ring on :focus-visible). */
   --opacity-focus-ring-rest: 40%;
 }
