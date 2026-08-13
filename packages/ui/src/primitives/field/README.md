@@ -69,7 +69,8 @@ FieldSet
 Field composes many partners. **Revisit this primitive after each lands**
 (Foundations-matched), not only at the end of the thin-pass:
 
-- [ ] **Label** — FieldLabel host type / disabled / invalid
+- [x] **Label** — leaf matched; FieldLabel inherits type / invalid / disabled.
+  FieldTitle shares `labelTypeClassName`.
 - [x] **Textarea** — Field Textarea demos + Figma Type=Textarea
 - [ ] **Select** — Field Select demos + Figma Type=Select
 - [ ] **Slider** — Field Slider demos + Figma Type=Slider (Slider leaf matched;

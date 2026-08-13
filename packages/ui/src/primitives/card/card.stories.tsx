@@ -23,8 +23,8 @@ import { Button } from '../button';
 import type { ButtonSize } from '../button';
 import { AspectRatio } from '../aspect-ratio';
 import { Badge } from '../badge';
+import { Field, FieldGroup, FieldLabel } from '../field';
 import { Input } from '../input';
-import { Label } from '../label';
 import {
   ListItem,
   ListItemContent,
@@ -75,8 +75,6 @@ const PLAYGROUND_ITEMS = [
  * shadcn Card docs.
  *
  * Deferred example partners (see README → Deferred / post-primitives docket):
- * - Login / Spacing / RTL forms → Foundations Input, Label, Field
- * - Image cover → Aspect Ratio (16:9) when a locked frame fits
  * - Playground list rows already use ListItem; keep in sync if its API moves
  */
 
@@ -134,21 +132,21 @@ function BasicExample({
         </CardAction>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col gap-[length:var(--spacing-md)]">
-          <div className="flex flex-col gap-[length:var(--spacing-xs)]">
-            <Label htmlFor="card-email">Email</Label>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="card-email">Email</FieldLabel>
             <Input id="card-email" type="email" placeholder="m@example.com" />
-          </div>
-          <div className="flex flex-col gap-[length:var(--spacing-xs)]">
-            <div className="flex items-center justify-between gap-[length:var(--spacing-sm)]">
-              <Label htmlFor="card-password">Password</Label>
+          </Field>
+          <Field>
+            <div className="flex items-center justify-between gap-[var(--spacing-sm)]">
+              <FieldLabel htmlFor="card-password">Password</FieldLabel>
               <Button variant="ghost" size="mini" className="h-auto px-0">
                 Forgot your password?
               </Button>
             </div>
             <Input id="card-password" type="password" />
-          </div>
-        </div>
+          </Field>
+        </FieldGroup>
       </CardContent>
       <CardFooter className="flex flex-col gap-[length:var(--spacing-xs)]">
         <Button className="w-full">Login</Button>
@@ -209,16 +207,16 @@ function SpacingExample({
         </CardAction>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col gap-[length:var(--spacing-md)]">
-          <div className="flex flex-col gap-[length:var(--spacing-xs)]">
-            <Label htmlFor="spacing-email">Email</Label>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="spacing-email">Email</FieldLabel>
             <Input id="spacing-email" type="email" placeholder="m@example.com" />
-          </div>
-          <div className="flex flex-col gap-[length:var(--spacing-xs)]">
-            <Label htmlFor="spacing-password">Password</Label>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="spacing-password">Password</FieldLabel>
             <Input id="spacing-password" type="password" />
-          </div>
-        </div>
+          </Field>
+        </FieldGroup>
       </CardContent>
       <CardFooter className="flex flex-col gap-[length:var(--spacing-xs)]">
         <Button className="w-full">Login</Button>
@@ -319,19 +317,19 @@ function RtlExample() {
       </CardHeader>
       <CardContent>
         <form>
-          <div className="flex flex-col gap-[length:var(--spacing-md)]">
-            <div className="grid gap-[length:var(--spacing-xs)]">
-              <Label htmlFor="email-rtl">{t.email}</Label>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="email-rtl">{t.email}</FieldLabel>
               <Input
                 id="email-rtl"
                 type="email"
                 placeholder={t.emailPlaceholder}
                 required
               />
-            </div>
-            <div className="grid gap-[length:var(--spacing-xs)]">
-              <div className="flex items-center">
-                <Label htmlFor="password-rtl">{t.password}</Label>
+            </Field>
+            <Field>
+              <div className="flex items-center gap-[var(--spacing-sm)]">
+                <FieldLabel htmlFor="password-rtl">{t.password}</FieldLabel>
                 <a
                   href="#"
                   className="ms-auto inline-block text-[length:var(--text-paragraph-small-regular-font-size)] underline-offset-4 hover:underline"
@@ -340,8 +338,8 @@ function RtlExample() {
                 </a>
               </div>
               <Input id="password-rtl" type="password" required />
-            </div>
-          </div>
+            </Field>
+          </FieldGroup>
         </form>
       </CardContent>
       <CardFooter className="flex-col gap-[length:var(--spacing-xs)]">

@@ -494,6 +494,14 @@ const preview: Preview = {
                 'RTL',
               ],
               'Label',
+              [
+                'Overview',
+                'Demo',
+                'Error',
+                'Required',
+                'Field',
+                'RTL',
+              ],
               'ListItem',
               [
                 'Overview',

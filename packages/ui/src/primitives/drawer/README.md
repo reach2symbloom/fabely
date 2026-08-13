@@ -65,8 +65,8 @@ overlay coverage after scroll (Base UI / shadcn note).
 
 ## Deferred
 
-- Re-verify Field / Input / Label / Radio Group hosts once those are
-  Foundations-matched (Delivery Method + Responsive demos)
+- Re-verify Field / Input / Radio Group hosts (Delivery Method + Responsive).
+  Delivery Method uses Field + FieldLabel beside Radio.
 - Figma only defines the bottom-sheet slot — side / snap / nested chrome stays
   behavior-driven from Base UI until design expands the set
 

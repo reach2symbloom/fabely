@@ -78,9 +78,9 @@ partners have real sizes, tokens, and chrome.
       Field and Input land; add Figma Mobile / full-screen Type variants if
       product needs them. See
       [Dialog README → Deferred](../src/primitives/dialog/README.md#deferred).
-- [ ] **Drawer × Field / Input / Radio** — Field, Input, and Radio Group are
-      Foundations-matched — re-verify Responsive (Dialog↔Drawer) and Delivery
-      Method demos; Label still thin-pass. See
+- [ ] **Drawer × Field / Input / Radio** — Field, Input, Radio Group, and
+      Label are Foundations-matched — re-verify Responsive (Dialog↔Drawer)
+      and Delivery Method (Field + FieldLabel beside Radio). See
       [Drawer README → Deferred](../src/primitives/drawer/README.md#deferred).
 - [ ] **Empty × Input Group** — re-verify Input Group empty-state demo once
       Input Group is Foundations-matched. See
@@ -147,10 +147,15 @@ partners have real sizes, tokens, and chrome.
       [Message Scroller README → Deferred](../src/primitives/message-scroller/README.md#deferred).
 - [ ] **Field × control partners** — Field depends on many siblings; after
       each Foundations-matches, re-verify Field demos and Figma Type variants
-      (Label, Select, Slider, Radio Group, Checkbox hosts, Switch,
-      Separator, Inline message OC). Input / Textarea Text Value chrome is
-      already matched.
+      (Select, Slider, Radio Group, Checkbox hosts, Switch, Separator,
+      Inline message OC). Label leaf is matched; FieldLabel inherits type /
+      invalid color. Input / Textarea Text Value chrome is already matched.
       Checklist: [Field README → Deferred](../src/primitives/field/README.md#deferred).
+- [x] **Label call sites** — form rows use Field / FieldLabel (Card Login /
+      Spacing / RTL, Sheet Demo, Drawer Delivery Method). Slider captions and
+      Button Group Text `render={<Label />}` keep standalone Label.
+      `FieldTitle` shares `labelTypeClassName`. See
+      [Label README](../src/primitives/label/README.md).
 - [ ] **Cross-primitive demos** — walk shadcn docs for each Fabely primitive;
       flesh out examples that need siblings we did not have at land time
       (toolbars, split buttons, field + addon strips, pagination clusters, etc.).

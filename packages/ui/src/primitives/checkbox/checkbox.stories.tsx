@@ -22,7 +22,7 @@ import {
  * Overview first — Playground, Variants gallery, usage, a11y — then focused
  * example pages aligned with shadcn Checkbox docs + Figma Checked?/State.
  *
- * Deferred partners (README → Deferred / post-primitives docket): Field, Label,
+ * Deferred partners (README → Deferred / post-primitives docket): Field hosts,
  * Table, Figma Checkbox Group.
  */
 
@@ -51,8 +51,7 @@ function BasicExample() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
       <LimitationNotice>
-        Field / Label are still thin-pass — layout only until those primitives
-        are Foundations-matched.
+        Field host spacing is still on the Label call-site docket.
       </LimitationNotice>
       <Field orientation="horizontal">
         <Checkbox id="terms" />
@@ -184,7 +183,7 @@ function RtlExample() {
   return (
     <div dir="rtl" className="flex w-full max-w-sm flex-col gap-4">
       <LimitationNotice>
-        RTL copy; Field/Label partners still thin-pass.
+        RTL copy; Field host spacing is still on the Label call-site docket.
       </LimitationNotice>
       <Field orientation="horizontal">
         <Checkbox id="terms-rtl" defaultChecked />

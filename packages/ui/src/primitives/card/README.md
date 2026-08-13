@@ -64,7 +64,6 @@ Edge-to-edge muted bands: `bordered` + `bg-muted` on `CardContent`.
 Story examples to revisit once partners are Foundations-matched (also tracked
 on the [post-primitives docket](../../.migration/post-primitives-docket.md)):
 
-- **Login / Spacing / RTL** — Input, Label, Field (thin-pass today)
 - **Playground list** — already ListItem; re-check padding / density if ListItem
   chrome changes
 

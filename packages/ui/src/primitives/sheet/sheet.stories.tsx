@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Button } from '../button';
 import { Field, FieldGroup, FieldLabel } from '../field';
 import { Input } from '../input';
-import { Label } from '../label';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
 import {
@@ -69,16 +68,16 @@ function DemoExample({
             Make changes to your profile here. Click save when you&apos;re done.
           </SheetDescription>
         </SheetHeader>
-        <div className="grid flex-1 auto-rows-min gap-[var(--spacing-xl)] px-[var(--spacing-md)]">
-          <div className="grid gap-[var(--spacing-sm)]">
-            <Label htmlFor="sheet-demo-name">Name</Label>
+        <FieldGroup className="flex-1 px-[var(--spacing-md)]">
+          <Field>
+            <FieldLabel htmlFor="sheet-demo-name">Name</FieldLabel>
             <Input id="sheet-demo-name" defaultValue="Pedro Duarte" />
-          </div>
-          <div className="grid gap-[var(--spacing-sm)]">
-            <Label htmlFor="sheet-demo-username">Username</Label>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="sheet-demo-username">Username</FieldLabel>
             <Input id="sheet-demo-username" defaultValue="@peduarte" />
-          </div>
-        </div>
+          </Field>
+        </FieldGroup>
         <SheetFooter>
           <Button type="submit">Save changes</Button>
           <SheetClose render={<Button variant="outline" />}>Close</SheetClose>

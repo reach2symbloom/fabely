@@ -40,13 +40,13 @@ invalid styles.
 
 ## Deferred
 
-- **Field / Label** — Basic, Description, Disabled, Group, Invalid, and RTL
-  demos use thin-pass Field/Label; re-verify spacing and disabled/invalid host
-  styles once those are Foundations-matched.
+- **Field / Label** — Label leaf is matched; FieldLabel inherits type. Re-verify
+  Basic, Description, Disabled, Group, Invalid, and RTL host spacing on the
+  Field × control partners pass.
 - **Table** — re-skin Data Table selection rows once Table is matched
   (demo lives under [Data Table](../data-table/README.md)).
 - **Figma Checkbox Group** — separate Figma set (Inline / Block); compose via
-  Field once Label/Field land rather than a second primitive.
+  Field rather than a second primitive.
 
 ## Related
 

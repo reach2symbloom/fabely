@@ -159,6 +159,7 @@ function AspectRatioPlayground() {
 }
 
 export const Overview: Story = {
+  args: { ratio: 16 / 9 },
   parameters: { layout: 'fullscreen' },
   render: () => (
     <PrimitivePage
@@ -241,17 +242,21 @@ export const Overview: Story = {
 };
 
 export const Demo: Story = {
+  args: { ratio: 16 / 9 },
   render: () => <DemoExample />,
 };
 
 export const Square: Story = {
+  args: { ratio: 1 },
   render: () => <SquareExample />,
 };
 
 export const Portrait: Story = {
+  args: { ratio: 9 / 16 },
   render: () => <PortraitExample />,
 };
 
 export const RTL: Story = {
+  args: { ratio: 3 / 4 },
   render: () => <RtlExample />,
 };

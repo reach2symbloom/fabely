@@ -15,7 +15,6 @@ import {
 } from '../dialog';
 import { Field, FieldGroup, FieldLabel } from '../field';
 import { Input } from '../input';
-import { Label } from '../label';
 import { RadioGroup, RadioGroupItem } from '../radio-group';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
@@ -439,14 +438,14 @@ function DeliveryMethodDemo() {
         </DrawerHeader>
         <div className="flex-1 overflow-y-auto p-[var(--spacing-md)]">
           <RadioGroup defaultValue="express" className="grid gap-[var(--spacing-xs)]">
-            <div className="flex items-center gap-[var(--spacing-xs)]">
+            <Field orientation="horizontal">
               <RadioGroupItem value="standard" id="drawer-delivery-standard" />
-              <Label htmlFor="drawer-delivery-standard">Standard</Label>
-            </div>
-            <div className="flex items-center gap-[var(--spacing-xs)]">
+              <FieldLabel htmlFor="drawer-delivery-standard">Standard</FieldLabel>
+            </Field>
+            <Field orientation="horizontal">
               <RadioGroupItem value="express" id="drawer-delivery-express" />
-              <Label htmlFor="drawer-delivery-express">Express</Label>
-            </div>
+              <FieldLabel htmlFor="drawer-delivery-express">Express</FieldLabel>
+            </Field>
           </RadioGroup>
         </div>
         <DrawerFooter>

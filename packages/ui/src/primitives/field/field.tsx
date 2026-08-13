@@ -4,8 +4,8 @@
  * shadcn Field API.
  *
  * Vendor file (`src/components/ui/field.tsx`) stays untouched. Control chrome
- * (Input, Select, …) stays on those primitives — Field owns layout, label /
- * helper / error type, and orientation.
+ * (Input, Select, …) stays on those primitives — Field owns layout, helper /
+ * error type, and orientation. Caption type / color come from Label.
  */
 
 'use client';
@@ -15,7 +15,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { CircleAlertIcon, InfoIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { Label } from '../label';
+import { Label, labelTypeClassName } from '../label';
 import { Separator } from '../separator';
 
 function FieldSet({ className, ...props }: React.ComponentProps<'fieldset'>) {
@@ -152,15 +152,8 @@ function FieldLabel({
       data-slot="field-label"
       data-choice={choice}
       className={cn(
+        /* Type / color / invalid / disabled come from Label. */
         'group/field-label peer/field-label flex w-fit gap-[var(--spacing-xs)] select-none',
-        'font-[family-name:var(--text-paragraph-small-medium-font-family)]',
-        '[font-weight:var(--text-paragraph-small-medium-font-weight)]',
-        'text-[length:var(--text-paragraph-small-medium-font-size)]',
-        'leading-[var(--text-paragraph-small-medium-line-height)]',
-        'tracking-[var(--text-paragraph-small-medium-letter-spacing)]',
-        'text-[color:var(--foreground)]',
-        'group-data-[disabled=true]/field:opacity-50',
-        'group-data-[invalid=true]/field:text-destructive',
         /* —— Card (default when Field is nested) — Figma Size=Card ——
          * Unchecked: hairline + alpha-10. Checked: primary gradient border +
          * focus ring (Avatar / Button primaryOutline recipe). */
@@ -227,14 +220,7 @@ function FieldTitle({ className, ...props }: React.ComponentProps<'div'>) {
       data-slot="field-label"
       className={cn(
         'flex w-fit items-center gap-[var(--spacing-xs)]',
-        'font-[family-name:var(--text-paragraph-small-medium-font-family)]',
-        '[font-weight:var(--text-paragraph-small-medium-font-weight)]',
-        'text-[length:var(--text-paragraph-small-medium-font-size)]',
-        'leading-[var(--text-paragraph-small-medium-line-height)]',
-        'tracking-[var(--text-paragraph-small-medium-letter-spacing)]',
-        'text-[color:var(--foreground)]',
-        'group-data-[disabled=true]/field:opacity-50',
-        'group-data-[invalid=true]/field:text-destructive',
+        labelTypeClassName,
         className,
       )}
       {...props}
