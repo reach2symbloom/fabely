@@ -1,7 +1,8 @@
 # Chapter Nav Button
 
-Manuscript location trigger — book title + current chapter, opening a stub
-panel until Chapter Menu lands.
+Manuscript location chrome — book title + current chapter. Chevron (and the
+shell around the field) opens Chapter Menu (stubbed). The chapter line is an
+Input instance with Prepend on, so the name is renamed inline.
 
 ## Placement
 
@@ -14,37 +15,44 @@ Searched primitives / atoms / molecules / organisms. Compose, do not copy:
 
 | Piece | Approach |
 | --- | --- |
-| Open behavior | **Dropdown Menu** — wrap. Content is stubbed (rename Input only). |
-| Chevron | **Icon Button `fade`** chrome via `iconButtonVariants` on a span — the whole control is one trigger, so a nested `IconButton` (second `<button>`) is not used. Call-site size hug: `--icon-sm`. |
-| Rename | **Input** `variant="ghost"` `size="mini"` inside the open panel. |
+| Chapter menu | **Dropdown Menu** — wrap. Trigger is the Fade chevron, not the whole shell (an Input cannot live inside a `<button>`). Content stubbed until Chapter Menu lands. |
+| Chevron | **Icon Button `fade`** — compose as `DropdownMenuTrigger` (`render={<IconButton />}`). Call-site hug: `--icon-sm`. Vertically centered on the two-line stack. |
+| Inline rename | **Input Group** `variant="ghost"` `size="mini"` — Figma Prepend is text (`Ch. N:`), which lives on Input Group (`InputGroupText`), not Input `decorationLeft` (icons). |
 
 ## Authoritative Figma
 
 [Chapter nav button](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16038-15527)
-— **first variant only** (`State=Empty, Hover=False`, `16038:15485`): single
-trigger, two-line presentational text, chevron centered on the stack. Other
-variants on that set are superseded structural explorations (inline rename in
-the collapsed trigger). Do not build those.
+— **first variant** (`State=Empty, Hover=False`, `16038:15485`):
+
+- Book title (Paragraph Regular, muted) over an **Input** instance
+  (Ghost, Mini, Prepend on: `Ch. 1:` + placeholder `Untitled`, Heading 4).
+- Sibling **Fade button** (chevron-down), centered on the stack.
+- Hover / open fills the outer `--rounded-lg` with
+  `--theme-alpha-black-switch-333`. Empty vs Filled is contrast on the
+  chapter line (switch-25 vs switch-100).
+- Chevron sits `--spacing-3xs` (2px) after the chapter text (Frame 145
+  itemSpacing). Input mini end-pad is cleared so that gap is the space
+  between the words and the glyph, not 6px + 2px.
 
 ## Structure
 
-- Collapsed trigger is **not** an Input. Book title (Paragraph Regular,
-  `text-muted-foreground`) over serif Heading 4 `Ch. X: Chapter Name`.
-- Hover / open fills the outer `--rounded-lg` (12) with
-  `--theme-alpha-black-switch-333`. Empty vs Filled is contrast on the chapter
-  line (switch-25 vs switch-100), not a different rest fill.
-- Panel: Input ghost mini for chapter rename. Chapter Menu (cover, author,
-  library, new chapter) is later.
+- Clicking the chapter name (or prepend) focuses the field — inline rename.
+  `Untitled` is placeholder text, not a value. An empty blur restores it.
+  Cmd / Ctrl+A selects the field (the menu is not an ancestor, so it cannot
+  steal the shortcut). The field fills the chrome beside the chevron and does
+  not hug the value, so a one-letter name keeps the same click target.
+- Clicking the chevron, book title, or shell padding opens the Chapter Menu
+  stub. Rename does **not** live in that panel.
+- Two interactive controls, not one nested trigger.
 
-## Gap — Input in the panel
+## Gaps (call-site, not new Input variants)
 
-Figma’s collapsed chapter line was an Input Ghost Mini *instance* used as
-chrome, with Heading 4 serif 20/24. The decided structure moves rename into
-the panel. Input **does** expose `ghost` + `mini`; that is what we use.
-
-Mini type is Paragraph Mini, not Heading 4. We did not add a serif / Heading 4
-Input variant (feature-specific). Closest existing treatment: `ghost` + `mini`.
-Promote a type axis on Input if a second feature needs the same.
+- **Type:** Figma Ghost Mini uses Heading 4 Light for prepend + value. Input /
+  Input Group keep Paragraph Mini. Override via `className` (Foundations
+  Heading 4 tokens). Same gap already noted on Input’s README.
+- **Height:** Figma Mini instance is 32px; Input mini slot is 24px
+  (`--spacing-xl`). Override to `--spacing-2xl` (Input’s 32px slot) so Heading 4
+  is not clipped. Mini pad + `--rounded-md` stay.
 
 ## Deferred
 

@@ -6,6 +6,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
+import {
+  MeasurementOverlay,
+  type MeasurementTarget,
+} from '../../../stories/MeasurementOverlay';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
 import {
   PRIMITIVE_PLAYGROUND_CONTROL_GRID,
@@ -27,35 +31,82 @@ type Story = StoryObj<typeof meta>;
 
 type Appearance = 'empty' | 'filled';
 
+const DEMO_FRAME = 'w-[length:var(--tw-raw-spacing-80)]';
+
+const CHAPTER_NAV_MEASURES: MeasurementTarget[] = [
+  {
+    name: 'shell',
+    measure: ['padding', 'gap', 'width', 'height'],
+  },
+  {
+    name: 'stack',
+    selector: ':scope > div',
+    measure: ['gap'],
+  },
+];
+
 function EmptyExample() {
-  return <ChapterNavButton empty />;
+  return (
+    <div className={DEMO_FRAME}>
+      <ChapterNavButton />
+    </div>
+  );
 }
 
 function FilledExample() {
   return (
-    <ChapterNavButton
-      empty={false}
-      bookTitle="The Long Way Home"
-      chapterNumber={3}
-      chapterName="River Crossing"
-    />
+    <div className={DEMO_FRAME}>
+      <ChapterNavButton
+        bookTitle="The Long Way Home"
+        chapterNumber={3}
+        chapterName="River Crossing"
+      />
+    </div>
   );
 }
 
 function ChapterNavPlayground() {
   const [appearance, setAppearance] = useState<Appearance>('empty');
+  const [showMeasures, setShowMeasures] = useState(false);
   const isEmpty = appearance === 'empty';
+
+  const demo = (
+    <ChapterNavButton
+      bookTitle={isEmpty ? 'Untitled book' : 'The Long Way Home'}
+      chapterNumber={isEmpty ? 1 : 3}
+      chapterName={isEmpty ? '' : 'River Crossing'}
+    />
+  );
 
   return (
     <PlaygroundPanel
+      previewAlign={showMeasures ? 'stretch' : 'center'}
       preview={
-        <div className="flex min-h-40 items-center justify-center">
-          <ChapterNavButton
-            empty={isEmpty}
-            bookTitle={isEmpty ? 'Untitled book' : 'The Long Way Home'}
-            chapterNumber={isEmpty ? 1 : 3}
-            chapterName={isEmpty ? 'Untitled' : 'River Crossing'}
-          />
+        <div
+          className={
+            showMeasures
+              ? 'flex w-full flex-col gap-[var(--spacing-xl)] md:flex-row md:items-start'
+              : `flex min-h-40 items-center justify-center ${DEMO_FRAME} mx-auto`
+          }
+        >
+          <div className={showMeasures ? `min-w-0 flex-1 ${DEMO_FRAME}` : 'w-full'}>
+            {showMeasures ? (
+              <p className="mb-[var(--spacing-sm)] font-sans text-xs text-muted-foreground">
+                Live
+              </p>
+            ) : null}
+            {demo}
+          </div>
+          {showMeasures ? (
+            <div className={`min-w-0 flex-1 ${DEMO_FRAME}`}>
+              <p className="mb-[var(--spacing-sm)] font-sans text-xs text-muted-foreground">
+                Measured — live getComputedStyle / getBoundingClientRect
+              </p>
+              <MeasurementOverlay enabled targets={CHAPTER_NAV_MEASURES}>
+                {demo}
+              </MeasurementOverlay>
+            </div>
+          ) : null}
         </div>
       }
       controls={
@@ -69,7 +120,16 @@ function ChapterNavPlayground() {
               { value: 'filled', label: 'Filled' },
             ]}
             fullWidth
-            className="col-span-2"
+          />
+          <InlineSegmentedControl
+            label="Show measurements"
+            value={showMeasures ? 'on' : 'off'}
+            onChange={(value) => setShowMeasures(value === 'on')}
+            options={[
+              { value: 'off', label: 'Off' },
+              { value: 'on', label: 'On' },
+            ]}
+            fullWidth
           />
         </div>
       }
@@ -82,7 +142,7 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Chapter Nav Button"
-      description="Manuscript location trigger: muted book title over serif chapter line. The whole control is one trigger; the panel is stubbed with a ghost mini Input for rename. Figma Chapter nav button, first variant only (16038:15485)."
+      description="Manuscript location chrome: muted book title over an Input Group (Ghost Mini, Prepend Ch. N:) for inline rename. The Fade chevron opens a stubbed Chapter Menu. Figma Chapter nav button, first variant (16038:15485)."
       playground={<ChapterNavPlayground />}
       variants={
         <div className="flex flex-wrap gap-[var(--spacing-md)]">
@@ -97,17 +157,17 @@ export const Overview: Story = {
       usageGuidance={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            Use for manuscript location chrome only. Clicking anywhere on the
-            control opens the outline / book-admin panel (Chapter Menu later).
+            Use for manuscript location chrome only. The chapter line is an
+            Input Group with prepend — click the name to rename inline.
           </li>
           <li>
-            Collapsed trigger is presentational text — not an Input. Rename
-            lives inside the open panel via Input <code>ghost</code> /{' '}
-            <code>mini</code>.
+            The Fade chevron (and book title / shell padding) opens Chapter
+            Menu. That panel is stubbed; do not put rename there.
           </li>
           <li>
-            Empty vs Filled is chapter-line contrast (placeholder vs named),
-            not a rest fill. Hover and open fill the outer{' '}
+            Empty vs Filled is placeholder vs named value, not a rest fill.
+            Clearing the name and blurring restores the{' '}
+            <code>Untitled</code> placeholder. Hover and open fill the outer{' '}
             <code>--rounded-lg</code> shape.
           </li>
         </ul>
@@ -115,15 +175,14 @@ export const Overview: Story = {
       accessibility={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            Single button trigger. Accessible name is book title plus{' '}
-            <code>Ch. N: Chapter Name</code>.
+            Two controls: chapter-name field (
+            <code>aria-label=&quot;Chapter name&quot;</code>) and Icon Button
+            trigger (<code>aria-label=&quot;Open chapter menu&quot;</code>).
           </li>
           <li>
-            Chevron is decorative (fade Icon Button chrome on a span) so the
-            control is one button, not nested buttons.
-          </li>
-          <li>
-            Panel Input exposes <code>aria-label=&quot;Chapter name&quot;</code>.
+            Overview playground has a story-only <code>Show measurements</code>{' '}
+            toggle. The overlay reads live layout from the DOM — it is not part
+            of the component.
           </li>
         </ul>
       }

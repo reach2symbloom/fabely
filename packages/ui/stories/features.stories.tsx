@@ -29,8 +29,8 @@ export const Overview: Story = {
           <li>
             <strong>Chapter Nav Button</strong> —{' '}
             <code>Design System/Features/Chapter Nav Button</code>. Manuscript
-            location trigger (composes Dropdown Menu, Input, Icon Button fade
-            chrome).
+            location chrome (Input Group prepend for inline rename; Fade
+            chevron opens a stubbed Chapter Menu).
           </li>
         </ul>
       </PendingNotice>
