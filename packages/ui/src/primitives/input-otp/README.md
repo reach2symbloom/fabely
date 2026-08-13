@@ -74,6 +74,9 @@ InputOTP
   re-check spacing if Field / Card stack gap changes
 - Optional: discrete gap between single-slot groups if product wants separated
   tiles instead of only connected groups
+- **Placeholder stacked `opacity-50`** — slot placeholder is `--muted-foreground`
+  plus `opacity-50` (~30% effective now that muted is switch-60). Drop the extra
+  opacity or keep a quieter placeholder on purpose. Docket: Design system hygiene.
 
 ## Related
 

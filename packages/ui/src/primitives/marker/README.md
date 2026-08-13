@@ -8,8 +8,7 @@ separators.
 Import from this primitive rather than `src/components/ui/marker`. Public API
 matches [shadcn Marker](https://ui.shadcn.com/docs/components/base/marker)
 (`Marker`, `MarkerIcon`, `MarkerContent`, `markerVariants`), plus Foundations
-`textStyle` × `size`. Compose with [Message](../message/README.md) in a thread
-when Message is matched.
+`textStyle` × `size`. Compose with [Message](../message/README.md) in a thread.
 
 ## Figma source
 
@@ -61,9 +60,7 @@ Defaults: `textStyle="paragraph"`, `size="sm"`, `iconSize="auto"`.
 Shimmer utility: `packages/ui/src/styles/shimmer.css` (imported via
 `globals.css`) — same recipe as [shadcn shimmer](https://ui.shadcn.com/docs/utils/shimmer).
 
-## Deferred
+## Related
 
-- [ ] **Spinner** — Status demos use thin-pass Spinner until matched
-- [x] **Message** — Foundations-matched; thread composition demos live on Message
-
-Docket: post-primitives when Spinner lands.
+- [Spinner](../spinner/README.md) — Status demos
+- [Message](../message/README.md) — thread composition

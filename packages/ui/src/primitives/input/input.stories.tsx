@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { InfoIcon, SearchIcon, XIcon } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
@@ -55,15 +55,6 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
-
-function LimitationNotice({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex gap-2 rounded-lg border border-dashed border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-      <span aria-hidden="true">⚠️</span>
-      <span>{children}</span>
-    </div>
-  );
-}
 
 /* ---------- Canonical examples ---------- */
 
@@ -234,10 +225,6 @@ function BadgeExample() {
 function InputGroupExample() {
   return (
     <div className="flex w-full max-w-xs flex-col gap-4">
-      <LimitationNotice>
-        Input Group is still thin-pass — addon chrome is vendor until that
-        primitive is Foundations-matched.
-      </LimitationNotice>
       <Field>
         <FieldLabel htmlFor="input-group-url">Website URL</FieldLabel>
         <InputGroup>
@@ -276,9 +263,6 @@ function ButtonGroupExample() {
 function FormExample() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
-      <LimitationNotice>
-        Select is still thin-pass.
-      </LimitationNotice>
       <form
         className="flex flex-col gap-4"
         onSubmit={(event) => event.preventDefault()}

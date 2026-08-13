@@ -123,6 +123,31 @@ function SelectExample() {
   );
 }
 
+/** Stacked Input vs Select — same Field column, Default sizes. Report-only. */
+function InputVsSelectExample() {
+  return (
+    <div className="flex w-80 max-w-full flex-col gap-[var(--spacing-md)]">
+      <Field>
+        <FieldLabel htmlFor="field-compare-name">Name</FieldLabel>
+        <FieldInput id="field-compare-name" placeholder="Jane Doe" />
+      </Field>
+      <Field>
+        <FieldLabel htmlFor="field-compare-dept">Department</FieldLabel>
+        <Select>
+          <SelectTrigger id="field-compare-dept">
+            <SelectValue placeholder="Choose department" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="engineering">Engineering</SelectItem>
+            <SelectItem value="design">Design</SelectItem>
+            <SelectItem value="product">Product</SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
+    </div>
+  );
+}
+
 function SliderExample() {
   const [value, setValue] = useState([200, 800]);
   return (
@@ -656,6 +681,11 @@ export const TextareaStory: Story = {
 export const SelectStory: Story = {
   name: 'Select',
   render: () => <SelectExample />,
+};
+
+export const InputVsSelect: Story = {
+  name: 'Input vs Select',
+  render: () => <InputVsSelectExample />,
 };
 
 export const SliderStory: Story = {

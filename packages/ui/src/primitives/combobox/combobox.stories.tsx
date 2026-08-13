@@ -32,7 +32,8 @@ import {
  * Overview first — Playground, Variants, usage, a11y — then focused pages
  * aligned with shadcn Combobox docs + Figma Select & Combobox field chrome.
  *
- * Deferred: Input Group addon, Size/Ghost field axes (README → Deferred).
+ * Deferred: extra Input Group addons (Kbd / prefix text), Size/Ghost field
+ * axes (README → Deferred). ComboboxInput already hosts the group shell.
  */
 
 const meta = {
@@ -386,8 +387,9 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Input Group">
             <div className="flex max-w-sm flex-col gap-3">
               <LimitationNotice>
-                Input Group addon composition deferred until Input Group is
-                Foundations-matched.
+                ComboboxInput already uses the Foundations Input Group shell
+                (chevron / clear). Extra addons (Kbd, prefix text) are not in
+                this demo yet.
               </LimitationNotice>
               <BasicExample />
             </div>

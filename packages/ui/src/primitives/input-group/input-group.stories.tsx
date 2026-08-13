@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { ReactNode } from 'react';
 import {
   CopyIcon,
   CreditCardIcon,
@@ -56,14 +55,6 @@ const meta = {
 
 export default meta;
 type Story = StoryObj;
-
-function LimitationNotice({ children }: { children: ReactNode }) {
-  return (
-    <p className="mb-[var(--spacing-sm)] max-w-md text-start text-[length:var(--text-paragraph-mini-regular-font-size)] text-[color:var(--muted-foreground)]">
-      {children}
-    </p>
-  );
-}
 
 function DemoSearch() {
   return (
@@ -190,17 +181,12 @@ function ButtonExample() {
 
 function KbdExample() {
   return (
-    <div className="w-80 max-w-full">
-      <LimitationNotice>
-        Kbd addon — Foundations Kbd inside InputGroupAddon.
-      </LimitationNotice>
-      <InputGroup>
-        <InputGroupInput placeholder="Search…" />
-        <InputGroupAddon align="inline-end">
-          <Kbd>⌘K</Kbd>
-        </InputGroupAddon>
-      </InputGroup>
-    </div>
+    <InputGroup className="w-80 max-w-full">
+      <InputGroupInput placeholder="Search…" />
+      <InputGroupAddon align="inline-end">
+        <Kbd>⌘K</Kbd>
+      </InputGroupAddon>
+    </InputGroup>
   );
 }
 
@@ -442,8 +428,6 @@ function playgroundOutcome({
     extra = ' The button hugs the field with an even 2px inset.';
   } else if (isBlock) {
     extra = ' Block strips stay roundrect even if Round is selected.';
-  } else if (!isBlock && (addon === 'kbd' || addon === 'spinner')) {
-    extra = ' This addon is still thin-pass and may not match Foundations yet.';
   } else if (state === 'empty' && control === 'input' && addon === 'icon') {
     extra =
       ' Focus and error styles wrap the whole group, not just the typed text.';

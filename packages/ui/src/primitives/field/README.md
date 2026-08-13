@@ -72,7 +72,9 @@ Field composes many partners. **Revisit this primitive after each lands**
 - [x] **Label** — leaf matched; FieldLabel inherits type / invalid / disabled.
   FieldTitle shares `labelTypeClassName`.
 - [x] **Textarea** — Field Textarea demos + Figma Type=Textarea
-- [ ] **Select** — Field Select demos + Figma Type=Select
+- [ ] **Select** — Field Select demos + Figma Type=Select. Chrome vs Input
+      (filled 40 vs stroked 36) is a known inconsistency — custom-component
+      pass, not a silent Field-host normalize. See Known inconsistency below.
 - [ ] **Slider** — Field Slider demos + Figma Type=Slider (Slider leaf matched;
   host revisit only)
 - [ ] **Radio Group** — Field Radio demos + Figma Type=Radio — control chrome
@@ -88,5 +90,12 @@ Field composes many partners. **Revisit this primitive after each lands**
 
 **Input** (`variant="default"`) is the Text Value control chrome — already
 matched; only re-check if Input size / decoration API changes.
+
+**Known inconsistency — Input vs Select chrome.** In a Field column, Default
+Input is a filled 40px plate and Default SelectTrigger is a stroked 36px
+rest surface. That is two control recipes, not a fused height seam. Do not
+silently normalize Select to Input (or the reverse) here — park it for the
+Fabely custom-component pass (Figma Select & Combobox vs Input). The
+[Input vs Select](./field.stories.tsx) story is the visual record.
 
 Docket: [Field × control partners](../../../.migration/post-primitives-docket.md).

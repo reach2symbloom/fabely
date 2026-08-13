@@ -4,7 +4,8 @@
  *
  * Vendor file (`src/components/ui/hover-card.tsx`) stays untouched. No dedicated
  * Figma Hover Card set — content surface follows Foundations floating panels
- * (Dialog / Dropdown family), but fill is `--background` (not `--popover`).
+ * (Dialog / Dropdown family). Fill is `--popover` (same raised plate as
+ * Popover); padding stays `--spacing-xs` so Hover Card reads lighter-weight.
  */
 
 'use client';
@@ -23,12 +24,12 @@ function HoverCardTrigger({ ...props }: PreviewCardPrimitive.Trigger.Props) {
   );
 }
 
-/** Floating content surface — `--background` fill; Dialog/Dropdown radius/border/shadow. */
+/** Floating content surface — `--popover` fill; lighter pad than Popover. */
 const CONTENT_SURFACE = [
   'z-50 w-72 origin-(--transform-origin)',
   'rounded-[length:var(--radius)]',
   'border border-[color:var(--border)]',
-  'bg-[color:var(--background)] text-[color:var(--foreground)]',
+  'bg-[color:var(--popover)] text-[color:var(--popover-foreground)]',
   'p-[var(--spacing-xs)]',
   'outline-hidden duration-100',
   'font-[family-name:var(--text-paragraph-small-regular-font-family)]',

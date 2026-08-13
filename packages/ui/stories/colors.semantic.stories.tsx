@@ -26,7 +26,7 @@ const general: ColorToken[] = [
   {
     name: 'muted foreground',
     cssVar: '--muted-foreground',
-    reference: '--theme-alpha-black-switch-50 (switch token — flips automatically)',
+    reference: '--theme-alpha-black-switch-60 (switch token — flips automatically)',
   },
   { name: 'text', cssVar: '--text', reference: 'Light: --theme-alpha-black-no-switch-75 / Dark: --theme-alpha-white-no-switch-75' },
   { name: 'destructive', cssVar: '--destructive', reference: 'Light: --tw-raw-error-500 / Dark: --tw-raw-error-300' },

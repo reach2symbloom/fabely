@@ -12,8 +12,8 @@ API matches [shadcn Popover](https://ui.shadcn.com/docs/components/base/popover)
 
 **No dedicated Figma Popover set.** Content chrome uses the same Foundations
 floating-panel tokens as Dialog / Dropdown / Hover Card (`--radius`, border,
-lg shadow), with fill `--popover` / `--popover-foreground` (Dialog family —
-not Hover Card’s `--background`).
+lg shadow), with fill `--popover` / `--popover-foreground`. Hover Card uses
+the same fill; its lighter weight is padding (`--spacing-xs` vs `--spacing-md`).
 
 ## Composition
 
@@ -58,9 +58,9 @@ Popover
 
 ## Deferred
 
-- Share one floating-panel recipe with [Hover Card](../hover-card/README.md) /
-  Tooltip once Tooltip is Foundations-matched (fills differ: popover vs
-  background).
+- Padding vs [Hover Card](../hover-card/README.md) is intentional
+  (`--spacing-md` vs `--spacing-xs`); fill is shared (`--popover`).
+  [Tooltip](../tooltip/README.md) stays a separate recipe.
 - [Date Picker](../date-picker/README.md) hosts this surface — re-check
   calendar chrome after this landing.
 

@@ -69,10 +69,10 @@ Place Addon **after** the control in the DOM; use `align` for visual position.
 
 ## Deferred
 
-- Re-verify **Kbd** demos once Foundations-matched; Spinner host is matched —
-  spot-check when convenient
+- Kbd and Spinner hosts are Foundations-matched — spot-check addon demos
+  when convenient
 - Optional Custom Input (`data-slot="input-group-control"` third-party) story
-- Re-check Combobox / Command / Empty hosts that embed Input Group
+- Re-check Empty host that embeds Input Group (Command / Combobox now use this primitive)
 - Optional: flat `--spacing-2xs` when only Prepend/Append text if product wants
   text addons tighter than icon addons
 

@@ -21,7 +21,7 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
       className={cn(
         'peer relative flex size-[length:var(--spacing-md)] shrink-0 items-center justify-center',
         'rounded-[length:var(--rounded-sm)]',
-        'border-[length:var(--stroke-thin)] border-[color:var(--input)]',
+        'border-[length:var(--stroke-thin)] border-[color:var(--theme-neutrals-600)]',
         'bg-[color:var(--background)] text-[color:var(--primary-foreground)]',
         'outline-none transition-[color,background-color,border-color,box-shadow]',
         /* Expanded hit target — same geometry as shadcn base-nova. */

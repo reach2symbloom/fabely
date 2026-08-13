@@ -39,7 +39,6 @@ approach as [Accordion](../accordion/README.md)).
 
 ## Deferred
 
-- **Settings Panel** — Field / Input still thin-pass; re-verify once matched.
 - **File Tree** — restore Explorer / Outline Tabs header (Tabs is
   Foundations-matched); story still uses a plain Explorer title on Card.
 - **Figma Collapsible** — if a DS page is authored later, revisit variants.

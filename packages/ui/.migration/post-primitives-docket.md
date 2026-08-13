@@ -109,9 +109,9 @@ partners have real sizes, tokens, and chrome.
       Button in light theme (Glow charcoal only when needed; Default never on a
       dark panel; contrast). See
       [Kbd README → Deferred](../src/primitives/kbd/README.md#deferred).
-- [ ] **Hover Card × Popover / Tooltip** — Popover and Tooltip are
-      Foundations-matched; re-verify / share panel recipe vs Hover Card
-      (`--background`). See
+- [ ] **Hover Card × Popover / Tooltip** — fill now matches Popover
+      (`--popover`); remaining distinction is pad (8 vs 16) and Tooltip’s
+      own recipe. See
       [Hover Card README → Deferred](../src/primitives/hover-card/README.md#deferred)
       · [Popover README](../src/primitives/popover/README.md)
       · [Tooltip README](../src/primitives/tooltip/README.md).
@@ -201,6 +201,14 @@ partners have real sizes, tokens, and chrome.
       [Toggle README → Deferred](../src/primitives/toggle/README.md#deferred).
 - [ ] **Vendor vs owned** — list any remaining thin re-exports that should stay
       vendor forever vs get a Fabely ownership pass.
+- [ ] **Input OTP placeholder stacked `opacity-50`** — placeholder already uses
+      `--muted-foreground` (now switch-60) *and* `opacity-50` (~30% effective).
+      Drop the extra opacity or keep a quieter placeholder on purpose. See
+      [Input OTP README](../src/primitives/input-otp/README.md).
+- [ ] **Storybook PrimitivePage docs chrome** — usage/a11y lists still use
+      `text-muted-foreground` at `text-sm` / `text-xs`. They inherit the 60%
+      retarget; confirm they do not need a docs-only exception. See
+      `packages/ui/stories/PrimitivePage.tsx`.
 
 ### Product / process
 

@@ -59,6 +59,13 @@ When a group tree mixes a Text Button with an Icon Button — or a
 `DropdownMenu` / `Popover` trigger rendered as one — icon boxes are forced to
 the Text `data-size` height (including nested spaced-toolbar columns).
 
+### Height parity (fused Input)
+
+Standalone Icon Button Default is 36 and SelectTrigger Default is 36; Input
+Default is 40. Inside a fused `ButtonGroup` that has a direct `Input` child,
+those shorter partners stretch to `--spacing-3xl` (40) so the join has no
+step. Standalone Icon Button / Select defaults are unchanged.
+
 ## Composition
 
 ```text
@@ -119,15 +126,10 @@ Always pass `aria-label` or `aria-labelledby` on the group.
 
 ## Deferred
 
-Stories and join CSS already sketch shadcn compositions (Input, Input Group,
-Select, Popover, split + menu). Several of those partners are still **thin-pass**
-— not Figma-matched — so chrome, size ladders, and height parity may look
-wrong or incomplete.
-
-**Revisit once the shadcn primitives pass is done:** flesh out those demos
-against real Fabely partners, tighten or drop join selectors that only exist
-for vendor stubs, and confirm text/icon/input height parity in fused rows.
-Tracked in [post-primitives docket](../../../.migration/post-primitives-docket.md).
+Input, Input Group, Select, and Popover are Foundations-matched. Re-verify
+fused stories (join, height parity) and trim join selectors that only existed
+for vendor stubs. Tracked in
+[post-primitives docket](../../../.migration/post-primitives-docket.md).
 
 ## Related
 

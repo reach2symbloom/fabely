@@ -51,6 +51,13 @@ const buttonGroupVariants = cva(
     'has-[[data-slot=button][data-size=small]]:[&_[data-slot=popover-trigger]]:size-[length:var(--spacing-2xl)]!',
     'has-[[data-slot=button][data-size=default]]:[&_[data-slot=popover-trigger]]:size-[length:var(--spacing-3xl)]!',
     'has-[[data-slot=button][data-size=large]]:[&_[data-slot=popover-trigger]]:size-[length:var(--spacing-11)]!',
+    /*
+     * Fused Input — Input Default is 40px; Icon default and SelectTrigger
+     * default are 36. Stretch the short side in this group only.
+     */
+    'has-[>[data-slot=input]]:[&>[data-slot=icon-button]]:size-[length:var(--spacing-3xl)]!',
+    'has-[>[data-slot=input]]:[&_[data-slot=select-trigger]]:h-[length:var(--spacing-3xl)]!',
+    'has-[>[data-slot=input]]:[&_[data-slot=select-trigger]]:min-h-[length:var(--spacing-3xl)]!',
     /* Select / input coordination when an outline-like child is present. */
     `has-[>${OUTLINE_CHILD}]:*:data-[slot=input-group]:border-border`,
     `has-[>${OUTLINE_CHILD}]:*:data-[slot=select-trigger]:border-border`,

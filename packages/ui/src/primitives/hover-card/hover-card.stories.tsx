@@ -14,6 +14,12 @@ import { Button, buttonLinkVariants } from '../button';
 import { cn } from '@/lib/utils';
 
 import { HoverCard, HoverCardContent, HoverCardTrigger } from './hover-card';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../tooltip';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -142,6 +148,58 @@ function RtlExample() {
   );
 }
 
+/** Same body, three surfaces — report-only recipe compare. */
+function SurfacesExample() {
+  const triggerClass = cn(buttonLinkVariants());
+  return (
+    <div className="flex flex-wrap items-start justify-center gap-[var(--spacing-3xl)] pt-[var(--spacing-4xl)]">
+      <div className="flex flex-col items-center gap-[var(--spacing-sm)]">
+        <p className="text-[color:var(--muted-foreground)]">
+          Hover Card · --popover · pad xs
+        </p>
+        <HoverCard open>
+          <HoverCardTrigger delay={0} closeDelay={0} render={<a className={triggerClass} />}>
+            @nextjs
+          </HoverCardTrigger>
+          <HoverCardContent side="bottom" className="w-80">
+            <ProfilePreview />
+          </HoverCardContent>
+        </HoverCard>
+      </div>
+      <div className="flex flex-col items-center gap-[var(--spacing-sm)]">
+        <p className="text-[color:var(--muted-foreground)]">
+          Popover · --popover · pad md
+        </p>
+        <Popover open>
+          <PopoverTrigger render={<a className={triggerClass} />}>
+            @nextjs
+          </PopoverTrigger>
+          <PopoverContent side="bottom" className="w-80">
+            <ProfilePreview />
+          </PopoverContent>
+        </Popover>
+      </div>
+      <div className="flex flex-col items-center gap-[var(--spacing-sm)]">
+        <p className="text-[color:var(--muted-foreground)]">
+          Tooltip inverse · --foreground · pad xs
+        </p>
+        <Tooltip open>
+          <TooltipTrigger delay={0} closeDelay={0} render={<a className={triggerClass} />}>
+            @nextjs
+          </TooltipTrigger>
+          <TooltipContent
+            variant="inverse"
+            side="bottom"
+            className="w-80 max-w-80"
+          >
+            <ProfilePreview />
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </div>
+  );
+}
+
 function HoverCardPlayground() {
   const [side, setSide] = useState<Side>('bottom');
   const [align, setAlign] = useState<Align>('center');
@@ -205,7 +263,7 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Hover Card"
-      description="Preview content on hover via Base UI Preview Card. Foundations floating surface (`--background`) — no dedicated Figma Hover Card set."
+      description="Preview content on hover via Base UI Preview Card. Foundations floating surface (`--popover`, pad `--spacing-xs`) — no dedicated Figma Hover Card set."
       playground={<HoverCardPlayground />}
       variants={
         <div className="flex flex-wrap gap-[var(--spacing-md)]">
@@ -264,4 +322,10 @@ export const Sides: Story = {
 
 export const RTL: Story = {
   render: () => <RtlExample />,
+};
+
+export const Surfaces: Story = {
+  name: 'Surfaces',
+  parameters: { layout: 'padded' },
+  render: () => <SurfacesExample />,
 };

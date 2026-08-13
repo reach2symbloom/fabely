@@ -7,8 +7,7 @@
  * exports a reusable single-date shell; range / DOB / input variants are
  * composed in stories the same way product code should.
  *
- * Calendar is Foundations-matched; Popover is still thin-pass — see README
- * Deferred.
+ * Calendar and Popover are Foundations-matched — see README Deferred.
  */
 
 'use client';

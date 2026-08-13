@@ -30,9 +30,9 @@ Combobox
 
 | Role | Foundations | Notes |
 | --- | --- | --- |
-| Field height (Default) | `--spacing-9` (36) | Input fixed; Chips `min-height` then grows on wrap |
+| Field height (Default) | Input Group Default (`--spacing-3xl`) | ComboboxInput and ComboboxChips share the group shell; Chips is `h-auto` with that min-height, then grows on wrap |
 | Field radius | `--rounded-lg` (12) | |
-| Field stroke | `--theme-alpha-black-switch-10` | Focus → `--input` + secondary ring |
+| Field stroke | Input Group Default | Focus ring from the group shell |
 | Error stroke | `--destructive` | Focus → error ring |
 | Trigger glyph | `--icon-sm` ChevronsUpDown | Figma Combobox decoration |
 | Popup surface | `--card` / `--radius` / `--shadow-lg-*` | Same family as Dropdown |
@@ -41,9 +41,9 @@ Combobox
 
 ## Deferred
 
-- **Input Group** — ComboboxInput still hosts vendor InputGroup internals;
-  re-verify once Input Group is Foundations-matched. Input Group addon demo
-  deferred similarly.
+- **Input Group addon demo** — ComboboxInput now hosts the Foundations Input
+  Group; a story that shows extra addons (not just the chevron / clear) is
+  still deferred. See [Input Group](../input-group/README.md).
 - **Size ladder** — Figma Large / Small / Mini field heights not yet exposed as
   Combobox props (Default only for this pass).
 - **Style Ghost** — Figma Style=Ghost field (no stroke) not yet a prop.

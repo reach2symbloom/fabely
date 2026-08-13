@@ -20,7 +20,7 @@ import {
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-} from '@/components/ui/input-group';
+} from '../input-group';
 import {
   ListItem,
   ListItemContent,
@@ -31,27 +31,6 @@ import {
 } from '../list-item';
 
 const Combobox = ComboboxPrimitive.Root;
-
-/**
- * Figma Select & Combobox field chrome — radius 12 / stroke @10.
- * Height is applied per host: single-line Input uses fixed `--spacing-9` (36);
- * Chips uses that as `min-height` and grows when chips wrap (Figma 2 Lines).
- */
-const FIELD_CHROME = [
-  'relative flex w-full min-w-0 items-center',
-  'rounded-[length:var(--rounded-lg)]',
-  'border-[length:var(--stroke-thin)] border-[color:var(--theme-alpha-black-switch-10)]',
-  'bg-transparent',
-  'transition-[color,box-shadow,background-color,border-color]',
-  'outline-none',
-  'has-[[data-slot=input-group-control]:focus-visible]:border-[color:var(--input)]',
-  'has-[[data-slot=input-group-control]:focus-visible]:shadow-[var(--effect-focus-ring-secondary)]',
-  'has-[[data-slot][aria-invalid=true]]:border-[color:var(--destructive)]',
-  'has-[[data-slot][aria-invalid=true]]:has-[[data-slot=input-group-control]:focus-visible]:shadow-[var(--effect-focus-ring-error)]',
-  'data-disabled:pointer-events-none data-disabled:opacity-50',
-].join(' ');
-
-const FIELD_SHELL = cn(FIELD_CHROME, 'h-[length:var(--spacing-9)]');
 
 /** Popup surface — aligned with Dropdown Menu Content. */
 const CONTENT_SURFACE = [
@@ -132,16 +111,13 @@ function ComboboxInput({
   showClear?: boolean;
 }) {
   return (
-    <InputGroup className={cn(FIELD_SHELL, 'w-auto', className)}>
+    <InputGroup className={cn('w-auto', className)}>
       <ComboboxPrimitive.Input
         render={<InputGroupInput disabled={disabled} />}
         disabled={disabled}
         {...props}
       />
-      <InputGroupAddon
-        align="inline-end"
-        className="gap-[var(--spacing-2xs)] pe-[var(--spacing-xs)] ps-0"
-      >
+      <InputGroupAddon align="inline-end">
         {showTrigger ? (
           <InputGroupButton
             size="icon-xs"
@@ -393,26 +369,26 @@ function ComboboxSeparator({
 
 function ComboboxChips({
   className,
+  ref,
   ...props
 }: React.ComponentPropsWithRef<typeof ComboboxPrimitive.Chips> &
   ComboboxPrimitive.Chips.Props) {
   return (
-    <ComboboxPrimitive.Chips
-      data-slot="combobox-chips"
+    <InputGroup
+      ref={ref}
       className={cn(
-        FIELD_CHROME,
-        /* One line = Figma Default 36; grow only when chips wrap to a 2nd line. */
-        'h-auto min-h-[length:var(--spacing-9)] flex-wrap items-center',
-        'gap-[var(--spacing-xs)]',
-        'px-[var(--spacing-sm)] py-[var(--spacing-xs)]',
-        'focus-within:border-[color:var(--input)]',
-        'focus-within:shadow-[var(--effect-focus-ring-secondary)]',
-        'has-aria-invalid:border-[color:var(--destructive)]',
+        /* Grow when chips wrap; one line matches Input Group Default 40. */
+        'h-auto min-h-[length:var(--spacing-3xl)] flex-wrap',
         'has-data-[slot=combobox-chip]:ps-[var(--spacing-xs)]',
         className,
       )}
-      {...props}
-    />
+    >
+      <ComboboxPrimitive.Chips
+        data-slot="combobox-chips"
+        className="contents"
+        {...props}
+      />
+    </InputGroup>
   );
 }
 
@@ -428,7 +404,7 @@ function ComboboxChip({
     <ComboboxPrimitive.Chip
       data-slot="combobox-chip"
       className={cn(
-        /* 20px chip + field py xs (8) = min-h 36 one-line rhythm. */
+        /* 20px chip centered in Input Group Default 40. */
         'flex h-[length:var(--spacing-lg)] w-fit items-center justify-center gap-[var(--spacing-2xs)]',
         'rounded-[length:var(--rounded-sm)]',
         'bg-[var(--theme-alpha-black-switch-5)]',
@@ -470,7 +446,7 @@ function ComboboxChipsInput({
 }: ComboboxPrimitive.Input.Props) {
   return (
     <ComboboxPrimitive.Input
-      data-slot="combobox-chip-input"
+      data-slot="input-group-control"
       className={cn(
         'min-h-[length:var(--spacing-lg)] min-w-16 flex-1 bg-transparent outline-none',
         'text-[length:var(--text-paragraph-small-regular-font-size)]',

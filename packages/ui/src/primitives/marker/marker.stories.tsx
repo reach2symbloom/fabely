@@ -347,8 +347,7 @@ export const Status: Story = {
   render: () => (
     <div className="flex w-full max-w-md flex-col gap-[var(--spacing-sm)]">
       <p className="text-[length:var(--text-paragraph-mini-regular-font-size)] text-[color:var(--muted-foreground)]">
-        Spinner is still thin-pass — status layout only until Spinner is
-        Foundations-matched.
+        Status notes compose Marker with Spinner.
       </p>
       <Marker role="status">
         <MarkerIcon>

@@ -123,7 +123,8 @@ export const Overview: Story = {
             date feeds a form.
           </li>
           <li>
-            Popover is still thin-pass — Calendar chrome is Foundations-matched.
+            Date Picker hosts Popover (`w-auto p-0`) and Field / Input Group
+            where the guide needs a labeled field.
           </li>
         </ul>
       }

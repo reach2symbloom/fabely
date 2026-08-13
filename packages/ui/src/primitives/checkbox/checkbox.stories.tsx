@@ -22,8 +22,8 @@ import {
  * Overview first — Playground, Variants gallery, usage, a11y — then focused
  * example pages aligned with shadcn Checkbox docs + Figma Checked?/State.
  *
- * Deferred partners (README → Deferred / post-primitives docket): Field hosts,
- * Table, Figma Checkbox Group.
+ * Field hosts use Foundations Field + FieldLabel. Remaining: Figma Checkbox
+ * Group (Inline / Block) as Field composition, Table selection rows.
  */
 
 const meta = {
@@ -50,9 +50,6 @@ function LimitationNotice({ children }: { children: ReactNode }) {
 function BasicExample() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
-      <LimitationNotice>
-        Field host spacing is still on the Label call-site docket.
-      </LimitationNotice>
       <Field orientation="horizontal">
         <Checkbox id="terms" />
         <FieldLabel htmlFor="terms">Accept terms and conditions</FieldLabel>
@@ -64,9 +61,6 @@ function BasicExample() {
 function DescriptionExample() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
-      <LimitationNotice>
-        Uses thin-pass Field content / description chrome.
-      </LimitationNotice>
       <Field orientation="horizontal">
         <Checkbox id="terms-desc" defaultChecked />
         <FieldContent>
@@ -83,9 +77,6 @@ function DescriptionExample() {
 function DisabledExample() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
-      <LimitationNotice>
-        Field <code>data-disabled</code> host styles come from thin-pass Field.
-      </LimitationNotice>
       <Field orientation="horizontal" data-disabled>
         <Checkbox id="notifications" disabled />
         <FieldLabel htmlFor="notifications">Enable notifications</FieldLabel>
@@ -103,9 +94,6 @@ function DisabledExample() {
 function InvalidExample() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
-      <LimitationNotice>
-        Invalid Field host text uses thin-pass Field; checkbox chrome is Fabely.
-      </LimitationNotice>
       <Field orientation="horizontal" data-invalid>
         <Checkbox id="terms-invalid" aria-invalid />
         <FieldLabel htmlFor="terms-invalid">
@@ -126,8 +114,8 @@ function GroupExample() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
       <LimitationNotice>
-        Checkbox list via thin-pass FieldSet / FieldGroup (not the Figma Checkbox
-        Group component set).
+        Figma Checkbox Group (Inline / Block) is not a second primitive — this
+        list is FieldSet + Field rows.
       </LimitationNotice>
       <FieldSet>
         <FieldLegend variant="label">Show these items on the desktop:</FieldLegend>
@@ -182,9 +170,6 @@ function IndeterminateExample() {
 function RtlExample() {
   return (
     <div dir="rtl" className="flex w-full max-w-sm flex-col gap-4">
-      <LimitationNotice>
-        RTL copy; Field host spacing is still on the Label call-site docket.
-      </LimitationNotice>
       <Field orientation="horizontal">
         <Checkbox id="terms-rtl" defaultChecked />
         <FieldContent>

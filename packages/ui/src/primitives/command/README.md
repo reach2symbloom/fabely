@@ -34,7 +34,7 @@ Command
 | --- | --- | --- |
 | Root surface | `--background` · `--border` · `--radius` (16) · `--spacing-xs` (8) pad | Single inset for search, results, divider |
 | Elevation | `--shadow-sm-*` | |
-| Input | `--spacing-9` · `--rounded-lg` · stroke `@10` | Wrapper `pb` `--spacing-xs` (top = root pad only) |
+| Input | Input Group Default (fill, `--spacing-3xl`, `--rounded-lg`) | Wrapper `pb` `--spacing-xs` (top = root pad only); cmdk Input is a bare `input-group-control` |
 | Group heading | Caption Mini · uppercase · muted | Same family as menu labels |
 | Item | `ListItem` via cmdk `asChild` | Radius `--rounded-lg` (12); cmdk active → `data-highlighted` only |
 | Shortcut | Paragraph Mini Regular · muted | |
@@ -45,7 +45,6 @@ Command
 
 - **Dialog** — `CommandDialog` should pick up Foundations Dialog chrome;
   re-verify overlay / radius / close against [Dialog](../dialog/README.md).
-- **Input Group** — search field still uses vendor InputGroup internals.
 - **Command Item Square icon** — Figma Style=Square icon (36 Icon Button) not
   exposed as a prop this pass; Small icon / Lucide child composition covers
   the default demos.

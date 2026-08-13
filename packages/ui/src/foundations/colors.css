@@ -399,7 +399,7 @@
   --accent: var(--tw-raw-secondary-ghost); /* same in Light and Dark */
   --accent-foreground: var(--tw-raw-white);
   --muted: var(--theme-neutrals-100);
-  --muted-foreground: var(--theme-alpha-black-switch-50); /* switch token — flips automatically in .dark */
+  --muted-foreground: var(--theme-alpha-black-switch-60); /* switch token — flips automatically in .dark */
   --text: var(--theme-alpha-black-no-switch-75);
   --destructive: var(--tw-raw-error-500);
   --border: var(--theme-neutrals-300);

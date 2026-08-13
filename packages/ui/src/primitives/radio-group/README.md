@@ -21,7 +21,7 @@ API matches [shadcn Radio Group](https://ui.shadcn.com/docs/components/base/radi
 | Source | Foundations | Notes |
 | --- | --- | --- |
 | Control 16×16 · circle | `--spacing-md` · `rounded-full` | |
-| Unchecked fill / stroke | `--background` / `--input` | + `--shadow-xs-black` |
+| Unchecked fill / stroke | `--background` / `--theme-neutrals-600` | `--input` is the same as `--background` in light (1:1). Neutrals 600 is the first step ≥ 3:1 non-text on the canvas (same as Checkbox). |
 | Checked Default fill | `--gradient-primary-left-right` | Stone gradient (not secondary purple) |
 | Checked Default dot | `--theme-neutrals-900` (#27272A) | |
 | Error checked fill / dot | `--destructive` / `--tw-raw-white` | |

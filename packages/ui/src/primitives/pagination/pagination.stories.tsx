@@ -101,7 +101,6 @@ function IconsOnlyExample() {
     <div className="flex items-center justify-between gap-[var(--spacing-md)]">
       <Field orientation="horizontal" className="w-fit">
         <FieldLabel htmlFor="select-rows-per-page">Rows per page</FieldLabel>
-        {/* NativeSelect: Foundations field chrome. Custom Select is still thin-pass. */}
         <NativeSelect
           id="select-rows-per-page"
           defaultValue="25"
@@ -299,8 +298,8 @@ export const Overview: Story = {
           </li>
           <li>
             Data tables: Icons-only prev/next beside a rows-per-page{' '}
-            <code>NativeSelect</code> (Foundations chrome; custom{' '}
-            <code>Select</code> is still thin-pass).
+            <code>NativeSelect</code> (OS picker). Use{' '}
+            <code>Select</code> when the menu needs designed popup chrome.
           </li>
         </ul>
       }

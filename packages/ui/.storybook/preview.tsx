@@ -414,6 +414,7 @@ const preview: Preview = {
                 'Input',
                 'Textarea',
                 'Select',
+                'Input vs Select',
                 'Slider',
                 'Fieldset',
                 'Checkbox',
@@ -431,6 +432,7 @@ const preview: Preview = {
                 'Basic',
                 'Sides',
                 'RTL',
+                'Surfaces',
               ],
               'Input',
               [

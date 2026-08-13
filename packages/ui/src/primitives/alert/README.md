@@ -43,7 +43,7 @@ Icon size (16px one line / 24px two lines) and the icon/content gap (`--spacing-
 
 The icon's color is intentionally *independent* of the title-text color documented above — in Figma every type's icon reads as a distinct semantic accent, not the same (sometimes near-white/pale) shade as its own title. This primitive overrides vendor's own `[&>svg]:text-current` (which would otherwise make the icon inherit whatever `text-*` color is on the Alert root, i.e. the title's own color) with a per-type `[&>svg]:text-*` rule of the same selector shape, so `tailwind-merge` reliably drops vendor's default:
 
-- **`neutral`** — `--muted-foreground` (already-declared, already-switching; the same secondary/quiet semantic already used for `AlertDescription`). A real Foundation token, no TODO.
+- **`neutral`** — `--primary` (light: `--theme-neutrals-600`, dark: `--theme-neutrals-500`). Same "main" step pattern as the other types; distinct from title (`--foreground`) and description (`--muted-foreground`).
 - **`error`** — `--destructive`, this design system's own existing, already-switching semantic accent for error (light: `--tw-raw-error-500`, dark: `--tw-raw-error-300`) — the same token vendor's own `destructive` variant already uses for its text color. A real Foundation token, no TODO.
 - **`alert`/`success`** — neither has a declared semantic accent token yet (only the raw `tw-raw-alert-*`/`tw-raw-success-*` scales exist), so each type's own scale "main" step is used directly (`--tw-raw-alert-600`/`--tw-raw-success-600`).
   **TODO(design-tokens):** promote these to real `--warning`/`--success` semantic accent tokens (mirroring `--destructive`) once Foundations defines them, rather than reaching into the raw scale here.
@@ -51,7 +51,7 @@ The icon's color is intentionally *independent* of the title-text color document
 ## Known limitations
 
 - **`error`/`alert` title-text contrast in light mode.** Both types bind their title text to a raw, theme-invariant Figma color (`--tw-raw-error-50`/`--tw-raw-alert-50` — very pale shades) against an *also* theme-invariant, very light-tinted background. In dark mode this reads clearly (confirmed via Storybook's accessibility panel: 0 violations on both dedicated pages). In light mode, the same pale text lands on a background that's *also* pale, so contrast fails (confirmed: 3 flagged elements on each of the dedicated Error/Warning pages). This is inherited directly from Figma's own literal (non-switching) values for these two types, not something introduced or silently patched here — per this milestone's instructions, hardcoded values without a Foundation-token equivalent are preserved and flagged (see the `TODO(design-tokens)` comments in `alert.tsx`) rather than papered over with an invented semantic token Figma doesn't itself define. Worth raising with design: either these two types need a real switching token pair, or they're intentionally dark-mode-only surfaces.
-- **Pre-existing, page-wide `--muted-foreground` contrast issue.** `AlertDescription` (all 4 types, both themes) uses vendor's own `text-muted-foreground`, which was already flagged as a platform-wide limitation in an earlier milestone, unrelated to this one.
+- **`--muted-foreground` contrast.** `AlertDescription` inherits `--muted-foreground` (`--theme-alpha-black-switch-60`). That step clears 4.5:1 for body-size text on `--background` / `--popover` in light; dark already passed at 50%.
 
 ## Future enhancements
 

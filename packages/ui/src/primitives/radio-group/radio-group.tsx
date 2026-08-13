@@ -32,7 +32,7 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
         'group/radio-group-item peer relative flex aspect-square shrink-0 items-center justify-center',
         'size-[length:var(--spacing-md)]',
         'rounded-full',
-        'border-[length:var(--stroke-thin)] border-[color:var(--input)]',
+        'border-[length:var(--stroke-thin)] border-[color:var(--theme-neutrals-600)]',
         'bg-[color:var(--background)]',
         'shadow-[var(--shadow-xs-black)]',
         'outline-none transition-[color,background-color,border-color,box-shadow]',

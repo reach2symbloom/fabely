@@ -52,7 +52,6 @@ Progress                    size="thin" | "thick"
 
 ## Deferred
 
-- Controlled story uses thin-pass [Slider](../slider/README.md).
 - Thick Figma set uses per-step glow SVG overlays — omitted here; revisit if
   pixel QA needs them. RTL mirrors the slant onto inline-end.
 

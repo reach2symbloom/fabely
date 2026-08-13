@@ -41,7 +41,7 @@ import {
  * Overview first — Playground, Variants, usage, a11y — then focused pages
  * aligned with shadcn Command docs + Figma Command / Command Item.
  *
- * Deferred: Input Group host, Square icon style (README → Deferred).
+ * Deferred: Square icon style (README → Deferred).
  */
 
 const meta = {

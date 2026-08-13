@@ -11,9 +11,10 @@ API matches [shadcn Hover Card](https://ui.shadcn.com/docs/components/base/hover
 ## Figma source
 
 No dedicated Hover Card component set in Fabely Design System. Content chrome
-uses the same Foundations floating-panel tokens as Dialog / Dropdown
-(`--radius`, border, lg shadow), with fill `--background` / `--foreground`
-(not `--popover`).
+uses the same Foundations floating-panel tokens as Dialog / Dropdown /
+Popover (`--radius`, `--popover` fill, border, lg shadow). Padding stays
+`--spacing-xs` (8) so Hover Card reads lighter-weight than Popover's
+`--spacing-md` (16).
 
 ## Composition
 
@@ -27,7 +28,7 @@ HoverCard
 
 | Role | Foundations |
 | --- | --- |
-| Fill / text | `--background` / `--foreground` |
+| Fill / text | `--popover` / `--popover-foreground` | Same raised plate as Popover |
 | Radius | `--radius` |
 | Border | `--border` |
 | Padding | `--spacing-xs` (8) |
@@ -45,9 +46,10 @@ HoverCard
 
 ## Deferred
 
-- Re-verify / share floating-panel recipe with [Popover](../popover/README.md)
-  and [Tooltip](../tooltip/README.md) (Popover `--popover`; Hover Card
-  `--background`; Tooltip Neutrals/150 + `inverse`)
+- Padding vs [Popover](../popover/README.md) is intentional (Hover Card
+  `--spacing-xs` / Popover `--spacing-md`). Fill is shared (`--popover`).
+- [Tooltip](../tooltip/README.md) stays a separate recipe (Neutrals/150 +
+  `inverse`)
 - Optional Figma Hover Card set if design adds one later
 
 ## Related

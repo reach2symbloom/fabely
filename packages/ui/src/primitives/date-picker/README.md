@@ -28,15 +28,13 @@ Popover
 
 ## Deferred
 
-- Re-verify Popover chrome (radius, pad, shadow) once
-  [Popover](../popover/README.md) is Foundations-matched
-- Re-verify Field / Input / Input Group hosts once those land
+- Optional Persian (`react-day-picker/persian`) if product needs it
 - Natural-language demo depends on `chrono-node` (already a package dependency)
 
 ## Related
 
 - [Calendar](../calendar/README.md) — DayPicker surface
-- [Popover](../popover/README.md) — popup host (thin-pass)
+- [Popover](../popover/README.md) — popup host
 - [Button](../button/README.md) — trigger
 - React DayPicker: https://react-day-picker.js.org
 - shadcn: https://ui.shadcn.com/docs/components/base/date-picker

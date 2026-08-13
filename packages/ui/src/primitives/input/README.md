@@ -53,5 +53,6 @@ Button) when that lands.
   once Fade Button (or Icon Button-in-field) lands.
 - **Ghost Mini display type** — Figma Ghost Mini placeholder uses Heading 4
   Light; we keep Paragraph Mini Regular for a consistent field control.
-- **Input Group hosts** — re-check Field / Combobox / Empty demos that compose
-  Input Group after those partners settle (Input Group shell is Foundations).
+- **Input Group hosts** — Field, Combobox, and Empty already compose the
+  Foundations Input Group shell; re-check only if the group size / addon API
+  changes.

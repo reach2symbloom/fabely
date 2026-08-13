@@ -167,10 +167,10 @@ const typeClasses: Record<AlertType, string> = {
  * `[&>svg]:text-*` rule of the same selector shape is the only way
  * `tailwind-merge` reliably drops vendor's default in favor of this one.
  *
- * - `neutral` — no dedicated "neutral icon accent" token exists; reuses
- *   the already-declared, already-switching `--muted-foreground` (the
- *   same secondary/quiet semantic already used for `AlertDescription`) —
- *   a real Foundation token, not a hardcoded value, so no TODO.
+ * - `neutral` — `--primary` (light: `--theme-neutrals-600`, dark:
+ *   `--theme-neutrals-500`), the same switching "main" step the other
+ *   types use from their own scale. Distinct from title (`--foreground`)
+ *   and from `AlertDescription` (`--muted-foreground`).
  * - `error` — `--destructive`, this design system's own existing,
  *   already-switching semantic accent for error (light: `--tw-raw-error-
  *   500`, dark: `--tw-raw-error-300`) — the same token vendor's own
@@ -185,7 +185,7 @@ const typeClasses: Record<AlertType, string> = {
  *   defines them, rather than reaching into the raw scale here.
  */
 const typeIconClasses: Record<AlertType, string> = {
-  neutral: '[&>svg]:text-muted-foreground',
+  neutral: '[&>svg]:text-primary',
   error: '[&>svg]:text-destructive',
   alert: '[&>svg]:text-[var(--tw-raw-alert-600)]',
   success: '[&>svg]:text-[var(--tw-raw-success-600)]',

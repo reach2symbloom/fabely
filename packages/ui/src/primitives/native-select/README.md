@@ -16,7 +16,7 @@ API matches [shadcn Native Select](https://ui.shadcn.com/docs/components/base/na
 **When not to**
 
 - Designed menus, animations, or complex item chrome → use
-  [Select](../select/README.md) (still thin-pass until Foundations-matched)
+  [Select](../select/README.md)
 
 ## Figma source
 
@@ -51,11 +51,6 @@ NativeSelect                 size="sm" | "default"
 | `NativeSelect` | Native `<select>`; `size` `sm` \| `default` |
 | `NativeSelectOption` | `<option>` (Canvas colors for OS menus) |
 | `NativeSelectOptGroup` | `<optgroup>` |
-
-## Deferred
-
-- Re-verify Field Type=Select demos once custom [Select](../select/README.md)
-  is Foundations-matched (Field may host either)
 
 ## Related
 

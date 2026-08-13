@@ -38,8 +38,7 @@ import {
  * example pages aligned with shadcn Collapsible docs. No Figma page; Accordion
  * milestone approach.
  *
- * Deferred partners (README → Deferred / post-primitives docket): Field, Input,
- * Tabs file-tree header composition.
+ * Deferred: File Tree Explorer / Outline Tabs header (README → Deferred).
  */
 
 const meta = {
@@ -132,16 +131,12 @@ function BasicExample() {
   );
 }
 
-/** shadcn Settings Panel — deferred Field / Input partners. */
+/** shadcn Settings Panel — Field + Input. */
 function SettingsExample() {
   const [open, setOpen] = useState(false);
 
   return (
     <div className="flex w-[min(100%,20rem)] flex-col gap-[var(--spacing-md)]">
-      <LimitationNotice>
-        Field and Input are still thin-pass — layout only until Foundations-
-        matched.
-      </LimitationNotice>
       <Card size="sm">
         <CardHeader>
           <CardTitle>Radius</CardTitle>

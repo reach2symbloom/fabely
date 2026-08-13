@@ -24,7 +24,7 @@ import {
 import {
   InputGroup,
   InputGroupAddon,
-} from '@/components/ui/input-group';
+} from '../input-group';
 import {
   ListItem,
   ListItemContent,
@@ -103,34 +103,24 @@ function CommandInput({
         'pb-[var(--spacing-xs)]',
       )}
     >
-      {/* Figma Input container 36 — same Default field height as Combobox. */}
-      <InputGroup
-        className={cn(
-          'h-[length:var(--spacing-9)]',
-          'rounded-[length:var(--rounded-lg)]',
-          'border-[length:var(--stroke-thin)] border-[color:var(--theme-alpha-black-switch-10)]',
-          'bg-transparent',
-          'has-[[data-slot=input-group-control]:focus-visible]:border-[color:var(--input)]',
-          'has-[[data-slot=input-group-control]:focus-visible]:shadow-[var(--effect-focus-ring-secondary)]',
-        )}
-      >
-        <InputGroupAddon
-          align="inline-start"
-          className="ps-[var(--spacing-sm)] text-muted-foreground"
-        >
-          <SearchIcon className="size-[length:var(--icon-sm)] shrink-0 opacity-50" />
-        </InputGroupAddon>
+      {/* cmdk Input is a third-party control — Input Group chrome lives on the shell. */}
+      <InputGroup>
         <CommandPrimitive.Input
-          data-slot="command-input"
+          data-slot="input-group-control"
           className={cn(
-            'w-full bg-transparent outline-hidden',
+            'h-full min-h-0 w-full flex-1 self-stretch bg-transparent outline-hidden',
+            'rounded-none border-0 px-0 py-0 shadow-none',
             'text-[length:var(--text-paragraph-small-regular-font-size)]',
             'leading-[var(--text-paragraph-small-regular-line-height)]',
-            'disabled:cursor-not-allowed disabled:opacity-50',
+            'focus-visible:border-transparent focus-visible:shadow-none',
+            'disabled:cursor-not-allowed',
             className,
           )}
           {...props}
         />
+        <InputGroupAddon align="inline-start">
+          <SearchIcon />
+        </InputGroupAddon>
       </InputGroup>
     </div>
   );

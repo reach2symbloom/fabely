@@ -20,7 +20,7 @@ radios / switches swappable in larger hosts once those atoms match.
 | Source | Foundations | Notes |
 | --- | --- | --- |
 | Box 16×16 · radius 5 | `--spacing-md` · `--rounded-sm` | Unchecked Figma bg is 14×14 optical; control is 16 |
-| Unchecked fill / stroke | `--background` / `--input` | |
+| Unchecked fill / stroke | `--background` / `--theme-neutrals-600` | `--input` is the same as `--background` in light (1:1). Neutrals 600 is the first step ≥ 3:1 non-text on the Storybook / page canvas. |
 | Checked / indeterminate fill | `--primary` | Glyph `--primary-foreground` via `text-current` |
 | Error stroke / fill | `--destructive` | Keeps `primary-foreground` glyph |
 | Focus ring (spread 3) | `--effect-focus-ring-primary` | Error → `--effect-focus-ring-error` |
@@ -40,9 +40,8 @@ invalid styles.
 
 ## Deferred
 
-- **Field / Label** — Label leaf is matched; FieldLabel inherits type. Re-verify
-  Basic, Description, Disabled, Group, Invalid, and RTL host spacing on the
-  Field × control partners pass.
+- **Field / Label** — hosts use Field + FieldLabel. Remaining: optional Figma
+  Checkbox Group (Inline / Block) as Field composition, not a second primitive.
 - **Table** — re-skin Data Table selection rows once Table is matched
   (demo lives under [Data Table](../data-table/README.md)).
 - **Figma Checkbox Group** — separate Figma set (Inline / Block); compose via

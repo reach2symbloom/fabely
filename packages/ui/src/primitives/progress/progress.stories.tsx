@@ -79,7 +79,6 @@ function ControlledExample() {
       <Progress value={value} size="thick" className="w-full">
         <ProgressValue />
       </Progress>
-      {/* Slider is still thin-pass — deferred partner chrome. */}
       <Slider
         value={[value]}
         onValueChange={(next) => {
