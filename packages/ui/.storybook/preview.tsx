@@ -133,6 +133,13 @@ const preview: Preview = {
               ['Overview', 'One Line', 'Two Lines', 'Without Icon', 'Error', 'Warning', 'Success'],
               'Alert Dialog',
               'Aspect Ratio',
+              [
+                'Overview',
+                'Demo',
+                'Square',
+                'Portrait',
+                'RTL',
+              ],
               'Attachment',
               'Avatar',
               [

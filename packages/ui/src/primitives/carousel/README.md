@@ -55,8 +55,9 @@ Carousel                 orientation · opts · plugins · setApi · --carousel-
 - **Autoplay / plugins** — add `embla-carousel-autoplay` (or other Embla
   plugins) and a Plugin story once we take that dependency. See
   [post-primitives docket](../../.migration/post-primitives-docket.md).
-- **Carousel with Image** Figma set — compose after Aspect Ratio / media
-  patterns settle.
+- **Carousel with Image** Figma set — compose now that Aspect Ratio is
+  matched; still waiting on Autoplay / plugins. See
+  [post-primitives docket](../../../.migration/post-primitives-docket.md).
 
 ## Related
 

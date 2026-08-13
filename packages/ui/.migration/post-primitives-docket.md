@@ -32,12 +32,13 @@ partners have real sizes, tokens, and chrome.
 - [ ] **Card × form partners** — re-verify login / Spacing / RTL demos once
       Input, Label, and Field are Foundations-matched. See
       [Card README → Deferred](../src/primitives/card/README.md#deferred).
-- [ ] **Card × Image / Aspect Ratio** — swap the Image story cover wrapper for
-      Foundations Aspect Ratio (and any media primitive) when those land. See
-      [Card README → Deferred](../src/primitives/card/README.md#deferred).
+- [x] **Card × Image / Aspect Ratio** — Image story cover uses Foundations
+      Aspect Ratio (`16 / 9`); Badge stays in `CardAction`. See
+      [Card README](../src/primitives/card/README.md) ·
+      [Aspect Ratio](../src/primitives/aspect-ratio/README.md).
 - [ ] **Carousel × Autoplay / Image** — add `embla-carousel-autoplay` (+ Plugin
-      story) and the Figma “Carousel with Image” composition once Aspect Ratio /
-      media partners land. See
+      story) and the Figma “Carousel with Image” composition. Aspect Ratio is
+      Foundations-matched. See
       [Carousel README → Deferred](../src/primitives/carousel/README.md#deferred).
 - [ ] **Checkbox × Field / Label / Table** — re-verify Basic, Description,
       Disabled, Group, Invalid, and RTL demos once Field and Label are

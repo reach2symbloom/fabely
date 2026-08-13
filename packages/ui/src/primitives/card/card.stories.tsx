@@ -21,6 +21,7 @@ import {
 } from './card';
 import { Button } from '../button';
 import type { ButtonSize } from '../button';
+import { AspectRatio } from '../aspect-ratio';
 import { Badge } from '../badge';
 import { Input } from '../input';
 import { Label } from '../label';
@@ -75,7 +76,7 @@ const PLAYGROUND_ITEMS = [
  *
  * Deferred example partners (see README → Deferred / post-primitives docket):
  * - Login / Spacing / RTL forms → Foundations Input, Label, Field
- * - Image cover → Aspect Ratio (and any media primitive) when matched
+ * - Image cover → Aspect Ratio (16:9) when a locked frame fits
  * - Playground list rows already use ListItem; keep in sync if its API moves
  */
 
@@ -265,21 +266,24 @@ function EdgeToEdgeExample() {
   );
 }
 
-/** Cover URL — swap for Aspect Ratio + media primitive when those land. */
+/** Cover URL — Aspect Ratio locks 16:9; crop can bend if the photo needs it. */
 const EVENT_COVER =
   'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=640&h=360&fit=crop';
 
 function ImageExample() {
   return (
     <Card className="w-80 pt-0">
-      <div className="relative">
-        <div className="absolute inset-0 z-10 bg-[var(--overlay)]" />
+      <AspectRatio
+        ratio={16 / 9}
+        className="rounded-none rounded-t-[length:var(--rounded-xl)]"
+      >
         <img
           src={EVENT_COVER}
           alt="Event cover"
-          className="aspect-video w-full object-cover brightness-60 grayscale dark:brightness-40"
+          className="brightness-60 grayscale dark:brightness-40"
         />
-      </div>
+        <div className="z-[1] bg-[var(--overlay)]" />
+      </AspectRatio>
       <CardHeader>
         <CardAction>
           <Badge variant="secondary">Featured</Badge>

@@ -65,8 +65,6 @@ Story examples to revisit once partners are Foundations-matched (also tracked
 on the [post-primitives docket](../../.migration/post-primitives-docket.md)):
 
 - **Login / Spacing / RTL** — Input, Label, Field (thin-pass today)
-- **Image** — Aspect Ratio (and any dedicated media primitive) for the cover
-  frame; keep Badge in `CardAction`
 - **Playground list** — already ListItem; re-check padding / density if ListItem
   chrome changes
 
