@@ -55,6 +55,7 @@ function HoverExample() {
         description="The Eldergrove is not just a magical forest. It behaves like an ancient system with its own laws: it listens, judges readiness, withholds access, and reacts when something violates its order."
         chipLabel="Grove rules and behavior"
         noteCount={14}
+        href="#grove-rules"
       />
       <ThemeCard
         index={1}
@@ -62,6 +63,7 @@ function HoverExample() {
         description="The Eldergrove is not just a magical forest. It behaves like an ancient system with its own laws: it listens, judges readiness, withholds access, and reacts when something violates its order."
         chipLabel="Grove rules and behavior"
         noteCount={14}
+        href="#grove-rules"
         forceHover
       />
     </div>
@@ -154,9 +156,11 @@ export const Overview: Story = {
       usageGuidance={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            The whole card is one hoverable surface — pass <code>href</code>{' '}
-            to make it a link (stretched over the card), not just the footer
-            chip.
+            Pass <code>href</code> to make the footer chip its own link, with
+            its own hover / focus feedback scoped to the chip. The card's
+            background tint still fires on hover anywhere over the card
+            (including over the chip) — the two are independent, not
+            derived from each other.
           </li>
           <li>
             <code>index</code> renders the "N. " numbering prefix; omit it
@@ -171,9 +175,13 @@ export const Overview: Story = {
       accessibility={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            The stretched link's accessible name comes from{' '}
-            <code>chipLabel</code>; the card's own text is still readable by
-            assistive tech as regular content ahead of the link.
+            The chip link's accessible name is its own visible text (label +
+            note count); it's a normal in-flow link, not a stretched overlay,
+            so it doesn't need an <code>aria-label</code>.
+          </li>
+          <li>
+            The chip exposes <code>focus-visible:shadow-[var(--effect-focus-ring-secondary)]</code>{' '}
+            for keyboard focus, independent of the card's hover-only tint.
           </li>
         </ul>
       }

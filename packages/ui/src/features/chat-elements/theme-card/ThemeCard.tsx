@@ -21,8 +21,9 @@ export type ThemeCardProps = {
   /** Note count shown beside the chip's arrow. Omit to hide the trailing meta. */
   noteCount?: number;
   /**
-   * Notes URL. Renders a stretched link over the whole card (Figma's card is
-   * a single hoverable/clickable surface, not just the footer chip).
+   * Notes URL. Renders the footer chip as its own link, independent of the
+   * card body — hover / focus feedback is scoped to the chip, not the
+   * whole card.
    */
   href?: string;
   /** Storybook / demo — lock the hover paint without a pointer. */
@@ -74,27 +75,20 @@ function ThemeCard({
 }: ThemeCardProps) {
   const heading = index != null ? `${index}. ${title}` : title;
 
+  const ChipRoot = href != null ? 'a' : 'div';
+
   return (
     <div
       data-slot="theme-card"
       data-force-hover={forceHover || undefined}
       className={cn(
-        'group/theme-card relative flex w-full max-w-[479px] flex-col items-start',
+        'relative flex w-full max-w-[479px] flex-col items-start',
         'gap-[var(--spacing-md)] rounded-[var(--rounded-lg)] p-[var(--spacing-md)]',
         'border-[length:var(--stroke-thin)] border-solid border-[color:var(--border)]',
-        'hover:bg-[var(--primary-hover)] group-data-[force-hover=true]/theme-card:bg-[var(--primary-hover)]',
+        'hover:bg-[var(--primary-hover)] data-[force-hover=true]:bg-[var(--primary-hover)]',
         className,
       )}
     >
-      {href != null ? (
-        <a
-          href={href}
-          aria-label={chipLabel}
-          data-slot="theme-card-link"
-          className="absolute inset-0 z-0"
-        />
-      ) : null}
-
       <div className="flex w-full flex-col items-start gap-[var(--spacing-xs)]">
         <p
           className={cn(
@@ -109,15 +103,20 @@ function ThemeCard({
         </p>
       </div>
 
-      <div
+      <ChipRoot
+        {...(href != null ? { href } : {})}
         data-slot="theme-card-chip"
+        data-force-hover={forceHover || undefined}
         className={cn(
           'flex w-full items-center justify-between overflow-hidden',
           'rounded-[var(--rounded-lg)] p-[var(--spacing-sm)]',
           'border-[length:var(--stroke-thin)] border-solid border-[color:var(--theme-alpha-black-switch-10)]',
           'bg-[var(--theme-alpha-black-switch-333)]',
-          'group-hover/theme-card:bg-[var(--theme-alpha-black-switch-5)]',
-          'group-data-[force-hover=true]/theme-card:bg-[var(--theme-alpha-black-switch-5)]',
+          href != null && [
+            'cursor-pointer no-underline outline-none',
+            'hover:bg-[var(--theme-alpha-black-switch-5)] data-[force-hover=true]:bg-[var(--theme-alpha-black-switch-5)]',
+            'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+          ],
         )}
       >
         <span className={cn(chipLabelStyle, 'text-[color:var(--text)]')}>
@@ -139,7 +138,7 @@ function ThemeCard({
             />
           </span>
         ) : null}
-      </div>
+      </ChipRoot>
     </div>
   );
 }
