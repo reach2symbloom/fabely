@@ -15,8 +15,11 @@ primitives into this tree.
 
 | Piece | Folder | Status |
 | --- | --- | --- |
-| — | — | Not started |
+| [Theme Card](./theme-card/README.md) | `theme-card/` | Landed |
 
 ## Figma
 
-TBD — add the Figma frame link here once pieces start landing.
+[Theme card](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16338-2655)
+page. Authoritative variant for each set is the first / designated one —
+other variants on a set may be superseded structural explorations
+(see overlap-check).
