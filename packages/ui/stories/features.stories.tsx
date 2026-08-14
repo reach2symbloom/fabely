@@ -27,10 +27,11 @@ export const Overview: Story = {
       <PendingNotice>
         <ul className="list-disc space-y-1 ps-5">
           <li>
-            <strong>Chapter Nav Button</strong> —{' '}
-            <code>Design System/Features/Chapter Nav Button</code>. Manuscript
-            location chrome (Input Group prepend for inline rename; Fade
-            chevron opens a stubbed Chapter Menu).
+            <strong>Chapter Nav</strong> —{' '}
+            <code>src/features/chapter-nav/</code>. Manuscript location chrome.{' '}
+            <code>Design System/Features/Chapter Nav Button</code> and{' '}
+            <code>Design System/Features/Chapter Menu List Item</code> are
+            landed; header and menu shell are next.
           </li>
         </ul>
       </PendingNotice>
