@@ -11,3 +11,4 @@ Vendor-derived wrappers live under [`../primitives/`](../primitives/) — not he
 | Atom | Notes |
 | --- | --- |
 | [Bookmark Button](./bookmark-button/README.md) | Toggle + Lucide Bookmark — fill in/out when pressed |
+| [Add Section Button](./add-section-button/README.md) | Icon + label pill; always paired with dividers in product |

@@ -19,6 +19,7 @@ import { Input as InputPrimitive } from '@base-ui/react/input';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
+import { selectAllOnModA } from '@/lib/select-all-on-mod-a';
 
 const inputChrome = [
   'border-[length:var(--stroke-thin)] border-transparent',
@@ -337,9 +338,17 @@ function Input({
   roundness = 'default',
   decorationLeft,
   decorationRight,
+  onKeyDownCapture,
   ...props
 }: InputProps) {
   const hasDecoration = decorationLeft != null || decorationRight != null;
+
+  const handleKeyDownCapture = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    selectAllOnModA(event);
+    onKeyDownCapture?.(event);
+  };
 
   if (!hasDecoration) {
     return (
@@ -349,7 +358,12 @@ function Input({
         data-variant={variant}
         data-size={size}
         data-roundness={roundness}
-        className={cn(inputVariants({ variant, size, roundness }), className)}
+        className={cn(
+          inputVariants({ variant, size, roundness }),
+          'select-text',
+          className,
+        )}
+        onKeyDownCapture={handleKeyDownCapture}
         {...props}
       />
     );
@@ -374,7 +388,8 @@ function Input({
         data-variant={variant}
         data-size={size}
         data-roundness={roundness}
-        className={inputFieldVariants({ size })}
+        className={cn(inputFieldVariants({ size }), 'select-text')}
+        onKeyDownCapture={handleKeyDownCapture}
         {...props}
       />
       {decorationRight != null ? (

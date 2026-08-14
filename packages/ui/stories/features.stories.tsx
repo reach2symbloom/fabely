@@ -29,9 +29,11 @@ export const Overview: Story = {
           <li>
             <strong>Chapter Nav</strong> —{' '}
             <code>src/features/chapter-nav/</code>. Manuscript location
-            chrome. <code>Design System/Features/Chapter Nav Button</code> is
-            landed; Chapter menu, header, and list item are siblings in the
-            same folder.
+            chrome. Landed:{' '}
+            <code>Design System/Features/Chapter Nav Button</code>,{' '}
+            <code>Design System/Features/Add Section Inline Button</code>.
+            Chapter menu, header, and list item are siblings in the same
+            folder.
           </li>
         </ul>
       </PendingNotice>

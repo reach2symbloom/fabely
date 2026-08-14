@@ -28,6 +28,12 @@ export const Overview: Story = {
             <code>Design System/Atoms/Bookmark Button</code>. Icon toggle that
             fills the bookmark glyph when pressed (composes Toggle).
           </li>
+          <li>
+            <strong>Add Section Button</strong> —{' '}
+            <code>Design System/Atoms/Add Section Button</code>. Icon + label
+            pill from Figma Default; product always composes it with dividers
+            via Features / Add Section Inline Button.
+          </li>
         </ul>
       </PendingNotice>
     </div>

@@ -11,6 +11,7 @@ primitives into this tree.
 | Piece | Folder | Status |
 | --- | --- | --- |
 | [Chapter Nav Button](./chapter-nav-button/README.md) | `chapter-nav-button/` | Landed |
+| [Add Section Inline Button](./add-section-inline-button/README.md) | `add-section-inline-button/` | Landed |
 | Chapter menu list item | `chapter-menu-list-item/` | Parallel branch |
 | Chapter menu header | `chapter-menu-header/` | Not started |
 | Chapter menu | `chapter-menu/` | Not started (needs header + list item) |

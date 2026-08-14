@@ -119,11 +119,8 @@ function ChapterNavButton({
   }
 
   function handleNameKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    // Keep key events off chapter-nav chrome / menu typeahead.
     event.stopPropagation();
-    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'a') {
-      event.preventDefault();
-      event.currentTarget.select();
-    }
   }
 
   function handleNameBlur() {

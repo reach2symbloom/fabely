@@ -25,6 +25,7 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
+import { selectAllOnModA } from '@/lib/select-all-on-mod-a';
 
 /**
  * Shell owns the Primary gradient focus ring (`::before` mask-composite) and,
@@ -151,6 +152,7 @@ function Textarea({
   defaultValue,
   onChange,
   disabled,
+  onKeyDownCapture,
   ...props
 }: TextareaProps) {
   const isControlled = value !== undefined;
@@ -185,8 +187,13 @@ function Textarea({
         value={value}
         defaultValue={defaultValue}
         onChange={handleChange}
+        onKeyDownCapture={(event) => {
+          selectAllOnModA(event);
+          onKeyDownCapture?.(event);
+        }}
         className={cn(
           textareaVariants({ roundness, resizable }),
+          'select-text',
           showCount &&
             (roundness === 'round'
               ? 'pb-[var(--spacing-xl)]'
