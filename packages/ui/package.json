@@ -31,10 +31,14 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "check:tokens": "bash scripts/check-tokens.sh owned",
-    "check:tokens:vendor": "bash scripts/check-tokens.sh vendor"
+    "check:tokens:vendor": "bash scripts/check-tokens.sh vendor",
+    "test:unit": "vitest run --project unit"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@shadcn/react": "^0.3.0",
     "@solar-icons/react": "^1.1.1",
     "@tanstack/react-table": "^9.1.2",

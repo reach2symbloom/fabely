@@ -13,8 +13,8 @@ primitives into this tree.
 | [Chapter Nav Button](./chapter-nav-button/README.md) | `chapter-nav-button/` | Landed |
 | [Add Section Inline Button](./add-section-inline-button/README.md) | `add-section-inline-button/` | Landed |
 | [Chapter menu list item](./chapter-menu-list-item/README.md) | `chapter-menu-list-item/` | Landed |
-| Chapter menu header | `chapter-menu-header/` | Not started |
-| Chapter menu | `chapter-menu/` | Not started (needs header + list item) |
+| [Chapter Menu Header](./chapter-menu-header/README.md) | `chapter-menu-header/` | Landed (Main + Alt) |
+| [Chapter Menu](./chapter-menu/README.md) | `chapter-menu/` | Landed |
 
 ## Figma
 

@@ -20,8 +20,10 @@ Input Group (`InputGroupTextarea`).
 
 | Prop | Values | Notes |
 | --- | --- | --- |
+| `variant` | `default` \| `ghost` \| `quiet` | Parity with Input Style. Quiet = inline / in-chrome |
+| `textStyle` | `body` \| `heading` | Body = Paragraph Small; Heading = Heading 2, wraps, `field-sizing-content` |
 | `roundness` | `default` \| `round` | Figma Roundness; Round → `--radius` (16; Figma is 18) |
-| `resizable` | `boolean` (default `true`) | CSS `resize-y` / `resize-none`; insets grip from the border |
+| `resizable` | `boolean` (default `true`) | CSS `resize-y` / `resize-none`; insets grip from the border. Off for heading titles. |
 | `showCharacterCount` | `boolean` (default `false`) | Needs `maxLength`; Figma “Show character count” |
 | native | `disabled`, `aria-invalid`, `maxLength`, … | HTML textarea |
 
@@ -37,7 +39,7 @@ Input Group (`InputGroupTextarea`).
 | Invalid border / focus ring | `--destructive` / `--effect-focus-ring-error` |
 | Invalid / disabled fill | `--background` |
 | Disabled border / shadow | `--input` / `--shadow-xs-black`; opacity `30` |
-| Type | Paragraph Small Regular; count → Mini Regular |
+| Type | Body: Paragraph Small Regular; Heading: Heading 2; count → Mini Regular |
 | Radius | `--rounded-lg` (Default), `--radius` (Round) |
 | Pad | `--spacing-xs` (Default), `--spacing-sm` (Round) |
 | Resize grip inset | `--spacing-1-25` (Default), `--spacing-1-75` (Round) — shell `pr`/`pb` when `resizable` |
@@ -45,7 +47,9 @@ Input Group (`InputGroupTextarea`).
 ## Deferred
 
 - **Round 18px** — Figma uses 18; Foundations has no 18 step → `--radius` (16).
-- **Custom resize grip** — Figma vector; we use the browser resize handle.
+- **Inline heading titles** — `variant="quiet"` + `textStyle="heading"` +
+  `resizable={false}` (Chapter Menu Header book title). Grows with wrap;
+  no resize grip.
 - **Input Group demos** — re-verify once partners settle (shell already bare-hosts
   this control). See Input Group README / docket.
 

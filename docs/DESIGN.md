@@ -155,7 +155,7 @@ Foundations should remain implementation-agnostic.
 
 - Lucide — primary system UI
 - Solar Bold Duotone — illustration accents only
-- Fabely Icons — brand-specific custom glyphs (catalog empty until designed)
+- Fabely Icons — brand-specific custom glyphs (`packages/ui/src/foundations/icons`)
 
 Do not mix sets in the same interface. Full catalogs live in Storybook under Foundations → Iconography → Icon Library.
 

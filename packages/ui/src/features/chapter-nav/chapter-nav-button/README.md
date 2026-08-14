@@ -15,7 +15,7 @@ Searched primitives / atoms / molecules / organisms. Compose, do not copy:
 
 | Piece | Approach |
 | --- | --- |
-| Chapter menu | **Dropdown Menu** — wrap. Trigger is the Fade chevron, not the whole shell (an Input cannot live inside a `<button>`). Content stubbed until Chapter Menu lands. |
+| Chapter menu | **Dropdown Menu** — wrap. Trigger is the Fade chevron, not the whole shell (an Input cannot live inside a `<button>`). Content is **Chapter Menu**; the close pin dismisses the dropdown and is aligned to the chevron. |
 | Chevron | **Icon Button `fadeGold`** — compose as `DropdownMenuTrigger` (`render={<IconButton />}`). Call-site hug: `--icon-sm`. Sits on the chapter row, `--spacing-3xs` after the hugging field. Group hover / open uses the same `--primary` as the primitive hover. |
 | Inline rename | **Input Group** `variant="quiet"` `size="mini"` — Figma Prepend is text (`Ch. N:`), which lives on Input Group (`InputGroupText`), not Input `decorationLeft` (icons). Quiet is the Input primitive variant with independent hover (`--theme-alpha-black-switch-333`) and a semantic `--border` on focus (no ring, no value-slot fill). |
 
@@ -49,8 +49,10 @@ Searched primitives / atoms / molecules / organisms. Compose, do not copy:
   steal the shortcut). The field hugs the typed name but never shrinks
   below the empty placeholder width; mini end-pad stays. The chevron sits
   `--spacing-3xs` after the box and tracks growth past that floor.
-- Clicking the chevron, book title, or shell padding opens the Chapter Menu
-  stub. Rename does **not** live in that panel.
+- Clicking the chevron, book title, or shell padding opens **Chapter Menu**
+  as a dropdown overlay. The menu’s close pin sits on the chevron and
+  dismisses the dropdown (`onOpenChange(false)`). Rename does **not** live
+  in that panel.
 - Two interactive controls, not one nested trigger.
 
 ## Gaps (call-site)
@@ -64,5 +66,4 @@ Searched primitives / atoms / molecules / organisms. Compose, do not copy:
 
 ## Deferred
 
-- Chapter Menu organism (outline, cover, author, library link, new chapter)
 - Figma Fade `Show superscript`

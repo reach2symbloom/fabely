@@ -1,5 +1,5 @@
 /**
- * Add Section Inline Button — insert rows with dividers. Overview via PrimitivePage.
+ * Add Section Inline Button — insert rows. Overview via PrimitivePage.
  */
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -12,6 +12,7 @@ import {
   PrimitiveGalleryItem,
   PrimitivePage,
 } from '../../../../stories/PrimitivePage';
+import { ChapterMenuListItem } from '../chapter-menu-list-item';
 
 import {
   AddSectionInlineButton,
@@ -65,11 +66,44 @@ const DEMO_ACTIONS = {
   },
 } as const;
 
+function InsertBetweenChapters({
+  forceHover = false,
+  forceOpen = false,
+}: {
+  forceHover?: boolean;
+  forceOpen?: boolean;
+}) {
+  return (
+    <div className={`flex flex-col ${DEMO_FRAME}`}>
+      <ChapterMenuListItem
+        type="chapter"
+        chapterNumber={2}
+        label="The Wand that Would Not Fall"
+        showActions={false}
+      />
+      <AddSectionInlineButton
+        type="chapter"
+        forceHover={forceHover}
+        forceOpen={forceOpen}
+        addChapter={DEMO_ACTIONS.addChapter}
+        addAct={DEMO_ACTIONS.addAct}
+      />
+      <ChapterMenuListItem
+        type="chapter"
+        chapterNumber={3}
+        label="Shadows in the mist"
+        showActions={false}
+      />
+    </div>
+  );
+}
+
 function ChapterExample() {
   return (
     <div className={DEMO_FRAME}>
       <AddSectionInlineButton
         type="chapter"
+        forceHover
         addChapter={DEMO_ACTIONS.addChapter}
         addAct={DEMO_ACTIONS.addAct}
       />
@@ -82,6 +116,7 @@ function SceneExample() {
     <div className={DEMO_FRAME}>
       <AddSectionInlineButton
         type="scene"
+        forceHover
         addScene={DEMO_ACTIONS.addScene}
       />
     </div>
@@ -115,6 +150,9 @@ function ActTitledExample() {
 function AddSectionPlayground() {
   const [type, setType] = useState<AddSectionInlineType>('chapter');
   const [actIndex, setActIndex] = useState(1);
+  const [insertState, setInsertState] = useState<'rest' | 'hover' | 'open'>(
+    'hover',
+  );
   const isAct =
     type === 'actUntitled' || type === 'actNoOnly' || type === 'actTitled';
 
@@ -123,14 +161,24 @@ function AddSectionPlayground() {
       previewAlign="stretch"
       preview={
         <div className={`flex min-h-40 w-full items-center ${DEMO_FRAME}`}>
-          <AddSectionInlineButton
-            type={type}
-            actIndex={actIndex}
-            actTitle={type === 'actTitled' ? 'Titled' : undefined}
-            addChapter={DEMO_ACTIONS.addChapter}
-            addAct={DEMO_ACTIONS.addAct}
-            addScene={DEMO_ACTIONS.addScene}
-          />
+          {isAct ? (
+            <AddSectionInlineButton
+              type={type}
+              actIndex={actIndex}
+              actTitle={type === 'actTitled' ? 'Titled' : undefined}
+            />
+          ) : type === 'scene' ? (
+            <AddSectionInlineButton
+              type="scene"
+              forceHover={insertState !== 'rest'}
+              addScene={DEMO_ACTIONS.addScene}
+            />
+          ) : (
+            <InsertBetweenChapters
+              forceHover={insertState !== 'rest'}
+              forceOpen={insertState === 'open'}
+            />
+          )}
         </div>
       }
       controls={
@@ -138,7 +186,16 @@ function AddSectionPlayground() {
           <InlineSegmentedControl
             label="Type"
             value={type}
-            onChange={(value) => setType(value as AddSectionInlineType)}
+            onChange={(value) => {
+              const next = value as AddSectionInlineType;
+              setType(next);
+              if (
+                next !== 'chapter' &&
+                insertState === 'open'
+              ) {
+                setInsertState('hover');
+              }
+            }}
             options={TYPE_OPTIONS}
             fullWidth
             className="col-span-2"
@@ -157,7 +214,24 @@ function AddSectionPlayground() {
               fullWidth
               className="col-span-2"
             />
-          ) : null}
+          ) : (
+            <InlineSegmentedControl
+              label="Insert"
+              value={insertState}
+              onChange={(value) =>
+                setInsertState(value as 'rest' | 'hover' | 'open')
+              }
+              options={[
+                { value: 'rest', label: 'Rest' },
+                { value: 'hover', label: 'Hover' },
+                ...(type === 'chapter'
+                  ? [{ value: 'open', label: 'Menu open' }]
+                  : []),
+              ]}
+              fullWidth
+              className="col-span-2"
+            />
+          )}
         </div>
       }
     />
@@ -169,15 +243,26 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Add Section Inline Button"
-      description="Insert Chapter, Act, or Scene between manuscript sections — always with glow or diamond dividers. Composes the Add Section Button atom. Figma Add section inline button Chapter / Scene / Act (16373:4624)."
+      description="Insert between manuscript sections. Chapter / Scene: plus left of a hover-only 1px divider. Plus or the line opens Chapter / Act (Scene inserts directly). Figma Add section inline button Chapter / Scene / Act (16373:4624)."
       playground={<AddSectionPlayground />}
       variants={
         <div className="flex w-full flex-col gap-[var(--spacing-md)]">
+          <div className="grid w-full grid-cols-2 gap-[var(--spacing-md)]">
+            <PrimitiveGalleryItem label="Rest" fill>
+              <InsertBetweenChapters />
+            </PrimitiveGalleryItem>
+            <PrimitiveGalleryItem label="Hover — plus + divider" fill>
+              <InsertBetweenChapters forceHover />
+            </PrimitiveGalleryItem>
+            <PrimitiveGalleryItem label="Menu open — Chapter / Act" fill>
+              <InsertBetweenChapters forceHover forceOpen />
+            </PrimitiveGalleryItem>
+            <PrimitiveGalleryItem label="Scene hover" fill>
+              <SceneExample />
+            </PrimitiveGalleryItem>
+          </div>
           <PrimitiveGalleryItem label="Chapter" fill>
             <ChapterExample />
-          </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Scene" fill>
-            <SceneExample />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Act untitled" fill>
             <ActUntitledExample />
@@ -193,41 +278,60 @@ export const Overview: Story = {
       usageGuidance={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            Use for manuscript insert rows only. Pills come from{' '}
-            <code>AddSectionButton</code> (atom); this feature owns the
-            secondary glow rails and Act diamond rails.
+            Chapter / Scene chrome is an <code>IconButton</code> plus (ghost,
+            mini, round) to the left of a 1px <code>Separator</code> (
+            <code>--stroke-thin</code>). Both appear only on gap hover —
+            opacity, no layout shift. Hovering the line lightens it; clicking
+            the plus or the line opens the menu (Scene inserts immediately).
+          </li>
+          <li>
+            Chapter plus or the divider opens <code>DropdownMenu</code> with
+            Chapter and Act. Scene plus or divider fires{' '}
+            <code>addScene</code> / <code>onAddScene</code> directly.
           </li>
           <li>
             Wire inserts with <code>addChapter</code> / <code>addAct</code> /{' '}
-            <code>addScene</code>: <code>href</code> (route or placeholder{' '}
-            <code>#</code>), <code>onClick</code>, or{' '}
-            <code>formAction</code> / <code>formMethod</code> for webhooks.
-            Shorthand <code>onAddChapter</code> / <code>onAddAct</code> /{' '}
-            <code>onAddScene</code> still work.
+            <code>addScene</code> (<code>onClick</code>, optional{' '}
+            <code>href</code>). Shorthand <code>onAddChapter</code> /{' '}
+            <code>onAddAct</code> / <code>onAddScene</code> still work.
+          </li>
+          <li>
+            The gap is a fixed <code>--spacing-sm</code> (12) hit-zone. Use{' '}
+            <code>forceHover</code> / <code>forceOpen</code> in Storybook.
+            Act rows stay always visible.
           </li>
           <li>
             Pass <code>actIndex</code> (1-based) from the act sequence — the
             roman numeral is derived, never typed. Act no. only is display
             text, not an input.
           </li>
-          <li>
-            The Figma Default pill is not a feature surface — see{' '}
-            <code>Design System/Atoms/Add Section Button</code>.
-          </li>
         </ul>
       }
       accessibility={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            Pills expose <code>aria-label</code> (“Add chapter”, “Add act”,
-            “Add scene”). Act no. only uses{' '}
-            <code>aria-label=&quot;Act I&quot;</code> (from sequence). Title
-            fields use <code>aria-label=&quot;Act title&quot;</code>.
+            Plus exposes <code>aria-label</code> (“Add chapter or act” /
+            “Add scene”). Menu items are “Chapter” and “Act”. Act no. only
+            uses <code>aria-label=&quot;Act I&quot;</code> (from sequence).
+            Title fields use <code>aria-label=&quot;Act title&quot;</code>.
           </li>
         </ul>
       }
     />
   ),
+};
+
+export const Rest: Story = {
+  render: () => <InsertBetweenChapters />,
+};
+
+export const Hover: Story = {
+  render: () => <InsertBetweenChapters forceHover />,
+};
+
+export const MenuOpen: Story = {
+  name: 'Menu open',
+  render: () => <InsertBetweenChapters forceHover forceOpen />,
 };
 
 export const Chapter: Story = {

@@ -4,9 +4,10 @@
  * Authoritative Figma variant: Chapter nav button / State=Empty, Hover=False
  * (`16038:15485`). Layers: Input instance (Prepend on) + sibling Fade button.
  *
- * Placement: feature. Chevron opens the Chapter Menu (stubbed). Chapter name
- * is a real Input Group (Figma Prepend text) for inline rename — not a second
- * button nested in a trigger.
+ * Placement: feature. Chevron opens Chapter Menu in a Dropdown Menu overlay,
+ * pinned to the trigger by the panel’s close control. Chapter name is a real
+ * Input Group (Figma Prepend text) for inline rename — not a second button
+ * nested in a trigger.
  */
 
 'use client';
@@ -27,6 +28,8 @@ import {
   InputGroupInput,
   InputGroupText,
 } from '@/primitives/input-group';
+import { ChapterMenu } from '../chapter-menu';
+import { ChapterMenuHeader } from '../chapter-menu-header';
 
 const DEFAULT_PLACEHOLDER = 'Untitled';
 
@@ -37,6 +40,13 @@ export type ChapterNavButtonProps = {
   placeholder?: string;
   className?: string;
   onChapterNameChange?: (name: string) => void;
+  /**
+   * Chapter Menu panel. Close (`data-slot=chapter-menu-close`) dismisses the
+   * dropdown. Defaults to a header-only panel from `bookTitle`.
+   */
+  menu?: React.ReactNode;
+  /** Storybook / demos — open the overlay on mount. */
+  defaultOpen?: boolean;
 };
 
 const heading4Type = [
@@ -47,6 +57,18 @@ const heading4Type = [
   'tracking-[var(--text-heading-4-letter-spacing)]',
 ].join(' ');
 
+function alignClosePinToTrigger(
+  trigger: HTMLElement,
+  popup: HTMLElement,
+) {
+  const pin = popup.querySelector('[data-slot="chapter-menu-close"]');
+  if (!(pin instanceof HTMLElement)) return;
+  popup.style.translate = '0px 0px';
+  const triggerBox = trigger.getBoundingClientRect();
+  const pinBox = pin.getBoundingClientRect();
+  popup.style.translate = `${triggerBox.left + triggerBox.width / 2 - (pinBox.left + pinBox.width / 2)}px ${triggerBox.top + triggerBox.height / 2 - (pinBox.top + pinBox.height / 2)}px`;
+}
+
 function ChapterNavButton({
   bookTitle = 'Untitled book',
   chapterNumber = 1,
@@ -54,10 +76,15 @@ function ChapterNavButton({
   placeholder = DEFAULT_PLACEHOLDER,
   className,
   onChapterNameChange,
+  menu,
+  defaultOpen = false,
 }: ChapterNavButtonProps) {
   const [name, setName] = React.useState(chapterName);
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(defaultOpen);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const contentRef = React.useRef<HTMLDivElement>(null);
+  const navRef = React.useRef<HTMLDivElement>(null);
   const [nameMinWidth, setNameMinWidth] = React.useState<number>();
 
   React.useEffect(() => {
@@ -130,8 +157,67 @@ function ChapterNavButton({
     }
   }
 
+  function closeMenu() {
+    setOpen(false);
+  }
+
+  React.useLayoutEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    let frame = 0;
+    let timeoutId = 0;
+    let observer: ResizeObserver | undefined;
+    let align: (() => void) | undefined;
+
+    function bind() {
+      if (cancelled) return;
+      const trigger =
+        triggerRef.current ??
+        navRef.current?.querySelector<HTMLElement>(
+          '[data-slot=dropdown-menu-trigger]',
+        );
+      const popup = contentRef.current;
+      if (!trigger || !popup) {
+        frame = window.requestAnimationFrame(bind);
+        return;
+      }
+
+      align = () => alignClosePinToTrigger(trigger, popup);
+      align();
+      timeoutId = window.setTimeout(align, 120);
+      observer = new ResizeObserver(align);
+      observer.observe(popup);
+      window.addEventListener('scroll', align, true);
+    }
+
+    bind();
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timeoutId);
+      observer?.disconnect();
+      if (align) window.removeEventListener('scroll', align, true);
+      if (contentRef.current) contentRef.current.style.translate = '';
+    };
+  }, [open]);
+
+  const panel =
+    menu ?? (
+      <ChapterMenu
+        header={
+          <ChapterMenuHeader
+            bookTitle={bookTitle}
+            authorName="Author"
+            logoSrc="/logo-dark.png"
+            coverSrc="/cover-demo.png"
+          />
+        }
+      />
+    );
+
   return (
     <div
+      ref={navRef}
       data-slot="chapter-nav"
       className={cn(
         'group/chapter-nav inline-flex w-fit max-w-full min-w-0 flex-col',
@@ -201,32 +287,48 @@ function ChapterNavButton({
           <DropdownMenuTrigger
             render={
               <IconButton
+                ref={triggerRef}
                 variant="fadeGold"
                 size="sm"
-                aria-label="Open chapter menu"
+                aria-label={open ? 'Close chapter menu' : 'Open chapter menu'}
                 className={cn(
                   'shrink-0 size-[length:var(--icon-sm)] p-0',
                   'group-hover/chapter-nav:[&_svg]:opacity-100',
                   'group-hover/chapter-nav:text-[color:var(--primary)]',
                   'group-data-open/chapter-nav:[&_svg]:opacity-100',
                   'group-data-open/chapter-nav:text-[color:var(--primary)]',
+                  open && 'opacity-0',
                 )}
               />
             }
           >
             <ChevronDownIcon />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <p
-              className={cn(
-                'font-[family-name:var(--text-paragraph-small-regular-font-family)]',
-                'text-[length:var(--text-paragraph-small-regular-font-size)]',
-                'leading-[var(--text-paragraph-small-regular-line-height)]',
-                'text-muted-foreground',
-              )}
+          <DropdownMenuContent
+            align="end"
+            side="bottom"
+            sideOffset={0}
+            collisionAvoidance={{ side: 'none', align: 'none' }}
+            className={cn(
+              'w-auto min-w-0 max-w-none border-0 bg-transparent p-0 shadow-none',
+              'overflow-visible!',
+            )}
+          >
+            <div
+              ref={contentRef}
+              onPointerDown={(event) => {
+                if (
+                  (event.target as HTMLElement).closest(
+                    '[data-slot=chapter-menu-close]',
+                  )
+                ) {
+                  event.preventDefault();
+                  closeMenu();
+                }
+              }}
             >
-              Chapter menu
-            </p>
+              {panel}
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

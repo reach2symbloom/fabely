@@ -22,6 +22,9 @@ import {
 } from '../../../../stories/TokenSpecSheet';
 
 import { ChapterNavButton } from './ChapterNavButton';
+import { ChapterMenu } from '../chapter-menu';
+import { ChapterMenuHeader } from '../chapter-menu-header';
+import { ChapterMenuListItem } from '../chapter-menu-list-item';
 
 const meta = {
   title: 'Design System/Features/Chapter Nav Button',
@@ -50,6 +53,44 @@ const FIGMA_FILLED = {
 
 const DEMO_FRAME = 'w-[length:var(--tw-raw-spacing-80)]';
 
+function DemoMenu({ bookTitle }: { bookTitle: string }) {
+  return (
+    <ChapterMenu
+      header={
+        <ChapterMenuHeader
+          bookTitle={bookTitle}
+          authorName="Christian Davis"
+          authorInitials="CD"
+          logoSrc="/logo-dark.png"
+          coverSrc="/cover-demo.png"
+          coverAlt="The Lumithra Prophecy cover"
+        />
+      }
+    >
+      <div className="flex w-full flex-col [&>:not([data-slot=add-section-inline-gap])+>:not([data-slot=add-section-inline-gap])]:mt-[length:var(--spacing-sm)]">
+        <ChapterMenuListItem
+          type="chapter"
+          chapterNumber={1}
+          label="The Eldergrove"
+          href="#"
+        />
+        <ChapterMenuListItem
+          type="chapter"
+          chapterNumber={2}
+          label="The Wand that Would Not Fall"
+          href="#"
+        />
+        <ChapterMenuListItem
+          type="chapter"
+          chapterNumber={3}
+          label="Shadows in the mist"
+          href="#"
+        />
+      </div>
+    </ChapterMenu>
+  );
+}
+
 const CHAPTER_NAV_MEASURES: MeasurementTarget[] = [
   {
     name: 'shell',
@@ -77,7 +118,10 @@ const CHAPTER_NAV_SPEC: SpecTarget[] = [
 function EmptyExample() {
   return (
     <div className={DEMO_FRAME}>
-      <ChapterNavButton {...FIGMA_EMPTY} />
+      <ChapterNavButton
+        {...FIGMA_EMPTY}
+        menu={<DemoMenu bookTitle={FIGMA_EMPTY.bookTitle} />}
+      />
     </div>
   );
 }
@@ -85,7 +129,10 @@ function EmptyExample() {
 function FilledExample() {
   return (
     <div className={DEMO_FRAME}>
-      <ChapterNavButton {...FIGMA_FILLED} />
+      <ChapterNavButton
+        {...FIGMA_FILLED}
+        menu={<DemoMenu bookTitle={FIGMA_FILLED.bookTitle} />}
+      />
     </div>
   );
 }
@@ -100,7 +147,14 @@ function ChapterNavPlayground({
   const isEmpty = appearance === 'empty';
 
   const demo = (
-    <ChapterNavButton {...(isEmpty ? FIGMA_EMPTY : FIGMA_FILLED)} />
+    <ChapterNavButton
+      {...(isEmpty ? FIGMA_EMPTY : FIGMA_FILLED)}
+      menu={
+        <DemoMenu
+          bookTitle={isEmpty ? FIGMA_EMPTY.bookTitle : FIGMA_FILLED.bookTitle}
+        />
+      }
+    />
   );
 
   return (
@@ -111,7 +165,7 @@ function ChapterNavPlayground({
           className={
             showMeasures
               ? 'flex w-full flex-col gap-[var(--spacing-xl)] md:flex-row md:items-start'
-              : `flex min-h-40 items-center justify-center ${DEMO_FRAME} mx-auto`
+              : `flex min-h-[length:var(--tw-raw-spacing-96)] items-center justify-center ${DEMO_FRAME} mx-auto`
           }
         >
           <div className={showMeasures ? 'min-w-0 flex-1' : 'w-full'}>
@@ -177,7 +231,7 @@ function OverviewPage() {
       </div>
       <PrimitivePage
         title="Chapter Nav Button"
-        description="Manuscript location chrome: muted book title over an Input Group (Quiet Mini, Prepend Ch. N:) for inline rename. The Fade chevron opens a stubbed Chapter Menu. Figma Chapter nav button, first variant (16038:15485)."
+        description="Manuscript location chrome: muted book title over an Input Group (Quiet Mini, Prepend Ch. N:) for inline rename. The Fade chevron opens Chapter Menu as a pinned dropdown overlay. Figma Chapter nav button, first variant (16038:15485)."
         playground={<ChapterNavPlayground subjectRef={subjectRef} />}
         variants={
           <div className="flex flex-wrap gap-[var(--spacing-md)]">
@@ -199,7 +253,8 @@ function OverviewPage() {
             </li>
             <li>
               The Fade chevron (and book title / shell padding) opens Chapter
-              Menu. That panel is stubbed; do not put rename there.
+              Menu as a dropdown overlay. The close pin sits on the chevron
+              and dismisses the dropdown. Do not put rename in that panel.
             </li>
             <li>
               Empty vs Filled is placeholder vs named value, not a rest fill.
@@ -240,4 +295,18 @@ export const Empty: Story = {
 
 export const Filled: Story = {
   render: () => <FilledExample />,
+};
+
+export const Overlay: Story = {
+  name: 'Overlay / open',
+  parameters: { layout: 'centered' },
+  render: () => (
+    <div className="flex min-h-[length:var(--tw-raw-spacing-96)] items-start justify-center pt-[length:var(--spacing-5xl)]">
+      <ChapterNavButton
+        {...FIGMA_FILLED}
+        defaultOpen
+        menu={<DemoMenu bookTitle={FIGMA_FILLED.bookTitle} />}
+      />
+    </div>
+  ),
 };

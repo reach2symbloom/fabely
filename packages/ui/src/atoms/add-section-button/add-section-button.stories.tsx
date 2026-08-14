@@ -173,8 +173,8 @@ export const Overview: Story = {
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
             Pass Lucide icon + label as children. Do not ship this alone in
-            product UI — compose with glow / diamond rails via{' '}
-            <code>AddSectionInlineButton</code>.
+            product UI. Chapter / Scene insert rows use Link Button, not this
+            pill.
           </li>
           <li>
             With <code>href</code>, renders as <code>&lt;a&gt;</code> (route,

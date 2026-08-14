@@ -14,10 +14,10 @@ Searched primitives / atoms / molecules / organisms:
 | Candidate | Verdict |
 | --- | --- |
 | **ListItem** | Skip as shell — generic menu leaf with fill hover / focus ring. This row is tree chrome (indent, markers, secondary hover ink, expand rail). |
-| **Input / Input Group** | Compose — Quiet Mini name field (hover fill + focus border). Chapter uses Input Group Prepend (`Ch. N`); scene / sub-scene are bare Input. |
+| **Textarea / Input Group** | Compose — Quiet Mini name field, a field-sizing `Textarea` (not `Input` — wraps to a 2nd line instead of overflowing) inside Input Group. Chapter uses Input Group Prepend (`Ch. N`); scene / sub-scene wrap the Textarea alone. |
 | **Separator** | Compose — vertical rail under expanded chapters (`--theme-alpha-black-switch-5`, width `--spacing-3xs`). |
 | Lucide chevron / `Circle` / `Dot` | Expand + scene / sub-scene markers. |
-| **Icon Button `ghost` mini** | Trailing ellipsis (Show dot menu). |
+| **Icon Button `ghost` mini + Dropdown Menu** | Trailing ellipsis (Show dot menu) opens Delete / Archive / Rename — chapter rows only. |
 
 ## Authoritative Figma
 
@@ -47,18 +47,67 @@ Leaf API maps Type to `chapter` | `scene` | `subscene` (`untitled` for Chapter u
 
 ## Structure
 
-- **Chapter** — Input Group Quiet Mini with Prepend `Ch. N` + name Input
+- **Chapter** — Input Group Quiet Mini with Prepend `Ch. N` + name Textarea
   (no colon); ellipsis on hover. Empty value uses `Untitled` placeholder.
-  Quiet chrome shows on field hover / focus and on row hover — padding comes
-  from Input Group mini (`--spacing-1-5`).
+  Field chrome (border) shows on focus only — padding comes from Input
+  Group mini (`--spacing-1-5`), addon-to-title gap `--spacing-xs` (8px). No
+  chapter `pl` — chevron is absolute at `-spacing-lg + 2xs` (4px closer than
+  Figma `left: -20`); Chapter Menu outline list supplies `pl-xs` so “Ch.”
+  sits body `xl` + list `xs` from the panel edge.
+  - **Number alignment** — `N` sits in a fixed `--spacing-lg` (20px),
+    left-aligned, `tabular-nums` slot (own `<span>`, separate from the
+    "Ch." label, tight `--spacing-2xs` gap between them). Without this,
+    the addon hugged `Ch. N` as one string, so its width — and therefore
+    where the title started — shifted with digit count (`Ch. 1` vs
+    `Ch. 11`). Left-aligned keeps the number reading naturally right next
+    to "Ch." (like normal type); the fixed slot width is still what pins
+    the title's start x — the variable gap now falls between the number
+    and the title instead of between "Ch." and the number. 20px
+    comfortably fits two digits at the 16px `text-paragraph-regular-regular`
+    size with a little room to spare; it does not fit three (100+
+    chapters) — treated as an acceptable edge case for now (title would
+    butt up against / crowd the number), not sized for, since three-digit
+    chapter counts aren't expected.
+  - Nested scene numbers (the plain "1", "2", "3" under an expanded
+    chapter) already had a fixed-width, centered slot
+    (`--spacing-md + --spacing-3xs`, 18px) — checked, no hug-width issue
+    there, left as-is.
 - **Chapter scenes dropdown** — chevron only when the chapter has scene
   `children`. Click toggles open/closed (Figma Chapter + scenes). Chapters
   with no individual scenes omit the chevron.
-- **Scene** — circle + scene number (`--theme-alpha-black-switch-30`) + Input
-  Quiet Mini for the name; `pl-md`.
-- **Sub-scene** — dot + Input Quiet Mini (quieter `--theme-alpha-black-switch-40`);
+- **Scene** — circle + scene number (`--theme-alpha-black-switch-30`) + name
+  Textarea; `pl-md`.
+- **Sub-scene** — dot + name Textarea (quieter `--theme-alpha-black-switch-40`);
   deeper indent.
 - **`href`** — manuscript section URL. Prefer a real route; Storybook uses
   `#`. Stretched link behind the row; name / chevron / actions stay on top.
-- **Hover / drag** — secondary-200 ink on markers, prepend, and value.
+- **Hover / drag** — secondary-200 ink on markers, prepend, and value —
+  color only, no field chrome (see Interaction below).
 - **Expanded chapter** — chevron-up; children under a vertical Separator rail.
+
+## Interaction — double-click to rename, not single-click
+
+Rename is gated behind **double-click**, not single-click, and hover is
+ink-color-only (no bounding box / field background). This is a deliberate
+deviation from [Chapter Nav Button](../chapter-nav-button), which renames
+on single click:
+
+- Chapter Nav Button has nothing else competing for a single click on its
+  name field.
+- Chapter Menu List Item does: the whole row is a drag-and-drop source (see
+  `chapter-menu/outline-dnd.ts`), so a plain pointerdown has to be free for
+  drag. Single-click-to-rename and click-to-drag can't share one gesture on
+  the same element.
+
+Mechanics: the name Textarea's `onMouseDown` calls `preventDefault()` when
+`event.detail < 2` (blocking the browser's default focus-on-mousedown for
+the first click of any sequence), so a bare single click never focuses the
+field and is left free for the drag sensor. The 2nd mousedown of a
+double-click has `detail === 2` and is let through, so `onDoubleClick`
+lands with the field already focused; it then calls `.select()`. The
+actions menu's **Rename** item calls the identical focus+select — same
+outcome, different trigger.
+
+If Chapter Menu ever needs drag-and-drop too, re-evaluate whether it should
+adopt double-click for the same reason, or keep single-click if nothing
+there ends up competing for the gesture.

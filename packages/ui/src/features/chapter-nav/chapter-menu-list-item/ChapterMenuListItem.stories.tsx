@@ -29,7 +29,8 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const DEMO_FRAME = 'w-[length:var(--tw-raw-spacing-80)]';
+const DEMO_FRAME =
+  'w-[length:var(--tw-raw-spacing-80)] ps-[length:var(--spacing-lg)]';
 
 const SCENE_LABEL = 'The Wand that Would Not Fall';
 

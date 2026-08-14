@@ -9,8 +9,8 @@ and paints `--tw-raw-secondary-200`.
 YES — same chrome with different icons/labels for Add chapter, Chapter,
 Act, and Scene. Lives in `src/atoms/add-section-button/`.
 
-Never a product surface on its own: Chapter Nav’s insert rows
-(`AddSectionInlineButton`) always pair it with glow / diamond dividers.
+Never a product surface on its own. Chapter / Scene insert rows now use
+Link Button; this pill is the Figma Type=Default atom.
 
 Pass `href` to render as `<a>` (navigation / empty link / webhook URL);
 omit `href` for `<button>` (`onClick`, `formAction`, …).

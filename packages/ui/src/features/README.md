@@ -16,4 +16,4 @@ it in a second feature folder.
 
 | Feature | Notes |
 | --- | --- |
-| [Chapter Nav](./chapter-nav/README.md) | Manuscript location chrome — button, add-section insert, menu, header, list item |
+| [Chapter Nav](./chapter-nav/README.md) | Manuscript location chrome — button, add-section, list item, header, menu |

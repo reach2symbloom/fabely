@@ -13,18 +13,22 @@ type Story = StoryObj<typeof meta>;
 export const Overview: Story = {
   render: () => (
     <div>
+      <SectionHeading>Molecules</SectionHeading>
       <PendingNotice>
-        <strong>Placeholder — no components implemented yet.</strong> Molecules are simple groups
-        of atoms functioning together as a single unit — a labeled input, a search field, a menu
-        item with an icon and a label. This page exists only to establish the Storybook navigation
-        category; it will be replaced by real component stories, not appended to.
+        Simple groups of atoms/primitives as a unit. Per{' '}
+        <code>docs/DESIGN.md</code>: Foundations → Primitives → Atoms → Molecules
+        → Organisms → Templates.
       </PendingNotice>
 
-      <SectionHeading>Where Molecules fit</SectionHeading>
+      <SectionHeading>Components</SectionHeading>
       <PendingNotice>
-        Per <code>docs/DESIGN.md</code>: Foundations → Primitives → Atoms → Molecules → Organisms →
-        Templates. Molecules compose atoms rather than duplicating their implementation, and should
-        consume semantic tokens once a reusable role emerges rather than inventing one prematurely.
+        <ul className="list-disc space-y-1 ps-5">
+          <li>
+            <strong>Avatar with Label</strong> —{' '}
+            <code>src/molecules/avatar-with-label/</code>. Story:{' '}
+            <code>Design System/Molecules/Avatar with Label</code>.
+          </li>
+        </ul>
       </PendingNotice>
     </div>
   ),
