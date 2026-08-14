@@ -44,6 +44,7 @@ type FigmaVariant =
   | 'chapter-untitled'
   | 'chapter-hover'
   | 'chapter-drag'
+  | 'chapter-collapsed-scenes'
   | 'scene'
   | 'scene-hover'
   | 'subscene'
@@ -58,7 +59,7 @@ const FIGMA_VARIANT_GROUPS: {
   options: FigmaVariantOption[];
 }[] = [
   {
-    caption: 'Chapter',
+    caption: 'Chapter (no scenes)',
     options: [
       { value: 'chapter', label: 'Rest' },
       { value: 'chapter-untitled', label: 'Untitled' },
@@ -81,13 +82,39 @@ const FIGMA_VARIANT_GROUPS: {
     ],
   },
   {
-    caption: 'Expanded',
+    caption: 'Chapter scenes dropdown',
     options: [
-      { value: 'chapter-scenes', label: 'Chapter + scenes' },
-      { value: 'chapter-subscenes', label: 'Chapter + sub-scenes' },
+      { value: 'chapter-collapsed-scenes', label: 'Collapsed + scenes' },
+      { value: 'chapter-scenes', label: 'Expanded + scenes' },
+      { value: 'chapter-subscenes', label: 'Expanded + sub-scenes' },
     ],
   },
 ];
+
+function DemoScenes() {
+  return (
+    <>
+      <ChapterMenuListItem
+        type="scene"
+        sceneNumber={1}
+        label="The Eldergrove"
+        href={SECTION_HREF}
+      />
+      <ChapterMenuListItem
+        type="scene"
+        sceneNumber={2}
+        label={SCENE_LABEL}
+        href={SECTION_HREF}
+      />
+      <ChapterMenuListItem
+        type="scene"
+        sceneNumber={3}
+        label={SCENE_LABEL}
+        href={SECTION_HREF}
+      />
+    </>
+  );
+}
 
 function FigmaVariantExample({
   variant,
@@ -132,6 +159,14 @@ function FigmaVariantExample({
             showActions
             href={SECTION_HREF}
           />
+        </div>
+      );
+    case 'chapter-collapsed-scenes':
+      return (
+        <div className={frame}>
+          <ChapterMenuListItem type="chapter" href={SECTION_HREF}>
+            <DemoScenes />
+          </ChapterMenuListItem>
         </div>
       );
     case 'scene':
@@ -180,24 +215,7 @@ function FigmaVariantExample({
       return (
         <div className={frame}>
           <ChapterMenuListItem type="chapter" expanded href={SECTION_HREF}>
-            <ChapterMenuListItem
-              type="scene"
-              sceneNumber={1}
-              label="The Eldergrove"
-              href={SECTION_HREF}
-            />
-            <ChapterMenuListItem
-              type="scene"
-              sceneNumber={2}
-              label={SCENE_LABEL}
-              href={SECTION_HREF}
-            />
-            <ChapterMenuListItem
-              type="scene"
-              sceneNumber={3}
-              label={SCENE_LABEL}
-              href={SECTION_HREF}
-            />
+            <DemoScenes />
           </ChapterMenuListItem>
         </div>
       );
@@ -261,12 +279,17 @@ function ListItemPlayground() {
       preview={
         <div className={`mx-auto min-h-40 py-[length:var(--spacing-md)] ${DEMO_FRAME}`}>
           {mode === 'figma' ? (
-            <FigmaVariantExample variant={figmaVariant} />
+            <FigmaVariantExample key={figmaVariant} variant={figmaVariant} />
           ) : (
             <ChapterMenuListItem
               type={type}
               untitled={type === 'chapter' ? untitled : false}
               expanded={type === 'chapter' ? expanded : false}
+              onExpandToggle={
+                type === 'chapter'
+                  ? () => setExpanded((value) => !value)
+                  : undefined
+              }
               forceHover={forceHover}
               drag={drag}
               showActions={showActions}
@@ -279,22 +302,7 @@ function ListItemPlayground() {
                     : 'The Eldergrove'
               }
             >
-              {type === 'chapter' && expanded ? (
-                <>
-                  <ChapterMenuListItem
-                    type="scene"
-                    sceneNumber={1}
-                    label="The Eldergrove"
-                    href={SECTION_HREF}
-                  />
-                  <ChapterMenuListItem
-                    type="scene"
-                    sceneNumber={2}
-                    label={SCENE_LABEL}
-                    href={SECTION_HREF}
-                  />
-                </>
-              ) : null}
+              {type === 'chapter' ? <DemoScenes /> : null}
             </ChapterMenuListItem>
           )}
         </div>
@@ -433,10 +441,10 @@ function OverviewPage() {
           <a href={FIGMA_SET_URL} target="_blank" rel="noreferrer">
             Chapter menu list item
           </a>{' '}
-          set (<code>16371:635</code>) — chapter / untitled / scene / sub-scene
-          leaves, plus expanded chapter + scenes and chapter + sub-scenes. Pass{' '}
-          <code>href</code> (Storybook uses <code>#</code>) so each row links to
-          its manuscript section.
+          set (<code>16371:635</code>) — chapter / scene / sub-scene leaves, plus
+          a chapter scenes dropdown (chevron only when the chapter has scene
+          children). Pass <code>href</code> (Storybook uses <code>#</code>) so
+          each row links to its manuscript section.
         </>
       }
       playground={<ListItemPlayground />}
@@ -472,12 +480,16 @@ function OverviewPage() {
             behind the row; the name field, chevron, and actions stay above it.
           </li>
           <li>
+            Chapter chevron is a scenes dropdown: it only renders when the
+            chapter has scene <code>children</code>. Click toggles{' '}
+            <code>expanded</code> (uncontrolled by default, or control with{' '}
+            <code>expanded</code> + <code>onExpandToggle</code>). Chapters with
+            no individual scenes have no chevron.
+          </li>
+          <li>
             Names are Input Quiet Mini. Chapter rows use Input Group with
             Prepend <code>Ch. N</code>; scene and sub-scene are bare Input.
             Hover / focus (and row hover) reveal the Quiet field chrome.
-            Pass nested list items as <code>children</code> on an expanded
-            chapter (and optionally on a scene) to build the Figma + scenes /
-            + sub-scenes composites.
           </li>
           <li>
             Hover and drag paint <code>--tw-raw-secondary-200</code> on markers
@@ -499,8 +511,9 @@ function OverviewPage() {
             expand / actions keep focus and click above it.
           </li>
           <li>
-            Chapter expand control is a button with{' '}
-            <code>aria-expanded</code> and Collapse / Expand chapter labels.
+            Chapter scenes chevron is a button with{' '}
+            <code>aria-expanded</code> and Expand / Collapse scenes labels. It
+            only mounts when the chapter has scene children.
           </li>
           <li>
             Trailing ellipsis is Icon Button ghost mini (
@@ -538,6 +551,11 @@ export const ChapterDrag: Story = {
   render: () => <FigmaVariantExample variant="chapter-drag" />,
 };
 
+export const ChapterCollapsedScenes: Story = {
+  name: 'Dropdown / Collapsed + scenes',
+  render: () => <FigmaVariantExample variant="chapter-collapsed-scenes" />,
+};
+
 export const Scene: Story = {
   name: 'Scene / Rest',
   render: () => <FigmaVariantExample variant="scene" />,
@@ -559,11 +577,11 @@ export const SubsceneHover: Story = {
 };
 
 export const ChapterWithScenes: Story = {
-  name: 'Expanded / Chapter + scenes',
+  name: 'Dropdown / Expanded + scenes',
   render: () => <FigmaVariantExample variant="chapter-scenes" />,
 };
 
 export const ChapterWithSubscenes: Story = {
-  name: 'Expanded / Chapter + sub-scenes',
+  name: 'Dropdown / Expanded + sub-scenes',
   render: () => <FigmaVariantExample variant="chapter-subscenes" />,
 };

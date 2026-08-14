@@ -48,9 +48,12 @@ Leaf API maps Type to `chapter` | `scene` | `subscene` (`untitled` for Chapter u
 ## Structure
 
 - **Chapter** — Input Group Quiet Mini with Prepend `Ch. N` + name Input
-  (no colon); chevron in `--spacing-lg` lead; ellipsis on hover. Empty value
-  uses `Untitled` placeholder. Quiet chrome shows on field hover / focus and
-  on row hover — padding comes from Input Group mini (`--spacing-1-5`).
+  (no colon); ellipsis on hover. Empty value uses `Untitled` placeholder.
+  Quiet chrome shows on field hover / focus and on row hover — padding comes
+  from Input Group mini (`--spacing-1-5`).
+- **Chapter scenes dropdown** — chevron only when the chapter has scene
+  `children`. Click toggles open/closed (Figma Chapter + scenes). Chapters
+  with no individual scenes omit the chevron.
 - **Scene** — circle + scene number (`--theme-alpha-black-switch-30`) + Input
   Quiet Mini for the name; `pl-md`.
 - **Sub-scene** — dot + Input Quiet Mini (quieter `--theme-alpha-black-switch-40`);

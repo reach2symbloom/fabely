@@ -9,6 +9,9 @@
  * text (`Ch. N` — no colon; Figma list item). Scene / sub-scene are bare
  * Input. Quiet shows the field on hover / focus; row hover also reveals
  * the shell.
+ *
+ * Chapter chevron is a scenes dropdown: it mounts only when the chapter has
+ * scene `children`, and toggles the nested tree (Figma Chapter + scenes).
  */
 
 'use client';
@@ -44,8 +47,16 @@ export type ChapterMenuListItemProps = {
   sceneNumber?: number;
   /** Chapter with muted “Untitled” placeholder (empty value). */
   untitled?: boolean;
-  /** Chapter chevron points up when expanded; children render under a rail. */
+  /**
+   * Chapter scenes dropdown open. When omitted, starts closed and toggles
+   * from the chevron (uncontrolled). Pass with `onExpandToggle` to control.
+   */
   expanded?: boolean;
+  /**
+   * Figma Show dropdown arrow. Default on when this chapter has scene
+   * `children`. Chapters with no individual scenes omit the chevron.
+   * Pass `false` to hide even when scenes exist.
+   */
   showChevron?: boolean;
   /** Trailing ellipsis (Figma Show dot menu). Visible on hover / forceHover. */
   showActions?: boolean;
@@ -61,8 +72,10 @@ export type ChapterMenuListItemProps = {
   href?: string;
   placeholder?: string;
   className?: string;
+  /** Scene / sub-scene rows. Presence enables the chapter chevron dropdown. */
   children?: React.ReactNode;
   onLabelChange?: (label: string) => void;
+  /** Fires when the chapter scenes chevron is toggled. */
   onExpandToggle?: () => void;
   onActionsClick?: () => void;
 };
@@ -100,7 +113,7 @@ function ChapterMenuListItem({
   sceneNumber = 1,
   untitled = false,
   expanded = false,
-  showChevron = true,
+  showChevron,
   showActions = true,
   drag = false,
   forceHover = false,
@@ -115,8 +128,31 @@ function ChapterMenuListItem({
   const isChapter = type === 'chapter';
   const isScene = type === 'scene';
   const isSubscene = type === 'subscene';
-  const hasChapterBranch = isChapter && expanded && children != null;
+  const hasScenes = React.Children.count(children) > 0;
+  /** Chevron dropdown — only when the chapter has scenes to open. */
+  const showExpandControl = isChapter && hasScenes && showChevron !== false;
+  const isExpandControlled = onExpandToggle != null;
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(expanded);
+  const open = isExpandControlled ? expanded : uncontrolledOpen;
+  const isExpanded = isChapter && open && hasScenes;
+  const hasChapterBranch = isExpanded;
   const hasSceneBranch = isScene && children != null;
+
+  React.useEffect(() => {
+    if (!isExpandControlled) {
+      setUncontrolledOpen(expanded);
+    }
+  }, [expanded, isExpandControlled]);
+
+  function handleExpandToggle(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (isExpandControlled) {
+      onExpandToggle();
+      return;
+    }
+    setUncontrolledOpen((current) => !current);
+  }
 
   const initialName = untitled || label.trim() === '' ? '' : label;
   const [name, setName] = React.useState(initialName);
@@ -210,7 +246,7 @@ function ChapterMenuListItem({
     <div
       data-slot="chapter-menu-list-item"
       data-type={type}
-      data-expanded={isChapter ? expanded || undefined : undefined}
+      data-expanded={isChapter ? isExpanded || undefined : undefined}
       data-untitled={untitled || undefined}
       className={cn(
         'group/chapter-menu-item relative flex h-[length:var(--spacing-xl)] w-full min-w-0 items-center',
@@ -233,11 +269,11 @@ function ChapterMenuListItem({
       ) : null}
       {isChapter ? (
         <>
-          {showChevron ? (
+          {showExpandControl ? (
             <button
               type="button"
-              aria-expanded={expanded}
-              aria-label={expanded ? 'Collapse chapter' : 'Expand chapter'}
+              aria-expanded={isExpanded}
+              aria-label={isExpanded ? 'Collapse scenes' : 'Expand scenes'}
               data-slot="chapter-menu-chevron"
               className={cn(
                 'absolute top-1/2 left-0 z-10 flex size-[length:var(--icon-xs)] -translate-y-1/2 items-center justify-center',
@@ -245,9 +281,9 @@ function ChapterMenuListItem({
                 mutedRestColor,
                 hoverInk,
               )}
-              onClick={onExpandToggle}
+              onClick={handleExpandToggle}
             >
-              {expanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
+              {isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
             </button>
           ) : null}
           <InputGroup
