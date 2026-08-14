@@ -5,21 +5,21 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useRef, useState, type RefObject } from 'react';
 
-import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
+import { InlineSegmentedControl } from '../../../../stories/InlineSegmentedControl';
 import {
   MeasurementOverlay,
   type MeasurementTarget,
-} from '../../../stories/MeasurementOverlay';
-import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
+} from '../../../../stories/MeasurementOverlay';
+import { PlaygroundPanel } from '../../../../stories/PlaygroundPanel';
 import {
   PRIMITIVE_PLAYGROUND_CONTROL_GRID,
   PrimitiveGalleryItem,
   PrimitivePage,
-} from '../../../stories/PrimitivePage';
+} from '../../../../stories/PrimitivePage';
 import {
   TokenSpecSheet,
   type SpecTarget,
-} from '../../../stories/TokenSpecSheet';
+} from '../../../../stories/TokenSpecSheet';
 
 import { ChapterNavButton } from './ChapterNavButton';
 

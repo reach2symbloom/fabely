@@ -11,3 +11,9 @@ or compose what exists, and only add here what is genuinely specific
 to this feature. If a piece built here turns out to be reusable
 elsewhere, promote it to atoms/molecules/organisms — don't duplicate
 it in a second feature folder.
+
+## Components
+
+| Feature | Notes |
+| --- | --- |
+| [Chapter Nav](./chapter-nav/README.md) | Manuscript location chrome — button, menu, header, list item |

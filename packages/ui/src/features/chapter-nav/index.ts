@@ -1,1 +1,4 @@
-export { ChapterNavButton, type ChapterNavButtonProps } from './ChapterNavButton';
+export {
+  ChapterNavButton,
+  type ChapterNavButtonProps,
+} from './chapter-nav-button';
