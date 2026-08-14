@@ -57,10 +57,44 @@ function ChapterNavButton({
 }: ChapterNavButtonProps) {
   const [name, setName] = React.useState(chapterName);
   const [open, setOpen] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [nameMinWidth, setNameMinWidth] = React.useState<number>();
 
   React.useEffect(() => {
     setName(chapterName);
   }, [chapterName]);
+
+  React.useLayoutEffect(() => {
+    let cancelled = false;
+
+    function measure(el: HTMLInputElement) {
+      if (cancelled || !el.isConnected) return;
+      const probe = el.cloneNode(false) as HTMLInputElement;
+      probe.value = '';
+      probe.placeholder = placeholder;
+      probe.tabIndex = -1;
+      probe.setAttribute('aria-hidden', 'true');
+      probe.style.minWidth = '0';
+      probe.style.width = 'auto';
+      probe.style.position = 'absolute';
+      probe.style.visibility = 'hidden';
+      probe.style.pointerEvents = 'none';
+      el.after(probe);
+      const width = probe.getBoundingClientRect().width;
+      probe.remove();
+      if (width > 0) setNameMinWidth(width);
+    }
+
+    const node = inputRef.current;
+    if (node) measure(node);
+    void document.fonts.ready.then(() => {
+      const el = inputRef.current;
+      if (el) measure(el);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [placeholder]);
 
   const isEmpty = name.trim() === '';
   const chapterContrast = isEmpty
@@ -145,15 +179,17 @@ function ChapterNavButton({
           )}
         >
           <InputGroupInput
+            ref={inputRef}
             aria-label="Chapter name"
             placeholder={placeholder}
             value={name}
             onChange={(event) => commitName(event.currentTarget.value)}
             onKeyDown={handleNameKeyDown}
             onBlur={handleNameBlur}
+            style={nameMinWidth != null ? { minWidth: nameMinWidth } : undefined}
             className={cn(
               heading4Type,
-              'field-sizing-content w-auto min-w-0 flex-none',
+              'field-sizing-content w-auto flex-none',
               'text-[color:var(--theme-alpha-black-switch-50)]',
               'placeholder:text-[color:var(--theme-alpha-black-switch-25)]',
             )}
@@ -174,9 +210,9 @@ function ChapterNavButton({
                 className={cn(
                   'shrink-0 size-[length:var(--icon-sm)] p-0',
                   'group-hover/chapter-nav:[&_svg]:opacity-100',
-                  'group-hover/chapter-nav:text-[color:var(--tw-raw-alert-600)]',
+                  'group-hover/chapter-nav:text-[color:var(--primary)]',
                   'group-data-open/chapter-nav:[&_svg]:opacity-100',
-                  'group-data-open/chapter-nav:text-[color:var(--tw-raw-alert-600)]',
+                  'group-data-open/chapter-nav:text-[color:var(--primary)]',
                 )}
               />
             }

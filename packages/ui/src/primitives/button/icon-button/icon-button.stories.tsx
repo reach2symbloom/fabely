@@ -291,7 +291,7 @@ export const Overview: Story = {
             Shared Button variants plus Icon-only <code>fade</code> /{' '}
             <code>fadeGold</code> (Figma Fade button): rest icon at switch-40,
             hover/pressed full opacity, no fill. <code>fadeGold</code> paints{' '}
-            <code>--tw-raw-alert-600</code> on hover. Quiet hover/pressed and
+            <code>--primary</code> on hover. Quiet hover/pressed and
             Destructive match Button (library master).
           </li>
           <li>

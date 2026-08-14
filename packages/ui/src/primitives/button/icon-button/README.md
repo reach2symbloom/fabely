@@ -92,12 +92,12 @@ switch-100 at `--opacity-fade` (0.4) on the SVG; hover is opacity 1.
 ### Variant `fadeGold` (Icon-only)
 
 Same rest as `fade`. Hover / pressed / focus keep opacity 1 and paint the
-glyph `--tw-raw-alert-600` (gold). Still no fill.
+glyph `--primary`. Still no fill.
 
 | State | Fill | Icon |
 | --- | --- | --- |
 | Default | `--theme-alpha-white-switch-001` | switch-100 @ `--opacity-fade` |
-| Hover / pressed / focus | unchanged (no fill) | `--tw-raw-alert-600` @ 1 |
+| Hover / pressed / focus | unchanged (no fill) | `--primary` @ 1 |
 
 Figma Size=Small / Medium map to `mini` (`--icon-xs`) / `sm` (`--icon-sm`).
 `default` / `lg` continue the Icon Button icon ladder. Hit target stays that
@@ -127,4 +127,4 @@ ladder (24–40), not Figma’s 16×16 hug.
 8. `outline` fill is Button Group Figma (`alpha-333`), not opaque `--background`.
 9. `fade` / `fadeGold` are Icon-only (Figma Fade button). Hit target stays the Icon Button
    size ladder, not Figma’s 16×16 hug. Superscript axis not implemented.
-   `fadeGold` hover glyph is `--tw-raw-alert-600` (not in the Figma Fade set).
+   `fadeGold` hover glyph is `--primary` (not in the Figma Fade set).

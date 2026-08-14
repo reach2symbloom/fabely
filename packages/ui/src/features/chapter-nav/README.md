@@ -16,7 +16,7 @@ Searched primitives / atoms / molecules / organisms. Compose, do not copy:
 | Piece | Approach |
 | --- | --- |
 | Chapter menu | **Dropdown Menu** — wrap. Trigger is the Fade chevron, not the whole shell (an Input cannot live inside a `<button>`). Content stubbed until Chapter Menu lands. |
-| Chevron | **Icon Button `fadeGold`** — compose as `DropdownMenuTrigger` (`render={<IconButton />}`). Call-site hug: `--icon-sm`. Sits on the chapter row, `--spacing-3xs` after the hugging field. Group hover / open uses the same gold as the primitive hover (`--tw-raw-alert-600`). |
+| Chevron | **Icon Button `fadeGold`** — compose as `DropdownMenuTrigger` (`render={<IconButton />}`). Call-site hug: `--icon-sm`. Sits on the chapter row, `--spacing-3xs` after the hugging field. Group hover / open uses the same `--primary` as the primitive hover. |
 | Inline rename | **Input Group** `variant="quiet"` `size="mini"` — Figma Prepend is text (`Ch. N:`), which lives on Input Group (`InputGroupText`), not Input `decorationLeft` (icons). Quiet is the Input primitive variant with independent hover (`--theme-alpha-black-switch-333`) and a semantic `--border` on focus (no ring, no value-slot fill). |
 
 ## Authoritative Figma
@@ -37,17 +37,18 @@ Searched primitives / atoms / molecules / organisms. Compose, do not copy:
   `--theme-neutrals-400`.
 - Chevron sits `--spacing-3xs` (2px) after the input box. The chapter
   field hugs the placeholder / value (`field-sizing-content`) and keeps
-  Input mini pad (`--spacing-1-5`) on both sides; the chevron only moves
-  out as the name grows.
+  Input mini pad (`--spacing-1-5`) on both sides. Min width is the empty
+  (placeholder) size so short names do not shrink the box; the chevron
+  only moves out as the name grows past that floor.
 
 ## Structure
 
 - Clicking the chapter name (or prepend) focuses the field — inline rename.
   `Untitled` is placeholder text, not a value. An empty blur restores it.
   Cmd / Ctrl+A selects the field (the menu is not an ancestor, so it cannot
-  steal the shortcut). The field hugs the placeholder / typed name with
-  mini end-pad; the chevron stays `--spacing-3xs` after the box and tracks
-  that width.
+  steal the shortcut). The field hugs the typed name but never shrinks
+  below the empty placeholder width; mini end-pad stays. The chevron sits
+  `--spacing-3xs` after the box and tracks growth past that floor.
 - Clicking the chevron, book title, or shell padding opens the Chapter Menu
   stub. Rename does **not** live in that panel.
 - Two interactive controls, not one nested trigger.

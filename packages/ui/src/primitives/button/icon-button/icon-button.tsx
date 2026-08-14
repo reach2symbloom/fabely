@@ -34,7 +34,7 @@ export type IconButtonVariant = keyof typeof buttonVariantClasses | 'fade' | 'fa
  * near-invisible `--theme-alpha-white-switch-001`.
  *
  * `fadeGold` is the same rest; hover / pressed / focus paint the glyph
- * `--tw-raw-alert-600` (gold) at full opacity.
+ * `--primary` at full opacity.
  */
 const fadeFaceClasses = [
   'bg-[var(--theme-alpha-white-switch-001)] border-transparent',
@@ -56,10 +56,10 @@ const fadeVariantClasses = [
 const fadeGoldVariantClasses = [
   ...fadeFaceClasses,
   'text-[color:var(--theme-alpha-black-switch-100)]',
-  'hover:text-[color:var(--tw-raw-alert-600)]',
-  'active:text-[color:var(--tw-raw-alert-600)]',
-  'data-[pressed]:text-[color:var(--tw-raw-alert-600)]',
-  'focus-visible:text-[color:var(--tw-raw-alert-600)]',
+  'hover:text-[color:var(--primary)]',
+  'active:text-[color:var(--primary)]',
+  'data-[pressed]:text-[color:var(--primary)]',
+  'focus-visible:text-[color:var(--primary)]',
 ];
 
 /** Shared size vocabulary — slots this control implements. */
