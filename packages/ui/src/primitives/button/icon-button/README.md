@@ -36,7 +36,7 @@ library supersedes that:
 
 | Axis | Values | Primitive API |
 | --- | --- | --- |
-| Variant | Shared nine + Fade | `variant`: `primary` \| `primaryOutline` \| `secondary` \| `tertiary` \| `outline` \| `ghost` \| `fade` \| `destructive` \| `fiaFilled` \| `fiaOutline` |
+| Variant | Shared nine + Fade / Fade gold | `variant`: `primary` \| `primaryOutline` \| `secondary` \| `tertiary` \| `outline` \| `ghost` \| `fade` \| `fadeGold` \| `destructive` \| `fiaFilled` \| `fiaOutline` |
 | Size | Mini · Small · Default · Large | `size`: `mini` \| `sm` \| `default` \| `lg` |
 | Roundness | Default · Round | `roundness`: `default` \| `round` |
 | Label | — | `aria-label` (required) |
@@ -89,6 +89,16 @@ switch-100 at `--opacity-fade` (0.4) on the SVG; hover is opacity 1.
 | Focus | — | opacity 1 + secondary ring |
 | Disabled | layer opacity 0.5 (glyph opacity reset to 1) | — |
 
+### Variant `fadeGold` (Icon-only)
+
+Same rest as `fade`. Hover / pressed / focus keep opacity 1 and paint the
+glyph `--primary`. Still no fill.
+
+| State | Fill | Icon |
+| --- | --- | --- |
+| Default | `--theme-alpha-white-switch-001` | switch-100 @ `--opacity-fade` |
+| Hover / pressed / focus | unchanged (no fill) | `--primary` @ 1 |
+
 Figma Size=Small / Medium map to `mini` (`--icon-xs`) / `sm` (`--icon-sm`).
 `default` / `lg` continue the Icon Button icon ladder. Hit target stays that
 ladder (24–40), not Figma’s 16×16 hug.
@@ -115,5 +125,6 @@ ladder (24–40), not Figma’s 16×16 hug.
    larger glyph fits the box (xs pad + stepped icon overflows).
 7. Radius Option B: Mini Default `--rounded-sm`; other Default sizes `--rounded-lg`.
 8. `outline` fill is Button Group Figma (`alpha-333`), not opaque `--background`.
-9. `fade` is Icon-only (Figma Fade button). Hit target stays the Icon Button
+9. `fade` / `fadeGold` are Icon-only (Figma Fade button). Hit target stays the Icon Button
    size ladder, not Figma’s 16×16 hug. Superscript axis not implemented.
+   `fadeGold` hover glyph is `--primary` (not in the Figma Fade set).

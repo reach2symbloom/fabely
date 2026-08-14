@@ -9,7 +9,7 @@
  * are Icon Button’s own (24 / 32 / 36 / 40). See docs/DESIGN.md “Size slots”.
  *
  * Shared variants: `../shared` (`buttonVariantClasses`), plus Icon-only
- * `fade` from Figma Fade button (`12042:25189`).
+ * `fade` / `fadeGold` from Figma Fade button (`12042:25189`).
  */
 import { Button as ButtonPrimitive } from '@base-ui/react/button';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -20,10 +20,10 @@ import {
 } from '../shared';
 
 /**
- * Shared Button variants plus Icon-only `fade` (Figma Fade button).
+ * Shared Button variants plus Icon-only `fade` / `fadeGold` (Figma Fade button).
  * Fade is not on Text Button — rest is a quieter icon, not a labeled face.
  */
-export type IconButtonVariant = keyof typeof buttonVariantClasses | 'fade';
+export type IconButtonVariant = keyof typeof buttonVariantClasses | 'fade' | 'fadeGold';
 
 /**
  * Figma Fade button (`12042:25189`) — rest is Figma alpha-40, hover alpha-100.
@@ -32,18 +32,34 @@ export type IconButtonVariant = keyof typeof buttonVariantClasses | 'fade';
  * composite as one glyph. Painting alpha-40 as `currentColor` would darken
  * the crossing. No hover fill (unlike Ghost). Face fill is Ghost’s
  * near-invisible `--theme-alpha-white-switch-001`.
+ *
+ * `fadeGold` is the same rest; hover / pressed / focus paint the glyph
+ * `--primary` at full opacity.
  */
-const fadeVariantClasses = [
+const fadeFaceClasses = [
   'bg-[var(--theme-alpha-white-switch-001)] border-transparent',
-  'text-[color:var(--theme-alpha-black-switch-100)]',
   '[&_svg]:opacity-[var(--opacity-fade)]',
-  '[&_svg]:transition-opacity [&_svg]:duration-fast [&_svg]:ease-emphasized',
+  '[&_svg]:transition-[opacity,color] [&_svg]:duration-fast [&_svg]:ease-emphasized',
   'hover:[&_svg]:opacity-100',
   'active:[&_svg]:opacity-100',
   'data-[pressed]:[&_svg]:opacity-100',
   'focus-visible:[&_svg]:opacity-100',
   'disabled:[&_svg]:opacity-100',
   'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+];
+
+const fadeVariantClasses = [
+  ...fadeFaceClasses,
+  'text-[color:var(--theme-alpha-black-switch-100)]',
+];
+
+const fadeGoldVariantClasses = [
+  ...fadeFaceClasses,
+  'text-[color:var(--theme-alpha-black-switch-100)]',
+  'hover:text-[color:var(--primary)]',
+  'active:text-[color:var(--primary)]',
+  'data-[pressed]:text-[color:var(--primary)]',
+  'focus-visible:text-[color:var(--primary)]',
 ];
 
 /** Shared size vocabulary — slots this control implements. */
@@ -70,6 +86,7 @@ const iconButtonVariants = cva(
       variant: {
         ...buttonVariantClasses,
         fade: fadeVariantClasses,
+        fadeGold: fadeGoldVariantClasses,
       },
       size: {
         mini: [

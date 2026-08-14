@@ -3,9 +3,9 @@
  * with the [shadcn Input Group](https://ui.shadcn.com/docs/components/base/input-group) API.
  *
  * Vendor (`src/components/ui/input-group.tsx`) stays untouched. The group shell
- * owns Figma Input (`16:1738`) Style=Default chrome (fill, focus, invalid,
- * radius, height, pad). `InputGroupInput` / `InputGroupTextarea` stay bare
- * inside the shell.
+ * owns Figma Input (`16:1738`) chrome (fill, focus, invalid, radius, height,
+ * pad) for Default, Ghost, and Quiet. `InputGroupInput` / `InputGroupTextarea`
+ * stay bare inside the shell.
  */
 
 'use client';
@@ -71,7 +71,6 @@ const inputGroupVariants = cva(
     'group/input-group relative flex w-full min-w-0 items-center overflow-clip',
     'border-[length:var(--stroke-thin)] border-transparent',
     'outline-none transition-[color,background-color,border-color,box-shadow,opacity]',
-    'has-[[data-slot=input-group-control]:focus-visible]:shadow-[var(--effect-focus-ring-secondary)]',
     'has-[[data-slot=input-group-control][aria-invalid=true]]:border-[color:var(--destructive)]',
     'has-[[data-slot=input-group-control][aria-invalid=true]]:bg-[color:var(--background)]',
     'has-[[data-slot=input-group-control][aria-invalid=true]]:focus-within:shadow-[var(--effect-focus-ring-error)]',
@@ -87,11 +86,28 @@ const inputGroupVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-[color:var(--theme-alpha-black-switch-333)]',
+        default: [
+          'bg-[color:var(--theme-alpha-black-switch-333)]',
+          'has-[[data-slot=input-group-control]:focus-visible]:shadow-[var(--effect-focus-ring-secondary)]',
+        ].join(' '),
         ghost: [
           'bg-transparent',
           'focus-within:bg-[color:var(--theme-alpha-black-switch-333)]',
           'focus-within:border-[color:var(--theme-alpha-black-switch-333)]',
+          'has-[[data-slot=input-group-control]:focus-visible]:shadow-[var(--effect-focus-ring-secondary)]',
+        ].join(' '),
+        /**
+         * Inline / in-chrome field: rest transparent, hover fills alpha-333
+         * independently of focus. Focus is a semantic `--border` — no ring
+         * and no extra fill (the value slot must not paint over prepend).
+         */
+        quiet: [
+          'bg-transparent',
+          'hover:bg-[color:var(--theme-alpha-black-switch-333)]',
+          'focus-within:border-[color:var(--border)]',
+          'has-[[data-slot=input-group-control]:focus-visible]:border-[color:var(--border)]',
+          'has-[[data-slot=input-group-control]:focus-visible]:shadow-none',
+          'has-[[data-slot=input-group-control][aria-invalid=true]]:hover:bg-[color:var(--background)]',
         ].join(' '),
       },
       size: {
@@ -155,6 +171,14 @@ const inputGroupVariants = cva(
         class: [
           'rounded-[length:var(--rounded-md)]',
           '[--input-group-radius:var(--rounded-md)]',
+        ].join(' '),
+      },
+      {
+        variant: 'quiet',
+        class: [
+          'focus-within:border-[color:var(--border)]',
+          'has-[[data-slot=input-group-control]:focus-visible]:border-[color:var(--border)]',
+          'has-[[data-slot=input-group-control]:focus-visible]:shadow-none',
         ].join(' '),
       },
     ],
@@ -412,6 +436,7 @@ function InputGroupText({ className, ...props }: React.ComponentProps<'span'>) {
 const CONTROL_BARE = [
   /* Fill shell height so value lines up with icons (Input field-in-shell). */
   'h-full min-h-0 flex-1 self-stretch rounded-none border-0 bg-transparent px-0 py-0 shadow-none',
+  'hover:bg-transparent focus:bg-transparent focus-visible:bg-transparent',
   'focus-visible:border-transparent focus-visible:shadow-none',
   'aria-invalid:border-transparent aria-invalid:bg-transparent',
   'aria-invalid:focus-visible:shadow-none',

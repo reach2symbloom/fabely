@@ -3,9 +3,9 @@
 #
 # src/components/ui is shadcn CLI output that we regenerate rather than
 # hand-edit. Layers we author and own — Primitives (wrapped vendor
-# components) and the atomic composition tiers — come under the CI gate.
-# As each vendor component gets wrapped into a Primitive, that wrapper
-# is scanned here.
+# components), the atomic composition tiers, and Features — come under
+# the CI gate. As each vendor component gets wrapped into a Primitive,
+# that wrapper is scanned here.
 #
 # Modes:
 #   owned  (default) — scan src/primitives + composition tiers; exit
@@ -48,7 +48,7 @@ MODE="${1:-owned}"
 
 case "$MODE" in
   owned|atoms)
-    SEARCH_DIRS=(src/primitives src/atoms src/molecules src/organisms src/templates)
+    SEARCH_DIRS=(src/primitives src/atoms src/molecules src/organisms src/templates src/features)
     FAIL_ON_HITS=1
     ;;
   vendor)

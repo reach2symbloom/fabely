@@ -379,7 +379,8 @@ function playgroundOutcome({
             ? 'small '
             : '';
 
-  const surface = variant === 'ghost' ? 'ghost ' : '';
+  const surface =
+    variant === 'ghost' ? 'ghost ' : variant === 'quiet' ? 'quiet ' : '';
 
   let addonPhrase = '';
   if (isBlock) {
@@ -422,7 +423,10 @@ function playgroundOutcome({
   }
 
   let extra = '';
-  if (variant === 'ghost' && state !== 'invalid') {
+  if (variant === 'quiet' && state !== 'invalid') {
+    extra =
+      ' Hover fills the whole field; focus is a light border with no extra fill on the value.';
+  } else if (variant === 'ghost' && state !== 'invalid') {
     extra = ' The fill only appears when focused.';
   } else if (!isBlock && addon === 'button') {
     extra = ' The button hugs the field with an even 2px inset.';
@@ -548,6 +552,7 @@ function InputGroupPlayground() {
             options={[
               { value: 'default', label: 'Default' },
               { value: 'ghost', label: 'Ghost' },
+              { value: 'quiet', label: 'Quiet' },
             ]}
           />
           <InlineSegmentedControl
@@ -660,6 +665,9 @@ export const Overview: Story = {
           <li>
             Prefer <code>InputGroupInput</code> /{' '}
             <code>InputGroupTextarea</code> so focus chrome lives on the group.
+            <code>variant=&quot;quiet&quot;</code> is the in-chrome field
+            (hover fill, semantic <code>--border</code> on focus, no ring, no
+            extra fill on the value slot).
           </li>
           <li>
             Icons and prepend/append text use Addon +{' '}
