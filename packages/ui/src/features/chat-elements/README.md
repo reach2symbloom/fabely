@@ -16,10 +16,12 @@ primitives into this tree.
 | Piece | Folder | Status |
 | --- | --- | --- |
 | [Theme Card](./theme-card/README.md) | `theme-card/` | Landed |
+| [Topic Map Card](./topic-map-card/README.md) | `topic-map-card/` | Landed |
 
 ## Figma
 
 [Theme card](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16338-2655)
+[Topic map card](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16338-2709)
 page. Authoritative variant for each set is the first / designated one —
 other variants on a set may be superseded structural explorations
 (see overlap-check).
