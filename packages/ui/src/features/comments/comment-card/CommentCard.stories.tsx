@@ -11,8 +11,7 @@ import {
 
 import {
   CommentCard,
-  type CommentAnchorState,
-  type CommentCardMode,
+  type CommentCardScene,
 } from './CommentCard';
 
 const meta = {
@@ -26,42 +25,31 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 function CommentCardPlayground() {
-  const [mode, setMode] = useState<CommentCardMode>('compose');
-  const [anchor, setAnchor] = useState<CommentAnchorState>('active');
+  const [scene, setScene] = useState<CommentCardScene>('new-comment');
 
   return (
     <PlaygroundPanel
       preview={
         <div className="flex min-h-72 w-full items-center justify-center pe-16">
-          <CommentCard mode={mode} anchor={anchor} />
+          <CommentCard scene={scene} collaborationEnabled={scene === 'reply' || scene === 'replying' || scene === 'replied'} />
         </div>
       }
       controls={
         <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
           <InlineSegmentedControl
-            label="Mode"
-            value={mode}
-            onChange={(value) => setMode(value as CommentCardMode)}
+            label="Scene"
+            value={scene}
+            onChange={(value) => setScene(value as CommentCardScene)}
             options={[
-              { value: 'compose', label: 'Compose' },
+              { value: 'new-comment', label: 'New comment' },
               { value: 'existing', label: 'Existing' },
-              { value: 'edit', label: 'Edit' },
+              { value: 'edit-existing', label: 'Edit existing' },
               { value: 'reply', label: 'Reply' },
+              { value: 'replying', label: 'Replying' },
+              { value: 'replied', label: 'Replied' },
             ]}
             fullWidth
-            className="col-span-2"
-          />
-          <InlineSegmentedControl
-            label="Anchor"
-            value={anchor}
-            onChange={(value) => setAnchor(value as CommentAnchorState)}
-            options={[
-              { value: 'none', label: 'None' },
-              { value: 'quiet', label: 'Quiet' },
-              { value: 'active', label: 'Active' },
-            ]}
-            fullWidth
-            className="col-span-2"
+            className="col-span-4"
           />
         </div>
       }
@@ -78,26 +66,32 @@ export const Overview: Story = {
       playground={<CommentCardPlayground />}
       variants={
         <div className="grid gap-8 pe-12 lg:grid-cols-2">
-          <PrimitiveGalleryItem label="New comment · active anchor">
-            <CommentCard mode="compose" anchor="active" />
+          <PrimitiveGalleryItem label="New comment">
+            <CommentCard scene="new-comment" />
           </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Existing · quiet anchor">
-            <CommentCard mode="existing" anchor="quiet" />
+          <PrimitiveGalleryItem label="Existing">
+            <CommentCard scene="existing" />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Existing · hover">
+            <CommentCard scene="existing" forceHover />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Edit existing">
-            <CommentCard mode="edit" anchor="active" />
+            <CommentCard scene="edit-existing" />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Reply">
+            <CommentCard scene="reply" collaborationEnabled />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Replying">
-            <CommentCard mode="reply" anchor="active" />
+            <CommentCard scene="replying" collaborationEnabled />
           </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Without anchor">
-            <CommentCard mode="existing" anchor="none" />
+          <PrimitiveGalleryItem label="Replied">
+            <CommentCard scene="replied" collaborationEnabled />
           </PrimitiveGalleryItem>
         </div>
       }
       usageGuidance={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
-          <li>Use the anchor variant only when the card is attached to document content.</li>
+          <li>Existing hover is native interaction, not a separate backend state.</li>
           <li>The anchor is a visual relationship marker, not an interactive control.</li>
           <li>Promote the anchor to a standalone component only if another feature needs it independently.</li>
         </ul>
@@ -113,8 +107,10 @@ export const Overview: Story = {
   ),
 };
 
-export const NewComment: Story = { args: { mode: 'compose', anchor: 'active' } };
-export const Existing: Story = { args: { mode: 'existing', anchor: 'quiet' } };
-export const EditExisting: Story = { args: { mode: 'edit', anchor: 'active' } };
-export const Replying: Story = { args: { mode: 'reply', anchor: 'active' } };
-export const WithoutAnchor: Story = { args: { mode: 'existing', anchor: 'none' } };
+export const NewComment: Story = { args: { scene: 'new-comment' } };
+export const Existing: Story = { args: { scene: 'existing' } };
+export const ExistingHover: Story = { args: { scene: 'existing', forceHover: true } };
+export const EditExisting: Story = { args: { scene: 'edit-existing' } };
+export const Reply: Story = { args: { scene: 'reply', collaborationEnabled: true } };
+export const Replying: Story = { args: { scene: 'replying', collaborationEnabled: true } };
+export const Replied: Story = { args: { scene: 'replied', collaborationEnabled: true } };

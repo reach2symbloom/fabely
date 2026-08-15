@@ -25,3 +25,8 @@ export {
   type ChapterMenuHeaderVariant,
 } from './chapter-menu-header';
 export { ChapterMenu, type ChapterMenuProps } from './chapter-menu';
+export type {
+  ChapterNavEntityKind,
+  ChapterNavInsertContext,
+  ChapterNavMutationContext,
+} from './integration';

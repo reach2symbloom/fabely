@@ -162,7 +162,7 @@ const textareaVariants = cva(
         ].join(' '),
       },
       resizable: {
-        true: 'resize-y',
+        true: 'resize-y [&::-webkit-resizer]:opacity-30',
         false: 'resize-none overflow-x-hidden',
       },
     },

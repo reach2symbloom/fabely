@@ -30,16 +30,21 @@ import {
 } from '@/primitives/input-group';
 import { ChapterMenu } from '../chapter-menu';
 import { ChapterMenuHeader } from '../chapter-menu-header';
+import type { ChapterNavMutationContext } from '../integration';
 
 const DEFAULT_PLACEHOLDER = 'Untitled';
 
 export type ChapterNavButtonProps = {
+  manuscriptId?: string;
+  chapterId?: string;
   bookTitle?: string;
   chapterNumber?: number;
   chapterName?: string;
   placeholder?: string;
   className?: string;
-  onChapterNameChange?: (name: string) => void;
+  onChapterNameChange?: (name: string, context: ChapterNavMutationContext) => void;
+  /** Fires on blur after trimming; use this for persistence. */
+  onChapterNameCommit?: (name: string, context: ChapterNavMutationContext) => void;
   /**
    * Chapter Menu panel. Close (`data-slot=chapter-menu-close`) dismisses the
    * dropdown. Defaults to a header-only panel from `bookTitle`.
@@ -47,6 +52,8 @@ export type ChapterNavButtonProps = {
   menu?: React.ReactNode;
   /** Storybook / demos — open the overlay on mount. */
   defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 const heading4Type = [
@@ -70,17 +77,23 @@ function alignClosePinToTrigger(
 }
 
 function ChapterNavButton({
+  manuscriptId,
+  chapterId,
   bookTitle = 'Untitled book',
   chapterNumber = 1,
   chapterName = '',
   placeholder = DEFAULT_PLACEHOLDER,
   className,
   onChapterNameChange,
+  onChapterNameCommit,
   menu,
   defaultOpen = false,
+  open: openProp,
+  onOpenChange,
 }: ChapterNavButtonProps) {
   const [name, setName] = React.useState(chapterName);
-  const [open, setOpen] = React.useState(defaultOpen);
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
+  const open = openProp ?? uncontrolledOpen;
   const inputRef = React.useRef<HTMLInputElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const contentRef = React.useRef<HTMLDivElement>(null);
@@ -130,7 +143,12 @@ function ChapterNavButton({
 
   function commitName(next: string) {
     setName(next);
-    onChapterNameChange?.(next);
+    onChapterNameChange?.(next, { manuscriptId, entityId: chapterId, kind: 'chapter' });
+  }
+
+  function setMenuOpen(next: boolean) {
+    if (openProp === undefined) setUncontrolledOpen(next);
+    onOpenChange?.(next);
   }
 
   function handleShellClick(event: React.MouseEvent<HTMLDivElement>) {
@@ -142,7 +160,7 @@ function ChapterNavButton({
     ) {
       return;
     }
-    setOpen(true);
+    setMenuOpen(true);
   }
 
   function handleNameKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -155,10 +173,11 @@ function ChapterNavButton({
     if (trimmed !== name) {
       commitName(trimmed);
     }
+    onChapterNameCommit?.(trimmed, { manuscriptId, entityId: chapterId, kind: 'chapter' });
   }
 
   function closeMenu() {
-    setOpen(false);
+    setMenuOpen(false);
   }
 
   React.useLayoutEffect(() => {
@@ -204,8 +223,10 @@ function ChapterNavButton({
   const panel =
     menu ?? (
       <ChapterMenu
+        manuscriptId={manuscriptId}
         header={
           <ChapterMenuHeader
+            manuscriptId={manuscriptId}
             bookTitle={bookTitle}
             authorName="Author"
             logoSrc="/logo-dark.png"
@@ -283,7 +304,7 @@ function ChapterNavButton({
             </InputGroupText>
           </InputGroupAddon>
         </InputGroup>
-        <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenu open={open} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger
             render={
               <IconButton

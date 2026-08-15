@@ -1,6 +1,7 @@
 export {
   CommentCard,
-  type CommentAnchorState,
-  type CommentCardMode,
   type CommentCardProps,
+  type CommentCardScene,
+  type CommentCardSubmitAction,
+  type CommentCardSubmitContext,
 } from './CommentCard';

@@ -75,6 +75,8 @@ export type PendingConfirmation = {
 export type UseOutlineDragAndDropOptions = {
   items: OutlineItem[];
   onItemsChange: (items: OutlineItem[]) => void;
+  /** Persistence hook with the exact move that produced the replacement array. */
+  onMove?: (items: OutlineItem[], move: { activeId: string; overId: string; placement: OutlineDropPlacement; resolution?: 'flatten' }) => void;
   /** A drop was rejected outright (dragged/target vanished mid-drag). */
   onRejected?: (activeId: string, reason: string) => void;
 };
@@ -114,6 +116,7 @@ function placementFromGeometry(event: DragMoveEvent | DragEndEvent): OutlineDrop
 export function useOutlineDragAndDrop({
   items,
   onItemsChange,
+  onMove,
   onRejected,
 }: UseOutlineDragAndDropOptions): UseOutlineDragAndDropResult {
   const sensors = useSensors(
@@ -197,6 +200,7 @@ export function useOutlineDragAndDrop({
 
     if (result.type === 'moved') {
       onItemsChange(result.items);
+      onMove?.(result.items, { activeId: activeIdStr, overId, placement });
       return;
     }
 
@@ -208,7 +212,10 @@ export function useOutlineDragAndDrop({
             ...result.event,
             resolution: 'flatten',
           });
-          if (flattened.type === 'moved') onItemsChange(flattened.items);
+          if (flattened.type === 'moved') {
+            onItemsChange(flattened.items);
+            onMove?.(flattened.items, { activeId: activeIdStr, overId, placement, resolution: 'flatten' });
+          }
           setPendingConfirmation(null);
         },
         onCancel: () => setPendingConfirmation(null),

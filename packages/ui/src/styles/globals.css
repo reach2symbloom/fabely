@@ -85,6 +85,16 @@
   }
 }
 
+@keyframes comment-anchor-breathe {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.06;
+  }
+}
+
 [data-slot='add-section-insert-line']:hover
   [data-slot='insert-glow-ambient'] {
   animation: insert-glow-ambient-cloud calc(var(--duration-drawer) * 5)

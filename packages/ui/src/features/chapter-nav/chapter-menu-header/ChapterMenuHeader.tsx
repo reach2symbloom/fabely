@@ -21,6 +21,7 @@ import { AvatarWithLabel, getUserInitials, type UserIdentity } from '@/molecules
 import { buttonLinkVariants } from '@/primitives/button';
 import { Separator } from '@/primitives/separator';
 import { Textarea } from '@/primitives/textarea';
+import type { ChapterNavMutationContext } from '../integration';
 
 export type ChapterMenuHeaderVariant = 'main' | 'alt';
 
@@ -36,12 +37,15 @@ const DEFAULT_UPGRADE_HREF = '/pricing';
 const DEFAULT_AUTHOR_HREF = '/author';
 
 export type ChapterMenuHeaderProps = {
+  manuscriptId?: string;
   /** Figma Variant axis — Main vs Alt layout. */
   variant?: ChapterMenuHeaderVariant;
   /** Book / manuscript title (Heading 2). */
   bookTitle: string;
   /** When set, title is controlled. Otherwise `bookTitle` is the initial value. */
-  onBookTitleChange?: (value: string) => void;
+  onBookTitleChange?: (value: string, context: ChapterNavMutationContext) => void;
+  /** Fires once editing finishes; use this for a persistence mutation. */
+  onBookTitleCommit?: (value: string, context: ChapterNavMutationContext) => void;
   /** Accessible name for the title field. */
   bookTitleLabel?: string;
   /** Cover art. Prefer `cover` slot; `coverSrc` is a convenience. */
@@ -50,7 +54,7 @@ export type ChapterMenuHeaderProps = {
   cover?: React.ReactNode;
   /** Book Cover atom — edit opens OS image picker by default. */
   coverEditHref?: string;
-  onCoverImageSelect?: (file: File) => void;
+  onCoverImageSelect?: (file: File, context: ChapterNavMutationContext) => void;
   coverEditLabel?: string;
   /** Force Book Cover editable on/off when using `coverSrc`. Default true. */
   coverEditable?: boolean;
@@ -82,7 +86,7 @@ export type ChapterMenuHeaderProps = {
   outlineOptions?: CycleSwitchOption[];
   outlineValue?: string;
   defaultOutlineValue?: string;
-  onOutlineValueChange?: (value: string) => void;
+  onOutlineValueChange?: (value: string, context: ChapterNavMutationContext) => void;
   className?: string;
 };
 
@@ -248,9 +252,11 @@ function AuthorBlock({
 }
 
 function ChapterMenuHeader({
+  manuscriptId,
   variant = 'main',
   bookTitle,
   onBookTitleChange,
+  onBookTitleCommit,
   bookTitleLabel = 'Book title',
   coverSrc,
   coverAlt = '',
@@ -321,7 +327,7 @@ function ChapterMenuHeader({
         alt={coverAlt}
         editable={coverEditable}
         editHref={coverEditHref}
-        onImageSelect={onCoverImageSelect}
+        onImageSelect={(file) => onCoverImageSelect?.(file, { manuscriptId, entityId: manuscriptId, kind: 'manuscript' })}
         editLabel={coverEditLabel}
       />
     );
@@ -331,7 +337,7 @@ function ChapterMenuHeader({
       options={outlineOptions}
       value={outlineValue}
       defaultValue={defaultOutlineValue}
-      onValueChange={onOutlineValueChange}
+      onValueChange={(value) => onOutlineValueChange?.(value, { manuscriptId, entityId: manuscriptId, kind: 'manuscript' })}
     />
   );
 
@@ -404,7 +410,8 @@ function ChapterMenuHeader({
             placeholder={bookTitleLabel}
             value={onBookTitleChange ? bookTitle : undefined}
             defaultValue={onBookTitleChange ? undefined : bookTitle}
-            onChange={(event) => onBookTitleChange?.(event.target.value)}
+            onChange={(event) => onBookTitleChange?.(event.target.value, { manuscriptId, entityId: manuscriptId, kind: 'manuscript' })}
+            onBlur={(event) => onBookTitleCommit?.(event.currentTarget.value.trim(), { manuscriptId, entityId: manuscriptId, kind: 'manuscript' })}
           />
         </div>
 

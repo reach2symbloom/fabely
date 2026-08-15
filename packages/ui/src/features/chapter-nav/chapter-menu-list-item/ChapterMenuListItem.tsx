@@ -52,10 +52,14 @@ import {
 } from '@/primitives/input-group';
 import { Separator } from '@/primitives/separator';
 import { Textarea } from '@/primitives/textarea';
+import type { ChapterNavMutationContext } from '../integration';
 
 export type ChapterMenuListItemType = 'chapter' | 'scene' | 'subscene';
 
 export type ChapterMenuListItemProps = {
+  manuscriptId?: string;
+  itemId?: string;
+  parentId?: string;
   type?: ChapterMenuListItemType;
   /** Chapter / scene / sub-scene name. Empty → Untitled placeholder when chapter. */
   label?: string;
@@ -93,21 +97,23 @@ export type ChapterMenuListItemProps = {
   className?: string;
   /** Scene / sub-scene rows. Presence enables the chapter chevron dropdown. */
   children?: React.ReactNode;
-  onLabelChange?: (label: string) => void;
+  onLabelChange?: (label: string, context: ChapterNavMutationContext) => void;
+  /** Fires after trimming on blur/Enter; use this for persistence. */
+  onLabelCommit?: (label: string, context: ChapterNavMutationContext) => void;
   /** Actions menu — Delete this chapter, scene, or sub-scene. */
-  onDelete?: () => void;
+  onDelete?: (context: ChapterNavMutationContext) => void;
   /** Actions menu — Archive this item when supported. */
-  onArchive?: () => void;
+  onArchive?: (context: ChapterNavMutationContext) => void;
   /** Actions menu — Rename (also focuses the inline name field). */
-  onRename?: () => void;
+  onRename?: (context: ChapterNavMutationContext) => void;
   /** Fires when the chapter scenes chevron is toggled. */
-  onExpandToggle?: () => void;
+  onExpandToggle?: (context: ChapterNavMutationContext & { expanded: boolean }) => void;
   /** Chapter actions menu — Delete. */
-  onDeleteChapter?: () => void;
+  onDeleteChapter?: (context: ChapterNavMutationContext) => void;
   /** Chapter actions menu — Archive. */
-  onArchiveChapter?: () => void;
+  onArchiveChapter?: (context: ChapterNavMutationContext) => void;
   /** Chapter actions menu — Rename (also fires from double-click, its primary trigger). */
-  onRenameChapter?: () => void;
+  onRenameChapter?: (context: ChapterNavMutationContext) => void;
 };
 
 const DEFAULT_PLACEHOLDER = 'Untitled';
@@ -184,6 +190,9 @@ function stopNameKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
 }
 
 function ChapterMenuListItem({
+  manuscriptId,
+  itemId,
+  parentId,
   type = 'chapter',
   label = 'The Eldergrove',
   chapterNumber = 1,
@@ -200,6 +209,7 @@ function ChapterMenuListItem({
   className,
   children,
   onLabelChange,
+  onLabelCommit,
   onDelete,
   onArchive,
   onRename,
@@ -233,6 +243,12 @@ function ChapterMenuListItem({
   const isExpanded = isChapter && open && hasScenes;
   const hasChapterBranch = isExpanded;
   const hasSceneBranch = isScene && children != null;
+  const itemContext: ChapterNavMutationContext = {
+    manuscriptId,
+    entityId: itemId,
+    parentId,
+    kind: type,
+  };
 
   React.useEffect(() => {
     if (!isExpandControlled) {
@@ -244,7 +260,7 @@ function ChapterMenuListItem({
     event.preventDefault();
     event.stopPropagation();
     if (isExpandControlled) {
-      onExpandToggle();
+      onExpandToggle({ ...itemContext, expanded: !isExpanded });
       return;
     }
     setUncontrolledOpen((current) => !current);
@@ -314,7 +330,7 @@ function ChapterMenuListItem({
 
   function commitName(next: string) {
     setName(next);
-    onLabelChange?.(next);
+    onLabelChange?.(next, itemContext);
   }
 
   function handleNameBlur() {
@@ -322,6 +338,7 @@ function ChapterMenuListItem({
     if (trimmed !== name) {
       commitName(trimmed);
     }
+    onLabelCommit?.(trimmed, itemContext);
   }
 
   /** Explicit rename shortcut; ordinary clicks retain native caret placement. */
@@ -654,20 +671,20 @@ function ChapterMenuListItem({
             <DropdownMenuGroup>
               <DropdownMenuItem
                 variant="destructive"
-                onClick={() => deleteItem?.()}
+                onClick={() => deleteItem?.(itemContext)}
               >
                 <Trash2Icon />
                 Delete {itemLabel}
               </DropdownMenuItem>
               {isChapter || archiveItem != null ? (
-                <DropdownMenuItem onClick={() => archiveItem?.()}>
+                <DropdownMenuItem onClick={() => archiveItem?.(itemContext)}>
                   <ArchiveIcon />
                   Archive {itemLabel}
                 </DropdownMenuItem>
               ) : null}
               <DropdownMenuItem
                 onClick={() => {
-                  renameItem?.();
+                  renameItem?.(itemContext);
                   pendingRenameFocusRef.current = true;
                 }}
               >

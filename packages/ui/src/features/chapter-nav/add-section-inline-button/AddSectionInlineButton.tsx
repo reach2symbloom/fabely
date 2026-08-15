@@ -34,6 +34,7 @@ import {
 } from '@/primitives/dropdown-menu';
 import { Input } from '@/primitives/input';
 import { Separator } from '@/primitives/separator';
+import type { ChapterNavInsertContext, ChapterNavMutationContext } from '../integration';
 
 export type AddSectionInlineType =
   | 'chapter'
@@ -61,6 +62,11 @@ export type AddSectionAction = {
 };
 
 export type AddSectionInlineButtonProps = {
+  manuscriptId?: string;
+  parentId?: string;
+  insertAfterId?: string;
+  /** Present for an existing Act title/actions row. */
+  actId?: string;
   /** Figma Type axis (insert + Act split-parse). */
   type?: AddSectionInlineType;
   /**
@@ -93,13 +99,14 @@ export type AddSectionInlineButtonProps = {
    * Shorthand click handlers — merged after `add*.onClick`. Prefer `addChapter`
    * / `addAct` / `addScene` when you also need `href` or form attributes.
    */
-  onAddChapter?: () => void;
-  onAddAct?: () => void;
-  onAddScene?: () => void;
-  onAddSubscene?: () => void;
-  onActTitleChange?: (value: string) => void;
-  onDeleteAct?: () => void;
-  onRenameAct?: () => void;
+  onAddChapter?: (context: ChapterNavInsertContext) => void;
+  onAddAct?: (context: ChapterNavInsertContext) => void;
+  onAddScene?: (context: ChapterNavInsertContext) => void;
+  onAddSubscene?: (context: ChapterNavInsertContext) => void;
+  onActTitleChange?: (value: string, context: ChapterNavMutationContext) => void;
+  onActTitleCommit?: (value: string, context: ChapterNavMutationContext) => void;
+  onDeleteAct?: (context: ChapterNavMutationContext) => void;
+  onRenameAct?: (context: ChapterNavMutationContext) => void;
 };
 
 const actSerifType = [
@@ -269,12 +276,13 @@ function toRomanNumeral(index: number): string {
 function fireAction(
   event: React.MouseEvent<HTMLElement>,
   action?: AddSectionAction,
-  onAdd?: () => void,
+  onAdd?: (context: ChapterNavInsertContext) => void,
+  context?: ChapterNavInsertContext,
 ) {
   action?.onClick?.(
     event as React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
   );
-  if (!event.defaultPrevented) onAdd?.();
+  if (!event.defaultPrevented && context) onAdd?.(context);
 }
 
 function InsertPlusButton({
@@ -312,14 +320,16 @@ function InsertPlusButton({
 function InsertMenuItem({
   action,
   onAdd,
+  context,
   children,
 }: {
   action?: AddSectionAction;
-  onAdd?: () => void;
+  onAdd?: (context: ChapterNavInsertContext) => void;
+  context: ChapterNavInsertContext;
   children: React.ReactNode;
 }) {
   return (
-    <DropdownMenuItem onClick={(event) => fireAction(event, action, onAdd)}>
+    <DropdownMenuItem onClick={(event) => fireAction(event, action, onAdd, context)}>
       {children}
     </DropdownMenuItem>
   );
@@ -338,6 +348,7 @@ function InsertChrome({
   onAddAct,
   onAddScene,
   onAddSubscene,
+  insertionContext,
 }: {
   type: 'chapter' | 'scene' | 'subscene';
   reveal: boolean;
@@ -347,10 +358,11 @@ function InsertChrome({
   addAct?: AddSectionAction;
   addScene?: AddSectionAction;
   addSubscene?: AddSectionAction;
-  onAddChapter?: () => void;
-  onAddAct?: () => void;
-  onAddScene?: () => void;
-  onAddSubscene?: () => void;
+  onAddChapter?: (context: ChapterNavInsertContext) => void;
+  onAddAct?: (context: ChapterNavInsertContext) => void;
+  onAddScene?: (context: ChapterNavInsertContext) => void;
+  onAddSubscene?: (context: ChapterNavInsertContext) => void;
+  insertionContext: Omit<ChapterNavInsertContext, 'kind'>;
 }) {
   const [menuAnchor, setMenuAnchor] = React.useState<
     React.ComponentProps<typeof DropdownMenuContent>['anchor']
@@ -399,7 +411,7 @@ function InsertChrome({
     const action = type === 'scene' ? addScene : addSubscene;
     const onAdd = type === 'scene' ? onAddScene : onAddSubscene;
     const addNestedNow: React.MouseEventHandler<HTMLElement> = (event) =>
-      fireAction(event, action, onAdd);
+      fireAction(event, action, onAdd, { ...insertionContext, kind: type });
 
     return plusAndLine(
       <InsertPlusButton
@@ -440,11 +452,11 @@ function InsertChrome({
         className="w-fit min-w-0"
       >
         <DropdownMenuGroup>
-          <InsertMenuItem action={addChapter} onAdd={onAddChapter}>
+          <InsertMenuItem action={addChapter} onAdd={onAddChapter} context={{ ...insertionContext, kind: 'chapter' }}>
             <PlusIcon />
             Chapter
           </InsertMenuItem>
-          <InsertMenuItem action={addAct} onAdd={onAddAct}>
+          <InsertMenuItem action={addAct} onAdd={onAddAct} context={{ ...insertionContext, kind: 'act' }}>
             <SeparatorHorizontalIcon />
             Act
           </InsertMenuItem>
@@ -455,6 +467,10 @@ function InsertChrome({
 }
 
 function AddSectionInlineButton({
+  manuscriptId,
+  parentId,
+  insertAfterId,
+  actId,
   type = 'chapter',
   actIndex = 1,
   actTitle,
@@ -472,6 +488,7 @@ function AddSectionInlineButton({
   onAddScene,
   onAddSubscene,
   onActTitleChange,
+  onActTitleCommit,
   onDeleteAct,
   onRenameAct,
 }: AddSectionInlineButtonProps) {
@@ -480,6 +497,8 @@ function AddSectionInlineButton({
   const [actActionsOpen, setActActionsOpen] = React.useState(false);
   const [insertHovered, setInsertHovered] = React.useState(false);
   const actTitleRef = React.useRef<HTMLInputElement>(null);
+  const actContext: ChapterNavMutationContext = { manuscriptId, entityId: actId, parentId, kind: 'act' };
+  const insertionContext = { manuscriptId, parentId, insertAfterId };
 
   React.useEffect(() => {
     if (actTitle !== undefined) setTitle(actTitle);
@@ -496,7 +515,7 @@ function AddSectionInlineButton({
 
   function commitTitle(next: string) {
     setTitle(next);
-    onActTitleChange?.(next);
+    onActTitleChange?.(next, actContext);
   }
 
   function updateInsertHoverPosition(event: React.PointerEvent<HTMLDivElement>) {
@@ -532,13 +551,13 @@ function AddSectionInlineButton({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side="bottom" className="w-auto min-w-48">
         <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive" onClick={onDeleteAct}>
+          <DropdownMenuItem variant="destructive" onClick={() => onDeleteAct?.(actContext)}>
             <Trash2Icon />
             Delete act
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
-              onRenameAct?.();
+              onRenameAct?.(actContext);
               requestAnimationFrame(() => {
                 actTitleRef.current?.focus();
                 actTitleRef.current?.select();
@@ -615,6 +634,7 @@ function AddSectionInlineButton({
             value={title}
             placeholder={type === 'actUntitled' ? placeholder : undefined}
             onChange={(event) => commitTitle(event.currentTarget.value)}
+            onBlur={(event) => onActTitleCommit?.(event.currentTarget.value.trim(), actContext)}
             onKeyDown={(event) => {
               /* The Act row is also a keyboard drag activator. Keep typing
                * keys — especially Space — inside the native title input so
@@ -661,6 +681,7 @@ function AddSectionInlineButton({
       onAddAct={onAddAct}
       onAddScene={onAddScene}
       onAddSubscene={onAddSubscene}
+      insertionContext={insertionContext}
     />
   );
 

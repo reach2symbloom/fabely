@@ -21,8 +21,10 @@ import { PanelLeftCloseIcon, PlusIcon, SeparatorHorizontalIcon } from 'lucide-re
 import { cn } from '@/lib/utils';
 import { Button, IconButton } from '@/primitives/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/primitives/card';
+import type { ChapterNavInsertContext } from '../integration';
 
 export type ChapterMenuProps = {
+  manuscriptId?: string;
   /** Header slot — typically `ChapterMenuHeader`. */
   header: React.ReactNode;
   /** Outline body — list items, add-section inserts, act groups. */
@@ -43,8 +45,8 @@ export type ChapterMenuProps = {
   onClose?: () => void;
   addChapterLabel?: string;
   addActLabel?: string;
-  onAddChapter?: () => void;
-  onAddAct?: () => void;
+  onAddChapter?: (context: ChapterNavInsertContext) => void;
+  onAddAct?: (context: ChapterNavInsertContext) => void;
   className?: string;
 };
 
@@ -53,11 +55,13 @@ function DefaultFooter({
   addActLabel,
   onAddChapter,
   onAddAct,
+  manuscriptId,
 }: {
   addChapterLabel: string;
   addActLabel: string;
-  onAddChapter?: () => void;
-  onAddAct?: () => void;
+  onAddChapter?: (context: ChapterNavInsertContext) => void;
+  onAddAct?: (context: ChapterNavInsertContext) => void;
+  manuscriptId?: string;
 }) {
   return (
     <div
@@ -69,7 +73,8 @@ function DefaultFooter({
         variant="primaryOutline"
         size="default"
         className="h-[length:var(--spacing-9)] min-w-0 flex-[1_1_auto]"
-        onClick={onAddChapter}
+        data-action="add-chapter"
+        onClick={() => onAddChapter?.({ manuscriptId, kind: 'chapter' })}
       >
         <PlusIcon data-icon="inline-start" />
         {addChapterLabel}
@@ -79,7 +84,8 @@ function DefaultFooter({
         variant="ghost"
         size="default"
         className="h-[length:var(--spacing-9)] shrink-0"
-        onClick={onAddAct}
+        data-action="add-act"
+        onClick={() => onAddAct?.({ manuscriptId, kind: 'act' })}
       >
         <SeparatorHorizontalIcon data-icon="inline-start" />
         {addActLabel}
@@ -89,6 +95,7 @@ function DefaultFooter({
 }
 
 function ChapterMenu({
+  manuscriptId,
   header,
   children,
   bodyStartsWithAct = false,
@@ -110,6 +117,7 @@ function ChapterMenu({
             addActLabel={addActLabel}
             onAddChapter={onAddChapter}
             onAddAct={onAddAct}
+            manuscriptId={manuscriptId}
           />
         ));
 
