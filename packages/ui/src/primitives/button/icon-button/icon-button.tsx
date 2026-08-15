@@ -23,7 +23,27 @@ import {
  * Shared Button variants plus Icon-only `fade` / `fadeGold` (Figma Fade button).
  * Fade is not on Text Button — rest is a quieter icon, not a labeled face.
  */
-export type IconButtonVariant = keyof typeof buttonVariantClasses | 'fade' | 'fadeGold';
+export type IconButtonVariant =
+  | keyof typeof buttonVariantClasses
+  | 'subtleFilled'
+  | 'fade'
+  | 'fadeGold';
+
+/**
+ * Quiet filled face for icon affordances that must remain visibly distinct
+ * from bare glyphs at rest. Unlike Ghost, the circular/roundrect surface is
+ * always present; direct interaction deepens that same semantic alpha fill.
+ */
+const subtleFilledVariantClasses = [
+  'bg-[color:var(--theme-alpha-black-switch-333)] border-transparent',
+  'text-[color:var(--muted-foreground)]',
+  'hover:bg-[color:var(--theme-alpha-black-switch-5)] hover:text-[color:var(--foreground)]',
+  'active:bg-[color:var(--theme-alpha-black-switch-10)] active:text-[color:var(--foreground)]',
+  'data-[pressed]:bg-[color:var(--theme-alpha-black-switch-10)] data-[pressed]:text-[color:var(--foreground)]',
+  'focus-visible:bg-[color:var(--theme-alpha-black-switch-5)] focus-visible:text-[color:var(--foreground)]',
+  'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+  'disabled:opacity-50',
+];
 
 /**
  * Figma Fade button (`12042:25189`) — rest is Figma alpha-40, hover alpha-100.
@@ -85,6 +105,7 @@ const iconButtonVariants = cva(
     variants: {
       variant: {
         ...buttonVariantClasses,
+        subtleFilled: subtleFilledVariantClasses,
         fade: fadeVariantClasses,
         fadeGold: fadeGoldVariantClasses,
       },

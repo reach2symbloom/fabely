@@ -37,6 +37,7 @@ const VARIANTS: { variant: IconButtonVariant; label: string }[] = [
   { variant: 'secondary', label: 'Secondary' },
   { variant: 'tertiary', label: 'Tertiary' },
   { variant: 'ghost', label: 'Ghost' },
+  { variant: 'subtleFilled', label: 'Subtle filled' },
   { variant: 'fade', label: 'Fade' },
   { variant: 'fadeGold', label: 'Fade gold' },
   { variant: 'destructive', label: 'Destructive' },
