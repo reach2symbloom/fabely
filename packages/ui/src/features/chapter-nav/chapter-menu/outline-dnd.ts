@@ -1,78 +1,81 @@
 /**
  * Pure outline drag-and-drop reducer — no DOM, no dnd-kit types. Takes the
- * flat outline array + a drop event, returns the new array (or a rejection).
- * Colocated with the Chapter Menu story for now (Storybook-demo-only scope —
- * see ChapterMenu.stories.tsx), but written as an isolated, dependency-free
- * module so Chapter Menu can import it wholesale later.
+ * flat outline array + a drop event, returns the new array (or a rejection,
+ * or a request for confirmation). Colocated with the Chapter Menu story for
+ * now (Storybook-demo-only scope — see ChapterMenu.stories.tsx), but written
+ * as an isolated, dependency-free module so Chapter Menu can import it
+ * wholesale later.
  *
  * ## Data model
  *
  * The outline is a FLAT array, not a nested tree. Each item carries its own
  * `parentId`: `ROOT_CONTAINER` for top-level chapters/acts, a chapter's id
  * for its scenes, a scene's id for its subscenes. Sibling order is just the
- * items' relative order in the array, filtered by `parentId`. This makes
- * "which container is X in" an O(1) lookup instead of a positional-adjacency
- * inference, which is what makes the reducer below tractable to test.
+ * items' relative order in the array, filtered by `parentId`.
  *
- * ## Placement — how a drop is resolved without pointer geometry
+ * ## Placement — `before` vs `nest`, decided outside this module
  *
- * `OutlineDropEvent` only carries `{ activeId, overId }` — the two raw ids
- * dnd-kit reports. The reducer derives everything else from data:
+ * Chapters only ever live at the root — two chapters always share the same
+ * `parentId`. That means "same parent → reorder, different parent → nest"
+ * (this module's earlier heuristic) can never fire nesting for a chapter
+ * dropped on a chapter, since there's no "different parent" case to hit.
+ * Whimsical-style outline editors resolve this with pointer position: the
+ * top half of a target row means "insert before it, as a sibling"; the
+ * bottom half means "nest into it, as its first child" (only meaningful
+ * when the target can own children — chapter or scene).
  *
- * - If the dragged item and the target item already share a `parentId`,
- *   the drop is a same-container reorder: no kind change, drop after the
- *   target within that container.
- * - Otherwise, if the target is a chapter or a scene (both can own
- *   children), the drop NESTS the dragged item as the target's first
- *   child — this is what "onto another scene" means for rule 1, and the
- *   generalization of it for a target chapter.
- * - Otherwise (target is a subscene or an act — neither owns children),
- *   the drop lands as a sibling within the target's own container.
- *
- * This needs no pointer-quadrant / hover-zone math in the dnd-kit adapter:
- * the adapter just forwards raw ids, and the container comparison above is
- * enough to tell "reorder among siblings" apart from "nest into this item"
- * for every case the four source rules describe.
+ * This module doesn't compute that split — it has no pointer, on purpose.
+ * `OutlineDropEvent.placement` carries the already-resolved decision, and
+ * the dnd-kit adapter (`use-outline-dnd-kit.ts`) is the one reading
+ * geometry to produce it. `'nest'` on a target that can't own children
+ * (subscene/act) falls back to `'before'` here rather than erroring — the
+ * adapter is expected not to offer a nest zone for those, but this module
+ * stays defensive about it regardless.
  *
  * ## Type coercion — resulting kind always matches its new container
  *
  * Whatever container a (non-act) item lands in, its kind becomes that
  * container's native kind: `ROOT_CONTAINER` → chapter, a chapter container →
- * scene, a scene container → subscene. This one rule implements all four
- * source rules at once:
+ * scene, a scene container → subscene.
  *
- * 1. Scene dropped into a subscene area, or onto another scene → subscene.
- *    (Landing in a scene's own container, whose native kind is subscene.)
- * 2. Subscene dropped into the chapter-level hierarchy → chapter.
- *    (Landing in ROOT_CONTAINER, whose native kind is chapter.)
- * 3. Chapter dropped into a subscene area → subscene, UNLESS it currently
- *    has scenes, in which case the drop is rejected outright (see below).
- * 4. Scene dropped into the chapter-level hierarchy → chapter, mirroring
- *    rule 2 "for symmetry" — ⚠️ ASSUMPTION, not verbatim in the source
- *    rules (which only say this for subscenes). If this is wrong, it is a
- *    one-line change: drop the `dragged.kind === 'scene'` case from the
- *    generic promotion and give it its own branch.
+ * ## Cascading moves — the dragged item's subtree moves with it
  *
- * Two further generalizations beyond the four rules, made for a complete
- * state machine (also flagged, not silently decided):
+ * Depth in this outline is fixed by kind: chapter/act = 0, scene = 1,
+ * subscene = 2 (the max — nothing nests under a subscene). Moving an item
+ * to a different depth shifts its entire subtree by the same amount:
  *
- * - ⚠️ ASSUMPTION: the chapter-with-scenes guard (rule 3) is generalized to
- *   ANY demotion of a chapter that currently has scenes — not just
- *   specifically to a subscene area. A chapter with scenes dropped so it
- *   would become a plain scene (landing in another chapter's container) is
- *   rejected the same way, for the same reason: it would silently orphan
- *   that chapter's scenes.
- * - ⚠️ ASSUMPTION: `act` never changes kind, regardless of where it lands.
- *   Acts are structural dividers with no children by construction, so the
- *   has-children guard can never fire for one anyway — coercing an act to
- *   chapter/scene/subscene has no basis in the source rules and no obvious
- *   product meaning, so it just moves.
+ * - **Promotion** (moving to a shallower depth — a scene becoming a
+ *   chapter, a subscene becoming a chapter or scene) is always safe: the
+ *   subtree shifts up, and shifting up can never exceed the max depth. A
+ *   scene with subscenes dragged to become a chapter has its subscenes
+ *   promoted to scenes.
+ * - **Demotion** (moving to a deeper depth) shifts the subtree down. Safe
+ *   as long as no descendant would end up deeper than subscene. A chapter
+ *   with only scenes (max relative depth 1) nested into another chapter (a
+ *   +1 shift) cascades cleanly: its scenes become subscenes, landing
+ *   exactly at depth 2.
+ * - **Overflow**: if a descendant would end up past depth 2 — e.g. a
+ *   chapter whose scenes themselves have subscenes (relative depth 2)
+ *   nested into another chapter (+1 shift lands those at depth 3) — the
+ *   move returns `{ type: 'needs-confirmation' }` instead of silently doing
+ *   something lossy or silently refusing. The caller decides: re-invoke
+ *   with `{ ...event, resolution: 'flatten' }` to proceed (every
+ *   descendant that would overflow is pulled out of the nested subtree and
+ *   placed as a sibling of the dragged item in its new container instead
+ *   of nesting it), or drop the request to leave the outline unchanged.
+ *
+ * `act` never changes kind or cascades — acts are structural dividers with
+ * no children by construction (⚠️ ASSUMPTION: no basis in a source spec,
+ * just no obvious product meaning for coercing one).
  */
 
 export type OutlineItemKind = 'chapter' | 'scene' | 'subscene' | 'act';
 
 /** Container id for top-level chapters/acts — not a real item. */
 export const ROOT_CONTAINER = 'root';
+
+/** Deepest a subtree may go — subscene. Nothing nests under a subscene. */
+const MAX_DEPTH = 2;
 
 export type OutlineItem = {
   id: string;
@@ -91,16 +94,57 @@ export type OutlineItem = {
   isCollapsed?: boolean;
 };
 
+export type OutlineDropPlacement = 'before' | 'nest';
+
 export type OutlineDropEvent = {
   /** Id of the item being dragged. */
   activeId: string;
   /** Id of the item under the pointer/keyboard focus, or `ROOT_CONTAINER`. */
   overId: string;
+  /**
+   * `'before'` — insert as a sibling ahead of the target, in the target's
+   * own container. `'nest'` — nest into the target as its first child;
+   * only takes effect when the target can own children (chapter/scene),
+   * falls back to `'before'` otherwise. Ignored entirely when `overId` is
+   * `ROOT_CONTAINER` (nothing to be "before" or "nested into" — always
+   * appends at the top level).
+   */
+  placement: OutlineDropPlacement;
+  /**
+   * Only meaningful when replaying an event that previously came back as
+   * `needs-confirmation`. `'flatten'` proceeds, pulling every
+   * over-max-depth descendant out to sit as a sibling of the dragged item
+   * instead of nesting it. Omit (or replay without it) to leave the
+   * outline unchanged — the confirmation was declined.
+   */
+  resolution?: 'flatten';
 };
 
 export type OutlineDropResult =
   | { type: 'moved'; items: OutlineItem[] }
-  | { type: 'rejected'; reason: string };
+  | { type: 'rejected'; reason: string }
+  | {
+      type: 'needs-confirmation';
+      reason: string;
+      /** Pass back as `reorderOutline(items, { ...event, resolution: 'flatten' })` to proceed. */
+      event: OutlineDropEvent;
+    };
+
+/** True when a divider represents the item's unchanged current position. */
+export function isOutlineDropNoOp(
+  items: OutlineItem[],
+  event: Pick<OutlineDropEvent, 'activeId' | 'overId' | 'placement'>,
+): boolean {
+  if (event.activeId === event.overId) return true;
+  if (event.placement !== 'before') return false;
+
+  const active = items.find((item) => item.id === event.activeId);
+  const over = items.find((item) => item.id === event.overId);
+  if (!active || !over || active.parentId !== over.parentId) return false;
+
+  const siblings = items.filter((item) => item.parentId === active.parentId);
+  return siblings.indexOf(over) === siblings.indexOf(active) + 1;
+}
 
 /** Items whose `parentId` is `parentId`, in their existing relative order. */
 export function childrenOf(
@@ -110,8 +154,9 @@ export function childrenOf(
   return items.filter((item) => item.parentId === parentId);
 }
 
-function hasChildren(items: OutlineItem[], parentId: string): boolean {
-  return items.some((item) => item.parentId === parentId);
+/** Can this kind own children at all? (Only chapter and scene can.) */
+export function canOwnChildren(kind: OutlineItemKind): boolean {
+  return kind === 'chapter' || kind === 'scene';
 }
 
 /** The kind a NEW item takes on by virtue of landing in this container. */
@@ -124,26 +169,104 @@ function nativeKindForContainer(
   return owner?.kind === 'scene' ? 'subscene' : 'scene';
 }
 
-function removeItem(
+/**
+ * Shared by `reorderOutline` and `previewResultKind` so the live drop
+ * indicator's label can never drift from what actually happens on drop.
+ */
+function resolveTargetContainer(
   items: OutlineItem[],
-  id: string,
-): { removed: OutlineItem | undefined; rest: OutlineItem[] } {
-  const index = items.findIndex((item) => item.id === id);
-  if (index === -1) return { removed: undefined, rest: items };
-  return {
-    removed: items[index],
-    rest: [...items.slice(0, index), ...items.slice(index + 1)],
-  };
+  overId: string,
+  placement: OutlineDropPlacement,
+): string {
+  const overItem =
+    overId === ROOT_CONTAINER
+      ? undefined
+      : items.find((item) => item.id === overId);
+  if (!overItem) return ROOT_CONTAINER;
+  const nesting = placement === 'nest' && canOwnChildren(overItem.kind);
+  return nesting ? overItem.id : overItem.parentId;
 }
 
-function insertAfter(
+/**
+ * What kind the dragged item WOULD become if dropped right now — for the
+ * live indicator's label. Read-only; does not touch `items`. Returns `null`
+ * if either id doesn't currently exist (drag started, then the item was
+ * removed from under it — shouldn't normally happen, but the UI shouldn't
+ * crash if it does).
+ */
+export function previewResultKind(
   items: OutlineItem[],
-  anchorId: string,
-  item: OutlineItem,
+  event: Pick<OutlineDropEvent, 'activeId' | 'overId' | 'placement'>,
+): OutlineItemKind | null {
+  const dragged = items.find((item) => item.id === event.activeId);
+  if (!dragged) return null;
+  if (event.overId !== ROOT_CONTAINER && !items.some((item) => item.id === event.overId)) {
+    return null;
+  }
+  if (dragged.kind === 'act') return 'act';
+  const targetContainer = resolveTargetContainer(items, event.overId, event.placement);
+  return nativeKindForContainer(items, targetContainer);
+}
+
+function depthOf(kind: OutlineItemKind): number {
+  if (kind === 'scene') return 1;
+  if (kind === 'subscene') return 2;
+  return 0; // chapter, act
+}
+
+function kindAtDepth(depth: number): OutlineItemKind {
+  if (depth <= 0) return 'chapter';
+  if (depth === 1) return 'scene';
+  return 'subscene';
+}
+
+type SubtreeEntry = { item: OutlineItem; relativeDepth: number };
+
+/** Every descendant of `rootId`, DFS pre-order, with depth relative to it (1 = direct child). */
+function collectSubtree(items: OutlineItem[], rootId: string): SubtreeEntry[] {
+  const result: SubtreeEntry[] = [];
+  function walk(parentId: string, depth: number) {
+    for (const child of childrenOf(items, parentId)) {
+      result.push({ item: child, relativeDepth: depth });
+      walk(child.id, depth + 1);
+    }
+  }
+  walk(rootId, 1);
+  return result;
+}
+
+function insertManyBefore(
+  items: OutlineItem[],
+  anchorId: string | undefined,
+  newItems: OutlineItem[],
 ): OutlineItem[] {
+  if (!anchorId) return [...items, ...newItems];
   const index = items.findIndex((existing) => existing.id === anchorId);
-  if (index === -1) return [...items, item];
-  return [...items.slice(0, index + 1), item, ...items.slice(index + 1)];
+  if (index === -1) return [...items, ...newItems];
+  return [...items.slice(0, index), ...newItems, ...items.slice(index)];
+}
+
+function insertManyAfter(
+  items: OutlineItem[],
+  anchorId: string | undefined,
+  newItems: OutlineItem[],
+): OutlineItem[] {
+  if (!anchorId) return [...items, ...newItems];
+  const index = items.findIndex((existing) => existing.id === anchorId);
+  if (index === -1) return [...items, ...newItems];
+  return [...items.slice(0, index + 1), ...newItems, ...items.slice(index + 1)];
+}
+
+function confirmationReason(
+  dragged: OutlineItem,
+  resultKind: OutlineItemKind,
+  overflowCount: number,
+): string {
+  const plural = overflowCount === 1 ? 'item' : 'items';
+  return (
+    `This ${dragged.kind} has nested content ${overflowCount} level(s) too deep to become a ${resultKind} as-is. ` +
+    `Flattening will move ${overflowCount} ${plural} up to sit alongside it instead of nesting further.`
+  );
 }
 
 /**
@@ -154,7 +277,7 @@ export function reorderOutline(
   items: OutlineItem[],
   event: OutlineDropEvent,
 ): OutlineDropResult {
-  const { activeId, overId } = event;
+  const { activeId, overId, placement, resolution } = event;
 
   if (activeId === overId) {
     return { type: 'moved', items };
@@ -173,43 +296,56 @@ export function reorderOutline(
     return { type: 'rejected', reason: 'Drop target no longer exists.' };
   }
 
-  let targetContainer: string;
-  if (!overItem) {
-    targetContainer = ROOT_CONTAINER;
-  } else if (dragged.parentId === overItem.parentId) {
-    targetContainer = overItem.parentId;
-  } else if (overItem.kind === 'chapter' || overItem.kind === 'scene') {
-    targetContainer = overItem.id;
-  } else {
-    targetContainer = overItem.parentId;
+  const subtree = dragged.kind === 'act' ? [] : collectSubtree(items, dragged.id);
+  const subtreeIds = new Set(subtree.map(({ item }) => item.id));
+  if (overItem && subtreeIds.has(overItem.id)) {
+    return {
+      type: 'rejected',
+      reason: 'An outline item cannot be moved into its own contents.',
+    };
   }
+
+  const targetContainer = resolveTargetContainer(items, overId, placement);
+  const nesting = targetContainer !== ROOT_CONTAINER && targetContainer === overItem?.id;
 
   const nativeKind = nativeKindForContainer(items, targetContainer);
   const resultKind: OutlineItemKind =
     dragged.kind === 'act' ? 'act' : nativeKind;
 
-  if (
-    dragged.kind === 'chapter' &&
-    resultKind !== 'chapter' &&
-    hasChildren(items, dragged.id)
-  ) {
+  const overflowing = subtree.filter(
+    ({ relativeDepth }) => depthOf(resultKind) + relativeDepth > MAX_DEPTH,
+  );
+
+  if (overflowing.length > 0 && resolution !== 'flatten') {
     return {
-      type: 'rejected',
-      reason:
-        'This chapter has scenes under it and cannot be nested into another item.',
+      type: 'needs-confirmation',
+      reason: confirmationReason(dragged, resultKind, overflowing.length),
+      event: { activeId, overId, placement },
     };
   }
 
-  const { rest } = removeItem(items, activeId);
-  const movedItem: OutlineItem = {
+  const overflowingIds = new Set(overflowing.map(({ item }) => item.id));
+  const rest = items.filter(
+    (item) => item.id !== activeId && !subtreeIds.has(item.id),
+  );
+
+  const movedDragged: OutlineItem = {
     ...dragged,
     kind: resultKind,
     parentId: targetContainer,
   };
 
-  const next = overItem
-    ? insertAfter(rest, overId, movedItem)
-    : [...rest, movedItem];
+  const movedSubtree: OutlineItem[] = subtree.map(({ item, relativeDepth }) =>
+    overflowingIds.has(item.id)
+      ? { ...item, kind: nativeKind, parentId: targetContainer }
+      : { ...item, kind: kindAtDepth(depthOf(resultKind) + relativeDepth) },
+  );
+
+  const block = [movedDragged, ...movedSubtree];
+  const next =
+    overItem && !nesting
+      ? insertManyBefore(rest, overItem.id, block)
+      : insertManyAfter(rest, overItem?.id, block);
 
   return { type: 'moved', items: next };
 }

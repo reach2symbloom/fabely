@@ -110,6 +110,35 @@ const insertChromeReveal = [
   'group-data-[force-hover=true]/add-section-insert:pointer-events-auto',
 ].join(' ');
 
+/**
+ * Secondary-200 fade rail from the original Figma insert divider. Kept as a
+ * shared visual primitive for drag insertion feedback after the Add Section
+ * interaction itself moved to the quieter plus + separator treatment.
+ */
+const SECONDARY_GLOW_LINE =
+  'linear-gradient(90deg, color-mix(in srgb, var(--tw-raw-secondary-200) 0%, transparent) 0%, var(--tw-raw-secondary-200) 18.931%, var(--tw-raw-secondary-200) 85%, color-mix(in srgb, var(--tw-raw-secondary-200) 0%, transparent) 100%)';
+
+function SecondaryGlowRail({ className }: { className?: string }) {
+  return (
+    <div
+      aria-hidden
+      className={cn(
+        'relative flex min-h-0 min-w-0 flex-1 flex-col justify-center self-stretch py-[var(--spacing-xs)]',
+        className,
+      )}
+    >
+      <span
+        className="pointer-events-none absolute inset-x-0 top-1/2 h-[length:var(--stroke-regular)] -translate-y-1/2 blur-[length:var(--spacing-3xs)]"
+        style={{ background: SECONDARY_GLOW_LINE }}
+      />
+      <span
+        className="h-[length:var(--stroke-thin)] w-full"
+        style={{ background: SECONDARY_GLOW_LINE }}
+      />
+    </div>
+  );
+}
+
 function ActDiamondRail() {
   return (
     <div
@@ -532,4 +561,4 @@ function AddSectionInlineGap({
   );
 }
 
-export { AddSectionInlineButton, AddSectionInlineGap };
+export { AddSectionInlineButton, AddSectionInlineGap, SecondaryGlowRail };

@@ -4,6 +4,7 @@ import {
   ROOT_CONTAINER,
   childrenOf,
   computeOutlineNumbers,
+  isOutlineDropNoOp,
   reorderOutline,
   type OutlineItem,
 } from './outline-dnd';
@@ -27,8 +28,8 @@ function item(
  *   sc3 (ch2's scene)
  *
  * `act1` sits between ch1 and ch2 (not appended last) specifically so
- * dropping something onto it — landing at root, after act1 — has a
- * subsequent chapter (ch2) whose number should shift.
+ * dropping something onto it — landing at root — has a subsequent chapter
+ * (ch2) whose number should shift.
  */
 function baseOutline(): OutlineItem[] {
   return [
@@ -42,25 +43,63 @@ function baseOutline(): OutlineItem[] {
   ];
 }
 
+describe('isOutlineDropNoOp', () => {
+  it('hides the boundaries directly before and after the dragged item', () => {
+    const items = baseOutline();
+    expect(
+      isOutlineDropNoOp(items, {
+        activeId: 'act1',
+        overId: 'act1',
+        placement: 'before',
+      }),
+    ).toBe(true);
+    expect(
+      isOutlineDropNoOp(items, {
+        activeId: 'act1',
+        overId: 'ch2',
+        placement: 'before',
+      }),
+    ).toBe(true);
+  });
+
+  it('keeps the first boundary beyond a neighbouring sibling available', () => {
+    const items = baseOutline();
+    expect(
+      isOutlineDropNoOp(items, {
+        activeId: 'ch1',
+        overId: 'ch2',
+        placement: 'before',
+      }),
+    ).toBe(false);
+  });
+});
+
 describe('reorderOutline — baseline behavior', () => {
   it('no-ops when dropped on itself', () => {
     const items = baseOutline();
-    const result = reorderOutline(items, { activeId: 'sc1', overId: 'sc1' });
+    const result = reorderOutline(items, {
+      activeId: 'sc1',
+      overId: 'sc1',
+      placement: 'before',
+    });
     expect(result).toEqual({ type: 'moved', items });
   });
 
-  it('reorders siblings within the same container without changing kind', () => {
+  it('placement "before" reorders as a sibling ahead of the target, same container', () => {
     const items = baseOutline();
-    const result = reorderOutline(items, { activeId: 'sc2', overId: 'sc1' });
+    const result = reorderOutline(items, {
+      activeId: 'sc2',
+      overId: 'sc1',
+      placement: 'before',
+    });
     expect(result.type).toBe('moved');
     if (result.type !== 'moved') return;
     const sc2 = result.items.find((i) => i.id === 'sc2')!;
     expect(sc2.kind).toBe('scene');
     expect(sc2.parentId).toBe('ch1');
-    // sc2 now sits right after sc1 (its drop target), ahead of sub1's old position.
     expect(childrenOf(result.items, 'ch1').map((i) => i.id)).toEqual([
-      'sc1',
       'sc2',
+      'sc1',
     ]);
   });
 
@@ -69,6 +108,7 @@ describe('reorderOutline — baseline behavior', () => {
     const result = reorderOutline(items, {
       activeId: 'ghost',
       overId: 'sc1',
+      placement: 'before',
     });
     expect(result.type).toBe('rejected');
   });
@@ -78,8 +118,33 @@ describe('reorderOutline — baseline behavior', () => {
     const result = reorderOutline(items, {
       activeId: 'sc1',
       overId: 'ghost',
+      placement: 'before',
     });
     expect(result.type).toBe('rejected');
+  });
+
+  it('rejects placing a parent before one of its own descendants', () => {
+    const result = reorderOutline(baseOutline(), {
+      activeId: 'ch1',
+      overId: 'sc1',
+      placement: 'before',
+    });
+    expect(result).toEqual({
+      type: 'rejected',
+      reason: 'An outline item cannot be moved into its own contents.',
+    });
+  });
+
+  it('rejects nesting a parent into one of its own descendants', () => {
+    const result = reorderOutline(baseOutline(), {
+      activeId: 'ch1',
+      overId: 'sc1',
+      placement: 'nest',
+    });
+    expect(result).toEqual({
+      type: 'rejected',
+      reason: 'An outline item cannot be moved into its own contents.',
+    });
   });
 
   it('acts never change kind, wherever they land', () => {
@@ -88,19 +153,39 @@ describe('reorderOutline — baseline behavior', () => {
     const result = reorderOutline(items, {
       activeId: 'act1',
       overId: 'sub1',
+      placement: 'nest',
     });
     expect(result.type).toBe('moved');
     if (result.type !== 'moved') return;
     const act1 = result.items.find((i) => i.id === 'act1')!;
     expect(act1.kind).toBe('act');
   });
+
+  it('"nest" on a target that can\'t own children (subscene/act) falls back to a sibling placement', () => {
+    const items = baseOutline();
+    // sub1 can't own children — nest is requested but should degrade to "before".
+    const result = reorderOutline(items, {
+      activeId: 'sc2',
+      overId: 'sub1',
+      placement: 'nest',
+    });
+    expect(result.type).toBe('moved');
+    if (result.type !== 'moved') return;
+    const sc2 = result.items.find((i) => i.id === 'sc2')!;
+    // Falls back to sub1's own container (sc1's subscene area) — not nested INTO sub1.
+    expect(sc2.parentId).toBe('sc1');
+    expect(sc2.kind).toBe('subscene');
+  });
 });
 
 describe('reorderOutline — rule 1: scene → subscene', () => {
-  it('scene dropped onto another scene becomes that scene\'s subscene', () => {
+  it('scene nested onto another scene becomes that scene\'s subscene', () => {
     const items = baseOutline();
-    // sc3 (chapter 2's scene) dropped directly onto sc1 (chapter 1's scene).
-    const result = reorderOutline(items, { activeId: 'sc3', overId: 'sc1' });
+    const result = reorderOutline(items, {
+      activeId: 'sc3',
+      overId: 'sc1',
+      placement: 'nest',
+    });
     expect(result.type).toBe('moved');
     if (result.type !== 'moved') return;
     const sc3 = result.items.find((i) => i.id === 'sc3')!;
@@ -108,10 +193,13 @@ describe('reorderOutline — rule 1: scene → subscene', () => {
     expect(sc3.parentId).toBe('sc1');
   });
 
-  it('scene dropped into a subscene area becomes a subscene there', () => {
+  it('scene dropped into a subscene area (before an existing subscene) becomes a subscene there', () => {
     const items = baseOutline();
-    // sc2 dropped onto sub1 (which lives in sc1's subscene area).
-    const result = reorderOutline(items, { activeId: 'sc2', overId: 'sub1' });
+    const result = reorderOutline(items, {
+      activeId: 'sc2',
+      overId: 'sub1',
+      placement: 'before',
+    });
     expect(result.type).toBe('moved');
     if (result.type !== 'moved') return;
     const sc2 = result.items.find((i) => i.id === 'sc2')!;
@@ -123,11 +211,10 @@ describe('reorderOutline — rule 1: scene → subscene', () => {
 describe('reorderOutline — rule 2: subscene → chapter', () => {
   it('subscene dropped into the chapter-level hierarchy becomes a chapter', () => {
     const items = baseOutline();
-    // sub1 dropped onto act1 — act1 lives at root and owns no children, so
-    // this lands in ROOT_CONTAINER, whose native kind is chapter.
     const result = reorderOutline(items, {
       activeId: 'sub1',
       overId: 'act1',
+      placement: 'before',
     });
     expect(result.type).toBe('moved');
     if (result.type !== 'moved') return;
@@ -141,6 +228,7 @@ describe('reorderOutline — rule 2: subscene → chapter', () => {
     const result = reorderOutline(items, {
       activeId: 'sub1',
       overId: ROOT_CONTAINER,
+      placement: 'before',
     });
     expect(result.type).toBe('moved');
     if (result.type !== 'moved') return;
@@ -155,13 +243,10 @@ describe('reorderOutline — rule 2: subscene → chapter', () => {
     expect(before.get('ch1')).toBe(1);
     expect(before.get('ch2')).toBe(2);
 
-    // Drop onto act1 (root-level, owns no children — not ch1, which would
-    // nest sub1 as a scene instead of promoting it, per rule 1's "onto a
-    // chapter/scene nests into it" branch). act1 sits between ch1 and ch2,
-    // so ch2's number has something to shift against.
     const result = reorderOutline(items, {
       activeId: 'sub1',
       overId: 'act1',
+      placement: 'before',
     });
     expect(result.type).toBe('moved');
     if (result.type !== 'moved') return;
@@ -173,14 +258,14 @@ describe('reorderOutline — rule 2: subscene → chapter', () => {
   });
 });
 
-describe('reorderOutline — rule 3: chapter → subscene, guarded', () => {
+describe('reorderOutline — rule 3: chapter → subscene', () => {
   it('a chapter with no scenes dropped into a subscene area becomes a subscene', () => {
     const items = baseOutline();
-    // ch2 currently owns sc3, so give it no scenes for this case.
     const noScenes = items.filter((i) => i.id !== 'sc3');
     const result = reorderOutline(noScenes, {
       activeId: 'ch2',
       overId: 'sub1',
+      placement: 'before',
     });
     expect(result.type).toBe('moved');
     if (result.type !== 'moved') return;
@@ -188,58 +273,190 @@ describe('reorderOutline — rule 3: chapter → subscene, guarded', () => {
     expect(ch2.kind).toBe('subscene');
     expect(ch2.parentId).toBe('sc1');
   });
-
-  it('a chapter WITH scenes dropped into a subscene area is rejected, unchanged', () => {
-    const items = baseOutline();
-    // ch1 owns sc1 + sc2 — dropping it into sc1's own subscene area.
-    const result = reorderOutline(items, { activeId: 'ch1', overId: 'sub1' });
-    expect(result.type).toBe('rejected');
-    if (result.type !== 'rejected') return;
-    expect(result.reason).toMatch(/scenes/i);
-  });
-
-  it('a chapter with scenes is also rejected demoting to a plain scene (generalized guard)', () => {
-    const items = baseOutline();
-    // ch1 (has scenes) dropped onto sc3 — different container, sc3 can own
-    // children, so this nests ch1 as sc3's subscene: still a demotion, still guarded.
-    const result = reorderOutline(items, { activeId: 'ch1', overId: 'sc3' });
-    expect(result.type).toBe('rejected');
-  });
-
-  it('the guarded chapter is truly unchanged on rejection', () => {
-    const items = baseOutline();
-    const result = reorderOutline(items, { activeId: 'ch1', overId: 'sub1' });
-    expect(result).toEqual({
-      type: 'rejected',
-      reason: expect.any(String),
-    });
-    // Reducer returns a rejection, not a mutated/partial array — caller
-    // keeps its previous `items` reference as-is (verified by contract,
-    // not by re-inspecting `items` here since 'rejected' carries no items).
-  });
 });
 
 describe('reorderOutline — rule 4: scene → chapter (symmetry assumption)', () => {
-  it('scene dropped into the chapter-level hierarchy becomes a chapter', () => {
+  it('a scene with no subscenes dropped into the chapter-level hierarchy becomes a chapter', () => {
     const items = baseOutline();
-    const result = reorderOutline(items, { activeId: 'sc1', overId: 'act1' });
+    const result = reorderOutline(items, {
+      activeId: 'sc3',
+      overId: 'act1',
+      placement: 'before',
+    });
     expect(result.type).toBe('moved');
     if (result.type !== 'moved') return;
+    const sc3 = result.items.find((i) => i.id === 'sc3')!;
+    expect(sc3.kind).toBe('chapter');
+    expect(sc3.parentId).toBe(ROOT_CONTAINER);
+  });
+});
+
+describe('reorderOutline — chapter nested onto chapter (placement: "nest" — the case position-based placement exists for)', () => {
+  it('dropping chapter A on the TOP HALF (placement "before") of chapter B just reorders them as siblings', () => {
+    const items = baseOutline();
+    const result = reorderOutline(items, {
+      activeId: 'ch2',
+      overId: 'ch1',
+      placement: 'before',
+    });
+    expect(result.type).toBe('moved');
+    if (result.type !== 'moved') return;
+    const ch2 = result.items.find((i) => i.id === 'ch2')!;
+    expect(ch2.kind).toBe('chapter');
+    expect(ch2.parentId).toBe(ROOT_CONTAINER);
+  });
+
+  it('dropping chapter A on the BOTTOM HALF (placement "nest") of chapter B nests it as B\'s scene, cascading A\'s own scenes to subscenes', () => {
+    const items = baseOutline();
+    // ch2 owns only sc3 (a childless scene) — nesting it into ch1 makes it
+    // ch1's scene; sc3 cascades down to become ch2's subscene.
+    // depth check: scene(1) + sc3's relative depth(1) = 2 — fits exactly.
+    const result = reorderOutline(items, {
+      activeId: 'ch2',
+      overId: 'ch1',
+      placement: 'nest',
+    });
+    expect(result.type).toBe('moved');
+    if (result.type !== 'moved') return;
+
+    const ch2 = result.items.find((i) => i.id === 'ch2')!;
+    expect(ch2.kind).toBe('scene');
+    expect(ch2.parentId).toBe('ch1');
+
+    const sc3 = result.items.find((i) => i.id === 'sc3')!;
+    expect(sc3.kind).toBe('subscene');
+    expect(sc3.parentId).toBe('ch2'); // still nested under ch2 — id references don't change
+  });
+});
+
+describe('reorderOutline — cascading promotion (always clean, per the inverse rule)', () => {
+  it('a scene with subscenes dragged to become a chapter has its subscenes promoted to scenes', () => {
+    const items = baseOutline();
+    const result = reorderOutline(items, {
+      activeId: 'sc1',
+      overId: 'act1',
+      placement: 'before',
+    });
+    expect(result.type).toBe('moved');
+    if (result.type !== 'moved') return;
+
     const sc1 = result.items.find((i) => i.id === 'sc1')!;
     expect(sc1.kind).toBe('chapter');
     expect(sc1.parentId).toBe(ROOT_CONTAINER);
+
+    const sub1 = result.items.find((i) => i.id === 'sub1')!;
+    expect(sub1.kind).toBe('scene'); // promoted, not left as a subscene
+    expect(sub1.parentId).toBe('sc1');
   });
 
-  it('leaves sc1\'s former subscene (sub1) in the array, now orphaned in place', () => {
-    // The reducer only moves the dragged item itself; it does not cascade
-    // sub1 along with its old parent sc1. This is a known limitation, not
-    // one of the four rules — documented here so it isn't a silent surprise.
+  it('promotion never needs confirmation, no matter how deep the subtree', () => {
+    const items = [...baseOutline(), item('sub1b', 'subscene', 'sc1')];
+    const result = reorderOutline(items, {
+      activeId: 'sc1',
+      overId: 'act1',
+      placement: 'before',
+    });
+    expect(result.type).toBe('moved');
+  });
+});
+
+describe('reorderOutline — overflow needs confirmation', () => {
+  it('a chapter whose scenes have subscenes overflows when nested into another chapter', () => {
     const items = baseOutline();
-    const result = reorderOutline(items, { activeId: 'sc1', overId: 'act1' });
+    // ch1 owns sc1 (which owns sub1) + sc2. Nesting ch1 into ch2 would need
+    // sc1/sc2 at depth 2 (fine) but sub1 at depth 3 (past subscene, the max).
+    const result = reorderOutline(items, {
+      activeId: 'ch1',
+      overId: 'ch2',
+      placement: 'nest',
+    });
+    expect(result.type).toBe('needs-confirmation');
+    if (result.type !== 'needs-confirmation') return;
+    expect(result.reason).toMatch(/chapter/i);
+    expect(result.event).toEqual({
+      activeId: 'ch1',
+      overId: 'ch2',
+      placement: 'nest',
+    });
+  });
+
+  it('the same drop into a subscene area (an even deeper target) also needs confirmation', () => {
+    const items = [
+      ...baseOutline(),
+      item('sub-external', 'subscene', 'sc3'),
+    ];
+    const result = reorderOutline(items, {
+      activeId: 'ch1',
+      overId: 'sub-external',
+      placement: 'before',
+    });
+    expect(result.type).toBe('needs-confirmation');
+  });
+
+  it('declining (replaying without resolution) leaves the outline unchanged — same result again', () => {
+    const items = baseOutline();
+    const event = {
+      activeId: 'ch1',
+      overId: 'ch2',
+      placement: 'nest' as const,
+    };
+    const first = reorderOutline(items, event);
+    expect(first.type).toBe('needs-confirmation');
+    // Original array untouched — reorderOutline never mutates its input.
+    expect(items).toEqual(baseOutline());
+    // Replaying the plain event (as if the user declined) reproduces the
+    // identical needs-confirmation result — no hidden state, no partial
+    // application.
+    const second = reorderOutline(items, event);
+    expect(second).toEqual(first);
+  });
+
+  it('confirming with resolution: "flatten" nests what fits and flattens what would overflow', () => {
+    const items = baseOutline();
+    const declined = reorderOutline(items, {
+      activeId: 'ch1',
+      overId: 'ch2',
+      placement: 'nest',
+    });
+    expect(declined.type).toBe('needs-confirmation');
+    if (declined.type !== 'needs-confirmation') return;
+
+    const result = reorderOutline(items, {
+      ...declined.event,
+      resolution: 'flatten',
+    });
     expect(result.type).toBe('moved');
     if (result.type !== 'moved') return;
+
+    // ch1 becomes ch2's scene.
+    const ch1 = result.items.find((i) => i.id === 'ch1')!;
+    expect(ch1.kind).toBe('scene');
+    expect(ch1.parentId).toBe('ch2');
+
+    // sc1 + sc2 fit at the new depth (2 = subscene) — stay nested under ch1.
+    const sc1 = result.items.find((i) => i.id === 'sc1')!;
+    expect(sc1.kind).toBe('subscene');
+    expect(sc1.parentId).toBe('ch1');
+    const sc2 = result.items.find((i) => i.id === 'sc2')!;
+    expect(sc2.kind).toBe('subscene');
+    expect(sc2.parentId).toBe('ch1');
+
+    // sub1 would overflow past subscene — flattened out to sit alongside
+    // ch1 in ch1's new container (ch2), taking ch2's native child kind (scene).
     const sub1 = result.items.find((i) => i.id === 'sub1')!;
-    expect(sub1.parentId).toBe('sc1');
+    expect(sub1.kind).toBe('scene');
+    expect(sub1.parentId).toBe('ch2');
+  });
+
+  it('a chapter with scenes but no deeper subscenes never needs confirmation (the clean cascade case)', () => {
+    const items = baseOutline();
+    const shallow = items.filter((i) => i.id !== 'sub1'); // strip the one 3rd-level item
+    const result = reorderOutline(shallow, {
+      activeId: 'ch1',
+      overId: 'ch2',
+      placement: 'nest',
+    });
+    expect(result.type).toBe('moved');
   });
 });
 

@@ -30,7 +30,6 @@ import * as React from 'react';
 import {
   ArchiveIcon,
   ChevronDownIcon,
-  ChevronUpIcon,
   CircleIcon,
   DotIcon,
   EllipsisVerticalIcon,
@@ -78,6 +77,8 @@ export type ChapterMenuListItemProps = {
    * Pass `false` to hide even when scenes exist.
    */
   showChevron?: boolean;
+  /** Real nested rows, excluding a DnD-only placeholder child. */
+  hasNestedItems?: boolean;
   /** Trailing ellipsis (Figma Show dot menu). Visible on hover / forceHover. */
   showActions?: boolean;
   /** Figma Drag axis — paints the same secondary ink as hover. */
@@ -170,6 +171,7 @@ function ChapterMenuListItem({
   untitled = false,
   expanded = false,
   showChevron,
+  hasNestedItems,
   showActions = true,
   drag = false,
   forceHover = false,
@@ -187,6 +189,8 @@ function ChapterMenuListItem({
   const isScene = type === 'scene';
   const isSubscene = type === 'subscene';
   const hasScenes = React.Children.count(children) > 0;
+  const hasVisibleNestedItems =
+    hasNestedItems ?? React.Children.count(children) > 0;
   /** Chevron dropdown — only when the chapter has scenes to open. */
   const showExpandControl = isChapter && hasScenes && showChevron !== false;
   const isExpandControlled = onExpandToggle != null;
@@ -383,14 +387,21 @@ function ChapterMenuListItem({
               aria-label={isExpanded ? 'Collapse scenes' : 'Expand scenes'}
               data-slot="chapter-menu-chevron"
               className={cn(
-                'absolute top-1/2 left-[calc(-1*var(--spacing-lg)+var(--spacing-2xs))] z-10 flex size-[length:var(--icon-xs)] -translate-y-1/2 items-center justify-center',
+                'group/chevron absolute top-[calc(var(--spacing-xl)/2)] left-[calc(-1*var(--spacing-lg)+var(--spacing-2xs))] z-10 flex size-[length:var(--icon-xs)] -translate-y-1/2 items-center justify-center',
                 'outline-none [&_svg]:size-[length:var(--icon-xs)]',
                 mutedRestColor,
                 hoverInk,
               )}
               onClick={handleExpandToggle}
             >
-              {isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
+              <span className="flex transition-transform duration-fast ease-emphasized group-hover/chevron:scale-125 motion-reduce:transition-none">
+                <ChevronDownIcon
+                  className="transition-[transform] duration-fast ease-emphasized-in motion-reduce:transition-none"
+                  style={{
+                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}
+                />
+              </span>
             </button>
           ) : null}
           <div data-slot="chapter-menu-name" className="contents">
@@ -573,8 +584,10 @@ function ChapterMenuListItem({
                 data-slot="chapter-menu-actions"
                 className={cn(
                   /* ms-2xs — clears the name field so their hover/pressed
-                     chrome never overlaps it. */
-                  'relative z-10 ms-[length:var(--spacing-2xs)] shrink-0',
+                     chrome never overlaps it. -me-xs (-8px) pulls it closer
+                     to the row's right edge — less dead space to the card
+                     border than the button's own centered icon padding gave it. */
+                  'relative z-10 ms-[length:var(--spacing-2xs)] me-[calc(-1*var(--spacing-xs))] shrink-0',
                   !actionsOpen && 'opacity-0',
                   'group-hover/chapter-menu-item:opacity-100',
                   'group-data-[force-hover=true]/chapter-menu-item:opacity-100',
@@ -625,39 +638,45 @@ function ChapterMenuListItem({
     </div>
   );
 
-  if (hasChapterBranch) {
+  if (isChapter) {
     return (
       <div
         data-slot="chapter-menu-branch"
-        className="flex w-full flex-col gap-[length:var(--spacing-1-5)]"
+        className={cn(
+          'flex w-full flex-col',
+          hasChapterBranch && 'gap-[length:var(--spacing-1-5)]',
+        )}
       >
         {row}
-        <div
-          data-slot="chapter-menu-scenes"
-          className="flex items-start gap-[length:var(--spacing-2xs)] pl-[length:var(--spacing-lg)]"
-        >
-          <button
-            type="button"
-            aria-expanded={isExpanded}
-            aria-label={isExpanded ? 'Collapse scenes' : 'Expand scenes'}
-            data-slot="chapter-menu-branch-rail"
-            className="group/branch-rail flex w-[length:var(--spacing-3xs)] shrink-0 cursor-pointer justify-center self-stretch pb-[length:var(--spacing-sm)] outline-none"
-            onClick={handleExpandToggle}
+        {hasChapterBranch ? (
+          <div
+            data-slot="chapter-menu-scenes"
+            className="flex items-start gap-[length:var(--spacing-2xs)] pl-[length:var(--spacing-lg)]"
           >
-            <Separator
-              orientation="vertical"
-              size="thin"
-              spacing="none"
-              className={cn(
-                'transition-[background-color] duration-fast ease-emphasized',
-                'group-hover/branch-rail:bg-[color:var(--theme-alpha-black-switch-15)]',
-              )}
-            />
-          </button>
-          <div className="flex min-w-0 flex-1 flex-col gap-[length:var(--spacing-2xs)]">
-            {children}
+            <button
+              type="button"
+              aria-expanded={isExpanded}
+              aria-label={isExpanded ? 'Collapse scenes' : 'Expand scenes'}
+              data-slot="chapter-menu-branch-rail"
+              className="group/branch-rail flex w-[length:var(--spacing-3xs)] shrink-0 cursor-pointer justify-center self-stretch pb-[length:var(--spacing-sm)] outline-none"
+              onClick={handleExpandToggle}
+            >
+              <Separator
+                orientation="vertical"
+                size="thin"
+                spacing="none"
+                className={cn(
+                  'w-[length:var(--stroke-regular)]!',
+                  'transition-[background-color] duration-fast ease-emphasized',
+                  'group-hover/branch-rail:bg-[color:var(--theme-alpha-black-switch-15)]',
+                )}
+              />
+            </button>
+            <div className="flex min-w-0 flex-1 flex-col gap-[length:var(--spacing-3xs)] [--outline-row-gap:var(--spacing-3xs)]">
+              {children}
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
     );
   }
@@ -666,12 +685,18 @@ function ChapterMenuListItem({
     return (
       <div
         data-slot="chapter-menu-scene-branch"
-        className="flex w-full flex-col gap-[length:var(--spacing-1-5)]"
+        className={cn(
+          'flex w-full flex-col',
+          hasVisibleNestedItems && 'gap-[length:var(--spacing-1-5)]',
+        )}
       >
         {row}
         <div
           data-slot="chapter-menu-subscenes"
-          className="flex flex-col gap-[length:var(--spacing-2xs)] pl-[length:var(--spacing-xl)]"
+          className={cn(
+            'flex flex-col gap-[length:var(--spacing-2xs)] pl-[length:var(--spacing-xl)] [--outline-row-gap:var(--spacing-2xs)]',
+            hasVisibleNestedItems && 'pb-[length:var(--spacing-3xs)]',
+          )}
         >
           {children}
         </div>

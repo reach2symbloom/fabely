@@ -112,12 +112,8 @@ function ChapterMenu({
       variant="shadow"
       bordered
       className={cn(
-        'relative flex w-full max-w-[542px] flex-col',
+        'relative flex w-[542px] min-w-[542px] shrink-0 flex-col',
         'min-h-[length:var(--tw-raw-spacing-80)]',
-        /* Cap the whole panel to the viewport (96px inset, matching Drawer's
-         * own `100dvh - 6rem` — --spacing-7xl is that same 96px as a token)
-         * so it scrolls internally instead of growing past the screen. */
-        'max-h-[calc(100dvh-var(--spacing-7xl))]',
         /* Close control straddles the card edge — vendor Card uses overflow-hidden. */
         'overflow-visible!',
         /* Figma Header / Body pad xl; Footer pad md. */
@@ -145,6 +141,9 @@ function ChapterMenu({
               'absolute end-0 bottom-0 z-20',
               'translate-x-1/2 translate-y-1/2',
               'bg-[color:var(--background)]',
+              'hover:bg-[color-mix(in_srgb,var(--foreground)_5%,var(--background))]',
+              'active:bg-[color-mix(in_srgb,var(--foreground)_10%,var(--background))]',
+              'data-[pressed]:bg-[color-mix(in_srgb,var(--foreground)_10%,var(--background))]',
             )}
             onClick={onClose}
           >
@@ -156,8 +155,7 @@ function ChapterMenu({
       <CardContent
         data-slot="chapter-menu-body"
         className={cn(
-          'flex min-h-0 flex-1 flex-col gap-[length:var(--spacing-sm)]',
-          'overflow-y-auto scroll-fade-y',
+          'flex flex-col gap-[length:var(--spacing-sm)]',
           'pt-[length:var(--spacing-lg)]!',
         )}
       >

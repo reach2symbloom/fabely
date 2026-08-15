@@ -5,17 +5,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, useState, type ReactNode, Fragment } from 'react';
 
-import {
-  DndContext,
-  DragOverlay,
-  type DragStartEvent,
-} from '@dnd-kit/core';
-import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { DndContext, DragOverlay, type DragStartEvent } from '@dnd-kit/core';
 
 import { InlineSegmentedControl } from '../../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../../stories/PlaygroundPanel';
@@ -25,11 +15,22 @@ import {
   PrimitivePage,
 } from '../../../../stories/PrimitivePage';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/primitives/alert-dialog';
 import { RadioGroup, RadioGroupItem } from '@/primitives/radio-group';
 
 import {
   AddSectionInlineButton,
   AddSectionInlineGap,
+  SecondaryGlowRail,
 } from '../add-section-inline-button';
 import { ChapterMenuHeader } from '../chapter-menu-header';
 import { ChapterMenuListItem } from '../chapter-menu-list-item';
@@ -41,7 +42,13 @@ import {
   type OutlineItem,
   type OutlineItemKind,
 } from './outline-dnd';
-import { useOutlineDragAndDrop } from './use-outline-dnd-kit';
+import {
+  outlineCollisionDetection,
+  useOutlineDragAndDrop,
+  useOutlineRow,
+  type DropIndicator,
+  type PendingConfirmation,
+} from './use-outline-dnd-kit';
 
 const FIGMA_SET_URL =
   'https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16373-12458';
@@ -206,9 +213,9 @@ function OutlineList({ children }: { children: ReactNode }) {
   return (
     <div
       className={[
-        'flex w-full flex-col ps-[length:var(--spacing-xs)]',
+        'flex w-full flex-col ps-[length:var(--spacing-xs)] [--outline-row-gap:var(--spacing-sm)]',
         /* 12px between adjacent rows that do not already have an insert gap. */
-        '[&>:not([data-slot=add-section-inline-gap])+>:not([data-slot=add-section-inline-gap])]:mt-[length:var(--spacing-sm)]',
+        '[&>:not([data-slot=add-section-inline-gap])+:not([data-slot=add-section-inline-gap])]:mt-[length:var(--spacing-sm)]',
       ].join(' ')}
     >
       {children}
@@ -315,10 +322,12 @@ function InteractiveChapterMenu({
 
   const {
     sensors,
-    collisionDetection,
     activeId,
     rejectedId,
+    dropIndicator,
+    pendingConfirmation,
     onDragStart,
+    onDragMove,
     onDragEnd,
     onDragCancel,
   } = useOutlineDragAndDrop({
@@ -423,21 +432,24 @@ function InteractiveChapterMenu({
         <style>{SHAKE_KEYFRAMES}</style>
         <DndContext
           sensors={sensors}
-          collisionDetection={collisionDetection}
+          collisionDetection={outlineCollisionDetection}
           onDragStart={handleDragStart}
+          onDragMove={onDragMove}
           onDragEnd={onDragEnd}
           onDragCancel={onDragCancel}
         >
-          <SortableContext
-            items={items.map((item) => item.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            <OutlineList>
+          <OutlineList>
               {insertGap(0)}
               {topLevel.map((item, position) => (
                 <Fragment key={item.id}>
+                  <DropIndicatorSlot
+                    active={
+                      dropIndicator?.overId === item.id &&
+                      dropIndicator.placement === 'before'
+                    }
+                  />
                   {item.kind === 'act' ? (
-                    <DraggableOutlineRow id={item.id} rejected={rejectedId === item.id}>
+                    <OutlineDragRow id={item.id} rejected={rejectedId === item.id}>
                       <div ref={trackNode(item.id)}>
                         <AddSectionInlineButton
                           type="actUntitled"
@@ -446,9 +458,9 @@ function InteractiveChapterMenu({
                           onActTitleChange={(label) => updateLabel(item.id, label)}
                         />
                       </div>
-                    </DraggableOutlineRow>
+                    </OutlineDragRow>
                   ) : (
-                    <DraggableOutlineRow id={item.id} rejected={rejectedId === item.id}>
+                    <OutlineDragRow id={item.id} rejected={rejectedId === item.id}>
                       <div ref={trackNode(item.id)}>
                         <ChapterMenuListItem
                           type="chapter"
@@ -457,71 +469,104 @@ function InteractiveChapterMenu({
                           untitled={item.label.trim() === ''}
                           href={SECTION_HREF}
                           onLabelChange={(label) => updateLabel(item.id, label)}
+                          showChevron={childrenOf(items, item.id).length > 0}
                           expanded={
                             childrenOf(items, item.id).length > 0 && !item.isCollapsed
                           }
                           onExpandToggle={() => toggleChapterCollapsed(item.id)}
                         >
+                          <DropIndicatorSlot
+                            active={
+                              dropIndicator?.overId === item.id &&
+                              dropIndicator.placement === 'nest'
+                            }
+                          />
                           {childrenOf(items, item.id).map((scene, sceneIndex) => {
                             const subscenes = childrenOf(items, scene.id);
                             return (
-                              <DraggableOutlineRow
-                                key={scene.id}
-                                id={scene.id}
-                                rejected={rejectedId === scene.id}
-                              >
-                                <ChapterMenuListItem
-                                  type="scene"
-                                  sceneNumber={sceneIndex + 1}
-                                  label={scene.label}
-                                  href={SECTION_HREF}
-                                  onLabelChange={(label) => updateLabel(scene.id, label)}
+                              <Fragment key={scene.id}>
+                                <DropIndicatorSlot
+                                  active={
+                                    dropIndicator?.overId === scene.id &&
+                                    dropIndicator.placement === 'before'
+                                  }
+                                />
+                                <OutlineDragRow
+                                  id={scene.id}
+                                  rejected={rejectedId === scene.id}
                                 >
-                                  {mode === 'full' && subscenes.length > 0
-                                    ? subscenes.map((subscene) => (
-                                        <DraggableOutlineRow
-                                          key={subscene.id}
-                                          id={subscene.id}
-                                          rejected={rejectedId === subscene.id}
-                                        >
-                                          <ChapterMenuListItem
-                                            type="subscene"
-                                            label={subscene.label}
-                                            href={SECTION_HREF}
-                                            onLabelChange={(label) =>
-                                              updateLabel(subscene.id, label)
-                                            }
-                                          />
-                                        </DraggableOutlineRow>
-                                      ))
-                                    : null}
-                                </ChapterMenuListItem>
-                              </DraggableOutlineRow>
+                                  <ChapterMenuListItem
+                                    type="scene"
+                                    sceneNumber={sceneIndex + 1}
+                                    label={scene.label}
+                                    href={SECTION_HREF}
+                                    hasNestedItems={
+                                      mode === 'full' && subscenes.length > 0
+                                    }
+                                    onLabelChange={(label) => updateLabel(scene.id, label)}
+                                  >
+                                    <DropIndicatorSlot
+                                      active={
+                                        dropIndicator?.overId === scene.id &&
+                                        dropIndicator.placement === 'nest'
+                                      }
+                                    />
+                                    {mode === 'full' && subscenes.length > 0
+                                      ? subscenes.map((subscene) => (
+                                          <Fragment key={subscene.id}>
+                                            <DropIndicatorSlot
+                                              active={
+                                                dropIndicator?.overId === subscene.id &&
+                                                dropIndicator.placement === 'before'
+                                              }
+                                            />
+                                            <OutlineDragRow
+                                              id={subscene.id}
+                                              rejected={rejectedId === subscene.id}
+                                            >
+                                              <ChapterMenuListItem
+                                                type="subscene"
+                                                label={subscene.label}
+                                                href={SECTION_HREF}
+                                                onLabelChange={(label) =>
+                                                  updateLabel(subscene.id, label)
+                                                }
+                                              />
+                                            </OutlineDragRow>
+                                          </Fragment>
+                                        ))
+                                      : null}
+                                  </ChapterMenuListItem>
+                                </OutlineDragRow>
+                              </Fragment>
                             );
                           })}
                         </ChapterMenuListItem>
                       </div>
-                    </DraggableOutlineRow>
+                    </OutlineDragRow>
                   )}
                   {insertGap(position + 1)}
                 </Fragment>
               ))}
-            </OutlineList>
-          </SortableContext>
+          </OutlineList>
           <DragOverlay>
             {activeItem ? (
               <div
+                data-slot="outline-drag-overlay"
                 className={cn(
-                  'rounded-[length:var(--rounded-md)] bg-[var(--card)]',
-                  'shadow-[var(--shadow-lg-black)] dark:shadow-[var(--shadow-lg-white)]',
-                  'opacity-95',
+                  'pointer-events-none rounded-[length:var(--rounded-md)] bg-[color-mix(in_srgb,var(--background)_70%,transparent)]',
+                  'ring-[length:var(--stroke-thin)] ring-[color:var(--theme-alpha-black-switch-10)]',
+                  '[&_[data-type=chapter]_[data-slot=input-group-addon]]:!text-[color:var(--muted-foreground)]',
+                  '[&_[data-type=chapter]_[data-slot=input-group-text]]:!text-[color:var(--muted-foreground)]',
+                  '[&_[data-type=chapter]_[data-slot=input-group-control]]:!text-[color:var(--text)]',
                 )}
               >
-                {renderOutlineItem(activeItem, numbers, () => {})}
+                {renderOutlineItem(activeItem, numbers, () => {}, true)}
               </div>
             ) : null}
           </DragOverlay>
         </DndContext>
+        <OutlineConfirmDialog pending={pendingConfirmation} />
         <p
           role="alert"
           className={cn(
@@ -883,6 +928,7 @@ function renderOutlineItem(
   item: OutlineItem,
   numbers: Map<string, number>,
   onLabelChange: (id: string, label: string) => void,
+  dragPreview = false,
 ) {
   switch (item.kind) {
     case 'chapter':
@@ -892,6 +938,7 @@ function renderOutlineItem(
           chapterNumber={numbers.get(item.id) ?? 1}
           label={item.label}
           href={SECTION_HREF}
+          showActions={!dragPreview}
           onLabelChange={(label) => onLabelChange(item.id, label)}
         />
       );
@@ -928,8 +975,15 @@ function renderOutlineItem(
   }
 }
 
-/** Whole-row drag source — no handle icon; pointer or keyboard (Space/arrows). */
-function DraggableOutlineRow({
+/**
+ * Whole-row drag source AND drop target — no handle icon; pointer or
+ * keyboard (Space/arrows). Deliberately never applies its own `transform`:
+ * the original row stays anchored at its normal position while dragging
+ * (only dimmed), since dragging is not destructive until it's actually
+ * dropped. The moving "hologram" lives in `DragOverlay` instead — see
+ * `use-outline-dnd-kit.ts` module doc comment for why.
+ */
+function OutlineDragRow({
   id,
   rejected,
   children,
@@ -938,8 +992,7 @@ function DraggableOutlineRow({
   rejected: boolean;
   children: ReactNode;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id });
+  const { attributes, listeners, setNodeRef, isDragging } = useOutlineRow(id);
 
   return (
     <div
@@ -947,9 +1000,6 @@ function DraggableOutlineRow({
       {...attributes}
       {...listeners}
       style={{
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.5 : 1,
         animation: rejected ? 'outline-row-shake 0.4s ease-in-out' : undefined,
       }}
       data-slot="outline-dnd-row"
@@ -957,11 +1007,93 @@ function DraggableOutlineRow({
         'touch-none outline-none',
         'cursor-grab active:cursor-grabbing',
         'rounded-[length:var(--rounded-md)]',
+        'transition-colors duration-fast ease-emphasized',
+        isDragging && [
+          '[&_[data-slot=input-group-control]]:!text-[color:var(--tw-raw-secondary-200)]',
+          '[&_[data-slot=input-group-addon]]:!text-[color:var(--tw-raw-secondary-200)]',
+          '[&_[data-slot=chapter-menu-scene-marker]]:!text-[color:var(--tw-raw-secondary-200)]',
+        ],
         'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
       )}
     >
       {children}
     </div>
+  );
+}
+
+/**
+ * Glowing drop-target divider — the restored SecondaryGlowRail treatment
+ * from the original Add Section Inline Button. Renders wherever the live
+ * `dropIndicator` says a drop would land right now. Callers
+ * place it either as a sibling ahead of a row (`placement: 'before'`) or as
+ * the first entry inside a container's own `children` (`placement:
+ * 'nest'`) — in the nest case it inherits that container's existing
+ * scene/subscene indent for free, so it needs no indent of its own.
+ */
+function DropIndicatorDivider() {
+  return (
+    <div
+      aria-hidden
+      data-slot="outline-drop-indicator"
+      className="pointer-events-none relative z-20 flex min-h-[length:var(--spacing-xl)] items-center"
+    >
+      <SecondaryGlowRail />
+    </div>
+  );
+}
+
+/** Persistent zero-height slot that smoothly opens around the live divider. */
+function DropIndicatorSlot({
+  active,
+}: {
+  active: boolean;
+}) {
+  return (
+    <div
+      aria-hidden={!active}
+      data-slot="outline-drop-indicator-slot"
+      className={cn(
+        '[margin-block:calc(var(--outline-row-gap,0px)*-0.5)]',
+        'grid transition-[grid-template-rows,opacity] duration-normal ease-emphasized',
+        active ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+      )}
+    >
+      <div className="min-h-0 overflow-hidden">
+        <DropIndicatorDivider />
+      </div>
+    </div>
+  );
+}
+
+/** Confirmation for a demoted drop that would push a descendant past
+ * subscene depth — shared by both demos below. */
+function OutlineConfirmDialog({
+  pending,
+}: {
+  pending: PendingConfirmation | null;
+}) {
+  return (
+    <AlertDialog
+      open={pending != null}
+      onOpenChange={(open) => {
+        if (!open) pending?.onCancel();
+      }}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Flatten nested scenes?</AlertDialogTitle>
+          <AlertDialogDescription>{pending?.reason}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => pending?.onCancel()}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction onClick={() => pending?.onConfirm()}>
+            Flatten and move
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -971,10 +1103,12 @@ function DragAndDropOutline() {
 
   const {
     sensors,
-    collisionDetection,
     activeId,
     rejectedId,
+    dropIndicator,
+    pendingConfirmation,
     onDragStart,
+    onDragMove,
     onDragEnd,
     onDragCancel,
   } = useOutlineDragAndDrop({
@@ -1005,41 +1139,51 @@ function DragAndDropOutline() {
       <style>{SHAKE_KEYFRAMES}</style>
       <DndContext
         sensors={sensors}
-        collisionDetection={collisionDetection}
+        collisionDetection={outlineCollisionDetection}
         onDragStart={handleDragStart}
+        onDragMove={onDragMove}
         onDragEnd={onDragEnd}
         onDragCancel={onDragCancel}
       >
-        <SortableContext
-          items={items.map((item) => item.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <OutlineList>
-            {items.map((item) => (
-              <DraggableOutlineRow
-                key={item.id}
-                id={item.id}
-                rejected={rejectedId === item.id}
-              >
+        <OutlineList>
+          {items.map((item) => (
+            <Fragment key={item.id}>
+              <DropIndicatorSlot
+                active={
+                  dropIndicator?.overId === item.id &&
+                  dropIndicator.placement === 'before'
+                }
+              />
+              <OutlineDragRow id={item.id} rejected={rejectedId === item.id}>
                 {renderOutlineItem(item, numbers, updateLabel)}
-              </DraggableOutlineRow>
-            ))}
-          </OutlineList>
-        </SortableContext>
+              </OutlineDragRow>
+              <DropIndicatorSlot
+                active={
+                  dropIndicator?.overId === item.id &&
+                  dropIndicator.placement === 'nest'
+                }
+              />
+            </Fragment>
+          ))}
+        </OutlineList>
         <DragOverlay>
           {activeItem ? (
             <div
+              data-slot="outline-drag-overlay"
               className={cn(
-                'rounded-[length:var(--rounded-md)] bg-[var(--card)]',
-                'shadow-[var(--shadow-lg-black)] dark:shadow-[var(--shadow-lg-white)]',
-                'opacity-95',
+                'pointer-events-none rounded-[length:var(--rounded-md)] bg-[color-mix(in_srgb,var(--background)_70%,transparent)]',
+                'ring-[length:var(--stroke-thin)] ring-[color:var(--theme-alpha-black-switch-10)]',
+                '[&_[data-type=chapter]_[data-slot=input-group-addon]]:!text-[color:var(--muted-foreground)]',
+                '[&_[data-type=chapter]_[data-slot=input-group-text]]:!text-[color:var(--muted-foreground)]',
+                '[&_[data-type=chapter]_[data-slot=input-group-control]]:!text-[color:var(--text)]',
               )}
             >
-              {renderOutlineItem(activeItem, numbers, () => {})}
+              {renderOutlineItem(activeItem, numbers, () => {}, true)}
             </div>
           ) : null}
         </DragOverlay>
       </DndContext>
+      <OutlineConfirmDialog pending={pendingConfirmation} />
       <p
         role="alert"
         className={cn(
