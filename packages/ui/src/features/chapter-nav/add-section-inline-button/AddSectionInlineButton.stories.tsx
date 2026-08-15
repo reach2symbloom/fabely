@@ -20,7 +20,7 @@ import {
 } from './AddSectionInlineButton';
 
 const meta = {
-  title: 'Design System/Features/Add Section Inline Button',
+  title: 'Design System/Features/Chapter Menu/Add Section Inline Button',
   component: AddSectionInlineButton,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },

@@ -20,7 +20,7 @@ import {
 } from './ChapterMenuListItem';
 
 const meta = {
-  title: 'Design System/Features/Chapter Menu List Item',
+  title: 'Design System/Features/Chapter Menu/Chapter Menu List Item',
   component: ChapterMenuListItem,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
