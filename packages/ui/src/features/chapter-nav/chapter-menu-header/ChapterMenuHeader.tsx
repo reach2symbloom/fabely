@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import { FiaSilcrow } from '@/foundations/icons';
 import { BookCover } from '@/atoms/book-cover';
 import { CycleSwitch, type CycleSwitchOption } from '@/atoms/cycle-switch';
-import { AvatarWithLabel } from '@/molecules/avatar-with-label';
+import { AvatarWithLabel, getUserInitials, type UserIdentity } from '@/molecules/avatar-with-label';
 import { buttonLinkVariants } from '@/primitives/button';
 import { Separator } from '@/primitives/separator';
 import { Textarea } from '@/primitives/textarea';
@@ -60,7 +60,10 @@ export type ChapterMenuHeaderProps = {
   logo?: React.ReactNode;
   /** Logo link — home. Default `/`. Pass `false` to render without an anchor. */
   homeHref?: string | false;
-  authorName: string;
+  /** Author record, normally mapped directly from the project database. */
+  author?: UserIdentity;
+  /** Display-name override; falls back to `author.name`. */
+  authorName?: string;
   /** Initials for AvatarFallback. */
   authorInitials?: string;
   authorImageSrc?: string;
@@ -68,7 +71,7 @@ export type ChapterMenuHeaderProps = {
   authorRole?: string;
   /**
    * Author profile URL for AvatarWithLabel.
-   * Default `false` (static — no link / hover). Pass a path to make it interactive.
+   * Falls back to `author.profileHref`. Pass `false` to force a static identity.
    */
   authorHref?: string | false;
   planLabel?: string;
@@ -166,6 +169,7 @@ function AuthorBlock({
   imageSrc,
   role,
   href,
+  userId,
 }: {
   variant: ChapterMenuHeaderVariant;
   name: string;
@@ -173,6 +177,7 @@ function AuthorBlock({
   imageSrc?: string;
   role?: string;
   href?: string;
+  userId?: string;
 }) {
   if (variant === 'main') {
     const roleAction =
@@ -184,6 +189,7 @@ function AuthorBlock({
       return (
         <AvatarWithLabel
           data-slot="chapter-menu-header-author"
+          data-user-id={userId}
           size="sm"
           avatarSize="small"
           name={name}
@@ -200,6 +206,7 @@ function AuthorBlock({
     return (
       <AvatarWithLabel
         data-slot="chapter-menu-header-author"
+        data-user-id={userId}
         size="sm"
         avatarSize="small"
         name={name}
@@ -216,6 +223,7 @@ function AuthorBlock({
     return (
       <AvatarWithLabel
         data-slot="chapter-menu-header-author"
+        data-user-id={userId}
         size="sm"
         name={name}
         initials={initials}
@@ -229,6 +237,7 @@ function AuthorBlock({
   return (
     <AvatarWithLabel
       data-slot="chapter-menu-header-author"
+      data-user-id={userId}
       size="sm"
       name={name}
       initials={initials}
@@ -254,11 +263,12 @@ function ChapterMenuHeader({
   logoAlt = 'Fabely',
   logo,
   homeHref = DEFAULT_HOME_HREF,
+  author,
   authorName,
   authorInitials,
   authorImageSrc,
   authorRole = 'Author',
-  authorHref = false,
+  authorHref,
   planLabel = 'Starter plan',
   upgradeLabel = 'Upgrade',
   upgradeHref = DEFAULT_UPGRADE_HREF,
@@ -269,17 +279,12 @@ function ChapterMenuHeader({
   onOutlineValueChange,
   className,
 }: ChapterMenuHeaderProps) {
-  const initials =
-    authorInitials ??
-    authorName
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() ?? '')
-      .join('');
+  const resolvedAuthorName = authorName ?? author?.name ?? 'Author';
+  const initials = authorInitials ?? (author ? getUserInitials(author) : getUserInitials({ name: resolvedAuthorName }));
+  const resolvedAuthorImageSrc = authorImageSrc ?? author?.avatarUrl ?? undefined;
 
   const authorProfileHref =
-    authorHref === false ? undefined : authorHref;
+    authorHref === false ? undefined : authorHref ?? author?.profileHref ?? undefined;
   const logoImage =
     logo ??
     (logoSrc ? (
@@ -357,11 +362,12 @@ function ChapterMenuHeader({
             />
             <AuthorBlock
               variant="main"
-              name={authorName}
+              name={resolvedAuthorName}
               initials={initials}
-              imageSrc={authorImageSrc}
+              imageSrc={resolvedAuthorImageSrc}
               role={authorRole}
               href={authorProfileHref}
+              userId={author?.id}
             />
           </div>
         ) : (
@@ -419,10 +425,11 @@ function ChapterMenuHeader({
           <div className="flex w-full min-w-0 flex-wrap items-center gap-[var(--spacing-md)]">
             <AuthorBlock
               variant="alt"
-              name={authorName}
+              name={resolvedAuthorName}
               initials={initials}
-              imageSrc={authorImageSrc}
+              imageSrc={resolvedAuthorImageSrc}
               href={authorProfileHref}
+              userId={author?.id}
             />
             <div className="flex items-center gap-[var(--spacing-md)]">
               <DotDivider />

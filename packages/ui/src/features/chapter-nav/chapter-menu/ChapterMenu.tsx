@@ -121,6 +121,7 @@ function ChapterMenu({
       className={cn(
         'relative flex w-[542px] min-w-[542px] shrink-0 flex-col',
         'min-h-[length:var(--tw-raw-spacing-80)]',
+        'max-h-[calc(100dvh-var(--spacing-2xl))]',
         /* Close control straddles the card edge — vendor Card uses overflow-hidden. */
         'overflow-visible!',
         /* Figma Header / Body pad xl; Footer pad md. */
@@ -147,6 +148,8 @@ function ChapterMenu({
               /* Center on header/body divider (header bottom rule) and card edge. */
               'absolute end-0 bottom-0 z-20',
               'translate-x-1/2 translate-y-1/2',
+              'transition-[transform,background-color] duration-[var(--duration-fast)] ease-[var(--ease-emphasized)]',
+              'hover:scale-110 active:scale-100',
               'bg-[color:var(--background)]',
               'hover:bg-[color-mix(in_srgb,var(--foreground)_5%,var(--background))]',
               'active:bg-[color-mix(in_srgb,var(--foreground)_10%,var(--background))]',
@@ -162,7 +165,14 @@ function ChapterMenu({
       <CardContent
         data-slot="chapter-menu-body"
         className={cn(
+          'min-h-0 flex-1 overflow-y-auto overscroll-contain',
           'flex flex-col gap-[length:var(--spacing-sm)]',
+          '[scrollbar-width:thin]',
+          '[scrollbar-color:color-mix(in_srgb,var(--tw-raw-white)_24%,transparent)_transparent]',
+          '[&::-webkit-scrollbar]:w-[2px]',
+          '[&::-webkit-scrollbar-track]:bg-transparent',
+          '[&::-webkit-scrollbar-thumb]:rounded-full',
+          '[&::-webkit-scrollbar-thumb]:bg-[color:color-mix(in_srgb,var(--tw-raw-white)_24%,transparent)]',
           bodyStartsWithAct
             ? 'pt-0!'
             : 'pt-[length:var(--spacing-lg)]!',
