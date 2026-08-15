@@ -22,6 +22,87 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@property --insert-cloud-offset {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* The chapter insert light stays geometrically locked to the divider. Its
+ * layered luminance shifts independently to create a restrained cloudy
+ * shimmer without the light ever wandering away from the rule. */
+@keyframes insert-glow-ambient-cloud {
+  0% {
+    --insert-cloud-offset: calc(var(--spacing-xs) * -1);
+    filter: brightness(0.92);
+  }
+  18% {
+    --insert-cloud-offset: var(--spacing-2xs);
+    filter: brightness(1.02);
+  }
+  43% {
+    --insert-cloud-offset: var(--spacing-sm);
+    filter: brightness(0.96);
+  }
+  67% {
+    --insert-cloud-offset: calc(var(--spacing-2xs) * -1);
+    filter: brightness(1.04);
+  }
+  84% {
+    --insert-cloud-offset: calc(var(--spacing-sm) * -1);
+    filter: brightness(0.98);
+  }
+  100% {
+    --insert-cloud-offset: calc(var(--spacing-xs) * -1);
+    filter: brightness(0.92);
+  }
+}
+
+@keyframes insert-glow-core-cloud {
+  0% {
+    --insert-cloud-offset: var(--spacing-3xs);
+    filter: brightness(1);
+  }
+  21% {
+    --insert-cloud-offset: calc(var(--spacing-2xs) * -1);
+    filter: brightness(0.94);
+  }
+  46% {
+    --insert-cloud-offset: var(--spacing-xs);
+    filter: brightness(1.05);
+  }
+  64% {
+    --insert-cloud-offset: var(--spacing-2xs);
+    filter: brightness(0.98);
+  }
+  82% {
+    --insert-cloud-offset: calc(var(--spacing-3xs) * -1);
+    filter: brightness(1.03);
+  }
+  100% {
+    --insert-cloud-offset: var(--spacing-3xs);
+    filter: brightness(1);
+  }
+}
+
+[data-slot='add-section-insert-line']:hover
+  [data-slot='insert-glow-ambient'] {
+  animation: insert-glow-ambient-cloud calc(var(--duration-drawer) * 5)
+    linear infinite;
+}
+
+[data-slot='add-section-insert-line']:hover [data-slot='insert-glow-core'] {
+  animation: insert-glow-core-cloud calc(var(--duration-drawer) * 4)
+    linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot='insert-glow-ambient'],
+  [data-slot='insert-glow-core'] {
+    animation: none !important;
+  }
+}
+
 /*
  * Registers Foundations' existing semantic color/radius custom properties
  * (see foundations/colors.css, foundations/radius.css) into Tailwind v4's

@@ -154,6 +154,26 @@ export function childrenOf(
   return items.filter((item) => item.parentId === parentId);
 }
 
+/** True when a proposed target belongs to the dragged item's own subtree. */
+export function isOutlineDropIntoOwnSubtree(
+  items: OutlineItem[],
+  activeId: string,
+  overId: string,
+): boolean {
+  if (activeId === overId) return true;
+  if (overId === ROOT_CONTAINER) return false;
+
+  const itemsById = new Map(items.map((item) => [item.id, item]));
+  let ancestorId = itemsById.get(overId)?.parentId;
+
+  while (ancestorId && ancestorId !== ROOT_CONTAINER) {
+    if (ancestorId === activeId) return true;
+    ancestorId = itemsById.get(ancestorId)?.parentId;
+  }
+
+  return false;
+}
+
 /** Can this kind own children at all? (Only chapter and scene can.) */
 export function canOwnChildren(kind: OutlineItemKind): boolean {
   return kind === 'chapter' || kind === 'scene';

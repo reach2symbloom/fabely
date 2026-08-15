@@ -84,6 +84,9 @@ const frameChrome = [
   'rounded-[length:var(--rounded-sm)]',
   'border-[length:var(--stroke-regular)] border-solid',
   'border-[color:var(--theme-alpha-black-switch-10)]',
+  'transition-[border-color] duration-fast ease-emphasized',
+  'hover:border-[color:var(--theme-alpha-black-switch-25)]',
+  'focus-within:border-[color:var(--theme-alpha-black-switch-25)]',
   'shadow-[var(--shadow-md-black)]',
 ].join(' ');
 

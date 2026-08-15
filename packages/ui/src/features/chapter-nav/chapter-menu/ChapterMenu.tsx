@@ -28,6 +28,12 @@ export type ChapterMenuProps = {
   /** Outline body — list items, add-section inserts, act groups. */
   children?: React.ReactNode;
   /**
+   * The first outline item is an Act, which already owns 12px top padding.
+   * Removes the body's top inset so Act-first trees use the Act's own tighter
+   * spacing instead of stacking modal and section padding.
+   */
+  bodyStartsWithAct?: boolean;
+  /**
    * Footer slot. Default: Add chapter (outline) + Add act (ghost).
    * Pass `null` to omit the footer.
    */
@@ -85,6 +91,7 @@ function DefaultFooter({
 function ChapterMenu({
   header,
   children,
+  bodyStartsWithAct = false,
   footer,
   showClose = true,
   onClose,
@@ -156,7 +163,9 @@ function ChapterMenu({
         data-slot="chapter-menu-body"
         className={cn(
           'flex flex-col gap-[length:var(--spacing-sm)]',
-          'pt-[length:var(--spacing-lg)]!',
+          bodyStartsWithAct
+            ? 'pt-0!'
+            : 'pt-[length:var(--spacing-lg)]!',
         )}
       >
         {children}

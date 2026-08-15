@@ -393,6 +393,7 @@ function ChapterMenuHeader({
             variant="quiet"
             textStyle="heading"
             resizable={false}
+            className="!rounded-[length:var(--rounded-md)]"
             aria-label={bookTitleLabel}
             placeholder={bookTitleLabel}
             value={onBookTitleChange ? bookTitle : undefined}

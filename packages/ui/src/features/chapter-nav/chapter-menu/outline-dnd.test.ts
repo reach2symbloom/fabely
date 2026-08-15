@@ -4,6 +4,7 @@ import {
   ROOT_CONTAINER,
   childrenOf,
   computeOutlineNumbers,
+  isOutlineDropIntoOwnSubtree,
   isOutlineDropNoOp,
   reorderOutline,
   type OutlineItem,
@@ -71,6 +72,27 @@ describe('isOutlineDropNoOp', () => {
         placement: 'before',
       }),
     ).toBe(false);
+  });
+});
+
+describe('isOutlineDropIntoOwnSubtree', () => {
+  it('blocks the dragged item and every lower-order structure it owns', () => {
+    const items = baseOutline();
+
+    expect(isOutlineDropIntoOwnSubtree(items, 'ch1', 'ch1')).toBe(true);
+    expect(isOutlineDropIntoOwnSubtree(items, 'ch1', 'sc1')).toBe(true);
+    expect(isOutlineDropIntoOwnSubtree(items, 'ch1', 'sub1')).toBe(true);
+    expect(isOutlineDropIntoOwnSubtree(items, 'sc1', 'sub1')).toBe(true);
+  });
+
+  it('keeps targets outside the dragged subtree available', () => {
+    const items = baseOutline();
+
+    expect(isOutlineDropIntoOwnSubtree(items, 'ch1', 'ch2')).toBe(false);
+    expect(isOutlineDropIntoOwnSubtree(items, 'sc1', 'sc2')).toBe(false);
+    expect(isOutlineDropIntoOwnSubtree(items, 'ch1', ROOT_CONTAINER)).toBe(
+      false,
+    );
   });
 });
 

@@ -197,6 +197,7 @@ function IconButtonPlayground() {
               options={VARIANTS.map(({ variant: v, label }) => ({ value: v, label }))}
               onChange={setVariant}
               fullWidth
+              optionClassName="min-w-[length:var(--spacing-8xl)] flex-none whitespace-nowrap"
             />
           </div>
 

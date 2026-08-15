@@ -2,20 +2,26 @@
  * Add Section Inline Button — insert row between manuscript sections.
  *
  * Figma: Add section inline button (`16373:4624`) Chapter / Scene / Act
- * variants. Chapter / Scene: plus (Icon Button) left of a hover-only
- * 1px divider. Chapter plus or divider opens a Dropdown Menu (Chapter /
+ * variants. Chapter / Scene: plus (Icon Button) left of a proximity-revealed
+ * quiet divider whose glow follows the pointer. Chapter plus or divider opens a Dropdown Menu (Chapter /
  * Act). Scene plus or divider inserts directly.
  *
  * Placement: feature. Stays in `src/features/chapter-nav/`.
  *
  * Chapter / Scene: list gap is always `--spacing-sm` (12) — rest and hover.
- * Chrome (plus + divider) fades in (opacity). No height change.
+ * The plus fades in without changing the divider or gap height.
  */
 
 'use client';
 
 import * as React from 'react';
-import { PlusIcon, SeparatorHorizontalIcon } from 'lucide-react';
+import {
+  EllipsisVerticalIcon,
+  PencilIcon,
+  PlusIcon,
+  SeparatorHorizontalIcon,
+  Trash2Icon,
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { IconButton } from '@/primitives/button';
@@ -32,6 +38,7 @@ import { Separator } from '@/primitives/separator';
 export type AddSectionInlineType =
   | 'chapter'
   | 'scene'
+  | 'subscene'
   | 'actUntitled'
   | 'actNoOnly'
   | 'actTitled';
@@ -80,6 +87,8 @@ export type AddSectionInlineButtonProps = {
   addAct?: AddSectionAction;
   /** Wire the Scene plus (Scene type row). */
   addScene?: AddSectionAction;
+  /** Wire the Sub-scene plus (Sub-scene type row). */
+  addSubscene?: AddSectionAction;
   /**
    * Shorthand click handlers — merged after `add*.onClick`. Prefer `addChapter`
    * / `addAct` / `addScene` when you also need `href` or form attributes.
@@ -87,7 +96,10 @@ export type AddSectionInlineButtonProps = {
   onAddChapter?: () => void;
   onAddAct?: () => void;
   onAddScene?: () => void;
+  onAddSubscene?: () => void;
   onActTitleChange?: (value: string) => void;
+  onDeleteAct?: () => void;
+  onRenameAct?: () => void;
 };
 
 const actSerifType = [
@@ -162,22 +174,63 @@ function InsertLine({
       role="presentation"
       data-slot="add-section-insert-line"
       className={cn(
-        'group/insert-line flex min-h-[length:var(--spacing-sm)] min-w-0 flex-1 cursor-pointer items-center',
+        'group/insert-line relative flex min-h-[length:var(--icon-md)] min-w-0 flex-1 cursor-pointer items-center',
       )}
       onClick={onClick}
     >
       <Separator
         aria-hidden
+        data-slot="insert-divider-rule"
         orientation="horizontal"
         size="thin"
         spacing="none"
         className={cn(
           'min-w-0 w-auto flex-1',
           'h-[length:var(--stroke-thin)]',
-          'bg-[color:var(--theme-alpha-black-switch-5)]',
-          'transition-[background-color] duration-fast ease-emphasized',
-          'group-hover/insert-line:bg-[color:var(--theme-alpha-black-switch-25)]',
+          'bg-[color:var(--theme-alpha-black-switch-10)]',
+          'origin-[var(--insert-hover-x)_center] scale-x-0 opacity-0',
+          'transition-[opacity,transform] duration-fast ease-emphasized',
+          'group-data-[insert-hovered=true]/add-section-insert:scale-x-100 group-data-[insert-hovered=true]/add-section-insert:opacity-100',
+          'group-focus-within/add-section-insert:scale-x-100 group-focus-within/add-section-insert:opacity-100',
+          'group-data-[force-hover=true]/add-section-insert:scale-x-100 group-data-[force-hover=true]/add-section-insert:opacity-100',
+          'motion-reduce:transition-none',
+          '[-webkit-mask-image:linear-gradient(to_right,transparent_0,black_var(--spacing-lg),black_calc(100%_-_var(--spacing-lg)),transparent_100%)]',
+          '[mask-image:linear-gradient(to_right,transparent_0,black_var(--spacing-lg),black_calc(100%_-_var(--spacing-lg)),transparent_100%)]',
         )}
+      />
+      <span
+        aria-hidden
+        data-slot="insert-glow-ambient"
+        className={cn(
+          'pointer-events-none absolute inset-x-0 top-1/2 h-[length:var(--spacing-sm)] -translate-y-1/2 opacity-0',
+          '[-webkit-mask-image:linear-gradient(to_right,transparent_0,black_var(--spacing-xl),black_calc(100%_-_var(--spacing-xl)),transparent_100%)]',
+          '[mask-image:linear-gradient(to_right,transparent_0,black_var(--spacing-xl),black_calc(100%_-_var(--spacing-xl)),transparent_100%)]',
+          'origin-[var(--insert-hover-x)_center] scale-x-0',
+          'transition-[opacity,transform] duration-normal ease-emphasized',
+          'group-data-[insert-hovered=true]/add-section-insert:opacity-60',
+          'group-data-[insert-hovered=true]/add-section-insert:scale-x-100',
+        )}
+        style={{
+          background:
+            'radial-gradient(ellipse var(--spacing-7xl) var(--spacing-2xs) at calc(var(--insert-hover-x) + var(--insert-cloud-offset, 0px)) 50%, color-mix(in srgb, var(--tw-raw-white) 18%, transparent) 0%, color-mix(in srgb, color-mix(in srgb, var(--tw-raw-white) 90%, var(--tw-raw-primary-gradient-1)) 12%, transparent) 32%, color-mix(in srgb, var(--tw-raw-white) 4%, transparent) 66%, transparent 100%)',
+        }}
+      />
+      <span
+        aria-hidden
+        data-slot="insert-glow-core"
+        className={cn(
+          'pointer-events-none absolute inset-x-0 top-1/2 h-[length:var(--spacing-2xs)] -translate-y-1/2 opacity-0',
+          '[-webkit-mask-image:linear-gradient(to_right,transparent_0,black_var(--spacing-xl),black_calc(100%_-_var(--spacing-xl)),transparent_100%)]',
+          '[mask-image:linear-gradient(to_right,transparent_0,black_var(--spacing-xl),black_calc(100%_-_var(--spacing-xl)),transparent_100%)]',
+          'origin-[var(--insert-hover-x)_center] scale-x-0',
+          'transition-[opacity,transform] duration-normal ease-emphasized',
+          'group-data-[insert-hovered=true]/add-section-insert:opacity-70',
+          'group-data-[insert-hovered=true]/add-section-insert:scale-x-100',
+        )}
+        style={{
+          background:
+            'radial-gradient(ellipse var(--spacing-6xl) var(--spacing-3xs) at calc(var(--insert-hover-x) + var(--insert-cloud-offset, 0px)) 50%, color-mix(in srgb, var(--tw-raw-white) 92%, var(--tw-raw-primary-gradient-1)) 0%, color-mix(in srgb, color-mix(in srgb, var(--tw-raw-white) 88%, var(--tw-raw-primary-gradient-1)) 28%, transparent) 38%, color-mix(in srgb, var(--tw-raw-white) 7%, transparent) 72%, transparent 100%)',
+        }}
       />
     </div>
   );
@@ -241,7 +294,7 @@ function InsertPlusButton({
 }) {
   return (
     <IconButton
-      variant="ghost"
+      variant="subtleFilled"
       size="mini"
       roundness="round"
       aria-label={ariaLabel}
@@ -280,41 +333,60 @@ function InsertChrome({
   addChapter,
   addAct,
   addScene,
+  addSubscene,
   onAddChapter,
   onAddAct,
   onAddScene,
+  onAddSubscene,
 }: {
-  type: 'chapter' | 'scene';
+  type: 'chapter' | 'scene' | 'subscene';
   reveal: boolean;
   menuOpen?: boolean;
   onMenuOpenChange?: (open: boolean) => void;
   addChapter?: AddSectionAction;
   addAct?: AddSectionAction;
   addScene?: AddSectionAction;
+  addSubscene?: AddSectionAction;
   onAddChapter?: () => void;
   onAddAct?: () => void;
   onAddScene?: () => void;
+  onAddSubscene?: () => void;
 }) {
+  const [menuAnchor, setMenuAnchor] = React.useState<
+    React.ComponentProps<typeof DropdownMenuContent>['anchor']
+  >();
+
+  function anchorMenuToPointer(event: React.PointerEvent<HTMLDivElement>) {
+    const { clientX, clientY } = event;
+    setMenuAnchor({
+      getBoundingClientRect: () => new DOMRect(clientX, clientY, 0, 0),
+    });
+  }
+
   const plusAndLine = (
     plus: React.ReactNode,
     onLineClick?: React.MouseEventHandler<HTMLDivElement>,
+    onPointerDown?: React.PointerEventHandler<HTMLDivElement>,
   ) => (
     <div
-      className={cn(
-        'flex w-full max-w-full items-center gap-[length:var(--spacing-2xs)]',
-        reveal && insertChromeReveal,
-      )}
+      className="flex w-full max-w-full items-center gap-[length:var(--spacing-2xs)]"
+      onPointerDown={onPointerDown}
     >
       <div
         className={cn(
           'shrink-0',
+          reveal && insertChromeReveal,
           /*
            * Same column as chapter chevron: list item uses
            * `left: -lg + 2xs` on a `--icon-xs` box. Mini Icon Button is
            * `--spacing-xl`; pull an extra `--spacing-1-5` so the plus
            * glyph shares that plane (half the 24 vs 12 size delta).
            */
-          'ms-[calc(-1*var(--spacing-lg)+var(--spacing-2xs)-var(--spacing-1-5))]',
+          type === 'scene'
+            ? 'ms-[length:var(--spacing-xs)]'
+            : type === 'subscene'
+              ? 'ms-[calc(var(--spacing-xl)+var(--spacing-3xs))]'
+            : 'ms-[calc(-1*var(--spacing-lg)+var(--spacing-2xs)-var(--spacing-1-5))]',
         )}
       >
         {plus}
@@ -323,20 +395,22 @@ function InsertChrome({
     </div>
   );
 
-  if (type === 'scene') {
-    const addSceneNow: React.MouseEventHandler<HTMLElement> = (event) =>
-      fireAction(event, addScene, onAddScene);
+  if (type === 'scene' || type === 'subscene') {
+    const action = type === 'scene' ? addScene : addSubscene;
+    const onAdd = type === 'scene' ? onAddScene : onAddSubscene;
+    const addNestedNow: React.MouseEventHandler<HTMLElement> = (event) =>
+      fireAction(event, action, onAdd);
 
     return plusAndLine(
       <InsertPlusButton
-        ariaLabel="Add scene"
-        type={addScene?.type ?? 'button'}
-        formAction={addScene?.formAction}
-        formMethod={addScene?.formMethod}
-        form={addScene?.form}
-        onClick={addSceneNow}
+        ariaLabel={type === 'scene' ? 'Add scene' : 'Add sub-scene'}
+        type={action?.type ?? 'button'}
+        formAction={action?.formAction}
+        formMethod={action?.formMethod}
+        form={action?.form}
+        onClick={addNestedNow}
       />,
-      addSceneNow,
+      addNestedNow,
     );
   }
 
@@ -346,21 +420,24 @@ function InsertChrome({
         <DropdownMenuTrigger
           render={
             <IconButton
-              variant="ghost"
+              variant="subtleFilled"
               size="mini"
               roundness="round"
               aria-label="Add chapter or act"
+              onKeyDown={() => setMenuAnchor(undefined)}
             />
           }
         >
           <PlusIcon />
         </DropdownMenuTrigger>,
         () => onMenuOpenChange?.(true),
+        anchorMenuToPointer,
       )}
       <DropdownMenuContent
-        align="start"
+        align="center"
         side="bottom"
-        className="w-auto min-w-48"
+        anchor={menuAnchor}
+        className="w-fit min-w-0"
       >
         <DropdownMenuGroup>
           <InsertMenuItem action={addChapter} onAdd={onAddChapter}>
@@ -389,13 +466,20 @@ function AddSectionInlineButton({
   addChapter,
   addAct,
   addScene,
+  addSubscene,
   onAddChapter,
   onAddAct,
   onAddScene,
+  onAddSubscene,
   onActTitleChange,
+  onDeleteAct,
+  onRenameAct,
 }: AddSectionInlineButtonProps) {
   const [title, setTitle] = React.useState(actTitle ?? '');
   const [menuOpen, setMenuOpen] = React.useState(forceOpen);
+  const [actActionsOpen, setActActionsOpen] = React.useState(false);
+  const [insertHovered, setInsertHovered] = React.useState(false);
+  const actTitleRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (actTitle !== undefined) setTitle(actTitle);
@@ -415,6 +499,60 @@ function AddSectionInlineButton({
     onActTitleChange?.(next);
   }
 
+  function updateInsertHoverPosition(event: React.PointerEvent<HTMLDivElement>) {
+    const line = event.currentTarget.querySelector<HTMLElement>(
+      '[data-slot="add-section-insert-line"]',
+    );
+    if (!line) return;
+    const bounds = line.getBoundingClientRect();
+    event.currentTarget.style.setProperty(
+      '--insert-hover-x',
+      `${event.clientX - bounds.left}px`,
+    );
+  }
+
+  const actActions = (
+    <DropdownMenu open={actActionsOpen} onOpenChange={setActActionsOpen}>
+      <DropdownMenuTrigger
+        render={
+          <IconButton
+            type="button"
+            variant="ghost"
+            size="mini"
+            aria-label="Act actions"
+            className={cn(
+              'absolute end-[calc(-1*var(--spacing-xs))] top-1/2 z-10 -translate-y-1/2',
+              !actActionsOpen && 'opacity-0',
+              'group-hover/act-row:opacity-100 focus-visible:opacity-100',
+            )}
+          />
+        }
+      >
+        <EllipsisVerticalIcon />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" side="bottom" className="w-auto min-w-48">
+        <DropdownMenuGroup>
+          <DropdownMenuItem variant="destructive" onClick={onDeleteAct}>
+            <Trash2Icon />
+            Delete act
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              onRenameAct?.();
+              requestAnimationFrame(() => {
+                actTitleRef.current?.focus();
+                actTitleRef.current?.select();
+              });
+            }}
+          >
+            <PencilIcon />
+            Rename
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   if (isAct) {
     const roman = toRomanNumeral(actIndex);
 
@@ -424,12 +562,13 @@ function AddSectionInlineButton({
           data-slot="add-section-inline-button"
           data-type={type}
           className={cn(
-            'flex w-full max-w-full items-center gap-[var(--spacing-sm)]',
+            'group/act-row relative flex w-full max-w-full items-center gap-[var(--spacing-sm)]',
             'pt-[var(--spacing-sm)] pb-[var(--spacing-xs)]',
             className,
           )}
         >
           <ActDiamondRail />
+          {actActions}
           <span
             aria-label={`Act ${roman}`}
             className={cn(
@@ -449,8 +588,11 @@ function AddSectionInlineButton({
       <div
         data-slot="add-section-inline-button"
         data-type={type}
+        style={{ '--insert-hover-x': '50%' } as React.CSSProperties}
+        onPointerEnter={updateInsertHoverPosition}
+        onPointerMove={updateInsertHoverPosition}
         className={cn(
-          'flex w-full max-w-full items-center gap-[var(--spacing-sm)]',
+          'group/act-row relative flex w-full max-w-full items-center gap-[var(--spacing-sm)]',
           'pt-[var(--spacing-sm)] pb-[var(--spacing-xs)]',
           className,
         )}
@@ -466,12 +608,23 @@ function AddSectionInlineButton({
             {`${roman}.`}
           </span>
           <Input
+            ref={actTitleRef}
             variant="quiet"
             size="mini"
             aria-label="Act title"
             value={title}
             placeholder={type === 'actUntitled' ? placeholder : undefined}
             onChange={(event) => commitTitle(event.currentTarget.value)}
+            onKeyDown={(event) => {
+              /* The Act row is also a keyboard drag activator. Keep typing
+               * keys — especially Space — inside the native title input so
+               * dnd-kit does not interpret them as lift/drop commands. */
+              event.stopPropagation();
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                event.currentTarget.blur();
+              }
+            }}
             className={cn(
               actSerifType,
               'h-[length:var(--spacing-2xl)] w-auto field-sizing-content',
@@ -483,6 +636,7 @@ function AddSectionInlineButton({
           />
         </div>
         <ActDiamondRail />
+        {actActions}
       </div>
     );
   }
@@ -502,9 +656,11 @@ function AddSectionInlineButton({
       addChapter={addChapter}
       addAct={addAct}
       addScene={addScene}
+      addSubscene={addSubscene}
       onAddChapter={onAddChapter}
       onAddAct={onAddAct}
       onAddScene={onAddScene}
+      onAddSubscene={onAddSubscene}
     />
   );
 
@@ -533,6 +689,14 @@ function AddSectionInlineButton({
       data-slot="add-section-inline-button"
       data-type={type}
       data-force-hover={chromeVisible || undefined}
+      data-insert-hovered={insertHovered || undefined}
+      style={{ '--insert-hover-x': '50%' } as React.CSSProperties}
+      onPointerEnter={(event) => {
+        updateInsertHoverPosition(event);
+        setInsertHovered(true);
+      }}
+      onPointerMove={updateInsertHoverPosition}
+      onPointerLeave={() => setInsertHovered(false)}
       className={cn(
         'group/add-section-insert relative z-10 isolate overflow-visible',
         'h-[length:var(--spacing-sm)] w-full max-w-full shrink-0',
@@ -546,15 +710,24 @@ function AddSectionInlineButton({
   );
 }
 
-/** 12px rest-and-hover gap between outline rows. */
+/** Resting outline rhythm that smoothly opens to reveal a nested insert target. */
 function AddSectionInlineGap({
   className,
   ...props
 }: AddSectionInlineButtonProps) {
+  const isNestedSceneGap = props.type === 'scene' || props.type === 'subscene';
+
   return (
     <div
       data-slot="add-section-inline-gap"
-      className={cn('w-full shrink-0', className)}
+      className={cn(
+        'w-full shrink-0',
+        isNestedSceneGap &&
+          'relative transition-[height] duration-normal ease-emphasized hover:h-[length:var(--spacing-sm)] focus-within:h-[length:var(--spacing-sm)] [&>[data-slot=add-section-inline-button]]:absolute [&>[data-slot=add-section-inline-button]]:inset-x-0 [&>[data-slot=add-section-inline-button]]:top-1/2 [&>[data-slot=add-section-inline-button]]:-translate-y-1/2',
+        props.type === 'scene' && 'h-[length:var(--spacing-3xs)]',
+        props.type === 'subscene' && 'h-[length:var(--spacing-1-5)]',
+        className,
+      )}
     >
       <AddSectionInlineButton {...props} />
     </div>

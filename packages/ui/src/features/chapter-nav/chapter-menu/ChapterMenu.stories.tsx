@@ -376,10 +376,94 @@ function InteractiveChapterMenu({
     setFocusRowId(id);
   }
 
+  function insertScene(chapterId: string, siblingPosition: number) {
+    const id = makeOutlineRowId();
+    const newItem: OutlineItem = {
+      id,
+      kind: 'scene',
+      label: '',
+      parentId: chapterId,
+    };
+
+    setItems((current) => {
+      const siblings = childrenOf(current, chapterId);
+      const nextSibling = siblings[siblingPosition];
+      let at: number;
+
+      if (nextSibling) {
+        at = current.findIndex((item) => item.id === nextSibling.id);
+      } else {
+        const parentById = new Map(current.map((item) => [item.id, item]));
+        const isInsideChapter = (item: OutlineItem) => {
+          let parentId = item.parentId;
+          while (parentId !== ROOT_CONTAINER) {
+            if (parentId === chapterId) return true;
+            parentId = parentById.get(parentId)?.parentId ?? ROOT_CONTAINER;
+          }
+          return false;
+        };
+        at = current.findIndex(
+          (item, index) =>
+            index > current.findIndex((candidate) => candidate.id === chapterId) &&
+            !isInsideChapter(item),
+        );
+        if (at < 0) at = current.length;
+      }
+
+      return [...current.slice(0, at), newItem, ...current.slice(at)];
+    });
+    setItems((current) =>
+      current.map((item) =>
+        item.id === chapterId ? { ...item, isCollapsed: false } : item,
+      ),
+    );
+    setFocusRowId(id);
+  }
+
+  function insertSubscene(sceneId: string, siblingPosition: number) {
+    const id = makeOutlineRowId();
+    const newItem: OutlineItem = {
+      id,
+      kind: 'subscene',
+      label: '',
+      parentId: sceneId,
+    };
+
+    setItems((current) => {
+      const siblings = childrenOf(current, sceneId);
+      const nextSibling = siblings[siblingPosition];
+      const at = nextSibling
+        ? current.findIndex((item) => item.id === nextSibling.id)
+        : siblings.length > 0
+          ? current.findIndex((item) => item.id === siblings.at(-1)?.id) + 1
+          : current.findIndex((item) => item.id === sceneId) + 1;
+
+      return [...current.slice(0, at), newItem, ...current.slice(at)];
+    });
+    setFocusRowId(id);
+  }
+
   function updateLabel(id: string, label: string) {
     setItems((current) =>
       current.map((item) => (item.id === id ? { ...item, label } : item)),
     );
+  }
+
+  function deleteOutlineItem(id: string) {
+    setItems((current) => {
+      const removed = new Set([id]);
+      let foundChild = true;
+      while (foundChild) {
+        foundChild = false;
+        for (const item of current) {
+          if (removed.has(item.parentId) && !removed.has(item.id)) {
+            removed.add(item.id);
+            foundChild = true;
+          }
+        }
+      }
+      return current.filter((item) => !removed.has(item.id));
+    });
   }
 
   useEffect(() => {
@@ -404,6 +488,33 @@ function InteractiveChapterMenu({
     );
   }
 
+  function insertSceneGap(chapterId: string, position: number) {
+    return (
+      <AddSectionInlineGap
+        type="scene"
+        onAddScene={() => insertScene(chapterId, position)}
+      />
+    );
+  }
+
+  function insertSubsceneGap(
+    sceneId: string,
+    position: number,
+    edge = false,
+  ) {
+    return (
+      <AddSectionInlineGap
+        type="subscene"
+        className={
+          edge
+            ? 'h-0! hover:h-[length:var(--spacing-sm)]! focus-within:h-[length:var(--spacing-sm)]!'
+            : undefined
+        }
+        onAddSubscene={() => insertSubscene(sceneId, position)}
+      />
+    );
+  }
+
   function trackNode(id: string) {
     return (node: HTMLDivElement | null) => {
       if (node) rowNodes.current.set(id, node);
@@ -418,6 +529,7 @@ function InteractiveChapterMenu({
   return (
     <ChapterMenu
       showClose={showClose}
+      bodyStartsWithAct={topLevel[0]?.kind === 'act'}
       header={
         <DemoHeader
           variant={headerVariant}
@@ -456,6 +568,7 @@ function InteractiveChapterMenu({
                           actIndex={numbers.get(item.id) ?? 1}
                           actTitle={item.label}
                           onActTitleChange={(label) => updateLabel(item.id, label)}
+                          onDeleteAct={() => deleteOutlineItem(item.id)}
                         />
                       </div>
                     </OutlineDragRow>
@@ -469,6 +582,7 @@ function InteractiveChapterMenu({
                           untitled={item.label.trim() === ''}
                           href={SECTION_HREF}
                           onLabelChange={(label) => updateLabel(item.id, label)}
+                          onDelete={() => deleteOutlineItem(item.id)}
                           showChevron={childrenOf(items, item.id).length > 0}
                           expanded={
                             childrenOf(items, item.id).length > 0 && !item.isCollapsed
@@ -481,6 +595,7 @@ function InteractiveChapterMenu({
                               dropIndicator.placement === 'nest'
                             }
                           />
+                          {insertSceneGap(item.id, 0)}
                           {childrenOf(items, item.id).map((scene, sceneIndex) => {
                             const subscenes = childrenOf(items, scene.id);
                             return (
@@ -495,24 +610,28 @@ function InteractiveChapterMenu({
                                   id={scene.id}
                                   rejected={rejectedId === scene.id}
                                 >
-                                  <ChapterMenuListItem
-                                    type="scene"
-                                    sceneNumber={sceneIndex + 1}
-                                    label={scene.label}
-                                    href={SECTION_HREF}
-                                    hasNestedItems={
-                                      mode === 'full' && subscenes.length > 0
-                                    }
-                                    onLabelChange={(label) => updateLabel(scene.id, label)}
-                                  >
+                                  <div ref={trackNode(scene.id)}>
+                                    <ChapterMenuListItem
+                                      type="scene"
+                                      sceneNumber={sceneIndex + 1}
+                                      label={scene.label}
+                                      href={SECTION_HREF}
+                                      hasNestedItems={
+                                        mode === 'full' && subscenes.length > 0
+                                      }
+                                      onLabelChange={(label) => updateLabel(scene.id, label)}
+                                      onDelete={() => deleteOutlineItem(scene.id)}
+                                    >
                                     <DropIndicatorSlot
                                       active={
                                         dropIndicator?.overId === scene.id &&
                                         dropIndicator.placement === 'nest'
                                       }
                                     />
-                                    {mode === 'full' && subscenes.length > 0
-                                      ? subscenes.map((subscene) => (
+                                    {mode === 'full' ? (
+                                      <>
+                                        {insertSubsceneGap(scene.id, 0, true)}
+                                        {subscenes.map((subscene, subsceneIndex) => (
                                           <Fragment key={subscene.id}>
                                             <DropIndicatorSlot
                                               active={
@@ -524,20 +643,33 @@ function InteractiveChapterMenu({
                                               id={subscene.id}
                                               rejected={rejectedId === subscene.id}
                                             >
-                                              <ChapterMenuListItem
-                                                type="subscene"
-                                                label={subscene.label}
-                                                href={SECTION_HREF}
-                                                onLabelChange={(label) =>
-                                                  updateLabel(subscene.id, label)
-                                                }
-                                              />
+                                              <div ref={trackNode(subscene.id)}>
+                                                <ChapterMenuListItem
+                                                  type="subscene"
+                                                  label={subscene.label}
+                                                  href={SECTION_HREF}
+                                                  onLabelChange={(label) =>
+                                                    updateLabel(subscene.id, label)
+                                                  }
+                                                  onDelete={() =>
+                                                    deleteOutlineItem(subscene.id)
+                                                  }
+                                                />
+                                              </div>
                                             </OutlineDragRow>
+                                            {insertSubsceneGap(
+                                              scene.id,
+                                              subsceneIndex + 1,
+                                              subsceneIndex === subscenes.length - 1,
+                                            )}
                                           </Fragment>
-                                        ))
-                                      : null}
-                                  </ChapterMenuListItem>
+                                        ))}
+                                      </>
+                                    ) : null}
+                                    </ChapterMenuListItem>
+                                  </div>
                                 </OutlineDragRow>
+                                {insertSceneGap(item.id, sceneIndex + 1)}
                               </Fragment>
                             );
                           })}
@@ -940,6 +1072,7 @@ function renderOutlineItem(
           chapterNumber={numbers.get(item.id) ?? 1}
           label={item.label}
           href={SECTION_HREF}
+          drag={dragPreview}
           showActions={!dragPreview}
           onLabelChange={(label) => onLabelChange(item.id, label)}
         />
@@ -1011,6 +1144,7 @@ function OutlineDragRow({
         'rounded-[length:var(--rounded-md)]',
         'transition-colors duration-fast ease-emphasized',
         isDragging && [
+          '[&_[data-slot=chapter-menu-drag-indicator]]:!opacity-100',
           '[&_[data-slot=input-group-control]]:!text-[color:var(--tw-raw-secondary-200)]',
           '[&_[data-slot=input-group-addon]]:!text-[color:var(--tw-raw-secondary-200)]',
           '[&_[data-slot=chapter-menu-scene-marker]]:!text-[color:var(--tw-raw-secondary-200)]',

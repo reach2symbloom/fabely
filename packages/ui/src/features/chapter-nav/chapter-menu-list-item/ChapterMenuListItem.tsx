@@ -10,13 +10,10 @@
  * that). Chapter rows add a Prepend text addon (`Ch. N` — no colon; Figma
  * list item); Scene / sub-scene wrap the Textarea alone, no addon.
  *
- * Rename is double-click, not single-click: hover only shifts ink color
- * (no bounding box / field chrome), so a plain pointerdown is unambiguously
- * free for drag — no drag-handle icon, the whole row is the drag source.
- * Double-click focuses the field and selects all text; the actions menu's
- * "Rename" item does the same. This deliberately differs from Chapter Nav
- * Button's single-click-to-edit — that control has no drag competing for
- * the click, this one does (see README).
+ * Title controls preserve native text behavior: a single click places the
+ * caret, while double-click and the actions menu's Rename command select the
+ * full title. A six-dot grip appears in the chapter's left control slot, and
+ * non-text row areas remain available as drag surfaces.
  *
  * Chapter chevron is a scenes dropdown: it mounts only when the chapter has
  * scene `children`, and toggles the nested tree (Figma Chapter + scenes).
@@ -33,6 +30,7 @@ import {
   CircleIcon,
   DotIcon,
   EllipsisVerticalIcon,
+  GripVerticalIcon,
   PencilIcon,
   Trash2Icon,
 } from 'lucide-react';
@@ -96,6 +94,12 @@ export type ChapterMenuListItemProps = {
   /** Scene / sub-scene rows. Presence enables the chapter chevron dropdown. */
   children?: React.ReactNode;
   onLabelChange?: (label: string) => void;
+  /** Actions menu — Delete this chapter, scene, or sub-scene. */
+  onDelete?: () => void;
+  /** Actions menu — Archive this item when supported. */
+  onArchive?: () => void;
+  /** Actions menu — Rename (also focuses the inline name field). */
+  onRename?: () => void;
   /** Fires when the chapter scenes chevron is toggled. */
   onExpandToggle?: () => void;
   /** Chapter actions menu — Delete. */
@@ -117,7 +121,7 @@ const paragraphRegular = [
 ].join(' ');
 
 const hoverInk =
-  'group-data-[force-hover=true]/chapter-menu-item:text-[color:var(--tw-raw-secondary-200)] group-data-[drag=true]/chapter-menu-item:text-[color:var(--tw-raw-secondary-200)] group-hover/chapter-menu-item:text-[color:var(--tw-raw-secondary-200)]';
+  'group-data-[force-hover=true]/chapter-menu-item:!text-[color:var(--tw-raw-secondary-200)] group-data-[drag=true]/chapter-menu-item:!text-[color:var(--tw-raw-secondary-200)] group-hover/chapter-menu-item:!text-[color:var(--tw-raw-secondary-200)]';
 
 /**
  * Fixed-width, left-aligned slot for the chapter number — `--spacing-lg`
@@ -149,6 +153,22 @@ const textareaBareInGroup = [
   'focus-visible:border-transparent focus-visible:shadow-none',
 ].join(' ');
 
+/**
+ * Hover chrome belongs to the editable title only—not its number/marker or
+ * row whitespace. Inset border avoids changing field measurements while the
+ * alpha-333 face echoes the canonical subtle bordered input treatment.
+ */
+const titleHoverChrome = [
+  'cursor-text',
+  'hover:!rounded-[length:var(--rounded-md)]',
+  'hover:!bg-[color:var(--theme-alpha-black-switch-333)]',
+  'hover:!shadow-[inset_0_0_0_var(--stroke-thin)_var(--theme-alpha-black-switch-333)]',
+  'focus:!w-full focus:!flex-1',
+  'focus:!rounded-[length:var(--rounded-md)]',
+  'focus:!bg-[color:var(--theme-alpha-black-switch-333)]',
+  'focus:!shadow-[inset_0_0_0_var(--stroke-thin)_var(--border)]',
+].join(' ');
+
 function stopNameKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
   event.stopPropagation();
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'a') {
@@ -176,10 +196,13 @@ function ChapterMenuListItem({
   drag = false,
   forceHover = false,
   href,
-  placeholder = DEFAULT_PLACEHOLDER,
+  placeholder,
   className,
   children,
   onLabelChange,
+  onDelete,
+  onArchive,
+  onRename,
   onExpandToggle,
   onDeleteChapter,
   onArchiveChapter,
@@ -188,6 +211,17 @@ function ChapterMenuListItem({
   const isChapter = type === 'chapter';
   const isScene = type === 'scene';
   const isSubscene = type === 'subscene';
+  const resolvedPlaceholder =
+    placeholder ??
+    (isScene
+      ? 'Untitled scene'
+      : isSubscene
+        ? 'Untitled subscene'
+        : DEFAULT_PLACEHOLDER);
+  const itemLabel = isChapter ? 'chapter' : isScene ? 'scene' : 'sub-scene';
+  const deleteItem = onDelete ?? onDeleteChapter;
+  const archiveItem = onArchive ?? onArchiveChapter;
+  const renameItem = onRename ?? onRenameChapter;
   const hasScenes = React.Children.count(children) > 0;
   const hasVisibleNestedItems =
     hasNestedItems ?? React.Children.count(children) > 0;
@@ -234,7 +268,7 @@ function ChapterMenuListItem({
       if (cancelled || !el.isConnected) return;
       const probe = el.cloneNode(false) as HTMLTextAreaElement;
       probe.value = '';
-      probe.placeholder = placeholder;
+      probe.placeholder = resolvedPlaceholder;
       probe.tabIndex = -1;
       probe.setAttribute('aria-hidden', 'true');
       probe.style.minWidth = '0';
@@ -257,7 +291,7 @@ function ChapterMenuListItem({
     return () => {
       cancelled = true;
     };
-  }, [placeholder, type]);
+  }, [resolvedPlaceholder, type]);
 
   const markerRestColor =
     'text-[color:var(--theme-alpha-black-switch-30)]';
@@ -269,9 +303,14 @@ function ChapterMenuListItem({
   const valueColor = isSubscene
     ? 'text-[color:var(--theme-alpha-black-switch-40)]'
     : 'text-[color:var(--text)]';
-  const placeholderColor = isChapter
-    ? 'placeholder:text-[color:var(--muted-foreground)]'
-    : 'placeholder:text-[color:var(--theme-alpha-black-switch-40)]';
+  const focusValueColor = isSubscene
+    ? 'focus:!text-[color:var(--theme-alpha-black-switch-40)]'
+    : 'focus:!text-[color:var(--text)]';
+  const directHoverValueColor = isSubscene
+    ? 'hover:!text-[color:var(--theme-alpha-black-switch-40)]'
+    : 'hover:!text-[color:var(--text)]';
+  const placeholderColor =
+    'placeholder:text-[color:var(--theme-alpha-black-switch-40)]';
 
   function commitName(next: string) {
     setName(next);
@@ -285,31 +324,10 @@ function ChapterMenuListItem({
     }
   }
 
-  /**
-   * Rename trigger — double-click (see file header). Only needed for
-   * double-clicking the Prepend addon (the textarea's own double-click
-   * already focused it natively via the 2nd, un-prevented mousedown);
-   * `onFocus` below selects the text regardless of how focus arrived.
-   */
+  /** Explicit rename shortcut; ordinary clicks retain native caret placement. */
   function focusForRename() {
     inputRef.current?.focus();
-  }
-
-  /**
-   * Single click/pointerdown is reserved for drag — block the browser's
-   * default focus-on-mousedown so a plain click never starts editing. The
-   * 2nd mousedown of a dblclick sequence has `detail === 2`; let that one
-   * through so the field still ends up focused when `onDoubleClick` fires.
-   */
-  function handleNameMouseDown(event: React.MouseEvent) {
-    if (event.detail < 2) {
-      event.preventDefault();
-    }
-  }
-
-  /** Selects on any focus arrival — double-click, Tab, or the actions menu's Rename. */
-  function handleNameFocus(event: React.FocusEvent<HTMLTextAreaElement>) {
-    event.currentTarget.select();
+    inputRef.current?.select();
   }
 
   /**
@@ -327,6 +345,9 @@ function ChapterMenuListItem({
     valueColor,
     placeholderColor,
     hoverInk,
+    directHoverValueColor,
+    titleHoverChrome,
+    focusValueColor,
   );
   const nameInputStyle =
     nameMinWidth != null ? { minWidth: nameMinWidth } : undefined;
@@ -339,12 +360,15 @@ function ChapterMenuListItem({
   const groupRoundnessFix = 'has-[textarea]:rounded-[length:var(--rounded-md)]';
 
   /**
-   * Hover is ink-only now (see file header) — no bounding box / chrome.
-   * Input Group's own `variant="quiet"` still fills on its native `:hover`
-   * and shows a border on focus; kill the hover fill so double-click-to-edit
-   * is the only thing that reveals field chrome (focus-within is untouched).
+   * This compound row is not itself an input surface. Keep the InputGroup as
+   * layout/accessibility structure, but suppress its shared hover/focus shell;
+   * the editable title control owns the only local hover treatment.
    */
-  const noHoverFill = 'hover:bg-transparent';
+  const noGroupChrome = [
+    'hover:!bg-transparent',
+    'focus-within:!border-transparent focus-within:!bg-transparent',
+    'focus-within:!shadow-none',
+  ].join(' ');
 
   const sectionLinkLabel = isChapter
     ? `Go to chapter ${chapterNumber}${name ? `: ${name}` : ''}`
@@ -359,7 +383,7 @@ function ChapterMenuListItem({
       data-expanded={isChapter ? isExpanded || undefined : undefined}
       data-untitled={untitled || undefined}
       className={cn(
-        'group/chapter-menu-item relative flex min-h-[length:var(--spacing-xl)] w-full min-w-0 items-center',
+        'group/chapter-menu-item relative flex min-h-[length:var(--spacing-xl)] w-full min-w-0 cursor-grab items-center active:cursor-grabbing',
         /* Chapter: no pl — chevron is absolute at -lg+2xs (4px closer to title).
          * Parent outline list supplies pl-xs so “Ch.” sits body xl + list xs. */
         isChapter && 'justify-between',
@@ -381,6 +405,23 @@ function ChapterMenuListItem({
       ) : null}
       {isChapter ? (
         <>
+          <span
+            aria-hidden
+            data-slot="chapter-menu-drag-indicator"
+            className={cn(
+              'absolute top-[calc(var(--spacing-xl)/2)] left-[calc(-1*var(--spacing-lg)+var(--spacing-2xs)-var(--spacing-2xs))] z-10 flex size-[length:var(--icon-md)] -translate-y-1/2 cursor-grab touch-none items-center justify-center rounded-[length:var(--rounded-sm)] active:cursor-grabbing',
+              '[&_svg]:size-[length:var(--icon-sm)]',
+              'scale-75 text-[color:var(--muted-foreground)] opacity-0',
+              'transition-[opacity,transform,background-color] duration-fast ease-emphasized',
+              'hover:scale-125 hover:bg-[color:var(--theme-alpha-black-switch-333)]',
+              'active:bg-[color:var(--theme-alpha-black-switch-5)]',
+              'group-hover/chapter-menu-item:scale-100 group-hover/chapter-menu-item:opacity-100',
+              'group-data-[force-hover=true]/chapter-menu-item:scale-100 group-data-[force-hover=true]/chapter-menu-item:opacity-100',
+              'group-data-[drag=true]/chapter-menu-item:scale-100 group-data-[drag=true]/chapter-menu-item:opacity-100',
+            )}
+          >
+            <GripVerticalIcon />
+          </span>
           {showExpandControl ? (
             <button
               type="button"
@@ -389,7 +430,11 @@ function ChapterMenuListItem({
               data-slot="chapter-menu-chevron"
               className={cn(
                 'group/chevron absolute top-[calc(var(--spacing-xl)/2)] left-[calc(-1*var(--spacing-lg)+var(--spacing-2xs))] z-10 flex size-[length:var(--icon-xs)] -translate-y-1/2 items-center justify-center',
-                'outline-none [&_svg]:size-[length:var(--icon-xs)]',
+                'cursor-pointer outline-none [&_svg]:size-[length:var(--icon-xs)]',
+                'transition-[opacity,transform] duration-fast ease-emphasized',
+                'group-hover/chapter-menu-item:pointer-events-none group-hover/chapter-menu-item:scale-75 group-hover/chapter-menu-item:opacity-0',
+                'group-data-[force-hover=true]/chapter-menu-item:pointer-events-none group-data-[force-hover=true]/chapter-menu-item:scale-75 group-data-[force-hover=true]/chapter-menu-item:opacity-0',
+                'group-data-[drag=true]/chapter-menu-item:pointer-events-none group-data-[drag=true]/chapter-menu-item:scale-75 group-data-[drag=true]/chapter-menu-item:opacity-0',
                 mutedRestColor,
                 hoverInk,
               )}
@@ -414,7 +459,7 @@ function ChapterMenuListItem({
                 'relative z-10 w-fit max-w-full min-w-0 overflow-visible',
                 'min-h-[length:var(--spacing-xl)] gap-[length:var(--spacing-xs)]',
                 groupRoundnessFix,
-                noHoverFill,
+                noGroupChrome,
               )}
             >
               <Textarea
@@ -425,12 +470,10 @@ function ChapterMenuListItem({
                 textStyle="body"
                 resizable={false}
                 rows={1}
-                placeholder={placeholder}
+                placeholder={resolvedPlaceholder}
                 value={name}
                 onChange={(event) => commitName(event.currentTarget.value)}
-                onMouseDown={handleNameMouseDown}
                 onKeyDown={stopNameKeyDown}
-                onFocus={handleNameFocus}
                 onBlur={handleNameBlur}
                 style={nameInputStyle}
                 className={nameInputClassName}
@@ -445,7 +488,7 @@ function ChapterMenuListItem({
                 that jumps straight into editing.
               */}
               <InputGroupAddon
-                className="self-start cursor-default"
+                className="self-start cursor-grab active:cursor-grabbing"
                 onClick={(event) => event.stopPropagation()}
               >
                 <InputGroupText
@@ -453,6 +496,8 @@ function ChapterMenuListItem({
                     paragraphRegular,
                     mutedRestColor,
                     hoverInk,
+                    'group-focus-within/input-group:!text-[color-mix(in_srgb,var(--theme-alpha-black-switch-60)_75%,var(--theme-neutrals-600))]',
+                    'dark:group-focus-within/input-group:!text-[color-mix(in_srgb,var(--theme-alpha-black-switch-60)_75%,var(--theme-neutrals-400))]',
                     /* Tight, space-like gap — the default Input Group Text
                        gap (--spacing-xs, 8px) reads too open between "Ch."
                        and a right-aligned number slot. */
@@ -502,7 +547,7 @@ function ChapterMenuListItem({
                 'relative z-10 w-fit max-w-full min-w-0 overflow-visible',
                 'min-h-[length:var(--spacing-xl)]',
                 groupRoundnessFix,
-                noHoverFill,
+                noGroupChrome,
               )}
             >
               <Textarea
@@ -513,12 +558,10 @@ function ChapterMenuListItem({
                 textStyle="body"
                 resizable={false}
                 rows={1}
-                placeholder={placeholder}
+                placeholder={resolvedPlaceholder}
                 value={name}
                 onChange={(event) => commitName(event.currentTarget.value)}
-                onMouseDown={handleNameMouseDown}
                 onKeyDown={stopNameKeyDown}
-                onFocus={handleNameFocus}
                 onBlur={handleNameBlur}
                 style={nameInputStyle}
                 className={nameInputClassName}
@@ -547,7 +590,7 @@ function ChapterMenuListItem({
                 'relative z-10 w-fit max-w-full min-w-0 overflow-visible',
                 'min-h-[length:var(--spacing-xl)]',
                 groupRoundnessFix,
-                noHoverFill,
+                noGroupChrome,
               )}
             >
               <Textarea
@@ -558,12 +601,10 @@ function ChapterMenuListItem({
                 textStyle="body"
                 resizable={false}
                 rows={1}
-                placeholder={placeholder}
+                placeholder={resolvedPlaceholder}
                 value={name}
                 onChange={(event) => commitName(event.currentTarget.value)}
-                onMouseDown={handleNameMouseDown}
                 onKeyDown={stopNameKeyDown}
-                onFocus={handleNameFocus}
                 onBlur={handleNameBlur}
                 style={nameInputStyle}
                 className={nameInputClassName}
@@ -573,7 +614,7 @@ function ChapterMenuListItem({
         </>
       ) : null}
 
-      {isChapter && showActions ? (
+      {showActions ? (
         <DropdownMenu open={actionsOpen} onOpenChange={setActionsOpen}>
           <DropdownMenuTrigger
             render={
@@ -581,14 +622,13 @@ function ChapterMenuListItem({
                 type="button"
                 variant="ghost"
                 size="mini"
-                aria-label="Chapter actions"
+                aria-label={`${itemLabel[0].toUpperCase()}${itemLabel.slice(1)} actions`}
                 data-slot="chapter-menu-actions"
                 className={cn(
-                  /* ms-2xs — clears the name field so their hover/pressed
-                     chrome never overlaps it. -me-xs (-8px) pulls it closer
-                     to the row's right edge — less dead space to the card
-                     border than the button's own centered icon padding gave it. */
-                  'relative z-10 ms-[length:var(--spacing-2xs)] me-[calc(-1*var(--spacing-xs))] shrink-0',
+                  /* Auto margin pins actions to the full row edge regardless
+                     of title length. -me-xs compensates for the icon button's
+                     centered internal space at the card boundary. */
+                  'relative z-10 ms-auto me-[calc(-1*var(--spacing-xs))] shrink-0 cursor-pointer',
                   !actionsOpen && 'opacity-0',
                   'group-hover/chapter-menu-item:opacity-100',
                   'group-data-[force-hover=true]/chapter-menu-item:opacity-100',
@@ -607,24 +647,27 @@ function ChapterMenuListItem({
             finalFocus={() => {
               if (!pendingRenameFocusRef.current) return undefined;
               pendingRenameFocusRef.current = false;
+              requestAnimationFrame(() => inputRef.current?.select());
               return inputRef.current ?? undefined;
             }}
           >
             <DropdownMenuGroup>
               <DropdownMenuItem
                 variant="destructive"
-                onClick={() => onDeleteChapter?.()}
+                onClick={() => deleteItem?.()}
               >
                 <Trash2Icon />
-                Delete chapter
+                Delete {itemLabel}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onArchiveChapter?.()}>
-                <ArchiveIcon />
-                Archive chapter
-              </DropdownMenuItem>
+              {isChapter || archiveItem != null ? (
+                <DropdownMenuItem onClick={() => archiveItem?.()}>
+                  <ArchiveIcon />
+                  Archive {itemLabel}
+                </DropdownMenuItem>
+              ) : null}
               <DropdownMenuItem
                 onClick={() => {
-                  onRenameChapter?.();
+                  renameItem?.();
                   pendingRenameFocusRef.current = true;
                 }}
               >
@@ -673,7 +716,7 @@ function ChapterMenuListItem({
                 )}
               />
             </button>
-            <div className="flex min-w-0 flex-1 flex-col gap-[length:var(--spacing-3xs)] [--outline-row-gap:var(--spacing-3xs)]">
+            <div className="flex min-w-0 flex-1 flex-col gap-[length:var(--spacing-3xs)] [--outline-row-gap:var(--spacing-3xs)] [&:has(>[data-slot=add-section-inline-gap])]:gap-0 [&:has(>[data-slot=add-section-inline-gap])]:[--outline-row-gap:0]">
               {children}
             </div>
           </div>
@@ -688,14 +731,14 @@ function ChapterMenuListItem({
         data-slot="chapter-menu-scene-branch"
         className={cn(
           'flex w-full flex-col',
-          hasVisibleNestedItems && 'gap-[length:var(--spacing-1-5)]',
+          hasVisibleNestedItems && 'gap-[length:var(--spacing-xs)]',
         )}
       >
         {row}
         <div
           data-slot="chapter-menu-subscenes"
           className={cn(
-            'flex flex-col gap-[length:var(--spacing-2xs)] pl-[length:var(--spacing-xl)] [--outline-row-gap:var(--spacing-2xs)]',
+            'flex flex-col gap-[length:var(--spacing-1-5)] pl-[length:var(--spacing-xl)] [--outline-row-gap:var(--spacing-1-5)] [&:has(>[data-slot=add-section-inline-gap])]:gap-0 [&:has(>[data-slot=add-section-inline-gap])]:[--outline-row-gap:0]',
             hasVisibleNestedItems && 'pb-[length:var(--spacing-2xs)]',
           )}
         >

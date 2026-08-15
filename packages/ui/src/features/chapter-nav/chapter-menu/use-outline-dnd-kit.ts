@@ -54,6 +54,7 @@ import {
 
 import {
   canOwnChildren,
+  isOutlineDropIntoOwnSubtree,
   isOutlineDropNoOp,
   reorderOutline,
   type OutlineDropPlacement,
@@ -158,13 +159,17 @@ export function useOutlineDragAndDrop({
   function computeIndicator(event: DragMoveEvent): DropIndicator | null {
     if (!event.over) return null;
     const overId = String(event.over.id);
+    const activeIdStr = String(event.active.id);
+    if (isOutlineDropIntoOwnSubtree(itemsRef.current, activeIdStr, overId)) {
+      return null;
+    }
     const overItem = itemsRef.current.find((item) => item.id === overId);
     const wantsNest = resolvePlacement(event) === 'nest';
     const placement: OutlineDropPlacement =
       wantsNest && overItem && canOwnChildren(overItem.kind) ? 'nest' : 'before';
     if (
       isOutlineDropNoOp(itemsRef.current, {
-        activeId: String(event.active.id),
+        activeId: activeIdStr,
         overId,
         placement,
       })
@@ -230,7 +235,9 @@ export function useOutlineDragAndDrop({
 
     const activeIdStr = String(active.id);
     const overId = String(over.id);
-    if (activeIdStr === overId) return;
+    if (isOutlineDropIntoOwnSubtree(itemsRef.current, activeIdStr, overId)) {
+      return;
+    }
 
     const overItem = itemsRef.current.find((item) => item.id === overId);
     const resolved: OutlineDropPlacement =

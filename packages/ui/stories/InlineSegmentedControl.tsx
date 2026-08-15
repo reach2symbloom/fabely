@@ -22,6 +22,8 @@ export type InlineSegmentedControlProps<T extends string> = {
   onChange: (value: T) => void;
   /** Stretch the group and chips to fill the container width. */
   fullWidth?: boolean;
+  /** Optional sizing/layout classes applied to every option chip. */
+  optionClassName?: string;
   className?: string;
 };
 
@@ -49,6 +51,7 @@ export function InlineSegmentedControl<T extends string>({
   options,
   onChange,
   fullWidth = false,
+  optionClassName,
   className,
 }: InlineSegmentedControlProps<T>) {
   const normalized = normalizeOptions(options);
@@ -81,7 +84,8 @@ export function InlineSegmentedControl<T extends string>({
                 fullWidth && 'min-w-0 flex-1',
                 selected
                   ? 'border-[color:var(--theme-alpha-black-switch-40)] bg-[var(--theme-alpha-black-switch-15)] text-foreground'
-                  : 'border-transparent bg-transparent text-muted-foreground hover:text-foreground'
+                  : 'border-transparent bg-transparent text-muted-foreground hover:text-foreground',
+                optionClassName,
               )}
             >
               {opt.label}
