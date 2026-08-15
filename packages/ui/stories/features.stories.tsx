@@ -27,14 +27,10 @@ export const Overview: Story = {
       <PendingNotice>
         <ul className="list-disc space-y-1 ps-5">
           <li>
-            <strong>Chapter Nav</strong> —{' '}
+            <strong>Chapter Nav Organism</strong> —{' '}
             <code>src/features/chapter-nav/</code>. Manuscript location
             chrome. Landed:{' '}
-            <code>Design System/Features/Chapter Nav Button</code>,{' '}
-            <code>Design System/Features/Add Section Inline Button</code>,{' '}
-            <code>Design System/Features/Chapter Menu List Item</code>,{' '}
-            <code>Design System/Features/Chapter Menu Header</code>,{' '}
-            <code>Design System/Features/Chapter Menu</code>.
+            <code>Design System/Features/Chapter Nav Organism/*</code>.
           </li>
         </ul>
       </PendingNotice>

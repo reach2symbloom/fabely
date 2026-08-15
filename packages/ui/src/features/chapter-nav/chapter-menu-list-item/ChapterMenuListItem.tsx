@@ -261,7 +261,8 @@ function ChapterMenuListItem({
 
   const markerRestColor =
     'text-[color:var(--theme-alpha-black-switch-30)]';
-  const mutedRestColor = 'text-[color:var(--muted-foreground)]';
+  const mutedRestColor =
+    'text-[color:var(--theme-alpha-black-switch-60)]';
   const subsceneMarkerRestColor =
     'text-[color:var(--theme-alpha-black-switch-40)]';
 
@@ -695,7 +696,7 @@ function ChapterMenuListItem({
           data-slot="chapter-menu-subscenes"
           className={cn(
             'flex flex-col gap-[length:var(--spacing-2xs)] pl-[length:var(--spacing-xl)] [--outline-row-gap:var(--spacing-2xs)]',
-            hasVisibleNestedItems && 'pb-[length:var(--spacing-3xs)]',
+            hasVisibleNestedItems && 'pb-[length:var(--spacing-2xs)]',
           )}
         >
           {children}

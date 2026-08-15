@@ -92,7 +92,7 @@ function DemoHeader({
 }
 
 const meta = {
-  title: 'Design System/Features/Chapter Menu',
+  title: 'Design System/Features/Chapter Nav Organism/Chapter Menu',
   component: ChapterMenu,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
@@ -556,8 +556,8 @@ function InteractiveChapterMenu({
                 className={cn(
                   'pointer-events-none rounded-[length:var(--rounded-md)] bg-[color-mix(in_srgb,var(--background)_70%,transparent)]',
                   'ring-[length:var(--stroke-thin)] ring-[color:var(--theme-alpha-black-switch-10)]',
-                  '[&_[data-type=chapter]_[data-slot=input-group-addon]]:!text-[color:var(--muted-foreground)]',
-                  '[&_[data-type=chapter]_[data-slot=input-group-text]]:!text-[color:var(--muted-foreground)]',
+                  '[&_[data-type=chapter]_[data-slot=input-group-addon]]:!text-[color:var(--theme-alpha-black-switch-60)]',
+                  '[&_[data-type=chapter]_[data-slot=input-group-text]]:!text-[color:var(--theme-alpha-black-switch-60)]',
                   '[&_[data-type=chapter]_[data-slot=input-group-control]]:!text-[color:var(--text)]',
                 )}
               >
@@ -1173,8 +1173,8 @@ function DragAndDropOutline() {
               className={cn(
                 'pointer-events-none rounded-[length:var(--rounded-md)] bg-[color-mix(in_srgb,var(--background)_70%,transparent)]',
                 'ring-[length:var(--stroke-thin)] ring-[color:var(--theme-alpha-black-switch-10)]',
-                '[&_[data-type=chapter]_[data-slot=input-group-addon]]:!text-[color:var(--muted-foreground)]',
-                '[&_[data-type=chapter]_[data-slot=input-group-text]]:!text-[color:var(--muted-foreground)]',
+                '[&_[data-type=chapter]_[data-slot=input-group-addon]]:!text-[color:var(--theme-alpha-black-switch-60)]',
+                '[&_[data-type=chapter]_[data-slot=input-group-text]]:!text-[color:var(--theme-alpha-black-switch-60)]',
                 '[&_[data-type=chapter]_[data-slot=input-group-control]]:!text-[color:var(--text)]',
               )}
             >

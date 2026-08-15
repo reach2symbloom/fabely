@@ -26,7 +26,7 @@ const LOGO_WORDMARK = '/logo-dark.png';
 const COVER_DEMO = '/cover-demo.png';
 
 const meta = {
-  title: 'Design System/Features/Chapter Menu/Chapter Menu Header',
+  title: 'Design System/Features/Chapter Nav Organism/Chapter Menu Header',
   component: ChapterMenuHeader,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },

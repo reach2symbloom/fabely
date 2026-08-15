@@ -27,7 +27,7 @@ import { ChapterMenuHeader } from '../chapter-menu-header';
 import { ChapterMenuListItem } from '../chapter-menu-list-item';
 
 const meta = {
-  title: 'Design System/Features/Chapter Menu/Chapter Nav Button',
+  title: 'Design System/Features/Chapter Nav Organism/Chapter Nav Button',
   component: ChapterNavButton,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
