@@ -556,8 +556,10 @@ function InteractiveChapterMenu({
                 className={cn(
                   'pointer-events-none rounded-[length:var(--rounded-md)] bg-[color-mix(in_srgb,var(--background)_70%,transparent)]',
                   'ring-[length:var(--stroke-thin)] ring-[color:var(--theme-alpha-black-switch-10)]',
-                  '[&_[data-type=chapter]_[data-slot=input-group-addon]]:!text-[color:var(--theme-alpha-black-switch-60)]',
-                  '[&_[data-type=chapter]_[data-slot=input-group-text]]:!text-[color:var(--theme-alpha-black-switch-60)]',
+                  '[&_[data-type=chapter]_[data-slot=input-group-addon]]:!text-[color-mix(in_srgb,var(--theme-alpha-black-switch-60)_75%,var(--theme-neutrals-600))]',
+                  '[&_[data-type=chapter]_[data-slot=input-group-text]]:!text-[color-mix(in_srgb,var(--theme-alpha-black-switch-60)_75%,var(--theme-neutrals-600))]',
+                  'dark:[&_[data-type=chapter]_[data-slot=input-group-addon]]:!text-[color-mix(in_srgb,var(--theme-alpha-black-switch-60)_75%,var(--theme-neutrals-400))]',
+                  'dark:[&_[data-type=chapter]_[data-slot=input-group-text]]:!text-[color-mix(in_srgb,var(--theme-alpha-black-switch-60)_75%,var(--theme-neutrals-400))]',
                   '[&_[data-type=chapter]_[data-slot=input-group-control]]:!text-[color:var(--text)]',
                 )}
               >
@@ -1173,8 +1175,10 @@ function DragAndDropOutline() {
               className={cn(
                 'pointer-events-none rounded-[length:var(--rounded-md)] bg-[color-mix(in_srgb,var(--background)_70%,transparent)]',
                 'ring-[length:var(--stroke-thin)] ring-[color:var(--theme-alpha-black-switch-10)]',
-                '[&_[data-type=chapter]_[data-slot=input-group-addon]]:!text-[color:var(--theme-alpha-black-switch-60)]',
-                '[&_[data-type=chapter]_[data-slot=input-group-text]]:!text-[color:var(--theme-alpha-black-switch-60)]',
+                '[&_[data-type=chapter]_[data-slot=input-group-addon]]:!text-[color-mix(in_srgb,var(--theme-alpha-black-switch-60)_75%,var(--theme-neutrals-600))]',
+                '[&_[data-type=chapter]_[data-slot=input-group-text]]:!text-[color-mix(in_srgb,var(--theme-alpha-black-switch-60)_75%,var(--theme-neutrals-600))]',
+                'dark:[&_[data-type=chapter]_[data-slot=input-group-addon]]:!text-[color-mix(in_srgb,var(--theme-alpha-black-switch-60)_75%,var(--theme-neutrals-400))]',
+                'dark:[&_[data-type=chapter]_[data-slot=input-group-text]]:!text-[color-mix(in_srgb,var(--theme-alpha-black-switch-60)_75%,var(--theme-neutrals-400))]',
                 '[&_[data-type=chapter]_[data-slot=input-group-control]]:!text-[color:var(--text)]',
               )}
             >

@@ -262,7 +262,7 @@ function ChapterMenuListItem({
   const markerRestColor =
     'text-[color:var(--theme-alpha-black-switch-30)]';
   const mutedRestColor =
-    'text-[color:var(--theme-alpha-black-switch-60)]';
+    'text-[color-mix(in_srgb,var(--theme-alpha-black-switch-60)_75%,var(--theme-neutrals-600))] dark:text-[color-mix(in_srgb,var(--theme-alpha-black-switch-60)_75%,var(--theme-neutrals-400))]';
   const subsceneMarkerRestColor =
     'text-[color:var(--theme-alpha-black-switch-40)]';
 
