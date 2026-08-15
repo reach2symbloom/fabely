@@ -216,17 +216,6 @@ function OutlineList({ children }: { children: ReactNode }) {
   );
 }
 
-type OutlineRow =
-  | {
-      id: string;
-      kind: 'chapter';
-      label: string;
-      scenes?: OutlineScene[];
-      /** Seed-only — Ch. 8 opens, Ch. 12 starts closed. Inserted rows omit this. */
-      defaultExpanded?: boolean;
-    }
-  | { id: string; kind: 'act'; label: string };
-
 type OutlineMode = 'chapters' | 'scenes' | 'full';
 
 let nextOutlineRowId = 0;
@@ -235,33 +224,81 @@ function makeOutlineRowId() {
   return `row-${nextOutlineRowId}`;
 }
 
-function makeSeedRows(): OutlineRow[] {
-  return DEMO_CHAPTER_TITLES.map((label, index) => {
+/** Same seed content as before, flattened: chapters/scenes/subscenes are
+ * all siblings in one array now, related only by `parentId`. */
+function makeInteractiveSeed(): OutlineItem[] {
+  const items: OutlineItem[] = [];
+  DEMO_CHAPTER_TITLES.forEach((label, index) => {
     const n = index + 1;
-    return {
-      id: makeOutlineRowId(),
-      kind: 'chapter' as const,
+    const chapterId = makeOutlineRowId();
+    const scenes = CHAPTER_SCENES[n];
+    items.push({
+      id: chapterId,
+      kind: 'chapter',
       label,
-      scenes: CHAPTER_SCENES[n],
-      defaultExpanded: CHAPTER_DEFAULT_EXPANDED[n],
-    };
+      parentId: ROOT_CONTAINER,
+      isCollapsed: scenes ? !(CHAPTER_DEFAULT_EXPANDED[n] ?? true) : undefined,
+    });
+    for (const scene of scenes ?? []) {
+      const sceneId = makeOutlineRowId();
+      items.push({ id: sceneId, kind: 'scene', label: scene.label, parentId: chapterId });
+      for (const subscene of scene.subscenes ?? []) {
+        items.push({
+          id: makeOutlineRowId(),
+          kind: 'subscene',
+          label: subscene.label,
+          parentId: sceneId,
+        });
+      }
+    }
   });
+  return items;
+}
+
+function countTopLevel(items: OutlineItem[]): number {
+  return items.filter((item) => item.parentId === ROOT_CONTAINER).length;
+}
+
+/** Absolute array index of the Nth top-level item, or the array end if `position` is past the last one. */
+function topLevelInsertIndex(items: OutlineItem[], position: number): number {
+  let seen = 0;
+  for (let i = 0; i < items.length; i += 1) {
+    if (items[i].parentId === ROOT_CONTAINER) {
+      if (seen === position) return i;
+      seen += 1;
+    }
+  }
+  return items.length;
 }
 
 /**
- * Full interactive outline demo — owns rows, per-chapter expand state, and
- * the header's outline-mode cycle switch together, since switching modes has
- * to reach into every chapter's dropdown from outside.
+ * Full interactive outline demo — owns the one flat outline array, the
+ * header's outline-mode cycle switch, and drag-and-drop together, since
+ * switching modes has to reach into every chapter's `isCollapsed` from
+ * outside, and a drop can rename/renumber/recollapse the same array insert
+ * does. This is the single source of truth for the outline; there is no
+ * separate nested-tree model anymore (see `.migration/chapter-menu-
+ * handoff.md` for why) — see `outline-dnd.ts` for the `OutlineItem` shape.
  *
- * - Gap popover Chapter / Act items splice an untitled row in at that
- *   position and focus its title input so typing starts immediately.
- *   Chapter / act numbers are derived from position on every render (not
- *   stored), so inserting anywhere renumbers everything after it for free.
- * - The cycle switch is an action, not a derived display: clicking it opens
- *   every closed chapter dropdown (Scenes / Full outline) or closes every
- *   open one (Chapters only), then per-chapter chevrons work normally again
- *   until the next click. Full outline additionally reveals subscenes;
- *   Scenes stops at the scene level.
+ * - Gap popover Chapter / Act items splice an untitled item in at that
+ *   top-level position and focus its title input so typing starts
+ *   immediately. Chapter / act / scene numbers are derived from position on
+ *   every render (`computeOutlineNumbers`, not stored), so inserting or
+ *   dragging anywhere renumbers everything after it for free.
+ * - The cycle switch is an action, not a derived display: clicking it sets
+ *   `isCollapsed` on every chapter that currently has scenes (Scenes / Full
+ *   outline open them, Chapters only closes them), then per-chapter
+ *   chevrons work normally again — toggling that one chapter's own
+ *   `isCollapsed` — until the next click. Full outline additionally reveals
+ *   subscenes; Scenes stops at the scene level. The mode itself is a global
+ *   view preference, not outline data, so it stays component state rather
+ *   than living on any item.
+ * - Drag reuses the exact same reducer as the standalone "Drag to reorder"
+ *   demo below (`useOutlineDragAndDrop` / `reorderOutline`). The nested
+ *   chapter → scene → subscene branch rendering (chevron, rail) is
+ *   reconstructed from the flat array via `childrenOf` at render time —
+ *   dnd-kit reads rendered DOM rects for collision detection, not tree
+ *   structure, so that visual nesting and the drag mechanics don't conflict.
  */
 function InteractiveChapterMenu({
   headerVariant = 'alt',
@@ -271,56 +308,68 @@ function InteractiveChapterMenu({
   showClose?: boolean;
 }) {
   const [mode, setMode] = useState<OutlineMode>('full');
-  const [rows, setRows] = useState<OutlineRow[]>(makeSeedRows);
-  const rowsRef = useRef(rows);
-  rowsRef.current = rows;
-
-  const [chapterExpanded, setChapterExpanded] = useState<
-    Record<string, boolean>
-  >(() => {
-    const initial: Record<string, boolean> = {};
-    for (const row of rows) {
-      if (row.kind === 'chapter' && row.scenes?.length) {
-        initial[row.id] = row.defaultExpanded ?? true;
-      }
-    }
-    return initial;
-  });
+  const [items, setItems] = useState<OutlineItem[]>(makeInteractiveSeed);
   const [focusRowId, setFocusRowId] = useState<string | null>(null);
   const rowNodes = useRef(new Map<string, HTMLDivElement>());
+  const [rejectedReason, setRejectedReason] = useState<string | null>(null);
+
+  const {
+    sensors,
+    collisionDetection,
+    activeId,
+    rejectedId,
+    onDragStart,
+    onDragEnd,
+    onDragCancel,
+  } = useOutlineDragAndDrop({
+    items,
+    onItemsChange: (next) => {
+      setItems(next);
+      setRejectedReason(null);
+    },
+    onRejected: (_activeId, reason) => setRejectedReason(reason),
+  });
+
+  function handleDragStart(event: DragStartEvent) {
+    setRejectedReason(null);
+    onDragStart(event);
+  }
 
   function handleModeChange(next: OutlineMode) {
     setMode(next);
-    setChapterExpanded((current) => {
-      const applied = { ...current };
-      for (const row of rowsRef.current) {
-        if (row.kind === 'chapter' && row.scenes?.length) {
-          applied[row.id] = next !== 'chapters';
-        }
-      }
-      return applied;
-    });
+    setItems((current) =>
+      current.map((item) =>
+        item.kind === 'chapter' && childrenOf(current, item.id).length > 0
+          ? { ...item, isCollapsed: next === 'chapters' }
+          : item,
+      ),
+    );
   }
 
-  function toggleChapterExpanded(id: string) {
-    setChapterExpanded((current) => ({ ...current, [id]: !current[id] }));
+  function toggleChapterCollapsed(id: string) {
+    setItems((current) =>
+      current.map((item) =>
+        item.id === id ? { ...item, isCollapsed: !item.isCollapsed } : item,
+      ),
+    );
   }
 
-  function insertRow(index: number, kind: OutlineRow['kind']) {
+  function insertRow(
+    topLevelPosition: number,
+    kind: Extract<OutlineItemKind, 'chapter' | 'act'>,
+  ) {
     const id = makeOutlineRowId();
-    const row: OutlineRow =
-      kind === 'chapter' ? { id, kind, label: '' } : { id, kind, label: '' };
-    setRows((current) => {
-      const next = [...current];
-      next.splice(index, 0, row);
-      return next;
+    const newItem: OutlineItem = { id, kind, label: '', parentId: ROOT_CONTAINER };
+    setItems((current) => {
+      const at = topLevelInsertIndex(current, topLevelPosition);
+      return [...current.slice(0, at), newItem, ...current.slice(at)];
     });
     setFocusRowId(id);
   }
 
   function updateLabel(id: string, label: string) {
-    setRows((current) =>
-      current.map((row) => (row.id === id ? { ...row, label } : row)),
+    setItems((current) =>
+      current.map((item) => (item.id === id ? { ...item, label } : item)),
     );
   }
 
@@ -336,18 +385,26 @@ function InteractiveChapterMenu({
     setFocusRowId(null);
   }, [focusRowId]);
 
-  function insertGap(index: number) {
+  function insertGap(position: number) {
     return (
       <AddSectionInlineGap
         type="chapter"
-        onAddChapter={() => insertRow(index, 'chapter')}
-        onAddAct={() => insertRow(index, 'act')}
+        onAddChapter={() => insertRow(position, 'chapter')}
+        onAddAct={() => insertRow(position, 'act')}
       />
     );
   }
 
-  let chapterNumber = 0;
-  let actIndex = 0;
+  function trackNode(id: string) {
+    return (node: HTMLDivElement | null) => {
+      if (node) rowNodes.current.set(id, node);
+      else rowNodes.current.delete(id);
+    };
+  }
+
+  const numbers = computeOutlineNumbers(items);
+  const topLevel = items.filter((item) => item.parentId === ROOT_CONTAINER);
+  const activeItem = items.find((item) => item.id === activeId);
 
   return (
     <ChapterMenu
@@ -359,69 +416,124 @@ function InteractiveChapterMenu({
           onOutlineValueChange={(value) => handleModeChange(value as OutlineMode)}
         />
       }
-      onAddChapter={() => insertRow(rows.length, 'chapter')}
-      onAddAct={() => insertRow(rows.length, 'act')}
+      onAddChapter={() => insertRow(countTopLevel(items), 'chapter')}
+      onAddAct={() => insertRow(countTopLevel(items), 'act')}
     >
-      <OutlineList>
-        {insertGap(0)}
-        {rows.map((row, index) => {
-          if (row.kind === 'chapter') chapterNumber += 1;
-          else actIndex += 1;
-
-          return (
-            <Fragment key={row.id}>
+      <div className="flex w-full flex-col gap-[length:var(--spacing-sm)]">
+        <style>{SHAKE_KEYFRAMES}</style>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={collisionDetection}
+          onDragStart={handleDragStart}
+          onDragEnd={onDragEnd}
+          onDragCancel={onDragCancel}
+        >
+          <SortableContext
+            items={items.map((item) => item.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <OutlineList>
+              {insertGap(0)}
+              {topLevel.map((item, position) => (
+                <Fragment key={item.id}>
+                  {item.kind === 'act' ? (
+                    <DraggableOutlineRow id={item.id} rejected={rejectedId === item.id}>
+                      <div ref={trackNode(item.id)}>
+                        <AddSectionInlineButton
+                          type="actUntitled"
+                          actIndex={numbers.get(item.id) ?? 1}
+                          actTitle={item.label}
+                          onActTitleChange={(label) => updateLabel(item.id, label)}
+                        />
+                      </div>
+                    </DraggableOutlineRow>
+                  ) : (
+                    <DraggableOutlineRow id={item.id} rejected={rejectedId === item.id}>
+                      <div ref={trackNode(item.id)}>
+                        <ChapterMenuListItem
+                          type="chapter"
+                          chapterNumber={numbers.get(item.id) ?? 1}
+                          label={item.label}
+                          untitled={item.label.trim() === ''}
+                          href={SECTION_HREF}
+                          onLabelChange={(label) => updateLabel(item.id, label)}
+                          expanded={
+                            childrenOf(items, item.id).length > 0 && !item.isCollapsed
+                          }
+                          onExpandToggle={() => toggleChapterCollapsed(item.id)}
+                        >
+                          {childrenOf(items, item.id).map((scene, sceneIndex) => {
+                            const subscenes = childrenOf(items, scene.id);
+                            return (
+                              <DraggableOutlineRow
+                                key={scene.id}
+                                id={scene.id}
+                                rejected={rejectedId === scene.id}
+                              >
+                                <ChapterMenuListItem
+                                  type="scene"
+                                  sceneNumber={sceneIndex + 1}
+                                  label={scene.label}
+                                  href={SECTION_HREF}
+                                  onLabelChange={(label) => updateLabel(scene.id, label)}
+                                >
+                                  {mode === 'full' && subscenes.length > 0
+                                    ? subscenes.map((subscene) => (
+                                        <DraggableOutlineRow
+                                          key={subscene.id}
+                                          id={subscene.id}
+                                          rejected={rejectedId === subscene.id}
+                                        >
+                                          <ChapterMenuListItem
+                                            type="subscene"
+                                            label={subscene.label}
+                                            href={SECTION_HREF}
+                                            onLabelChange={(label) =>
+                                              updateLabel(subscene.id, label)
+                                            }
+                                          />
+                                        </DraggableOutlineRow>
+                                      ))
+                                    : null}
+                                </ChapterMenuListItem>
+                              </DraggableOutlineRow>
+                            );
+                          })}
+                        </ChapterMenuListItem>
+                      </div>
+                    </DraggableOutlineRow>
+                  )}
+                  {insertGap(position + 1)}
+                </Fragment>
+              ))}
+            </OutlineList>
+          </SortableContext>
+          <DragOverlay>
+            {activeItem ? (
               <div
-                ref={(node) => {
-                  if (node) rowNodes.current.set(row.id, node);
-                  else rowNodes.current.delete(row.id);
-                }}
-              >
-                {row.kind === 'chapter' ? (
-                  <ChapterMenuListItem
-                    type="chapter"
-                    chapterNumber={chapterNumber}
-                    label={row.label}
-                    untitled={row.label.trim() === ''}
-                    href={SECTION_HREF}
-                    onLabelChange={(label) => updateLabel(row.id, label)}
-                    expanded={chapterExpanded[row.id] ?? false}
-                    onExpandToggle={() => toggleChapterExpanded(row.id)}
-                  >
-                    {row.scenes?.map((scene, sceneIndex) => (
-                      <ChapterMenuListItem
-                        key={scene.id}
-                        type="scene"
-                        sceneNumber={sceneIndex + 1}
-                        label={scene.label}
-                        href={SECTION_HREF}
-                      >
-                        {mode === 'full' && scene.subscenes?.length
-                          ? scene.subscenes.map((subscene) => (
-                              <ChapterMenuListItem
-                                key={subscene.id}
-                                type="subscene"
-                                label={subscene.label}
-                                href={SECTION_HREF}
-                              />
-                            ))
-                          : null}
-                      </ChapterMenuListItem>
-                    ))}
-                  </ChapterMenuListItem>
-                ) : (
-                  <AddSectionInlineButton
-                    type="actUntitled"
-                    actIndex={actIndex}
-                    actTitle={row.label}
-                    onActTitleChange={(label) => updateLabel(row.id, label)}
-                  />
+                className={cn(
+                  'rounded-[length:var(--rounded-md)] bg-[var(--card)]',
+                  'shadow-[var(--shadow-lg-black)] dark:shadow-[var(--shadow-lg-white)]',
+                  'opacity-95',
                 )}
+              >
+                {renderOutlineItem(activeItem, numbers, () => {})}
               </div>
-              {insertGap(index + 1)}
-            </Fragment>
-          );
-        })}
-      </OutlineList>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+        <p
+          role="alert"
+          className={cn(
+            'px-[length:var(--spacing-xs)] min-h-[1lh]',
+            'text-[length:var(--text-paragraph-mini-regular-font-size)]',
+            'leading-[var(--text-paragraph-mini-regular-line-height)]',
+            'text-[color:var(--destructive)]',
+          )}
+        >
+          {rejectedReason}
+        </p>
+      </div>
     </ChapterMenu>
   );
 }

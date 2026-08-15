@@ -80,6 +80,15 @@ export type OutlineItem = {
   label: string;
   /** `ROOT_CONTAINER`, a chapter id, or a scene id. */
   parentId: string;
+  /**
+   * Chapter-only rendering flag — true hides this chapter's scenes (and
+   * transitively their subscenes) from render without removing them from
+   * the array. Omitted/false = expanded. Meaningless for scene/subscene/act
+   * kinds; nothing currently collapses a scene individually. Pure UI state
+   * living on the item itself so the flat array stays the only source of
+   * truth — no separate expanded-ids map to keep in sync.
+   */
+  isCollapsed?: boolean;
 };
 
 export type OutlineDropEvent = {
