@@ -37,6 +37,8 @@ const VARIANTS: { variant: IconButtonVariant; label: string }[] = [
   { variant: 'secondary', label: 'Secondary' },
   { variant: 'tertiary', label: 'Tertiary' },
   { variant: 'ghost', label: 'Ghost' },
+  { variant: 'fade', label: 'Fade' },
+  { variant: 'fadeGold', label: 'Fade gold' },
   { variant: 'destructive', label: 'Destructive' },
   { variant: 'fiaFilled', label: 'Fia filled' },
   { variant: 'fiaOutline', label: 'Fia Outline' },
@@ -286,8 +288,10 @@ export const Overview: Story = {
             <code>--icon-*</code> token; do not hardcode icon px.
           </li>
           <li>
-            Nine shared variants (including <code>outline</code> from Button Group
-            Figma). Quiet hover/pressed and
+            Shared Button variants plus Icon-only <code>fade</code> /{' '}
+            <code>fadeGold</code> (Figma Fade button): rest icon at switch-40,
+            hover/pressed full opacity, no fill. <code>fadeGold</code> paints{' '}
+            <code>--primary</code> on hover. Quiet hover/pressed and
             Destructive match Button (library master).
           </li>
           <li>

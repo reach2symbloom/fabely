@@ -23,7 +23,7 @@ Button) when that lands.
 
 | Prop | Values | Notes |
 | --- | --- | --- |
-| `variant` | `default` \| `ghost` | Figma Style |
+| `variant` | `default` \| `ghost` \| `quiet` | Figma Style Default / Ghost, plus Quiet (in-chrome) |
 | `size` | `mini` \| `small` \| `default` \| `large` | Figma Mini / Small / Regular / Large |
 | `roundness` | `default` \| `round` | Figma Roundness; Mini Default uses `--rounded-md` |
 | `decorationLeft` / `decorationRight` | `ReactNode` | Open slots; bare SVG scales with `size` |
@@ -34,11 +34,14 @@ Button) when that lands.
 | Role | Token |
 | --- | --- |
 | Default fill | `--theme-alpha-black-switch-333` |
+| Quiet / Ghost rest | transparent |
+| Quiet hover fill | `--theme-alpha-black-switch-333` |
 | Value / file label | `--foreground` |
 | Placeholder | `--muted-foreground` |
 | Decorations | Open slot; bare SVG → `--icon-xs` / `sm` / `sm` / `md` (20 max); Figma is 16 flat |
 | Decorations ↔ field gap | `--spacing-2xs` / `1-5` / `xs` / `sm` by size |
-| Focus ring | `--effect-focus-ring-secondary` |
+| Focus ring (Default / Ghost) | `--effect-focus-ring-secondary` |
+| Quiet focus | `--border` (no ring, no fill) |
 | Focus border (Default roundness) | `--neutrals-new-400` |
 | Focus border (Round) | `--theme-alpha-black-switch-15` |
 | Invalid border / focus ring | `--destructive` / `--effect-focus-ring-error` |
@@ -49,8 +52,9 @@ Button) when that lands.
 
 ## Deferred
 
-- **Fade Button / interactive decorations** — slots accept them; re-verify sizing
-  once Fade Button (or Icon Button-in-field) lands.
+- **Fade / interactive decorations** — slots accept them. Icon Button
+  `variant="fade"` is the Fade button treatment; re-verify in-field sizing
+  when composing one as a decoration.
 - **Ghost Mini display type** — Figma Ghost Mini placeholder uses Heading 4
   Light; we keep Paragraph Mini Regular for a consistent field control.
 - **Input Group hosts** — Field, Combobox, and Empty already compose the

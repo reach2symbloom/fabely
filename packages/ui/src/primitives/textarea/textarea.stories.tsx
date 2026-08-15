@@ -18,7 +18,7 @@ import {
 } from '../field';
 
 import { Textarea } from './textarea';
-import type { TextareaProps } from './textarea';
+import type { TextareaProps, TextareaTextStyle, TextareaVariant } from './textarea';
 
 /**
  * Component Storybook IA (see docs/DESIGN.md "Component Story Structure"):
@@ -27,6 +27,20 @@ import type { TextareaProps } from './textarea';
  */
 
 type TextareaRoundness = NonNullable<TextareaProps['roundness']>;
+
+function HeadingExample() {
+  return (
+    <div className="w-full max-w-md">
+      <Textarea
+        variant="quiet"
+        textStyle="heading"
+        resizable={false}
+        aria-label="Book title"
+        defaultValue="The Lumithra Prophecy and the Aurora Sorceress"
+      />
+    </div>
+  );
+}
 
 const meta = {
   title: 'Design System/Primitives/Textarea',
@@ -152,6 +166,8 @@ function RtlExample() {
 
 function TextareaPlayground() {
   const [roundness, setRoundness] = useState<TextareaRoundness>('default');
+  const [variant, setVariant] = useState<TextareaVariant>('default');
+  const [textStyle, setTextStyle] = useState<TextareaTextStyle>('body');
   const [resizable, setResizable] = useState(true);
   const [disabled, setDisabled] = useState(false);
   const [invalid, setInvalid] = useState(false);
@@ -160,21 +176,51 @@ function TextareaPlayground() {
   return (
     <PlaygroundPanel
       preview={
-        <div className="w-full max-w-xs">
+        <div className="w-full max-w-md">
           <Textarea
+            variant={variant}
+            textStyle={textStyle}
             roundness={roundness}
-            resizable={resizable}
+            resizable={textStyle === 'heading' ? false : resizable}
             disabled={disabled}
             aria-invalid={invalid || undefined}
             showCharacterCount={showCharacterCount}
             maxLength={showCharacterCount ? 500 : undefined}
-            placeholder="Type your message here."
-            aria-label="Message"
+            placeholder={
+              textStyle === 'heading' ? 'Book title' : 'Type your message here.'
+            }
+            aria-label={textStyle === 'heading' ? 'Book title' : 'Message'}
+            defaultValue={
+              textStyle === 'heading'
+                ? 'The Lumithra Prophecy and the Aurora Sorceress'
+                : undefined
+            }
           />
         </div>
       }
       controls={
         <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
+          <InlineSegmentedControl
+            label="Variant"
+            value={variant}
+            options={[
+              { value: 'default', label: 'Default' },
+              { value: 'ghost', label: 'Ghost' },
+              { value: 'quiet', label: 'Quiet' },
+            ]}
+            onChange={(v) => setVariant(v as TextareaVariant)}
+            fullWidth
+          />
+          <InlineSegmentedControl
+            label="Type"
+            value={textStyle}
+            options={[
+              { value: 'body', label: 'Body' },
+              { value: 'heading', label: 'Heading' },
+            ]}
+            onChange={(v) => setTextStyle(v as TextareaTextStyle)}
+            fullWidth
+          />
           <InlineSegmentedControl
             label="Roundness"
             value={roundness}
@@ -282,6 +328,9 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Round">
             <RoundExample />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Heading (quiet)">
+            <HeadingExample />
+          </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="RTL">
             <RtlExample />
           </PrimitiveGalleryItem>
@@ -299,6 +348,12 @@ export const Overview: Story = {
           </li>
           <li>
             <code>showCharacterCount</code> needs <code>maxLength</code>.
+          </li>
+          <li>
+            <code>variant</code> matches Input (<code>default</code> /{' '}
+            <code>ghost</code> / <code>quiet</code>). Quiet heading titles use{' '}
+            <code>textStyle=&quot;heading&quot;</code> and{' '}
+            <code>resizable=&#123;false&#125;</code> — wraps, no grip.
           </li>
           <li>
             <code>resizable</code> maps to CSS <code>resize-y</code> (Figma grip
@@ -361,6 +416,10 @@ export const CharacterCount: Story = {
 
 export const Round: Story = {
   render: () => <RoundExample />,
+};
+
+export const Heading: Story = {
+  render: () => <HeadingExample />,
 };
 
 export const RTL: Story = {

@@ -2,6 +2,8 @@ import type { ComponentType } from 'react';
 import { icons, type LucideIcon } from 'lucide-react';
 import * as SolarIcons from '@solar-icons/react';
 
+import { FiaSilcrow } from '../src/foundations/icons';
+
 /**
  * Icon Library data.
  *
@@ -10,6 +12,8 @@ import * as SolarIcons from '@solar-icons/react';
  *
  * Solar: full published set from @solar-icons/react. Canonical weight for
  * Fabely is BoldDuotone — illustration accents and glyphs Lucide lacks.
+ *
+ * Fabely Icons: brand glyphs under `src/foundations/icons`.
  */
 
 export type SolarLibraryIcon = ComponentType<{
@@ -17,6 +21,11 @@ export type SolarLibraryIcon = ComponentType<{
   color?: string;
   weight?: 'Bold' | 'Linear' | 'Outline' | 'BoldDuotone' | 'LineDuotone' | 'Broken';
   className?: string;
+}>;
+
+export type FabelyLibraryIcon = ComponentType<{
+  className?: string;
+  title?: string;
 }>;
 
 /** Package internals / providers — not glyph components. */
@@ -36,6 +45,19 @@ export const solarAll: { name: string; Icon: SolarLibraryIcon }[] = Object.entri
 export const lucideAll: { name: string; Icon: LucideIcon }[] = Object.entries(icons)
   .map(([name, Icon]) => ({ name, Icon }))
   .sort((a, b) => a.name.localeCompare(b.name));
+
+/** Fabely brand glyphs — Foundations `src/foundations/icons`. */
+export const fabelyAll: {
+  name: string;
+  Icon: FabelyLibraryIcon;
+  usage?: string;
+}[] = [
+  {
+    name: 'FiaSilcrow',
+    Icon: FiaSilcrow,
+    usage: 'Upgrade / Fia lockup — Chapter Menu Header',
+  },
+];
 
 /** Optional usage notes for Lucide icons already adopted in Fabely UI. */
 export const lucideUsageNotes: Record<string, string> = {

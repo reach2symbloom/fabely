@@ -5,7 +5,7 @@ import {
   IconographyPageTitle,
   IconographySubHeading,
 } from './IconographyDocChrome';
-import { lucideAll, lucideUsageNotes, solarAll } from './iconography.library';
+import { lucideAll, lucideUsageNotes, solarAll, fabelyAll } from './iconography.library';
 
 const meta = {
   title: 'Design System/Foundations/Iconography/Icon Library',
@@ -217,20 +217,28 @@ export const FabelyIcons: Story = {
     <div>
       <IconographyPageTitle>Fabely Icons</IconographyPageTitle>
       <IconographyNotice>
-        Custom Fabely icon set. Reserved for brand-specific glyphs that Lucide and Solar do not
-        cover. Catalog is empty for now — icons will be added here as they are designed and
-        approved.
+        Custom Fabely icon set for brand-specific glyphs that Lucide and Solar
+        do not cover. Import from <code>@/foundations/icons</code>. Size with{' '}
+        <code>--icon-*</code>; ink via <code>currentColor</code>.
       </IconographyNotice>
-      <IconographySubHeading>No icons yet</IconographySubHeading>
+      <IconographySubHeading>
+        Catalog ({fabelyAll.length})
+      </IconographySubHeading>
       <div
         style={{
-          fontFamily: 'var(--font-family-sans)',
-          fontSize: 13,
-          opacity: 0.7,
-          padding: '24px 0',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+          gap: 12,
+          padding: '8px 0 24px',
         }}
       >
-        This library has no entries yet.
+        {fabelyAll.map(({ name, Icon, usage }) => (
+          <IconGalleryCard key={name} name={name} usage={usage}>
+            <span style={{ color: 'var(--tw-raw-fia-200)' }}>
+              <Icon className="size-[length:var(--icon-lg)]" />
+            </span>
+          </IconGalleryCard>
+        ))}
       </div>
     </div>
   ),
