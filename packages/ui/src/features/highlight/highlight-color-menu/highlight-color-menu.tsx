@@ -147,7 +147,8 @@ function ToolbarIconButton({
       >
         {children}
       </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
+      {/* Default sideOffset is 4px — +8px per spec. */}
+      <TooltipContent sideOffset={12}>{label}</TooltipContent>
     </Tooltip>
   );
 }
@@ -226,7 +227,11 @@ function HighlightColorMenu({
         'inline-flex items-center',
         'rounded-[length:var(--rounded-lg)] border border-[color:var(--border)]',
         'bg-[color:var(--neutrals-new-150)] p-[var(--spacing-2xs)]',
-        'shadow-[var(--shadow-lg-black)] dark:shadow-[var(--shadow-lg-white)]',
+        /* Figma's literal shadow (md/shadow-1 + md/shadow-2, rgba(7,19,23,…))
+         * — always dark, same in both themes. Not --shadow-lg-black/white:
+         * that pair flips to a light glow in dark mode, which doesn't
+         * match Figma's spec here. */
+        'shadow-[0px_4px_22px_-1px_rgba(7,19,23,0.4),0px_2px_13px_0px_rgba(7,19,23,0.3)]',
         className,
       )}
     >
@@ -259,9 +264,10 @@ function HighlightColorMenu({
               />
             ))}
           </div>
-          {/* pl-2xs only, no divider — Figma's own source (16317:987)
-              has exactly one Separator, before the swatches. */}
-          <div className="pl-[var(--spacing-2xs)]">
+          {/* No divider — Figma's own source (16317:987) has exactly one
+              Separator, before the swatches. pl-xs (8px = Figma's 4px +
+              4px more per spec), not pl-2xs. */}
+          <div className="pl-[var(--spacing-xs)]">
             <ToolbarIconButton label="Remove highlight" onClick={onRemove}>
               <CircleX className={ICON_GLYPH_CHROME} />
             </ToolbarIconButton>
