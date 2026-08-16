@@ -5,11 +5,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
-import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
+import { PlaygroundPanel } from '../../../../stories/PlaygroundPanel';
 import {
   PrimitiveGalleryItem,
   PrimitivePage,
-} from '../../../stories/PrimitivePage';
+} from '../../../../stories/PrimitivePage';
 
 import { HighlightColor } from './highlight-color';
 

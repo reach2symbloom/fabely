@@ -15,13 +15,8 @@ primitives into this tree.
 
 | Piece | Folder | Status |
 | --- | --- | --- |
-| — | — | Not started |
-
-[Highlight Color](../../atoms/highlight-color/README.md) (atom) and
-[Highlight Color Menu](../../molecules/highlight-color-menu/README.md)
-(molecule) landed here first, then were reclassified into the reusable
-tiers — both are generic enough that other features could compose
-them, so they don't live in this feature-specific tree.
+| [Highlight Color](./highlight-color/README.md) | `highlight-color/` | Landed |
+| [Highlight Color Menu](./highlight-color-menu/README.md) | `highlight-color-menu/` | Landed |
 
 ## Figma
 

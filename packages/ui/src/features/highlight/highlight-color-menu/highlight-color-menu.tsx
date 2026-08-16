@@ -7,8 +7,8 @@
  * (281px, 4 actions + divider + color swatches + remove) / `type=System
  * highlight` (104px, the same 4 leading actions only — no color choice,
  * no remove). Composes `@/primitives/button/icon-button`,
- * `@/primitives/separator`, and `@/atoms/highlight-color`
- * (`HighlightColor`, the swatch atom built alongside this molecule).
+ * `@/primitives/separator`, and `../highlight-color` (`HighlightColor`,
+ * the swatch piece built alongside this one).
  *
  * User highlight's 4 leading actions, confirmed against a live render:
  * Copy, Ask Fia (the brand silcrow), Gather & Search Notes (exported
@@ -51,7 +51,7 @@ import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { SPRING_BLOOM } from '@/lib/motion';
 import { FiaSilcrow } from '@/foundations/icons';
-import { HighlightColor } from '@/atoms/highlight-color';
+import { HighlightColor } from '../highlight-color';
 import { IconButton } from '@/primitives/button/icon-button';
 import { Separator } from '@/primitives/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/primitives/tooltip';

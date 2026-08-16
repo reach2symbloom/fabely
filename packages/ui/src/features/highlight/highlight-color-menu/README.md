@@ -8,4 +8,4 @@ Figma: [Highlight color menu](https://www.figma.com/design/gV94L0qCmvwQkddNbEktr
 remove) / `type=System highlight` (104px, the 4 leading actions only).
 
 Composes `@/primitives/button/icon-button`, `@/primitives/separator`,
-and [Highlight Color](../../atoms/highlight-color/README.md).
+and [Highlight Color](../highlight-color/README.md).
