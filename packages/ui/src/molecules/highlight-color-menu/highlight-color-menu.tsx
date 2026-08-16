@@ -7,8 +7,8 @@
  * (281px, 4 actions + divider + color swatches + remove) / `type=System
  * highlight` (104px, the same 4 leading actions only — no color choice,
  * no remove). Composes `@/primitives/button/icon-button`,
- * `@/primitives/separator`, and `./highlight-color` (`HighlightColor`,
- * the swatch atom-turned-feature-piece built alongside this menu).
+ * `@/primitives/separator`, and `@/atoms/highlight-color`
+ * (`HighlightColor`, the swatch atom built alongside this molecule).
  *
  * User highlight's 4 leading actions, confirmed against a live render:
  * Copy, Ask Fia (the brand silcrow), Gather & Search Notes (exported
@@ -26,17 +26,20 @@
  * Hover/press use Motion's `SPRING_BLOOM` (see `@/lib/motion`) for a
  * spring scale on top of Icon Button's own CSS hover fill — Motion
  * drives the transform, Foundation tokens still drive the fill color.
+ * Rest is `--theme-alpha-black-switch-20` for every icon; Fia and
+ * Gather additionally swap to their own brand color ONLY on hover
+ * (Fia → `--tw-raw-fia-200`, Gather → `--tw-raw-secondary-200`) via an
+ * explicit `hover:text-[color:...]` override — not `fiaGhost`, which
+ * would apply that color at rest too.
  *
  * Figma names a reusable "Icon Button Semantic" component (`16315:1141`)
- * for exactly 4 color-coordinated commands: Fia, Gather, Comment,
- * Highlight — each pairs one glyph with one variant (Fia → `fiaGhost`
- * green; the rest → plain `ghost`). It's only consumed here, so it lives
- * here rather than as a shared primitive (see `IconButtonSemantic`
- * below) instead of being duplicated inline per button. `highlight` is
- * a supported command not currently wired into the toolbar — Figma's
- * "Highlight" leading action (Icon / highlighter, "mark, text") doesn't
- * appear in the confirmed 4-button User highlight layout above; add it
- * if that turns out to be a 5th action rather than an unused command.
+ * for exactly 4 commands: Fia, Gather, Comment, Highlight. It's only
+ * consumed here, so it lives here (see `IconButtonSemantic` below)
+ * rather than as a shared primitive. `highlight` is a supported command
+ * not currently wired into the toolbar — Figma's "Highlight" leading
+ * action (Icon / highlighter, "mark, text") doesn't appear in the
+ * confirmed 4-button User highlight layout above; add it if that turns
+ * out to be a 5th action rather than an unused command.
  */
 
 'use client';
@@ -48,10 +51,10 @@ import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { SPRING_BLOOM } from '@/lib/motion';
 import { FiaSilcrow } from '@/foundations/icons';
-import { IconButton, type IconButtonVariant } from '@/primitives/button/icon-button';
+import { HighlightColor } from '@/atoms/highlight-color';
+import { IconButton } from '@/primitives/button/icon-button';
 import { Separator } from '@/primitives/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/primitives/tooltip';
-import { HighlightColor } from '../highlight-color';
 import { GatherSearchNotesIcon } from './assets/gather-search-notes';
 
 const MotionIconButton = motion.create(IconButton);
@@ -92,7 +95,13 @@ const DEFAULT_HIGHLIGHT_COLOR_OPTIONS: HighlightColorMenuOption[] = [
   { value: 'lavender', color: 'var(--tw-raw-secondary-200)', label: 'Lavender' },
 ];
 
-const ICON_BUTTON_CHROME = 'text-[color:var(--muted-foreground)]';
+/*
+ * Rest = alpha-20 (quiet, per spec) — overrides Icon Button ghost's own
+ * rest color (--muted-foreground, alpha-60, too strong here). Hover is
+ * untouched: ghost's own `hover:text-foreground` already goes to full
+ * strength, which is the "lighter on hover" step in dark mode.
+ */
+const ICON_BUTTON_CHROME = 'text-[color:var(--theme-alpha-black-switch-20)]';
 /* Figma icon size is 16px (`--icon-sm`); Icon Button's `mini` size
  * auto-sizes unlabeled glyphs to `--icon-xs` (12px) via
  * `[&_svg:not([class*='size-'])]:...` — the `size-` class name here opts
@@ -110,13 +119,13 @@ const DIVIDER_LINE_CHROME = 'bg-[color:var(--border)]';
 function ToolbarIconButton({
   label,
   onClick,
-  variant = 'ghost',
+  hoverClassName,
   children,
 }: {
   label: string;
   onClick?: () => void;
-  /** `fiaGhost` for Ask Fia — stays Fia-green at rest instead of muted. */
-  variant?: IconButtonVariant;
+  /** Literal `hover:text-[color:var(--...)]` class — see `SEMANTIC_ICON_BUTTON`. */
+  hoverClassName?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -125,10 +134,10 @@ function ToolbarIconButton({
         render={
           <MotionIconButton
             aria-label={label}
-            variant={variant}
+            variant="ghost"
             size="mini"
             roundness="round"
-            className={variant === 'ghost' ? ICON_BUTTON_CHROME : undefined}
+            className={cn(ICON_BUTTON_CHROME, hoverClassName)}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.94 }}
             transition={SPRING_BLOOM}
@@ -143,25 +152,33 @@ function ToolbarIconButton({
   );
 }
 
-/** Figma "Icon Button Semantic" (`16315:1141`) — command → glyph + variant. */
+/**
+ * Figma "Icon Button Semantic" (`16315:1141`) — command → glyph +
+ * hover color. `hoverClassName` is a literal Tailwind class (not built
+ * from a template string) so the JIT scanner can actually find it.
+ */
 type SemanticCommand = 'fia' | 'gather' | 'comment' | 'highlight';
 
 const SEMANTIC_ICON_BUTTON: Record<
   SemanticCommand,
   {
     label: string;
-    variant: IconButtonVariant;
+    hoverClassName?: string;
     Icon: React.ComponentType<{ className?: string }>;
   }
 > = {
-  fia: { label: 'Ask Fia', variant: 'fiaGhost', Icon: FiaSilcrow },
+  fia: {
+    label: 'Ask Fia',
+    hoverClassName: 'hover:text-[color:var(--tw-raw-fia-200)]',
+    Icon: FiaSilcrow,
+  },
   gather: {
     label: 'Gather & search notes',
-    variant: 'ghost',
+    hoverClassName: 'hover:text-[color:var(--tw-raw-secondary-200)]',
     Icon: GatherSearchNotesIcon,
   },
-  comment: { label: 'Comment', variant: 'ghost', Icon: MessageSquare },
-  highlight: { label: 'Highlight', variant: 'ghost', Icon: Highlighter },
+  comment: { label: 'Comment', Icon: MessageSquare },
+  highlight: { label: 'Highlight', Icon: Highlighter },
 };
 
 function IconButtonSemantic({
@@ -171,9 +188,9 @@ function IconButtonSemantic({
   command: SemanticCommand;
   onClick?: () => void;
 }) {
-  const { label, variant, Icon } = SEMANTIC_ICON_BUTTON[command];
+  const { label, hoverClassName, Icon } = SEMANTIC_ICON_BUTTON[command];
   return (
-    <ToolbarIconButton label={label} variant={variant} onClick={onClick}>
+    <ToolbarIconButton label={label} hoverClassName={hoverClassName} onClick={onClick}>
       <Icon className={ICON_GLYPH_CHROME} />
     </ToolbarIconButton>
   );

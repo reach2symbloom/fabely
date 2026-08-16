@@ -13,3 +13,4 @@ consume semantic tokens once a reusable role emerges.
 | --- | --- |
 | [Avatar with Label](./avatar-with-label/README.md) | Avatar + name; optional second-line action (Figma `12044:25610`) |
 | [Controls](./controls/README.md) | Label, Dropdown, Slider, Icon Button Group, Rich Divider (Figma `16301:20374`) |
+| [Highlight Color Menu](./highlight-color-menu/README.md) | Floating text-highlight toolbar — actions + color picker (Figma `16319:1082`) |

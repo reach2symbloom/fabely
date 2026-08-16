@@ -5,14 +5,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
-import { PlaygroundPanel } from '../../../../stories/PlaygroundPanel';
+import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
 import {
   InlineSegmentedControl,
-} from '../../../../stories/InlineSegmentedControl';
+} from '../../../stories/InlineSegmentedControl';
 import {
   PrimitiveGalleryItem,
   PrimitivePage,
-} from '../../../../stories/PrimitivePage';
+} from '../../../stories/PrimitivePage';
 
 import {
   HighlightColorMenu,
@@ -20,7 +20,7 @@ import {
 } from './highlight-color-menu';
 
 const meta = {
-  title: 'Design System/Features/Highlight/Highlight Color Menu',
+  title: 'Design System/Molecules/Highlight Color Menu',
   component: HighlightColorMenu,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
