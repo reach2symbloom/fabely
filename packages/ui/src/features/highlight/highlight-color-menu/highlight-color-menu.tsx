@@ -11,14 +11,14 @@
  * the swatch atom-turned-feature-piece built alongside this menu).
  *
  * User highlight's 4 leading actions, confirmed against a live render:
- * Copy, Ask Fia (the brand silcrow), Search — a stacked-pages + sparkle
- * + magnifying-glass glyph with no match in this codebase or Lucide,
- * placeholdered with `Search` until an SVG export lands — and Comment.
+ * Copy, Ask Fia (the brand silcrow), Gather & Search Notes (exported
+ * Figma asset — stacked pages + sparkle + magnifying glass, no Lucide
+ * equivalent — see `./assets/gather-search-notes.tsx`), and Comment.
  * The trailing action (right of the color swatches) is a plain close
  * `X`, not the Trash2 this used to render. System highlight's own icon
  * set is still unconfirmed (Figma's source artwork differs from
- * User's for at least the Ask Fia / Search slots) — it currently
- * renders the same 4 as User, which is likely wrong.
+ * User's for at least the Ask Fia / Gather & Search Notes slots) — it
+ * currently renders the same 4 as User, which is likely wrong.
  *
  * Every action button is a Tooltip trigger (label = its `aria-label`).
  * Hover/press use Motion's `SPRING_BLOOM` (see `@/lib/motion`) for a
@@ -32,7 +32,7 @@
 'use client';
 
 import * as React from 'react';
-import { Copy, MessageSquare, Search, X } from 'lucide-react';
+import { Copy, MessageSquare, X } from 'lucide-react';
 import { motion } from 'motion/react';
 
 import { cn } from '@/lib/utils';
@@ -42,6 +42,7 @@ import { IconButton, type IconButtonVariant } from '@/primitives/button/icon-but
 import { Separator } from '@/primitives/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/primitives/tooltip';
 import { HighlightColor } from '../highlight-color';
+import { GatherSearchNotesIcon } from './assets/gather-search-notes';
 
 const MotionIconButton = motion.create(IconButton);
 
@@ -90,6 +91,11 @@ const ICON_GLYPH_CHROME = 'size-[length:var(--icon-sm)]';
 
 const DIVIDER_CHROME =
   'flex h-full items-center self-stretch pr-[var(--spacing-xs)] pl-[var(--spacing-2xs)]';
+/* Separator's own default (--theme-alpha-black-switch-5, matches Figma's
+ * literal spec) is a 5% tint — too subtle to read against this menu's
+ * dark surface. --border is the same token the menu's own outer border
+ * already uses, so it reads at a consistent, actually-visible strength. */
+const DIVIDER_LINE_CHROME = 'bg-[color:var(--border)]';
 
 function ToolbarIconButton({
   label,
@@ -167,11 +173,8 @@ function HighlightColorMenu({
       <ToolbarIconButton label="Ask Fia" variant="fiaGhost" onClick={onAskFia}>
         <FiaSilcrow className={ICON_GLYPH_CHROME} />
       </ToolbarIconButton>
-      {/* Placeholder — Figma's actual glyph (stacked pages + sparkle +
-          magnifying glass) has no match here or in Lucide; swap once
-          the SVG export lands. */}
-      <ToolbarIconButton label="Search" onClick={onSearch}>
-        <Search className={ICON_GLYPH_CHROME} />
+      <ToolbarIconButton label="Gather & search notes" onClick={onSearch}>
+        <GatherSearchNotesIcon className={ICON_GLYPH_CHROME} />
       </ToolbarIconButton>
       <ToolbarIconButton label="Comment" onClick={onComment}>
         <MessageSquare className={ICON_GLYPH_CHROME} />
@@ -180,7 +183,10 @@ function HighlightColorMenu({
       {isUser ? (
         <>
           <div className={DIVIDER_CHROME}>
-            <Separator orientation="vertical" className="h-full" />
+            <Separator
+              orientation="vertical"
+              className={cn('h-full', DIVIDER_LINE_CHROME)}
+            />
           </div>
           <div className="flex items-center gap-[var(--spacing-2xs)]">
             {colors.map((option) => (
@@ -197,7 +203,10 @@ function HighlightColorMenu({
             ))}
           </div>
           <div className={DIVIDER_CHROME}>
-            <Separator orientation="vertical" className="h-full" />
+            <Separator
+              orientation="vertical"
+              className={cn('h-full', DIVIDER_LINE_CHROME)}
+            />
           </div>
           <ToolbarIconButton label="Cancel" onClick={onCancel}>
             <X className={ICON_GLYPH_CHROME} />
