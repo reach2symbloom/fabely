@@ -14,7 +14,7 @@ import { ControlDropdown } from './control-dropdown';
 import { ControlHeader } from './control-header';
 import { ControlIconButtonGroup, type ControlIconButtonOption } from './control-icon-button-group';
 import { ControlLabel } from './control-label';
-import { ControlRichDivider, type ControlRichDividerOption } from './control-rich-divider';
+import { ControlRichDivider } from './control-rich-divider';
 import { ControlSlider } from './control-slider';
 
 const meta = {
@@ -36,10 +36,6 @@ const ICON_BUTTON_OPTIONS: ControlIconButtonOption[] = [
   { value: 'd', label: 'Option D', icon: <SquareDashed /> },
 ];
 
-const RICH_DIVIDER_OPTIONS: ControlRichDividerOption[] = [
-  { value: 'ornament', label: 'Ornament' },
-];
-
 /** Figma repeats its "Text alignment" placeholder glyph across all 3 chips. */
 const CHIP_OPTIONS: ControlChipOption[] = [
   { value: 'a', label: 'Label', icon: <AlignLeft /> },
@@ -52,12 +48,14 @@ function ControlsPlayground() {
   const [lineWidth, setLineWidth] = useState([50]);
   const [iconOption, setIconOption] = useState('b');
   const [divider, setDivider] = useState('ornament');
+  const [chip, setChip] = useState('b');
+  const [headerChip, setHeaderChip] = useState('b');
 
   return (
     <PlaygroundPanel
-      className="w-[272px] max-w-full"
+      className="w-[300px] max-w-full"
       preview={
-        <div className="flex w-full flex-col gap-[var(--spacing-md)]">
+        <div className="flex w-full flex-col gap-[var(--spacing-xl)]">
           <ControlDropdown
             label="Typography"
             value={font}
@@ -75,6 +73,20 @@ function ControlsPlayground() {
             value={iconOption}
             onValueChange={setIconOption}
           />
+          <ControlChipGroup
+            label="Label"
+            options={CHIP_OPTIONS}
+            value={chip}
+            onValueChange={setChip}
+          />
+          <div className="flex flex-col gap-[var(--spacing-md)]">
+            <ControlHeader title="Header" description="Description" />
+            <ControlChipGroup
+              options={CHIP_OPTIONS}
+              value={headerChip}
+              onValueChange={setHeaderChip}
+            />
+          </div>
           <ControlSlider
             label="Line width"
             value={lineWidth}
@@ -82,7 +94,6 @@ function ControlsPlayground() {
           />
           <ControlRichDivider
             label="Section divider"
-            options={RICH_DIVIDER_OPTIONS}
             value={divider}
             onValueChange={setDivider}
           />
@@ -120,14 +131,6 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Control Icon Button Group">
             <ControlIconButtonGroup label="Label" options={ICON_BUTTON_OPTIONS} defaultValue="b" />
           </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Control Rich Divider">
-            <ControlRichDivider
-              label="Section divider"
-              options={RICH_DIVIDER_OPTIONS}
-              defaultValue="ornament"
-              className="w-60"
-            />
-          </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Control Chip Group">
             <ControlChipGroup label="Label" options={CHIP_OPTIONS} defaultValue="b" />
           </PrimitiveGalleryItem>
@@ -137,16 +140,22 @@ export const Overview: Story = {
               <ControlChipGroup options={CHIP_OPTIONS} defaultValue="b" />
             </div>
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Control Rich Divider — 224px (min)">
+            <ControlRichDivider label="Section divider" defaultValue="ornament" className="w-56" />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Control Rich Divider — 300px (max)">
+            <ControlRichDivider label="Section divider" defaultValue="dots" className="w-[300px]" />
+          </PrimitiveGalleryItem>
         </div>
       }
       usageGuidance={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
-          <li>Each piece composes an existing primitive (Select, Slider, Icon Button, Separator) — none restyle the primitive itself.</li>
+          <li>Each piece composes an existing primitive (Select, Slider, Icon Button, Separator, Radio Group) — none restyle the primitive itself.</li>
           <li>Control Label pairs with a single Controls piece — one label per field.</li>
           <li>Control Icon Button Group's `icon` is caller-supplied; the demo's dashed-square glyph is Figma's own placeholder icon.</li>
-          <li>Control Rich Divider's ornament is the exported Figma asset (`assets/section-divider-ornament.tsx`), recolored to `currentColor`; pass `ornament` per option to offer other divider styles.</li>
           <li>Control Chip Group composes Radio Group's Rich Radio Chip "icon" choice (`FieldLabel choice="icon"`) — same pattern as `radio-group.stories.tsx`'s `RichRadioIconChipExample`, not a fork.</li>
           <li>Control Header (Header variant) replaces Control Label above a Chip Group — use one or the other, not both.</li>
+          <li>Control Rich Divider defaults to `DEFAULT_RICH_DIVIDER_OPTIONS` (Ornament — the exported Figma asset recolored to `currentColor`; Dots and Asterisks — text glyphs; Plain — a continuous rule); pass `options` to replace them. Field is `min-w-[224px] max-w-[300px]`, per Figma's Hug range.</li>
         </ul>
       }
       accessibility={

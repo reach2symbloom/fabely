@@ -8,6 +8,7 @@ export {
 } from './control-icon-button-group';
 export {
   ControlRichDivider,
+  DEFAULT_RICH_DIVIDER_OPTIONS,
   type ControlRichDividerProps,
   type ControlRichDividerOption,
 } from './control-rich-divider';
