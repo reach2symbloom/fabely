@@ -14,11 +14,12 @@
  * Copy, Ask Fia (the brand silcrow), Gather & Search Notes (exported
  * Figma asset — stacked pages + sparkle + magnifying glass, no Lucide
  * equivalent — see `./assets/gather-search-notes.tsx`), and Comment.
- * The trailing action (right of the color swatches) is a plain close
- * `X`, not the Trash2 this used to render. System highlight's own icon
- * set is still unconfirmed (Figma's source artwork differs from
- * User's for at least the Ask Fia / Gather & Search Notes slots) — it
- * currently renders the same 4 as User, which is likely wrong.
+ * The trailing action (right of the color swatches) is "Remove
+ * highlight" — a Lucide `X` placeholder for now, awaiting the actual
+ * circle-x asset. System highlight's own icon set is still unconfirmed
+ * (Figma's source artwork differs from User's for at least the Ask
+ * Fia / Gather & Search Notes slots) — it currently renders the same
+ * 4 as User, which is likely wrong.
  *
  * Every action button is a Tooltip trigger (label = its `aria-label`).
  * Hover/press use Motion's `SPRING_BLOOM` (see `@/lib/motion`) for a
@@ -67,8 +68,8 @@ export type HighlightColorMenuProps = {
   onAskFia?: () => void;
   onSearch?: () => void;
   onComment?: () => void;
-  /** Trailing close/dismiss action, right of the color swatches. */
-  onCancel?: () => void;
+  /** Trailing action, right of the color swatches. */
+  onRemove?: () => void;
 };
 
 /** Figma's own example palette on this frame. */
@@ -144,7 +145,7 @@ function HighlightColorMenu({
   onAskFia,
   onSearch,
   onComment,
-  onCancel,
+  onRemove,
 }: HighlightColorMenuProps) {
   const [uncontrolled, setUncontrolled] = React.useState(
     defaultValue ?? colors[colors.length - 1]?.value,
@@ -208,7 +209,8 @@ function HighlightColorMenu({
               className={cn('h-full', DIVIDER_LINE_CHROME)}
             />
           </div>
-          <ToolbarIconButton label="Cancel" onClick={onCancel}>
+          {/* Awaiting the actual asset — X is a placeholder. */}
+          <ToolbarIconButton label="Remove highlight" onClick={onRemove}>
             <X className={ICON_GLYPH_CHROME} />
           </ToolbarIconButton>
         </>
