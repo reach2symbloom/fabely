@@ -16,8 +16,11 @@ primitives into this tree.
 | Piece | Folder | Status |
 | --- | --- | --- |
 | [Highlight Color](./highlight-color/README.md) | `highlight-color/` | Landed |
+| [Highlight Color Menu](./highlight-color-menu/README.md) | `highlight-color-menu/` | Landed |
 
 ## Figma
 
-[Highlight color](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16317-950) —
-Default / Hover / Selected states.
+- [Highlight color](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16317-950) —
+  Default / Hover / Selected states.
+- [Highlight color menu](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16319-1082) —
+  User highlight / System highlight.
