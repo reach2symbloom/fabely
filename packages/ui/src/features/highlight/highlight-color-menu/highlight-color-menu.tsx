@@ -94,7 +94,10 @@ function HighlightColorMenu({
       data-slot="highlight-color-menu"
       data-type={type}
       className={cn(
-        'inline-flex items-center gap-[var(--spacing-2xs)]',
+        /* No gap — the leading icon buttons sit flush against each other
+         * in Figma; spacing around the divider/swatches/remove group comes
+         * from padding on those elements below, not a uniform row gap. */
+        'inline-flex items-center',
         'rounded-[length:var(--rounded-lg)] border border-[color:var(--border)]',
         'bg-[color:var(--neutrals-new-150)] p-[var(--spacing-2xs)]',
         'shadow-[var(--shadow-lg-black)] dark:shadow-[var(--shadow-lg-white)]',
@@ -144,7 +147,9 @@ function HighlightColorMenu({
 
       {isUser ? (
         <>
-          <Separator orientation="vertical" className="self-stretch" />
+          <div className="flex h-full items-center self-stretch pr-[var(--spacing-xs)] pl-[var(--spacing-2xs)]">
+            <Separator orientation="vertical" className="h-full" />
+          </div>
           <div className="flex items-center gap-[var(--spacing-2xs)]">
             {colors.map((option) => (
               <HighlightColor
@@ -159,16 +164,18 @@ function HighlightColorMenu({
               />
             ))}
           </div>
-          <IconButton
-            aria-label="Remove highlight"
-            variant="ghost"
-            size="mini"
-            roundness="round"
-            className={ICON_BUTTON_CHROME}
-            onClick={onRemove}
-          >
-            <Trash2 className={ICON_GLYPH_CHROME} />
-          </IconButton>
+          <div className="pl-[var(--spacing-2xs)]">
+            <IconButton
+              aria-label="Remove highlight"
+              variant="ghost"
+              size="mini"
+              roundness="round"
+              className={ICON_BUTTON_CHROME}
+              onClick={onRemove}
+            >
+              <Trash2 className={ICON_GLYPH_CHROME} />
+            </IconButton>
+          </div>
         </>
       ) : null}
     </div>
