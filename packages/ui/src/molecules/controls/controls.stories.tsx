@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { SquareDashed } from 'lucide-react';
+import { AlignLeft, SquareDashed } from 'lucide-react';
 import { useState } from 'react';
 
 import { SelectItem } from '@/primitives/select';
@@ -9,7 +9,9 @@ import {
   PrimitivePage,
 } from '../../../stories/PrimitivePage';
 
+import { ControlChipGroup, type ControlChipOption } from './control-chip-group';
 import { ControlDropdown } from './control-dropdown';
+import { ControlHeader } from './control-header';
 import { ControlIconButtonGroup, type ControlIconButtonOption } from './control-icon-button-group';
 import { ControlLabel } from './control-label';
 import { ControlRichDivider, type ControlRichDividerOption } from './control-rich-divider';
@@ -36,6 +38,13 @@ const ICON_BUTTON_OPTIONS: ControlIconButtonOption[] = [
 
 const RICH_DIVIDER_OPTIONS: ControlRichDividerOption[] = [
   { value: 'ornament', label: 'Ornament' },
+];
+
+/** Figma repeats its "Text alignment" placeholder glyph across all 3 chips. */
+const CHIP_OPTIONS: ControlChipOption[] = [
+  { value: 'a', label: 'Label', icon: <AlignLeft /> },
+  { value: 'b', label: 'Label', icon: <AlignLeft /> },
+  { value: 'c', label: 'Label', icon: <AlignLeft /> },
 ];
 
 function ControlsPlayground() {
@@ -89,7 +98,7 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Controls"
-      description="Interactive control molecules from Figma's Controls frame (16301:20374) — Label, Dropdown, Slider, Icon Button Group, and Rich Divider, each composed from an existing primitive."
+      description="Interactive control molecules from Figma's Controls frame (16301:20374) — Label, Dropdown, Slider, Icon Button Group, Rich Divider, Chip Group, and Header, each composed from an existing primitive."
       playground={<ControlsPlayground />}
       variants={
         <div className="grid gap-8 pe-12 sm:grid-cols-2">
@@ -119,6 +128,15 @@ export const Overview: Story = {
               className="w-60"
             />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Control Chip Group">
+            <ControlChipGroup label="Label" options={CHIP_OPTIONS} defaultValue="b" />
+          </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Control Chip Group — Header variant">
+            <div className="flex w-[272px] max-w-full flex-col gap-[var(--spacing-md)]">
+              <ControlHeader title="Header" description="Description" />
+              <ControlChipGroup options={CHIP_OPTIONS} defaultValue="b" />
+            </div>
+          </PrimitiveGalleryItem>
         </div>
       }
       usageGuidance={
@@ -127,6 +145,8 @@ export const Overview: Story = {
           <li>Control Label pairs with a single Controls piece — one label per field.</li>
           <li>Control Icon Button Group's `icon` is caller-supplied; the demo's dashed-square glyph is Figma's own placeholder icon.</li>
           <li>Control Rich Divider's ornament is the exported Figma asset (`assets/section-divider-ornament.tsx`), recolored to `currentColor`; pass `ornament` per option to offer other divider styles.</li>
+          <li>Control Chip Group composes Radio Group's Rich Radio Chip "icon" choice (`FieldLabel choice="icon"`) — same pattern as `radio-group.stories.tsx`'s `RichRadioIconChipExample`, not a fork.</li>
+          <li>Control Header (Header variant) replaces Control Label above a Chip Group — use one or the other, not both.</li>
         </ul>
       }
       accessibility={
@@ -134,6 +154,7 @@ export const Overview: Story = {
           <li>Dropdown and Rich Divider inherit Select's keyboard and screen-reader behavior unchanged.</li>
           <li>Slider inherits its primitive's keyboard and screen-reader behavior unchanged.</li>
           <li>Icon Button Group exposes selection via `aria-pressed` on each button and `role="group"` with the label as its accessible name.</li>
+          <li>Chip Group is a native radio group — single-select, arrow-key navigation, each chip's visible text is its accessible name via `FieldLabel`.</li>
         </ul>
       }
     />

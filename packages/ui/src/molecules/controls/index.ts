@@ -12,3 +12,9 @@ export {
   type ControlRichDividerOption,
 } from './control-rich-divider';
 export { SectionDividerOrnament } from './assets/section-divider-ornament';
+export { ControlHeader, type ControlHeaderProps } from './control-header';
+export {
+  ControlChipGroup,
+  type ControlChipGroupProps,
+  type ControlChipOption,
+} from './control-chip-group';
