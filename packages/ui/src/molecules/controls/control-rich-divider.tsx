@@ -48,11 +48,17 @@ const GLYPH_CLASS = [
 const DEFAULT_RICH_DIVIDER_OPTIONS: ControlRichDividerOption[] = [
   {
     value: 'ornament',
-    /* Fills whatever box it's placed in (trigger vs. popup row size it
+    /*
+     * Fills whatever box it's placed in (trigger vs. popup row size it
      * differently below) — sizing the glyph itself here would cap how
-     * large the trigger preview can render. */
+     * large the trigger preview can render. `size-full`, not `h-full
+     * w-full`: Select's own trigger chrome forces any `<svg>` whose
+     * className doesn't contain "size-" down to `--icon-sm` (16px) —
+     * see `[&_svg:not([class*='size-'])]` in select.tsx. `size-full`
+     * both satisfies that exclusion and sets height/width together.
+     */
     label: 'Ornament',
-    ornament: <SectionDividerOrnament className="h-full w-full" />,
+    ornament: <SectionDividerOrnament className="size-full" />,
   },
   {
     value: 'dots',
