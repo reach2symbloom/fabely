@@ -89,16 +89,17 @@ function ActionButton({
       </TooltipTrigger>
       {/*
         side="right" -> the primitive's own Arrow auto-points left, back
-        at the trigger — it was rendering, just hidden: the pill's
-        decorative ring (shadow-[0px_0px_0px_4px_...]) extends 4px past
-        the button's actual layout box, so sideOffset's default 4px
-        landed the tooltip overlapping that ring, clipping both the
-        arrow and the text's leading edge behind it. 4 (offset) + 4
-        (ring) = 8 clears it. p-2xs overrides the primitive's own
-        asymmetric px-xs/py-1-5 padding with a uniform 4px, matching the
-        pill's own 4px-all-around padding.
+        at the trigger. sideOffset 8 clears the pill's decorative ring
+        (shadow-[0px_0px_0px_4px_...]), which extends past the trigger's
+        actual layout box. Padding is the primitive's own default
+        (px-xs/py-1-5), NOT overridden to a uniform 4px — the Arrow sits
+        at a small negative offset from the popup's left edge, and 4px
+        of left padding isn't enough clearance for it, so the arrow
+        overlapped the leading text. The pill's own 4px-all-around
+        padding (confirmed correct against Figma) doesn't apply here —
+        that was a reference example, not an instruction to match it.
       */}
-      <TooltipContent side="right" sideOffset={8} className="p-[var(--spacing-2xs)]">
+      <TooltipContent side="right" sideOffset={8}>
         {tooltip}
       </TooltipContent>
     </Tooltip>

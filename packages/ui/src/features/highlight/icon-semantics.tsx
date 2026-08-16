@@ -10,12 +10,22 @@
  * from a template string) so the JIT scanner can actually find them.
  */
 
+import * as React from 'react';
 import { MessageSquare, Highlighter } from 'lucide-react';
 
 import { FiaSilcrow } from '@/foundations/icons';
 import { GatherSearchNotesIcon } from './assets/gather-search-notes';
 
 export type SemanticCommand = 'fia' | 'gather' | 'comment' | 'highlight';
+
+/**
+ * Lucide's default strokeWidth (2) makes Highlighter's crossing strokes
+ * (marker body + ink mark) read as messy/overlapping at icon sizes —
+ * thinner strokes let the shape read as one unified glyph instead.
+ */
+function HighlighterIcon({ className }: { className?: string }) {
+  return <Highlighter className={className} strokeWidth={1.5} />;
+}
 
 export const SEMANTIC_ICON: Record<
   SemanticCommand,
@@ -24,7 +34,7 @@ export const SEMANTIC_ICON: Record<
   fia: FiaSilcrow,
   gather: GatherSearchNotesIcon,
   comment: MessageSquare,
-  highlight: Highlighter,
+  highlight: HighlighterIcon,
 };
 
 /** Rest stays the shared neutral tone; only these two swap on hover. */
