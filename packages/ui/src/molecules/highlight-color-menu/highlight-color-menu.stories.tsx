@@ -20,7 +20,7 @@ import {
 } from './highlight-color-menu';
 
 const meta = {
-  title: 'Design System/Molecules/Highlight Color Menu',
+  title: 'Design System/Molecules/Highlight Color Menu Molecule',
   component: HighlightColorMenu,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },

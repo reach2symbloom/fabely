@@ -24,7 +24,7 @@ const PALETTE = [
 ];
 
 const meta = {
-  title: 'Design System/Atoms/Highlight Color',
+  title: 'Design System/Atoms/Highlight Color Atom',
   component: HighlightColor,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
