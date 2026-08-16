@@ -1,0 +1,23 @@
+/**
+ * Shared Motion (`motion/react`) presets — the standard animation engine
+ * for Fabely component motion. Reserve Motion for interactions that
+ * benefit from spring physics, enter/exit, layout animation, sequencing,
+ * or gesture-driven motion; keep plain CSS transitions for everything
+ * that already works well (color/opacity/shadow swaps, etc.).
+ */
+
+import type { Transition } from 'motion/react';
+
+/**
+ * Hover/press "bloom" spring — fast response, slight overshoot, quick
+ * settle. Damping ratio ~0.71 (underdamped, not the ~0.3–0.5 range that
+ * reads as bouncy/cartoonish). Drives scale/transform only — the visual
+ * glow itself stays on Foundation tokens via CSS (box-shadow, bg-color),
+ * transitioned independently by their own `transition-*` classes.
+ */
+export const SPRING_BLOOM: Transition = {
+  type: 'spring',
+  stiffness: 400,
+  damping: 22,
+  mass: 0.6,
+};

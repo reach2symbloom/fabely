@@ -50,6 +50,7 @@
     "embla-carousel-react": "8.6.0",
     "input-otp": "1.4.2",
     "lucide-react": "^0.564.0",
+    "motion": "^13.1.0",
     "react-day-picker": "^10.0.1",
     "react-resizable-panels": "^4.12.2",
     "recharts": "3.8.0",

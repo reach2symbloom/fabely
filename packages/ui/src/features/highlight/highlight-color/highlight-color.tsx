@@ -7,18 +7,36 @@
  * instance uses `--tw-raw-secondary-200`, #bdb7ea); Selected shows a check
  * and a glow built from that same color, so the glow always matches
  * whatever color is passed rather than one fixed swatch.
+ *
+ * Hover/press use Motion's `SPRING_BLOOM` (see `@/lib/motion`) for the
+ * scale — a snappy spring, not a linear CSS transition. The glow/ring
+ * itself stays CSS (`hover:shadow-*`, the inline box-shadow above),
+ * transitioned independently via `transition-shadow`.
  */
 
 'use client';
 
 import * as React from 'react';
 import { Check } from 'lucide-react';
+import { motion } from 'motion/react';
 
 import { cn } from '@/lib/utils';
+import { SPRING_BLOOM } from '@/lib/motion';
 
+/*
+ * `onDrag`/`onDragStart`/`onDragEnd`/`onAnimation*` — native DOM and
+ * Motion define these with incompatible signatures; omit the DOM
+ * versions since nothing here uses native drag or CSS animation events.
+ */
 export type HighlightColorProps = Omit<
   React.ComponentProps<'button'>,
-  'color'
+  | 'color'
+  | 'onDrag'
+  | 'onDragStart'
+  | 'onDragEnd'
+  | 'onAnimationStart'
+  | 'onAnimationEnd'
+  | 'onAnimationIteration'
 > & {
   /** Swatch fill — any CSS color value or token. */
   color: string;
@@ -35,11 +53,14 @@ function HighlightColor({
   ...props
 }: HighlightColorProps) {
   return (
-    <button
+    <motion.button
       type="button"
       data-slot="highlight-color"
       aria-pressed={selected}
       aria-label={ariaLabel}
+      whileHover={{ scale: 1.15 }}
+      whileTap={{ scale: 0.92 }}
+      transition={SPRING_BLOOM}
       className={cn(
         'relative inline-flex shrink-0 cursor-pointer items-center justify-center',
         'size-[length:var(--icon-sm)] overflow-hidden rounded-[var(--rounded-full)]',
@@ -70,7 +91,7 @@ function HighlightColor({
           className="size-[length:var(--icon-xs)] text-[color:var(--foreground)]"
         />
       ) : null}
-    </button>
+    </motion.button>
   );
 }
 

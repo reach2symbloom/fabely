@@ -15,18 +15,31 @@
  * own selected mark). The 4 leading actions and the trailing "remove"
  * action aren't individually labeled in Figma beyond that, so the
  * mapping below (Copy / Comment / Highlighter / Cancel, Remove) is a
- * best-effort read of the icon set, not a confirmed 1:1 spec.
+ * best-effort read of the icon set, not a confirmed 1:1 spec. Figma's
+ * own artwork also differs between `type="user"` and `type="system"`
+ * for the Comment/Highlight glyphs specifically — unresolved for now,
+ * both types render the same icons here.
+ *
+ * Every action button is a Tooltip trigger (label = its `aria-label`).
+ * Hover/press use Motion's `SPRING_BLOOM` (see `@/lib/motion`) for a
+ * spring scale on top of Icon Button's own CSS hover fill — Motion
+ * drives the transform, Foundation tokens still drive the fill color.
  */
 
 'use client';
 
 import * as React from 'react';
 import { Copy, MessageSquare, Highlighter, CircleX, Trash2 } from 'lucide-react';
+import { motion } from 'motion/react';
 
 import { cn } from '@/lib/utils';
+import { SPRING_BLOOM } from '@/lib/motion';
 import { IconButton } from '@/primitives/button/icon-button';
 import { Separator } from '@/primitives/separator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/primitives/tooltip';
 import { HighlightColor } from '../highlight-color';
+
+const MotionIconButton = motion.create(IconButton);
 
 export type HighlightColorMenuType = 'user' | 'system';
 
@@ -70,6 +83,42 @@ const ICON_BUTTON_CHROME = 'text-[color:var(--muted-foreground)]';
  * back out of that, same fix as Control Rich Divider's ornament. */
 const ICON_GLYPH_CHROME = 'size-[length:var(--icon-sm)]';
 
+const DIVIDER_CHROME =
+  'flex h-full items-center self-stretch pr-[var(--spacing-xs)] pl-[var(--spacing-2xs)]';
+
+function ToolbarIconButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <MotionIconButton
+            aria-label={label}
+            variant="ghost"
+            size="mini"
+            roundness="round"
+            className={ICON_BUTTON_CHROME}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.94 }}
+            transition={SPRING_BLOOM}
+            onClick={onClick}
+          />
+        }
+      >
+        {children}
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
 function HighlightColorMenu({
   className,
   type = 'user',
@@ -104,50 +153,22 @@ function HighlightColorMenu({
         className,
       )}
     >
-      <IconButton
-        aria-label="Copy"
-        variant="ghost"
-        size="mini"
-        roundness="round"
-        className={ICON_BUTTON_CHROME}
-        onClick={onCopy}
-      >
+      <ToolbarIconButton label="Copy" onClick={onCopy}>
         <Copy className={ICON_GLYPH_CHROME} />
-      </IconButton>
-      <IconButton
-        aria-label="Comment"
-        variant="ghost"
-        size="mini"
-        roundness="round"
-        className={ICON_BUTTON_CHROME}
-        onClick={onComment}
-      >
+      </ToolbarIconButton>
+      <ToolbarIconButton label="Comment" onClick={onComment}>
         <MessageSquare className={ICON_GLYPH_CHROME} />
-      </IconButton>
-      <IconButton
-        aria-label="Highlight"
-        variant="ghost"
-        size="mini"
-        roundness="round"
-        className={ICON_BUTTON_CHROME}
-        onClick={onHighlight}
-      >
+      </ToolbarIconButton>
+      <ToolbarIconButton label="Highlight" onClick={onHighlight}>
         <Highlighter className={ICON_GLYPH_CHROME} />
-      </IconButton>
-      <IconButton
-        aria-label="Cancel"
-        variant="ghost"
-        size="mini"
-        roundness="round"
-        className={ICON_BUTTON_CHROME}
-        onClick={onCancel}
-      >
+      </ToolbarIconButton>
+      <ToolbarIconButton label="Cancel" onClick={onCancel}>
         <CircleX className={ICON_GLYPH_CHROME} />
-      </IconButton>
+      </ToolbarIconButton>
 
       {isUser ? (
         <>
-          <div className="flex h-full items-center self-stretch pr-[var(--spacing-xs)] pl-[var(--spacing-2xs)]">
+          <div className={DIVIDER_CHROME}>
             <Separator orientation="vertical" className="h-full" />
           </div>
           <div className="flex items-center gap-[var(--spacing-2xs)]">
@@ -164,18 +185,12 @@ function HighlightColorMenu({
               />
             ))}
           </div>
-          <div className="pl-[var(--spacing-2xs)]">
-            <IconButton
-              aria-label="Remove highlight"
-              variant="ghost"
-              size="mini"
-              roundness="round"
-              className={ICON_BUTTON_CHROME}
-              onClick={onRemove}
-            >
-              <Trash2 className={ICON_GLYPH_CHROME} />
-            </IconButton>
+          <div className={DIVIDER_CHROME}>
+            <Separator orientation="vertical" className="h-full" />
           </div>
+          <ToolbarIconButton label="Remove highlight" onClick={onRemove}>
+            <Trash2 className={ICON_GLYPH_CHROME} />
+          </ToolbarIconButton>
         </>
       ) : null}
     </div>
