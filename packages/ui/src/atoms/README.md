@@ -14,3 +14,4 @@ Vendor-derived wrappers live under [`../primitives/`](../primitives/) — not he
 | [Add Section Button](./add-section-button/README.md) | Icon + label pill; always paired with dividers in product |
 | [Cycle Switch](./cycle-switch/README.md) | One-way cycle through options; not a binary Switch |
 | [Book Cover](./book-cover/README.md) | Portrait cover + hover/focus edit scrim |
+| [Highlight Color](./highlight-color/README.md) | Selectable color swatch for a text-highlight color picker |

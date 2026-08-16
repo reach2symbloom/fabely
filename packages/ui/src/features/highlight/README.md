@@ -17,6 +17,9 @@ primitives into this tree.
 | --- | --- | --- |
 | — | — | Not started |
 
+Composes [Highlight Color](../../atoms/highlight-color/README.md) (Figma's
+own "atom" — generic reusable swatch, lives under `src/atoms/`, not here).
+
 ## Figma
 
 TBD — add the Figma frame link here once pieces start landing.
