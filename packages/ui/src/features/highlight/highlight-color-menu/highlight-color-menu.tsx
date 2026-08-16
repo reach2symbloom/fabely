@@ -63,17 +63,7 @@ const DEFAULT_HIGHLIGHT_COLOR_OPTIONS: HighlightColorMenuOption[] = [
   { value: 'lavender', color: 'var(--tw-raw-secondary-200)', label: 'Lavender' },
 ];
 
-/*
- * Icon Button's `mini` size reserves `p-[var(--spacing-2xs)]` (4px) on
- * each side, sized for its own forced icon (`--icon-xs`, 12px):
- * 4+4+12+2(border) = 22, fits inside the 24px box. Figma's spec here is
- * a 16px icon in that same 24px frame — 4+4+16+2 = 26, past the box, so
- * the ~4px pad + 16px icon combination doesn't fit without `overflow-hidden`
- * quietly clipping the glyph and eating into the margin around it. `p-0`
- * removes that conflict; centering comes from `items-center
- * justify-center` (already on the root) instead of padding.
- */
-const ICON_BUTTON_CHROME = 'p-0 text-[color:var(--muted-foreground)]';
+const ICON_BUTTON_CHROME = 'text-[color:var(--muted-foreground)]';
 /* Figma icon size is 16px (`--icon-sm`); Icon Button's `mini` size
  * auto-sizes unlabeled glyphs to `--icon-xs` (12px) via
  * `[&_svg:not([class*='size-'])]:...` — the `size-` class name here opts

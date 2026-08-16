@@ -49,14 +49,20 @@ Button’s own** (see `docs/DESIGN.md` “Size slots”).
 
 | `size` | Box | Padding | Icon | Default radius |
 | --- | --- | --- | --- | --- |
-| `mini` | `--spacing-xl` (24) | `--spacing-2xs` (4) | `--icon-xs` (12) | `--rounded-sm` (5) |
+| `mini` | `--spacing-7` (28) | `--spacing-2xs` (4) | `--icon-xs` (12) | `--rounded-sm` (5) |
 | `sm` | `--spacing-2xl` (32) | `--spacing-xs` (8) | `--icon-sm` (16) | `--rounded-lg` (12) |
 | `default` | `--spacing-9` (36) | `--spacing-1-5` (6) | `--icon-md` (20) | `--rounded-lg` (12) |
 | `lg` | `--spacing-3xl` (40) | `--spacing-1-5` (6) | `--icon-lg` (24) | `--rounded-lg` (12) |
 
 **Round** roundness is `--rounded-full` at every size. Mini Default uses
-`--rounded-sm` so Default vs Round stays distinguishable at 24px (flat 12px
+`--rounded-sm` so Default vs Round stays distinguishable at 28px (flat 12px
 would read nearly circular).
+
+`mini` was 24px until a real 16px (`--icon-sm`) glyph was used inside it
+(Highlight Color Menu) — 4+4+16+border(2) = 26 doesn't fit a 24px box.
+Bumped to 28 (`--spacing-7`, promoted in `foundations/spacing.css`
+alongside the other control-height odd values) so the box holds either
+the forced 12px icon or a caller-supplied 16px one without clipping.
 
 ### Variant `outline` (shared)
 

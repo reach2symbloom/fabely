@@ -6,7 +6,7 @@
  * Button Group Figma). Interaction model matches Text Button (see README).
  *
  * Size slots share vocabulary with Text Button (`mini` / `default`); values
- * are Icon Button’s own (24 / 32 / 36 / 40). See docs/DESIGN.md “Size slots”.
+ * are Icon Button’s own (28 / 32 / 36 / 40). See docs/DESIGN.md “Size slots”.
  *
  * Shared variants: `../shared` (`buttonVariantClasses`), plus Icon-only
  * `fade` / `fadeGold` from Figma Fade button (`12042:25189`).
@@ -110,8 +110,12 @@ const iconButtonVariants = cva(
         fadeGold: fadeGoldVariantClasses,
       },
       size: {
+        /* 28, not the `--spacing-xl` (24) rest of the scale would suggest —
+           4+4+16+border(2) = 26 doesn't fit 24 for a 16px (`--icon-sm`)
+           glyph, the size used whenever a caller opts out of this size's
+           own forced `--icon-xs` (12px) via a `size-` className. */
         mini: [
-          'size-[length:var(--spacing-xl)]',
+          'size-[length:var(--spacing-7)]',
           'p-[var(--spacing-2xs)]',
           "[&_svg:not([class*='size-'])]:size-[length:var(--icon-xs)]",
         ],
