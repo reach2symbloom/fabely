@@ -15,11 +15,9 @@ primitives into this tree.
 
 | Piece | Folder | Status |
 | --- | --- | --- |
-| — | — | Not started |
-
-Composes [Highlight Color](../../atoms/highlight-color/README.md) (Figma's
-own "atom" — generic reusable swatch, lives under `src/atoms/`, not here).
+| [Highlight Color](./highlight-color/README.md) | `highlight-color/` | Landed |
 
 ## Figma
 
-TBD — add the Figma frame link here once pieces start landing.
+[Highlight color](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16317-950) —
+Default / Hover / Selected states.

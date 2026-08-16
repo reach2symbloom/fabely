@@ -5,11 +5,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
-import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
+import { PlaygroundPanel } from '../../../../stories/PlaygroundPanel';
 import {
   PrimitiveGalleryItem,
   PrimitivePage,
-} from '../../../stories/PrimitivePage';
+} from '../../../../stories/PrimitivePage';
 
 import { HighlightColor } from './highlight-color';
 
@@ -24,7 +24,7 @@ const PALETTE = [
 ];
 
 const meta = {
-  title: 'Design System/Atoms/Highlight Color',
+  title: 'Design System/Features/Highlight/Highlight Color',
   component: HighlightColor,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
