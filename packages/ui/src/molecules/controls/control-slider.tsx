@@ -19,13 +19,14 @@ export type ControlSliderProps = SliderProps & {
 
 /*
  * Slider's `className` merges onto its Root, not the Thumb — target the
- * Thumb by its `data-slot` instead of forking the primitive. Thumb rest is
- * `--theme-neutrals-700`; hover lightens one step to `--theme-neutrals-600`
- * (the same value `--primary` resolves to).
+ * Thumb by its `data-slot` instead of forking the primitive. A full step to
+ * `--theme-neutrals-600` read as an abrupt color swap; blend in the
+ * smallest step of the alpha scale (5%, the `-switch-5` token's own value)
+ * instead — same "one notch" lighten, much more subtle.
  */
 const THUMB_HOVER = [
   '[&_[data-slot=slider-thumb]]:transition-colors',
-  '[&_[data-slot=slider-thumb]]:hover:bg-[color:var(--theme-neutrals-600)]',
+  '[&_[data-slot=slider-thumb]]:hover:bg-[color:color-mix(in_srgb,var(--theme-neutrals-700)_95%,white_5%)]',
 ].join(' ');
 
 function ControlSlider({ className, label, ...sliderProps }: ControlSliderProps) {
