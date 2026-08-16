@@ -10,31 +10,35 @@
  * `@/primitives/separator`, and `./highlight-color` (`HighlightColor`,
  * the swatch atom-turned-feature-piece built alongside this menu).
  *
- * Icon choices: Figma names 5 glyphs across this component (copy,
- * message-square, highlighter, circle-x, check — check is the swatch's
- * own selected mark). The 4 leading actions and the trailing "remove"
- * action aren't individually labeled in Figma beyond that, so the
- * mapping below (Copy / Comment / Highlighter / Cancel, Remove) is a
- * best-effort read of the icon set, not a confirmed 1:1 spec. Figma's
- * own artwork also differs between `type="user"` and `type="system"`
- * for the Comment/Highlight glyphs specifically — unresolved for now,
- * both types render the same icons here.
+ * User highlight's 4 leading actions, confirmed against a live render:
+ * Copy, Ask Fia (the brand silcrow), Search — a stacked-pages + sparkle
+ * + magnifying-glass glyph with no match in this codebase or Lucide,
+ * placeholdered with `Search` until an SVG export lands — and Comment.
+ * The trailing action (right of the color swatches) is a plain close
+ * `X`, not the Trash2 this used to render. System highlight's own icon
+ * set is still unconfirmed (Figma's source artwork differs from
+ * User's for at least the Ask Fia / Search slots) — it currently
+ * renders the same 4 as User, which is likely wrong.
  *
  * Every action button is a Tooltip trigger (label = its `aria-label`).
  * Hover/press use Motion's `SPRING_BLOOM` (see `@/lib/motion`) for a
  * spring scale on top of Icon Button's own CSS hover fill — Motion
  * drives the transform, Foundation tokens still drive the fill color.
+ * Ask Fia uses `variant="fiaGhost"` (not `ghost`) so it stays Fia-green
+ * at rest, matching Comment Card's own "Ask Fia" button — the only
+ * button here that isn't `--muted-foreground`.
  */
 
 'use client';
 
 import * as React from 'react';
-import { Copy, MessageSquare, Highlighter, CircleX, Trash2 } from 'lucide-react';
+import { Copy, MessageSquare, Search, X } from 'lucide-react';
 import { motion } from 'motion/react';
 
 import { cn } from '@/lib/utils';
 import { SPRING_BLOOM } from '@/lib/motion';
-import { IconButton } from '@/primitives/button/icon-button';
+import { FiaSilcrow } from '@/foundations/icons';
+import { IconButton, type IconButtonVariant } from '@/primitives/button/icon-button';
 import { Separator } from '@/primitives/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/primitives/tooltip';
 import { HighlightColor } from '../highlight-color';
@@ -59,10 +63,11 @@ export type HighlightColorMenuProps = {
   defaultValue?: string;
   onValueChange?: (value: string) => void;
   onCopy?: () => void;
+  onAskFia?: () => void;
+  onSearch?: () => void;
   onComment?: () => void;
-  onHighlight?: () => void;
+  /** Trailing close/dismiss action, right of the color swatches. */
   onCancel?: () => void;
-  onRemove?: () => void;
 };
 
 /** Figma's own example palette on this frame. */
@@ -89,10 +94,13 @@ const DIVIDER_CHROME =
 function ToolbarIconButton({
   label,
   onClick,
+  variant = 'ghost',
   children,
 }: {
   label: string;
   onClick?: () => void;
+  /** `fiaGhost` for Ask Fia — stays Fia-green at rest instead of muted. */
+  variant?: IconButtonVariant;
   children: React.ReactNode;
 }) {
   return (
@@ -101,10 +109,10 @@ function ToolbarIconButton({
         render={
           <MotionIconButton
             aria-label={label}
-            variant="ghost"
+            variant={variant}
             size="mini"
             roundness="round"
-            className={ICON_BUTTON_CHROME}
+            className={variant === 'ghost' ? ICON_BUTTON_CHROME : undefined}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.94 }}
             transition={SPRING_BLOOM}
@@ -127,10 +135,10 @@ function HighlightColorMenu({
   defaultValue,
   onValueChange,
   onCopy,
+  onAskFia,
+  onSearch,
   onComment,
-  onHighlight,
   onCancel,
-  onRemove,
 }: HighlightColorMenuProps) {
   const [uncontrolled, setUncontrolled] = React.useState(
     defaultValue ?? colors[colors.length - 1]?.value,
@@ -156,14 +164,17 @@ function HighlightColorMenu({
       <ToolbarIconButton label="Copy" onClick={onCopy}>
         <Copy className={ICON_GLYPH_CHROME} />
       </ToolbarIconButton>
+      <ToolbarIconButton label="Ask Fia" variant="fiaGhost" onClick={onAskFia}>
+        <FiaSilcrow className={ICON_GLYPH_CHROME} />
+      </ToolbarIconButton>
+      {/* Placeholder — Figma's actual glyph (stacked pages + sparkle +
+          magnifying glass) has no match here or in Lucide; swap once
+          the SVG export lands. */}
+      <ToolbarIconButton label="Search" onClick={onSearch}>
+        <Search className={ICON_GLYPH_CHROME} />
+      </ToolbarIconButton>
       <ToolbarIconButton label="Comment" onClick={onComment}>
         <MessageSquare className={ICON_GLYPH_CHROME} />
-      </ToolbarIconButton>
-      <ToolbarIconButton label="Highlight" onClick={onHighlight}>
-        <Highlighter className={ICON_GLYPH_CHROME} />
-      </ToolbarIconButton>
-      <ToolbarIconButton label="Cancel" onClick={onCancel}>
-        <CircleX className={ICON_GLYPH_CHROME} />
       </ToolbarIconButton>
 
       {isUser ? (
@@ -188,8 +199,8 @@ function HighlightColorMenu({
           <div className={DIVIDER_CHROME}>
             <Separator orientation="vertical" className="h-full" />
           </div>
-          <ToolbarIconButton label="Remove highlight" onClick={onRemove}>
-            <Trash2 className={ICON_GLYPH_CHROME} />
+          <ToolbarIconButton label="Cancel" onClick={onCancel}>
+            <X className={ICON_GLYPH_CHROME} />
           </ToolbarIconButton>
         </>
       ) : null}
