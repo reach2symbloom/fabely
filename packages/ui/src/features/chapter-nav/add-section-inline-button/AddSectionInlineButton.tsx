@@ -87,6 +87,12 @@ export type AddSectionInlineButtonProps = {
   forceHover?: boolean;
   /** Storybook / demos — lock the Chapter / Act menu open. */
   forceOpen?: boolean;
+  /**
+   * An outline drag is in flight elsewhere in the tree — hide this gap and
+   * block pointer interaction with it. Inserting mid-drag would reshuffle
+   * the very list the drag is tracking indices into.
+   */
+  disabled?: boolean;
   /** Wire the Chapter menu item (Chapter type row). */
   addChapter?: AddSectionAction;
   /** Wire the Act menu item (Chapter type row). */
@@ -127,6 +133,10 @@ const insertChromeReveal = [
   'group-focus-within/add-section-insert:pointer-events-auto',
   'group-data-[force-hover=true]/add-section-insert:opacity-100',
   'group-data-[force-hover=true]/add-section-insert:pointer-events-auto',
+  'group-data-[insert-suppressed=true]/add-section-insert:opacity-0',
+  'group-data-[insert-suppressed=true]/add-section-insert:pointer-events-none',
+  'group-data-[disabled=true]/add-section-insert:!opacity-0',
+  'group-data-[disabled=true]/add-section-insert:!pointer-events-none',
 ].join(' ');
 
 /**
@@ -196,7 +206,7 @@ function InsertLine({
           'h-[length:var(--stroke-thin)]',
           'bg-[color:var(--theme-alpha-black-switch-10)]',
           'origin-[var(--insert-hover-x)_center] scale-x-0 opacity-0',
-          'transition-[opacity,transform] duration-fast ease-emphasized',
+          'transition-[opacity,scale] duration-[240ms] ease-in-out',
           'group-data-[insert-hovered=true]/add-section-insert:scale-x-100 group-data-[insert-hovered=true]/add-section-insert:opacity-100',
           'group-focus-within/add-section-insert:scale-x-100 group-focus-within/add-section-insert:opacity-100',
           'group-data-[force-hover=true]/add-section-insert:scale-x-100 group-data-[force-hover=true]/add-section-insert:opacity-100',
@@ -213,7 +223,7 @@ function InsertLine({
           '[-webkit-mask-image:linear-gradient(to_right,transparent_0,black_var(--spacing-xl),black_calc(100%_-_var(--spacing-xl)),transparent_100%)]',
           '[mask-image:linear-gradient(to_right,transparent_0,black_var(--spacing-xl),black_calc(100%_-_var(--spacing-xl)),transparent_100%)]',
           'origin-[var(--insert-hover-x)_center] scale-x-0',
-          'transition-[opacity,transform] duration-normal ease-emphasized',
+          'transition-[opacity,scale] duration-[240ms] ease-in-out',
           'group-data-[insert-hovered=true]/add-section-insert:opacity-60',
           'group-data-[insert-hovered=true]/add-section-insert:scale-x-100',
         )}
@@ -230,7 +240,7 @@ function InsertLine({
           '[-webkit-mask-image:linear-gradient(to_right,transparent_0,black_var(--spacing-xl),black_calc(100%_-_var(--spacing-xl)),transparent_100%)]',
           '[mask-image:linear-gradient(to_right,transparent_0,black_var(--spacing-xl),black_calc(100%_-_var(--spacing-xl)),transparent_100%)]',
           'origin-[var(--insert-hover-x)_center] scale-x-0',
-          'transition-[opacity,transform] duration-normal ease-emphasized',
+          'transition-[opacity,scale] duration-[240ms] ease-in-out',
           'group-data-[insert-hovered=true]/add-section-insert:opacity-70',
           'group-data-[insert-hovered=true]/add-section-insert:scale-x-100',
         )}
@@ -320,16 +330,23 @@ function InsertPlusButton({
 function InsertMenuItem({
   action,
   onAdd,
+  onActionTaken,
   context,
   children,
 }: {
   action?: AddSectionAction;
   onAdd?: (context: ChapterNavInsertContext) => void;
+  onActionTaken?: () => void;
   context: ChapterNavInsertContext;
   children: React.ReactNode;
 }) {
   return (
-    <DropdownMenuItem onClick={(event) => fireAction(event, action, onAdd, context)}>
+    <DropdownMenuItem
+      onClick={(event) => {
+        onActionTaken?.();
+        fireAction(event, action, onAdd, context);
+      }}
+    >
       {children}
     </DropdownMenuItem>
   );
@@ -348,6 +365,7 @@ function InsertChrome({
   onAddAct,
   onAddScene,
   onAddSubscene,
+  onActionTaken,
   insertionContext,
 }: {
   type: 'chapter' | 'scene' | 'subscene';
@@ -362,6 +380,7 @@ function InsertChrome({
   onAddAct?: (context: ChapterNavInsertContext) => void;
   onAddScene?: (context: ChapterNavInsertContext) => void;
   onAddSubscene?: (context: ChapterNavInsertContext) => void;
+  onActionTaken?: () => void;
   insertionContext: Omit<ChapterNavInsertContext, 'kind'>;
 }) {
   const [menuAnchor, setMenuAnchor] = React.useState<
@@ -410,8 +429,10 @@ function InsertChrome({
   if (type === 'scene' || type === 'subscene') {
     const action = type === 'scene' ? addScene : addSubscene;
     const onAdd = type === 'scene' ? onAddScene : onAddSubscene;
-    const addNestedNow: React.MouseEventHandler<HTMLElement> = (event) =>
+    const addNestedNow: React.MouseEventHandler<HTMLElement> = (event) => {
+      onActionTaken?.();
       fireAction(event, action, onAdd, { ...insertionContext, kind: type });
+    };
 
     return plusAndLine(
       <InsertPlusButton
@@ -452,11 +473,11 @@ function InsertChrome({
         className="w-fit min-w-0"
       >
         <DropdownMenuGroup>
-          <InsertMenuItem action={addChapter} onAdd={onAddChapter} context={{ ...insertionContext, kind: 'chapter' }}>
+          <InsertMenuItem action={addChapter} onAdd={onAddChapter} onActionTaken={onActionTaken} context={{ ...insertionContext, kind: 'chapter' }}>
             <PlusIcon />
             Chapter
           </InsertMenuItem>
-          <InsertMenuItem action={addAct} onAdd={onAddAct} context={{ ...insertionContext, kind: 'act' }}>
+          <InsertMenuItem action={addAct} onAdd={onAddAct} onActionTaken={onActionTaken} context={{ ...insertionContext, kind: 'act' }}>
             <SeparatorHorizontalIcon />
             Act
           </InsertMenuItem>
@@ -479,6 +500,7 @@ function AddSectionInlineButton({
   revealOnHover,
   forceHover = false,
   forceOpen = false,
+  disabled = false,
   addChapter,
   addAct,
   addScene,
@@ -496,6 +518,7 @@ function AddSectionInlineButton({
   const [menuOpen, setMenuOpen] = React.useState(forceOpen);
   const [actActionsOpen, setActActionsOpen] = React.useState(false);
   const [insertHovered, setInsertHovered] = React.useState(false);
+  const [insertSuppressed, setInsertSuppressed] = React.useState(false);
   const actTitleRef = React.useRef<HTMLInputElement>(null);
   const actContext: ChapterNavMutationContext = { manuscriptId, entityId: actId, parentId, kind: 'act' };
   const insertionContext = { manuscriptId, parentId, insertAfterId };
@@ -547,7 +570,7 @@ function AddSectionInlineButton({
           />
         }
       >
-        <EllipsisVerticalIcon />
+        <EllipsisVerticalIcon className="size-[length:var(--icon-sm)]" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side="bottom" className="w-auto min-w-48">
         <DropdownMenuGroup>
@@ -681,6 +704,10 @@ function AddSectionInlineButton({
       onAddAct={onAddAct}
       onAddScene={onAddScene}
       onAddSubscene={onAddSubscene}
+      onActionTaken={() => {
+        setInsertHovered(false);
+        setInsertSuppressed(true);
+      }}
       insertionContext={insertionContext}
     />
   );
@@ -711,16 +738,29 @@ function AddSectionInlineButton({
       data-type={type}
       data-force-hover={chromeVisible || undefined}
       data-insert-hovered={insertHovered || undefined}
+      data-insert-suppressed={insertSuppressed || undefined}
+      data-disabled={disabled || undefined}
       style={{ '--insert-hover-x': '50%' } as React.CSSProperties}
       onPointerEnter={(event) => {
+        if (disabled) return;
         updateInsertHoverPosition(event);
-        setInsertHovered(true);
+        if (!insertSuppressed) setInsertHovered(true);
       }}
-      onPointerMove={updateInsertHoverPosition}
-      onPointerLeave={() => setInsertHovered(false)}
+      onPointerMove={disabled ? undefined : updateInsertHoverPosition}
+      onPointerLeave={() => {
+        setInsertHovered(false);
+        setInsertSuppressed(false);
+      }}
       className={cn(
         'group/add-section-insert relative z-10 isolate overflow-visible',
-        'h-[length:var(--spacing-sm)] w-full max-w-full shrink-0',
+        'w-full max-w-full shrink-0',
+        /* Nested rails paint a 20px-tall line target. Match that painted area
+           with a real hit zone so the expanding parent gap cannot move the
+           divider out from under the pointer—especially after the last scene. */
+        type === 'chapter'
+          ? 'h-[length:var(--spacing-sm)]'
+          : 'h-[length:var(--icon-md)]',
+        disabled && 'pointer-events-none',
         className,
       )}
     >

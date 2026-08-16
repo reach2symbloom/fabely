@@ -346,7 +346,9 @@ function ChapterMenuHeader({
       data-slot="chapter-menu-header"
       data-variant={variant}
       className={cn(
-        'flex w-full min-w-[494px] items-start',
+        /* Fluid width — a 494 min-width clipped the cover inside Chapter Menu
+         * (card content ≈ 494 after xl pad). Stories pin 494 via their frame. */
+        'flex w-full min-w-0 items-start',
         /* Figma root gap `--xl` (24) between left chrome and cover. */
         'gap-[var(--spacing-xl)]',
         className,
@@ -429,7 +431,7 @@ function ChapterMenuHeader({
             </div>
           </div>
         ) : (
-          <div className="flex w-full min-w-0 flex-wrap items-center gap-[var(--spacing-md)]">
+          <div className="mt-[length:var(--tw-raw-spacing-0-5)] flex w-full min-w-0 flex-wrap items-center gap-[var(--spacing-md)]">
             <AuthorBlock
               variant="alt"
               name={resolvedAuthorName}

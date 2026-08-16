@@ -21,6 +21,7 @@ import { PanelLeftCloseIcon, PlusIcon, SeparatorHorizontalIcon } from 'lucide-re
 import { cn } from '@/lib/utils';
 import { Button, IconButton } from '@/primitives/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/primitives/card';
+import { ScrollArea } from '@/primitives/scroll-area';
 import type { ChapterNavInsertContext } from '../integration';
 
 export type ChapterMenuProps = {
@@ -128,19 +129,27 @@ function ChapterMenu({
       bordered
       className={cn(
         'relative flex w-[542px] min-w-[542px] shrink-0 flex-col',
+        'bg-[#1d1d20]! shadow-[0_25px_25px_rgba(7,19,23,0.55)]!',
+        'border-[length:var(--stroke-hairline)]!',
+        'h-[calc(100dvh-var(--spacing-2xl))]',
         'min-h-[length:var(--tw-raw-spacing-80)]',
         'max-h-[calc(100dvh-var(--spacing-2xl))]',
         /* Close control straddles the card edge — vendor Card uses overflow-hidden. */
         'overflow-visible!',
         /* Figma Header / Body pad xl; Footer pad md. */
         '[--card-spacing:var(--spacing-xl)]',
+        /* Inline creation targets compete with title editing. Hide and disable
+           them while any outline input is active; normal hover discovery
+           resumes as soon as the edit leaves the field. */
+        'has-[input:focus]:[&_[data-slot=add-section-inline-button]]:invisible',
+        'has-[textarea:focus]:[&_[data-slot=add-section-inline-button]]:invisible',
         className,
       )}
     >
       <div data-slot="chapter-menu-header-region" className="relative shrink-0">
         <CardHeader
           data-slot="chapter-menu-header-slot"
-          className="pt-[length:var(--spacing-lg)]! pb-[length:var(--spacing-lg)]!"
+          className="min-w-0 border-b-[length:var(--stroke-hairline)]! pt-[length:var(--spacing-lg)]! pb-[length:var(--spacing-lg)]!"
         >
           {header}
         </CardHeader>
@@ -154,10 +163,11 @@ function ChapterMenu({
             data-slot="chapter-menu-close"
             className={cn(
               /* Center on header/body divider (header bottom rule) and card edge. */
-              'absolute end-0 bottom-0 z-20',
+              'absolute end-0 bottom-0 z-20 cursor-pointer',
               'translate-x-1/2 translate-y-1/2',
-              'transition-[transform,background-color] duration-[var(--duration-fast)] ease-[var(--ease-emphasized)]',
-              'hover:scale-110 active:scale-100',
+              'transition-[transform,background-color] duration-[240ms] ease-[var(--ease-emphasized)]',
+              'hover:scale-[1.18] active:scale-[1.04]',
+              'motion-reduce:transition-none',
               'bg-[color:var(--background)]',
               'hover:bg-[color-mix(in_srgb,var(--foreground)_5%,var(--background))]',
               'active:bg-[color-mix(in_srgb,var(--foreground)_10%,var(--background))]',
@@ -170,29 +180,28 @@ function ChapterMenu({
         ) : null}
       </div>
 
-      <CardContent
-        data-slot="chapter-menu-body"
-        className={cn(
-          'min-h-0 flex-1 overflow-y-auto overscroll-contain',
-          'flex flex-col gap-[length:var(--spacing-sm)]',
-          '[scrollbar-width:thin]',
-          '[scrollbar-color:color-mix(in_srgb,var(--tw-raw-white)_24%,transparent)_transparent]',
-          '[&::-webkit-scrollbar]:w-[2px]',
-          '[&::-webkit-scrollbar-track]:bg-transparent',
-          '[&::-webkit-scrollbar-thumb]:rounded-full',
-          '[&::-webkit-scrollbar-thumb]:bg-[color:color-mix(in_srgb,var(--tw-raw-white)_24%,transparent)]',
-          bodyStartsWithAct
-            ? 'pt-0!'
-            : 'pt-[length:var(--spacing-lg)]!',
-        )}
-      >
-        {children}
-      </CardContent>
+      <ScrollArea className="h-0 min-h-0 flex-1 [&_[data-slot=scroll-area-viewport]]:absolute [&_[data-slot=scroll-area-viewport]]:inset-0 [&_[data-slot=scroll-area-viewport]]:size-auto">
+        <CardContent
+          data-slot="chapter-menu-body"
+          className={cn(
+            'flex min-h-full flex-col gap-[length:var(--spacing-sm)]',
+            /* Optical alignment: shift the complete outline 2px toward the
+               inline end while preserving its available width. */
+            'ps-[calc(var(--card-spacing)+var(--tw-raw-spacing-0-5))]!',
+            'pe-[calc(var(--card-spacing)-var(--tw-raw-spacing-0-5))]!',
+            bodyStartsWithAct
+              ? 'pt-0!'
+              : 'pt-[length:var(--spacing-lg)]!',
+          )}
+        >
+          {children}
+        </CardContent>
+      </ScrollArea>
 
       {resolvedFooter != null ? (
         <CardFooter
           data-slot="chapter-menu-footer"
-          className="shrink-0 py-[length:var(--spacing-md)] [--card-spacing:var(--spacing-md)]"
+          className="shrink-0 border-t-[length:var(--stroke-hairline)]! py-[length:var(--spacing-md)] [--card-spacing:var(--spacing-md)]"
         >
           {resolvedFooter}
         </CardFooter>

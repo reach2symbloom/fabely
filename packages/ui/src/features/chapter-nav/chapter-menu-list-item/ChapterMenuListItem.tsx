@@ -85,6 +85,12 @@ export type ChapterMenuListItemProps = {
   showActions?: boolean;
   /** Figma Drag axis — paints the same secondary ink as hover. */
   drag?: boolean;
+  /**
+   * Some other row in this outline is currently being dragged. Suppresses
+   * this row's own hover-to-reveal grip — mid-drag, the pointer is already
+   * committed elsewhere, so no row should be inviting a second drag start.
+   */
+  dragActive?: boolean;
   /** Playground / Storybook — lock the hover paint without a pointer. */
   forceHover?: boolean;
   /**
@@ -130,6 +136,13 @@ const hoverInk =
   'group-data-[force-hover=true]/chapter-menu-item:!text-[color:var(--tw-raw-secondary-200)] group-data-[drag=true]/chapter-menu-item:!text-[color:var(--tw-raw-secondary-200)] group-hover/chapter-menu-item:!text-[color:var(--tw-raw-secondary-200)]';
 
 /**
+ * Forces the grip icon fully hidden regardless of hover/force-hover state —
+ * applied when some other row in the outline is mid-drag (`dragActive`), so
+ * no row invites starting a second drag while one is already in flight.
+ */
+const dragSuppressedGrip = '!scale-75 !opacity-0 !pointer-events-none';
+
+/**
  * Fixed-width, left-aligned slot for the chapter number — `--spacing-lg`
  * (20px). At the 16px `text-paragraph-regular-regular` size this fits two
  * digits (up to 99) with a little breathing room; three digits (100+) will
@@ -165,14 +178,31 @@ const textareaBareInGroup = [
  * alpha-333 face echoes the canonical subtle bordered input treatment.
  */
 const titleHoverChrome = [
-  'cursor-text',
+  'box-content cursor-text',
+  'transition-[margin,padding,background-color,box-shadow,border-radius] duration-fast ease-emphasized',
+  'motion-reduce:transition-none',
+  'hover:-ml-[var(--spacing-2xs)] hover:px-[var(--spacing-2xs)]',
   'hover:!rounded-[length:var(--rounded-md)]',
   'hover:!bg-[color:var(--theme-alpha-black-switch-333)]',
   'hover:!shadow-[inset_0_0_0_var(--stroke-thin)_var(--theme-alpha-black-switch-333)]',
+  'focus:-ml-[var(--spacing-2xs)] focus:px-[var(--spacing-2xs)]',
   'focus:!w-full focus:!flex-1',
   'focus:!rounded-[length:var(--rounded-md)]',
   'focus:!bg-[color:var(--theme-alpha-black-switch-333)]',
   'focus:!shadow-[inset_0_0_0_var(--stroke-thin)_var(--border)]',
+].join(' ');
+
+/** Gentle top-to-bottom reveal for chapter and scene descendants. */
+const branchCascade = [
+  '[&>*]:transition-[opacity,translate] [&>*]:duration-[240ms] [&>*]:ease-out',
+  '[&>*:nth-child(2)]:[transition-delay:24ms]',
+  '[&>*:nth-child(3)]:[transition-delay:48ms]',
+  '[&>*:nth-child(4)]:[transition-delay:72ms]',
+  '[&>*:nth-child(5)]:[transition-delay:96ms]',
+  '[&>*:nth-child(6)]:[transition-delay:120ms]',
+  '[&>*:nth-child(7)]:[transition-delay:144ms]',
+  '[&>*:nth-child(n+8)]:[transition-delay:168ms]',
+  'motion-reduce:[&>*]:transition-none motion-reduce:[&>*]:[transition-delay:0ms]',
 ].join(' ');
 
 function stopNameKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -203,6 +233,7 @@ function ChapterMenuListItem({
   hasNestedItems,
   showActions = true,
   drag = false,
+  dragActive = false,
   forceHover = false,
   href,
   placeholder,
@@ -241,7 +272,7 @@ function ChapterMenuListItem({
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(expanded);
   const open = isExpandControlled ? expanded : uncontrolledOpen;
   const isExpanded = isChapter && open && hasScenes;
-  const hasChapterBranch = isExpanded;
+  const hasChapterBranch = isChapter && hasScenes;
   const hasSceneBranch = isScene && children != null;
   const itemContext: ChapterNavMutationContext = {
     manuscriptId,
@@ -417,28 +448,33 @@ function ChapterMenuListItem({
           href={href}
           aria-label={sectionLinkLabel}
           data-slot="chapter-menu-section-link"
-          className="absolute inset-0 z-0"
+          className="absolute inset-0 z-0 cursor-grab active:cursor-grabbing"
         />
       ) : null}
       {isChapter ? (
         <>
-          <span
-            aria-hidden
-            data-slot="chapter-menu-drag-indicator"
-            className={cn(
-              'absolute top-[calc(var(--spacing-xl)/2)] left-[calc(-1*var(--spacing-lg)+var(--spacing-2xs)-var(--spacing-2xs))] z-10 flex size-[length:var(--icon-md)] -translate-y-1/2 cursor-grab touch-none items-center justify-center rounded-[length:var(--rounded-sm)] active:cursor-grabbing',
-              '[&_svg]:size-[length:var(--icon-sm)]',
-              'scale-75 text-[color:var(--muted-foreground)] opacity-0',
-              'transition-[opacity,transform,background-color] duration-fast ease-emphasized',
-              'hover:scale-125 hover:bg-[color:var(--theme-alpha-black-switch-333)]',
-              'active:bg-[color:var(--theme-alpha-black-switch-5)]',
-              'group-hover/chapter-menu-item:scale-100 group-hover/chapter-menu-item:opacity-100',
-              'group-data-[force-hover=true]/chapter-menu-item:scale-100 group-data-[force-hover=true]/chapter-menu-item:opacity-100',
-              'group-data-[drag=true]/chapter-menu-item:scale-100 group-data-[drag=true]/chapter-menu-item:opacity-100',
-            )}
-          >
-            <GripVerticalIcon />
-          </span>
+          {!showExpandControl ? (
+            <span
+              aria-hidden
+              data-slot="chapter-menu-drag-indicator"
+              className={cn(
+                'absolute top-[calc(var(--spacing-xl)/2)] left-[calc(-1*var(--spacing-lg))] z-10 flex size-[length:var(--icon-md)] -translate-y-1/2 cursor-grab touch-none items-center justify-center rounded-[length:var(--rounded-sm)] active:cursor-grabbing',
+                '[&_svg]:size-[length:var(--icon-sm)]',
+                'scale-75 text-[color:var(--muted-foreground)] opacity-0',
+                'transition-[opacity,transform,background-color] duration-fast ease-emphasized',
+                'hover:scale-125 hover:bg-[color:var(--theme-alpha-black-switch-333)]',
+                'active:bg-[color:var(--theme-alpha-black-switch-5)]',
+                'group-hover/chapter-menu-item:scale-100 group-hover/chapter-menu-item:opacity-100',
+                'group-data-[force-hover=true]/chapter-menu-item:scale-100 group-data-[force-hover=true]/chapter-menu-item:opacity-100',
+                'group-data-[drag=true]/chapter-menu-item:scale-100 group-data-[drag=true]/chapter-menu-item:opacity-100',
+                'group-has-[[data-slot=input-group-control]:hover]/chapter-menu-item:scale-75 group-has-[[data-slot=input-group-control]:hover]/chapter-menu-item:opacity-0',
+                'group-has-[[data-slot=input-group-control]:focus]/chapter-menu-item:scale-75 group-has-[[data-slot=input-group-control]:focus]/chapter-menu-item:opacity-0',
+                dragActive && dragSuppressedGrip,
+              )}
+            >
+              <GripVerticalIcon className="translate-y-px" />
+            </span>
+          ) : null}
           {showExpandControl ? (
             <button
               type="button"
@@ -449,9 +485,6 @@ function ChapterMenuListItem({
                 'group/chevron absolute top-[calc(var(--spacing-xl)/2)] left-[calc(-1*var(--spacing-lg)+var(--spacing-2xs))] z-10 flex size-[length:var(--icon-xs)] -translate-y-1/2 items-center justify-center',
                 'cursor-pointer outline-none [&_svg]:size-[length:var(--icon-xs)]',
                 'transition-[opacity,transform] duration-fast ease-emphasized',
-                'group-hover/chapter-menu-item:pointer-events-none group-hover/chapter-menu-item:scale-75 group-hover/chapter-menu-item:opacity-0',
-                'group-data-[force-hover=true]/chapter-menu-item:pointer-events-none group-data-[force-hover=true]/chapter-menu-item:scale-75 group-data-[force-hover=true]/chapter-menu-item:opacity-0',
-                'group-data-[drag=true]/chapter-menu-item:pointer-events-none group-data-[drag=true]/chapter-menu-item:scale-75 group-data-[drag=true]/chapter-menu-item:opacity-0',
                 mutedRestColor,
                 hoverInk,
               )}
@@ -474,7 +507,7 @@ function ChapterMenuListItem({
               onDoubleClick={focusForRename}
               className={cn(
                 'relative z-10 w-fit max-w-full min-w-0 overflow-visible',
-                'min-h-[length:var(--spacing-xl)] gap-[length:var(--spacing-xs)]',
+                'min-h-[length:var(--spacing-xl)] gap-[length:var(--spacing-sm)]',
                 groupRoundnessFix,
                 noGroupChrome,
               )}
@@ -536,14 +569,34 @@ function ChapterMenuListItem({
             data-slot="chapter-menu-scene-marker"
             className="relative z-10 flex shrink-0 items-center gap-[length:var(--spacing-xs)] pointer-events-none"
           >
-            <CircleIcon
-              aria-hidden
-              className={cn(
-                'size-[length:var(--icon-2xs)]',
-                markerRestColor,
-                hoverInk,
-              )}
-            />
+            <span className="relative flex size-[length:var(--icon-2xs)] shrink-0 items-center justify-center">
+              <CircleIcon
+                aria-hidden
+                data-slot="chapter-menu-marker-icon"
+                className={cn(
+                  'size-[length:var(--icon-2xs)] transition-[opacity,transform] duration-fast ease-emphasized',
+                  'group-hover/chapter-menu-item:scale-75 group-hover/chapter-menu-item:opacity-0',
+                  'group-has-[[data-slot=input-group-control]:hover]/chapter-menu-item:scale-100 group-has-[[data-slot=input-group-control]:hover]/chapter-menu-item:opacity-100',
+                  'group-has-[[data-slot=input-group-control]:focus]/chapter-menu-item:scale-100 group-has-[[data-slot=input-group-control]:focus]/chapter-menu-item:opacity-100',
+                  markerRestColor,
+                  hoverInk,
+                )}
+              />
+              <GripVerticalIcon
+                aria-hidden
+                data-slot="chapter-menu-drag-indicator"
+                className={cn(
+                  'absolute size-[length:var(--icon-sm)] translate-y-px scale-75 text-[color:var(--muted-foreground)] opacity-0',
+                  'transition-[opacity,transform] duration-fast ease-emphasized',
+                  'group-hover/chapter-menu-item:scale-100 group-hover/chapter-menu-item:opacity-100',
+                  'group-data-[force-hover=true]/chapter-menu-item:scale-100 group-data-[force-hover=true]/chapter-menu-item:opacity-100',
+                  'group-data-[drag=true]/chapter-menu-item:scale-100 group-data-[drag=true]/chapter-menu-item:opacity-100',
+                  'group-has-[[data-slot=input-group-control]:hover]/chapter-menu-item:scale-75 group-has-[[data-slot=input-group-control]:hover]/chapter-menu-item:opacity-0',
+                  'group-has-[[data-slot=input-group-control]:focus]/chapter-menu-item:scale-75 group-has-[[data-slot=input-group-control]:focus]/chapter-menu-item:opacity-0',
+                  dragActive && dragSuppressedGrip,
+                )}
+              />
+            </span>
             <span
               className={cn(
                 paragraphRegular,
@@ -590,14 +643,34 @@ function ChapterMenuListItem({
 
       {isSubscene ? (
         <>
-          <DotIcon
-            aria-hidden
-            className={cn(
-              'relative z-10 size-[length:var(--icon-2xs)] shrink-0 pointer-events-none',
-              subsceneMarkerRestColor,
-              hoverInk,
-            )}
-          />
+          <span className="relative z-10 flex size-[length:var(--icon-2xs)] shrink-0 items-center justify-center pointer-events-none">
+            <DotIcon
+              aria-hidden
+              data-slot="chapter-menu-marker-icon"
+              className={cn(
+                'size-[length:var(--icon-2xs)] transition-[opacity,transform] duration-fast ease-emphasized',
+                'group-hover/chapter-menu-item:scale-75 group-hover/chapter-menu-item:opacity-0',
+                'group-has-[[data-slot=input-group-control]:hover]/chapter-menu-item:scale-100 group-has-[[data-slot=input-group-control]:hover]/chapter-menu-item:opacity-100',
+                'group-has-[[data-slot=input-group-control]:focus]/chapter-menu-item:scale-100 group-has-[[data-slot=input-group-control]:focus]/chapter-menu-item:opacity-100',
+                subsceneMarkerRestColor,
+                hoverInk,
+              )}
+            />
+            <GripVerticalIcon
+              aria-hidden
+              data-slot="chapter-menu-drag-indicator"
+              className={cn(
+                'absolute size-[length:var(--icon-sm)] translate-y-px scale-75 text-[color:var(--muted-foreground)] opacity-0',
+                'transition-[opacity,transform] duration-fast ease-emphasized',
+                'group-hover/chapter-menu-item:scale-100 group-hover/chapter-menu-item:opacity-100',
+                'group-data-[force-hover=true]/chapter-menu-item:scale-100 group-data-[force-hover=true]/chapter-menu-item:opacity-100',
+                'group-data-[drag=true]/chapter-menu-item:scale-100 group-data-[drag=true]/chapter-menu-item:opacity-100',
+                'group-has-[[data-slot=input-group-control]:hover]/chapter-menu-item:scale-75 group-has-[[data-slot=input-group-control]:hover]/chapter-menu-item:opacity-0',
+                'group-has-[[data-slot=input-group-control]:focus]/chapter-menu-item:scale-75 group-has-[[data-slot=input-group-control]:focus]/chapter-menu-item:opacity-0',
+                dragActive && dragSuppressedGrip,
+              )}
+            />
+          </span>
           <div data-slot="chapter-menu-name" className="contents">
             <InputGroup
               variant="quiet"
@@ -655,7 +728,7 @@ function ChapterMenuListItem({
               />
             }
           >
-            <EllipsisVerticalIcon />
+            <EllipsisVerticalIcon className="size-[length:var(--icon-sm)]" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
@@ -705,36 +778,65 @@ function ChapterMenuListItem({
         data-slot="chapter-menu-branch"
         className={cn(
           'flex w-full flex-col',
-          hasChapterBranch && 'gap-[length:var(--spacing-1-5)]',
+          hasChapterBranch && isExpanded && 'gap-[length:var(--spacing-1-5)]',
         )}
       >
         {row}
         {hasChapterBranch ? (
           <div
-            data-slot="chapter-menu-scenes"
-            className="flex items-start gap-[length:var(--spacing-2xs)] pl-[length:var(--spacing-lg)]"
+            aria-hidden={!isExpanded}
+            inert={!isExpanded}
+            data-slot="chapter-menu-scenes-reveal"
+            data-expanded={isExpanded || undefined}
+            className={cn(
+              'grid transition-[grid-template-rows,opacity] duration-[300ms] ease-emphasized',
+              isExpanded
+                ? 'grid-rows-[1fr] opacity-100'
+                : 'pointer-events-none grid-rows-[0fr] opacity-0',
+              'motion-reduce:transition-none',
+            )}
           >
-            <button
-              type="button"
-              aria-expanded={isExpanded}
-              aria-label={isExpanded ? 'Collapse scenes' : 'Expand scenes'}
-              data-slot="chapter-menu-branch-rail"
-              className="group/branch-rail flex w-[length:var(--spacing-3xs)] shrink-0 cursor-pointer justify-center self-stretch pb-[length:var(--spacing-sm)] outline-none"
-              onClick={handleExpandToggle}
+            <div
+              className={cn(
+                'min-h-0',
+                isExpanded ? 'overflow-visible' : 'overflow-hidden',
+              )}
             >
-              <Separator
-                orientation="vertical"
-                size="thin"
-                spacing="none"
-                className={cn(
-                  'w-[length:var(--stroke-regular)]!',
-                  'transition-[background-color] duration-fast ease-emphasized',
-                  'group-hover/branch-rail:bg-[color:var(--theme-alpha-black-switch-15)]',
-                )}
-              />
-            </button>
-            <div className="flex min-w-0 flex-1 flex-col gap-[length:var(--spacing-3xs)] [--outline-row-gap:var(--spacing-3xs)] [&:has(>[data-slot=add-section-inline-gap])]:gap-0 [&:has(>[data-slot=add-section-inline-gap])]:[--outline-row-gap:0]">
-              {children}
+              <div
+                data-slot="chapter-menu-scenes"
+                className="flex items-start gap-[length:var(--spacing-2xs)] pl-[length:var(--spacing-lg)]"
+              >
+                <button
+                  type="button"
+                  aria-expanded={isExpanded}
+                  aria-label={isExpanded ? 'Collapse scenes' : 'Expand scenes'}
+                  data-slot="chapter-menu-branch-rail"
+                  className="group/branch-rail flex w-[length:var(--spacing-3xs)] shrink-0 origin-top cursor-pointer justify-center self-stretch pb-[length:var(--spacing-sm)] outline-none transition-[scale] duration-[300ms] ease-emphasized motion-reduce:transition-none"
+                  style={{ scale: isExpanded ? '1 1' : '1 0' }}
+                  onClick={handleExpandToggle}
+                >
+                  <Separator
+                    orientation="vertical"
+                    size="thin"
+                    spacing="none"
+                    className={cn(
+                      'w-[length:var(--stroke-regular)]!',
+                      'transition-[background-color] duration-fast ease-emphasized',
+                      'group-hover/branch-rail:bg-[color:var(--theme-alpha-black-switch-15)]',
+                    )}
+                  />
+                </button>
+                <div
+                  data-expanded={isExpanded || undefined}
+                  className={cn(
+                    'flex min-w-0 flex-1 flex-col gap-[length:var(--spacing-3xs)] [--outline-row-gap:var(--spacing-3xs)] [&:has(>[data-slot=add-section-inline-gap])]:gap-0 [&:has(>[data-slot=add-section-inline-gap])]:[--outline-row-gap:0]',
+                    'data-[expanded=true]:[&>*]:translate-y-0 data-[expanded=true]:[&>*]:opacity-100 [&>*]:-translate-y-[length:var(--spacing-2xs)] [&>*]:opacity-0',
+                    branchCascade,
+                  )}
+                >
+                  {children}
+                </div>
+              </div>
             </div>
           </div>
         ) : null}
@@ -753,13 +855,37 @@ function ChapterMenuListItem({
       >
         {row}
         <div
-          data-slot="chapter-menu-subscenes"
+          aria-hidden={!hasVisibleNestedItems}
+          inert={!hasVisibleNestedItems}
+          data-slot="chapter-menu-subscenes-reveal"
           className={cn(
-            'flex flex-col gap-[length:var(--spacing-1-5)] pl-[length:var(--spacing-xl)] [--outline-row-gap:var(--spacing-1-5)] [&:has(>[data-slot=add-section-inline-gap])]:gap-0 [&:has(>[data-slot=add-section-inline-gap])]:[--outline-row-gap:0]',
-            hasVisibleNestedItems && 'pb-[length:var(--spacing-2xs)]',
+            'grid transition-[grid-template-rows,opacity] duration-[300ms] ease-emphasized',
+            hasVisibleNestedItems
+              ? 'grid-rows-[1fr] opacity-100'
+              : 'pointer-events-none grid-rows-[0fr] opacity-0',
+            'motion-reduce:transition-none',
           )}
         >
-          {children}
+          <div
+            className={cn(
+              'min-h-0',
+              hasVisibleNestedItems ? 'overflow-visible' : 'overflow-hidden',
+            )}
+          >
+            <div
+              data-slot="chapter-menu-subscenes"
+              className={cn(
+                'flex flex-col gap-[length:var(--spacing-1-5)] pl-[length:var(--spacing-xl)] [--outline-row-gap:var(--spacing-1-5)] [&:has(>[data-slot=add-section-inline-gap])]:gap-0 [&:has(>[data-slot=add-section-inline-gap])]:[--outline-row-gap:0]',
+                hasVisibleNestedItems && 'pb-[length:var(--spacing-2xs)]',
+                branchCascade,
+                hasVisibleNestedItems
+                  ? '[&>*]:translate-y-0 [&>*]:opacity-100'
+                  : '[&>*]:-translate-y-[length:var(--spacing-2xs)] [&>*]:opacity-0',
+              )}
+            >
+              {children}
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -3,7 +3,16 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useEffect, useRef, useState, type ReactNode, Fragment } from 'react';
+import {
+  createContext,
+  Fragment,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 
 import { DndContext, DragOverlay, type DragStartEvent } from '@dnd-kit/core';
 
@@ -209,17 +218,40 @@ function ChapterRows({
   );
 }
 
-function OutlineList({ children }: { children: ReactNode }) {
+type OutlineTreeFocusContextValue = {
+  activeId: string | null;
+  register: (id: string) => void;
+  setActiveId: (id: string) => void;
+};
+
+const OutlineTreeFocusContext = createContext<OutlineTreeFocusContextValue | null>(null);
+
+function OutlineList({
+  children,
+  tree = false,
+}: {
+  children: ReactNode;
+  tree?: boolean;
+}) {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const register = useCallback((id: string) => {
+    setActiveId((current) => current ?? id);
+  }, []);
+
   return (
-    <div
-      className={[
-        'flex w-full flex-col ps-[length:var(--spacing-xs)] [--outline-row-gap:var(--spacing-sm)]',
-        /* 12px between adjacent rows that do not already have an insert gap. */
-        '[&>:not([data-slot=add-section-inline-gap])+:not([data-slot=add-section-inline-gap])]:mt-[length:var(--spacing-sm)]',
-      ].join(' ')}
-    >
-      {children}
-    </div>
+    <OutlineTreeFocusContext.Provider value={{ activeId, register, setActiveId }}>
+      <div
+        role={tree ? 'tree' : undefined}
+        aria-label={tree ? 'Manuscript outline' : undefined}
+        className={[
+          'flex w-full flex-col ps-[length:var(--spacing-xs)] [--outline-row-gap:var(--spacing-sm)]',
+          /* 12px between adjacent rows that do not already have an insert gap. */
+          '[&>:not([data-slot=add-section-inline-gap])+:not([data-slot=add-section-inline-gap])]:mt-[length:var(--spacing-sm)]',
+        ].join(' ')}
+      >
+        {children}
+      </div>
+    </OutlineTreeFocusContext.Provider>
   );
 }
 
@@ -482,6 +514,7 @@ function InteractiveChapterMenu({
     return (
       <AddSectionInlineGap
         type="chapter"
+        disabled={activeId != null}
         onAddChapter={() => insertRow(position, 'chapter')}
         onAddAct={() => insertRow(position, 'act')}
       />
@@ -492,6 +525,7 @@ function InteractiveChapterMenu({
     return (
       <AddSectionInlineGap
         type="scene"
+        disabled={activeId != null}
         onAddScene={() => insertScene(chapterId, position)}
       />
     );
@@ -505,6 +539,7 @@ function InteractiveChapterMenu({
     return (
       <AddSectionInlineGap
         type="subscene"
+        disabled={activeId != null}
         className={
           edge
             ? 'h-0! hover:h-[length:var(--spacing-sm)]! focus-within:h-[length:var(--spacing-sm)]!'
@@ -550,7 +585,7 @@ function InteractiveChapterMenu({
           onDragEnd={onDragEnd}
           onDragCancel={onDragCancel}
         >
-          <OutlineList>
+          <OutlineList tree>
               {insertGap(0)}
               {topLevel.map((item, position) => (
                 <Fragment key={item.id}>
@@ -561,7 +596,11 @@ function InteractiveChapterMenu({
                     }
                   />
                   {item.kind === 'act' ? (
-                    <OutlineDragRow id={item.id} rejected={rejectedId === item.id}>
+                    <OutlineDragRow
+                      id={item.id}
+                      rejected={rejectedId === item.id}
+                      label={`Act ${numbers.get(item.id) ?? 1}: ${item.label || 'Untitled'}`}
+                    >
                       <div ref={trackNode(item.id)}>
                         <AddSectionInlineButton
                           type="actUntitled"
@@ -573,7 +612,12 @@ function InteractiveChapterMenu({
                       </div>
                     </OutlineDragRow>
                   ) : (
-                    <OutlineDragRow id={item.id} rejected={rejectedId === item.id}>
+                    <OutlineDragRow
+                      id={item.id}
+                      rejected={rejectedId === item.id}
+                      label={`Chapter ${numbers.get(item.id) ?? 1}: ${item.label || 'Untitled'}`}
+                      expanded={childrenOf(items, item.id).length > 0 ? !item.isCollapsed : undefined}
+                    >
                       <div ref={trackNode(item.id)}>
                         <ChapterMenuListItem
                           type="chapter"
@@ -581,6 +625,7 @@ function InteractiveChapterMenu({
                           label={item.label}
                           untitled={item.label.trim() === ''}
                           href={SECTION_HREF}
+                          dragActive={activeId != null}
                           onLabelChange={(label) => updateLabel(item.id, label)}
                           onDelete={() => deleteOutlineItem(item.id)}
                           showChevron={childrenOf(items, item.id).length > 0}
@@ -609,6 +654,8 @@ function InteractiveChapterMenu({
                                 <OutlineDragRow
                                   id={scene.id}
                                   rejected={rejectedId === scene.id}
+                                  level={2}
+                                  label={`Scene ${sceneIndex + 1}: ${scene.label || 'Untitled'}`}
                                 >
                                   <div ref={trackNode(scene.id)}>
                                     <ChapterMenuListItem
@@ -616,19 +663,21 @@ function InteractiveChapterMenu({
                                       sceneNumber={sceneIndex + 1}
                                       label={scene.label}
                                       href={SECTION_HREF}
+                                      dragActive={activeId != null}
                                       hasNestedItems={
                                         mode === 'full' && subscenes.length > 0
                                       }
-                                      onLabelChange={(label) => updateLabel(scene.id, label)}
+                                      onLabelChange={(label) =>
+                                        updateLabel(scene.id, label)
+                                      }
                                       onDelete={() => deleteOutlineItem(scene.id)}
                                     >
-                                    <DropIndicatorSlot
-                                      active={
-                                        dropIndicator?.overId === scene.id &&
-                                        dropIndicator.placement === 'nest'
-                                      }
-                                    />
-                                    {mode === 'full' ? (
+                                      <DropIndicatorSlot
+                                        active={
+                                          dropIndicator?.overId === scene.id &&
+                                          dropIndicator.placement === 'nest'
+                                        }
+                                      />
                                       <>
                                         {insertSubsceneGap(scene.id, 0, true)}
                                         {subscenes.map((subscene, subsceneIndex) => (
@@ -642,12 +691,15 @@ function InteractiveChapterMenu({
                                             <OutlineDragRow
                                               id={subscene.id}
                                               rejected={rejectedId === subscene.id}
+                                              level={3}
+                                              label={`Subscene: ${subscene.label || 'Untitled'}`}
                                             >
                                               <div ref={trackNode(subscene.id)}>
                                                 <ChapterMenuListItem
                                                   type="subscene"
                                                   label={subscene.label}
                                                   href={SECTION_HREF}
+                                                  dragActive={activeId != null}
                                                   onLabelChange={(label) =>
                                                     updateLabel(subscene.id, label)
                                                   }
@@ -665,7 +717,6 @@ function InteractiveChapterMenu({
                                           </Fragment>
                                         ))}
                                       </>
-                                    ) : null}
                                     </ChapterMenuListItem>
                                   </div>
                                 </OutlineDragRow>
@@ -695,7 +746,7 @@ function InteractiveChapterMenu({
                   '[&_[data-type=chapter]_[data-slot=input-group-control]]:!text-[color:var(--text)]',
                 )}
               >
-                {renderOutlineItem(activeItem, numbers, () => {}, true)}
+                {renderOutlineItem(activeItem, numbers, () => {}, true, true)}
               </div>
             ) : null}
           </DragOverlay>
@@ -968,6 +1019,12 @@ function OverviewPage() {
             Outline rows own their rename / expand / section-link semantics —
             see Chapter Menu List Item.
           </li>
+          <li>
+            Interactive outlines use one roving Tab stop. Arrow keys move
+            through the tree, Left / Right collapse or expand, Enter opens a
+            section, F2 edits its title, Shift+F10 opens its actions, and Space
+            starts or completes keyboard dragging.
+          </li>
         </ul>
       }
     />
@@ -1063,6 +1120,7 @@ function renderOutlineItem(
   numbers: Map<string, number>,
   onLabelChange: (id: string, label: string) => void,
   dragPreview = false,
+  dragActive = false,
 ) {
   switch (item.kind) {
     case 'chapter':
@@ -1073,6 +1131,7 @@ function renderOutlineItem(
           label={item.label}
           href={SECTION_HREF}
           drag={dragPreview}
+          dragActive={dragActive}
           showActions={!dragPreview}
           onLabelChange={(label) => onLabelChange(item.id, label)}
         />
@@ -1084,6 +1143,7 @@ function renderOutlineItem(
           sceneNumber={numbers.get(item.id) ?? 1}
           label={item.label}
           href={SECTION_HREF}
+          dragActive={dragActive}
           onLabelChange={(label) => onLabelChange(item.id, label)}
         />
       );
@@ -1093,6 +1153,7 @@ function renderOutlineItem(
           type="subscene"
           label={item.label}
           href={SECTION_HREF}
+          dragActive={dragActive}
           onLabelChange={(label) => onLabelChange(item.id, label)}
         />
       );
@@ -1121,19 +1182,116 @@ function renderOutlineItem(
 function OutlineDragRow({
   id,
   rejected,
+  level = 1,
+  label,
+  expanded,
   children,
 }: {
   id: string;
   rejected: boolean;
+  level?: number;
+  label: string;
+  expanded?: boolean;
   children: ReactNode;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useOutlineRow(id);
+  const treeFocus = useContext(OutlineTreeFocusContext);
+  const localRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    treeFocus?.register(id);
+  }, [id, treeFocus]);
+
+  useEffect(() => {
+    const node = localRef.current;
+    if (!node) return;
+    node
+      .querySelectorAll<HTMLElement>('a, button, textarea, input, [tabindex]')
+      .forEach((control) => {
+        if (control !== node) control.tabIndex = -1;
+      });
+  });
+
+  const focusTreeItem = (item: HTMLElement | undefined) => {
+    if (!item) return;
+    item.focus();
+    const nextId = item.dataset.outlineId;
+    if (nextId) treeFocus?.setActiveId(nextId);
+  };
+
+  const handleTreeKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return;
+    const tree = event.currentTarget.closest<HTMLElement>('[role="tree"]');
+    if (!tree) return;
+    const items = Array.from(tree.querySelectorAll<HTMLElement>('[role="treeitem"]')).filter(
+      (item) => !item.closest('[inert]') && item.getClientRects().length > 0,
+    );
+    const index = items.indexOf(event.currentTarget);
+    const moveTo = (next: HTMLElement | undefined) => {
+      event.preventDefault();
+      focusTreeItem(next);
+    };
+
+    if (event.key === 'ArrowDown') return moveTo(items[index + 1] ?? items[0]);
+    if (event.key === 'ArrowUp') return moveTo(items[index - 1] ?? items.at(-1));
+    if (event.key === 'Home') return moveTo(items[0]);
+    if (event.key === 'End') return moveTo(items.at(-1));
+    if (event.key === 'ArrowRight') {
+      const chevron = event.currentTarget.querySelector<HTMLButtonElement>('[data-slot="chapter-menu-chevron"]');
+      if (chevron?.getAttribute('aria-expanded') === 'false') {
+        event.preventDefault();
+        chevron.click();
+      } else if (items[index + 1]?.getAttribute('aria-level') === String(level + 1)) {
+        moveTo(items[index + 1]);
+      }
+      return;
+    }
+    if (event.key === 'ArrowLeft') {
+      const chevron = event.currentTarget.querySelector<HTMLButtonElement>('[data-slot="chapter-menu-chevron"]');
+      if (chevron?.getAttribute('aria-expanded') === 'true') {
+        event.preventDefault();
+        chevron.click();
+        return;
+      }
+      const parent = [...items.slice(0, index)].reverse().find(
+        (item) => Number(item.getAttribute('aria-level')) < level,
+      );
+      return moveTo(parent);
+    }
+    if (event.key === 'F2') {
+      event.preventDefault();
+      event.currentTarget.querySelector<HTMLTextAreaElement>('[data-slot="input-group-control"]')?.focus();
+      return;
+    }
+    if (event.shiftKey && event.key === 'F10') {
+      event.preventDefault();
+      event.currentTarget.querySelector<HTMLButtonElement>('[data-slot="chapter-menu-actions"]')?.click();
+      return;
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.currentTarget.querySelector<HTMLAnchorElement>('[data-slot="chapter-menu-section-link"]')?.click();
+      return;
+    }
+    listeners?.onKeyDown?.(event);
+  };
 
   return (
     <div
-      ref={setNodeRef}
+      ref={(node) => {
+        localRef.current = node;
+        setNodeRef(node);
+      }}
       {...attributes}
       {...listeners}
+      role="treeitem"
+      aria-level={level}
+      aria-label={label}
+      aria-expanded={expanded}
+      data-outline-id={id}
+      tabIndex={treeFocus?.activeId === id ? 0 : -1}
+      onFocus={() => treeFocus?.setActiveId(id)}
+      onKeyDown={handleTreeKeyDown}
       style={{
         animation: rejected ? 'outline-row-shake 0.4s ease-in-out' : undefined,
       }}
@@ -1144,7 +1302,6 @@ function OutlineDragRow({
         'rounded-[length:var(--rounded-md)]',
         'transition-colors duration-fast ease-emphasized',
         isDragging && [
-          '[&_[data-slot=chapter-menu-drag-indicator]]:!opacity-100',
           '[&_[data-slot=input-group-control]]:!text-[color:var(--tw-raw-secondary-200)]',
           '[&_[data-slot=input-group-addon]]:!text-[color:var(--tw-raw-secondary-200)]',
           '[&_[data-slot=chapter-menu-scene-marker]]:!text-[color:var(--tw-raw-secondary-200)]',
@@ -1281,7 +1438,7 @@ function DragAndDropOutline() {
         onDragEnd={onDragEnd}
         onDragCancel={onDragCancel}
       >
-        <OutlineList>
+        <OutlineList tree>
           {items.map((item) => (
             <Fragment key={item.id}>
               <DropIndicatorSlot
@@ -1290,8 +1447,13 @@ function DragAndDropOutline() {
                   dropIndicator.placement === 'before'
                 }
               />
-              <OutlineDragRow id={item.id} rejected={rejectedId === item.id}>
-                {renderOutlineItem(item, numbers, updateLabel)}
+              <OutlineDragRow
+                id={item.id}
+                rejected={rejectedId === item.id}
+                level={item.kind === 'subscene' ? 3 : item.kind === 'scene' ? 2 : 1}
+                label={`${item.kind}: ${item.label || 'Untitled'}`}
+              >
+                {renderOutlineItem(item, numbers, updateLabel, false, activeId != null)}
               </OutlineDragRow>
               <DropIndicatorSlot
                 active={

@@ -63,13 +63,23 @@ export type BookCoverProps = {
 };
 
 /**
- * Height-driven sizes. Width follows `BOOK_COVER_ASPECT`.
+ * Height-driven sizes. Explicit width from aspect — media is absolute, so
+ * `w-auto` alone can collapse to 0 in flex/grid parents.
  * `sm` is one step under `md` (160 vs 192) — Chapter Menu Header cover.
  */
-const SIZE_HEIGHT: Record<BookCoverSize, string> = {
-  sm: 'h-[length:var(--tw-raw-spacing-40)]',
-  md: 'h-[length:var(--tw-raw-spacing-48)]',
-  lg: 'h-[length:var(--tw-raw-spacing-60)]',
+const SIZE_BOX: Record<BookCoverSize, string> = {
+  sm: [
+    'h-[length:var(--tw-raw-spacing-40)]',
+    'w-[length:calc(var(--tw-raw-spacing-40)*1023/1537)]',
+  ].join(' '),
+  md: [
+    'h-[length:var(--tw-raw-spacing-48)]',
+    'w-[length:calc(var(--tw-raw-spacing-48)*1023/1537)]',
+  ].join(' '),
+  lg: [
+    'h-[length:var(--tw-raw-spacing-60)]',
+    'w-[length:calc(var(--tw-raw-spacing-60)*1023/1537)]',
+  ].join(' '),
 };
 
 const ICON_SIZE: Record<BookCoverSize, IconButtonSize> = {
@@ -79,9 +89,9 @@ const ICON_SIZE: Record<BookCoverSize, IconButtonSize> = {
 };
 
 const frameChrome = [
-  'group/book-cover relative box-border inline-block shrink-0 overflow-hidden',
-  'aspect-[1023/1537] w-auto',
-  'rounded-[length:var(--rounded-sm)]',
+  'group/book-cover relative box-border flex-none overflow-hidden',
+  'aspect-[1023/1537]',
+  'rounded-[length:var(--rounded-md)]',
   'border-[length:var(--stroke-regular)] border-solid',
   'border-[color:var(--theme-alpha-black-switch-10)]',
   'transition-[border-color] duration-fast ease-emphasized',
@@ -155,7 +165,7 @@ function BookCover({
     <div
       data-slot="book-cover"
       data-editable={editable ? '' : undefined}
-      className={cn(frameChrome, SIZE_HEIGHT[size], className)}
+      className={cn(frameChrome, SIZE_BOX[size], className)}
     >
       <CoverMedia src={src} alt={src ? alt : ''} />
 
@@ -198,7 +208,10 @@ function BookCover({
                     size: ICON_SIZE[size],
                   })}
                 >
-                  <SquarePenIcon aria-hidden />
+                  <SquarePenIcon
+                    aria-hidden
+                    className="size-[length:var(--icon-md)]"
+                  />
                 </a>
               ) : (
                 <IconButton
@@ -207,7 +220,10 @@ function BookCover({
                   aria-label={editLabel}
                   onClick={openFilePicker}
                 >
-                  <SquarePenIcon aria-hidden />
+                  <SquarePenIcon
+                    aria-hidden
+                    className="size-[length:var(--icon-md)]"
+                  />
                 </IconButton>
               )}
             </span>
