@@ -12,3 +12,4 @@ consume semantic tokens once a reusable role emerges.
 | Molecule | Notes |
 | --- | --- |
 | [Avatar with Label](./avatar-with-label/README.md) | Avatar + name; optional second-line action (Figma `12044:25610`) |
+| [Controls](./controls/README.md) | Shell folder — pieces land on `mc-controls-*` sub-branches |
