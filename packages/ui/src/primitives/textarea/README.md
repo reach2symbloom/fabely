@@ -20,7 +20,7 @@ Input Group (`InputGroupTextarea`).
 
 | Prop | Values | Notes |
 | --- | --- | --- |
-| `variant` | `default` \| `ghost` \| `quiet` | Parity with Input Style. Quiet = inline / in-chrome |
+| `variant` | `default` \| `filled` \| `ghost` \| `quiet` | Filled = surface-only hover; Quiet = inline / in-chrome |
 | `textStyle` | `body` \| `heading` | Body = Paragraph Small; Heading = Heading 2, wraps, `field-sizing-content` |
 | `roundness` | `default` \| `round` | Figma Roundness; Round → `--radius` (16; Figma is 18) |
 | `resizable` | `boolean` (default `true`) | CSS `resize-y` / `resize-none`; insets grip from the border. Off for heading titles. |
@@ -32,6 +32,7 @@ Input Group (`InputGroupTextarea`).
 | Role | Token |
 | --- | --- |
 | Default fill | `--theme-alpha-black-switch-333` |
+| Filled hover | `--theme-alpha-black-switch-5` (no border) |
 | Value | `--foreground` |
 | Placeholder / count | `--muted-foreground` |
 | Focus ring | `--effect-focus-ring-secondary` |

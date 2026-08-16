@@ -49,7 +49,7 @@ comparison. Designate the product winner later; do not average them.
 | Region | Token | px |
 | --- | --- | --- |
 | Cover inset (left of cover) | `--spacing-xl` | 24 |
-| Root min width | `494px` (Figma frame) | 494 |
+| Standalone stories | `w-[494px]` frame | 494 — header itself is fluid so the cover isn’t clipped in Chapter Menu |
 | Left column stack | `--spacing-sm` | 12 |
 | Title optical nudge | `--tw-raw-spacing-0-5` (`-mt`) | 2 — font-metrics exception, not a gap token; Heading 2 Sharp Serif 32px ascent / 10px descent vs 34px line-height measured ~21px above vs ~19px below |
 | Main top / bottom rows | `--spacing-md` | 16 |

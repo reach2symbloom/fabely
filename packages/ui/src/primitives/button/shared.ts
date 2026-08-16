@@ -14,6 +14,7 @@ export type ButtonVariant =
   | 'tertiary'
   | 'outline'
   | 'ghost'
+  | 'fiaGhost'
   | 'destructive'
   | 'fiaFilled'
   | 'fiaOutline';
@@ -113,6 +114,16 @@ export const buttonVariantClasses = {
     'hover:text-foreground',
     'active:text-foreground data-[pressed]:text-foreground',
     'focus-visible:text-foreground',
+    'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+    'disabled:opacity-50',
+  ],
+  fiaGhost: [
+    'bg-[var(--theme-alpha-white-switch-001)] border-transparent',
+    'text-[color:var(--tw-raw-fia-200)]',
+    QUIET_INTERACTION,
+    'hover:text-[color:var(--tw-raw-fia-200)]',
+    'active:text-[color:var(--tw-raw-fia-200)] data-[pressed]:text-[color:var(--tw-raw-fia-200)]',
+    'focus-visible:text-[color:var(--tw-raw-fia-200)]',
     'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
     'disabled:opacity-50',
   ],

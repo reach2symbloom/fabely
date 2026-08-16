@@ -134,6 +134,20 @@ function CharacterCountExample() {
   );
 }
 
+function FilledExample() {
+  return (
+    <div className="w-full max-w-xs">
+      <Textarea
+        variant="filled"
+        placeholder="Write a comment..."
+        aria-label="Comment"
+        showCharacterCount
+        maxLength={500}
+      />
+    </div>
+  );
+}
+
 function RoundExample() {
   return (
     <div className="w-full max-w-xs">
@@ -205,6 +219,7 @@ function TextareaPlayground() {
             value={variant}
             options={[
               { value: 'default', label: 'Default' },
+              { value: 'filled', label: 'Filled' },
               { value: 'ghost', label: 'Ghost' },
               { value: 'quiet', label: 'Quiet' },
             ]}
@@ -325,6 +340,9 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Character count">
             <CharacterCountExample />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Filled">
+            <FilledExample />
+          </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Round">
             <RoundExample />
           </PrimitiveGalleryItem>
@@ -350,8 +368,9 @@ export const Overview: Story = {
             <code>showCharacterCount</code> needs <code>maxLength</code>.
           </li>
           <li>
-            <code>variant</code> matches Input (<code>default</code> /{' '}
-            <code>ghost</code> / <code>quiet</code>). Quiet heading titles use{' '}
+            <code>variant</code> supports <code>default</code> /{' '}
+            <code>filled</code> / <code>ghost</code> / <code>quiet</code>. Filled
+            deepens its surface on hover without adding a border. Quiet heading titles use{' '}
             <code>textStyle=&quot;heading&quot;</code> and{' '}
             <code>resizable=&#123;false&#125;</code> — wraps, no grip.
           </li>

@@ -26,12 +26,42 @@ type Story = StoryObj<typeof meta>;
 
 function CommentCardPlayground() {
   const [scene, setScene] = useState<CommentCardScene>('new-comment');
+  const [comment, setComment] = useState(
+    'This quote should be it’s own paragraph. I’m also considering making this line longer as well.',
+  );
+  const [reply, setReply] = useState(
+    'I’m compelled to believe this may need to be defined further before proceeding.',
+  );
+  const collaborationEnabled = scene === 'reply' || scene === 'replying' || scene === 'replied';
 
   return (
     <PlaygroundPanel
       preview={
         <div className="flex min-h-72 w-full items-center justify-center pe-16">
-          <CommentCard scene={scene} collaborationEnabled={scene === 'reply' || scene === 'replying' || scene === 'replied'} />
+          <CommentCard
+            scene={scene}
+            comment={comment}
+            replyComment={reply}
+            collaborationEnabled={collaborationEnabled}
+            autoFocus={scene === 'edit-existing' || scene === 'replying'}
+            onEdit={() => setScene('edit-existing')}
+            onReply={() => setScene('replying')}
+            onAddComment={(value) => {
+              setComment(value);
+              setScene('existing');
+            }}
+            onSaveChanges={(value) => {
+              setComment(value);
+              setScene('existing');
+            }}
+            onAddReply={(value) => {
+              setReply(value);
+              setScene('replied');
+            }}
+            onCancel={() => {
+              setScene(scene === 'replying' ? 'reply' : scene === 'new-comment' ? 'new-comment' : 'existing');
+            }}
+          />
         </div>
       }
       controls={

@@ -89,7 +89,7 @@ export type IconButtonRoundness = ButtonRoundness;
 
 const iconButtonVariants = cva(
   [
-    'group/icon-button inline-flex shrink-0 items-center justify-center',
+    'group/icon-button inline-flex shrink-0 cursor-pointer items-center justify-center',
     /*
      * `min-h-0` + `overflow-hidden` — flex min-content otherwise grows past
      * `size-*` when pad+glyph+border exceed the box (Button Group rows).

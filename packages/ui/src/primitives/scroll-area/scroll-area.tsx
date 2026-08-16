@@ -61,8 +61,11 @@ function ScrollBar({
       data-orientation={orientation}
       orientation={orientation}
       className={cn(
-        'flex touch-none select-none',
-        'transition-colors duration-[var(--duration-fast)]',
+        'pointer-events-none flex touch-none select-none opacity-0',
+        'transition-[color,opacity] duration-[240ms] ease-[var(--ease-emphasized)]',
+        /* Base UI exposes this only while the viewport is actively moving.
+         * Appear immediately for feedback, then dissolve after scrolling rests. */
+        'data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-0',
         /*
          * Base UI sets `data-orientation`, not `data-vertical`. Tailwind’s
          * `data-vertical:` utility targets `[data-vertical]` and never matched,

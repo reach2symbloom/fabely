@@ -6,7 +6,7 @@
  *
  * Figma axes → props:
  * - Roundness Default | Round → `roundness`
- * - Style Default | Ghost | Quiet → `variant` (parity with Input)
+ * - Style Default | Filled | Ghost | Quiet → `variant` (parity with Input)
  * - Type Body | Heading → `textStyle` (Heading 2 for inline titles)
  * - State Empty | Placeholder | Value | Focus | Error | Error Focus | Disabled
  *   → native value / placeholder / focus-visible / aria-invalid / disabled
@@ -62,11 +62,20 @@ const textareaShellVariants = cva(
       variant: {
         default: [
           'bg-[color:var(--theme-alpha-black-switch-333)]',
+          'has-[:hover:not(:disabled):not(:focus-visible)]:bg-[color:var(--theme-alpha-black-switch-5)]',
+          'has-[:hover:not(:disabled):not(:focus-visible)]:border-[color:var(--theme-alpha-black-switch-10)]',
+          'has-[:focus-visible:not([aria-invalid=true])]:before:block',
+          'has-[:focus-visible:not([aria-invalid=true])]:shadow-[var(--effect-focus-ring-secondary)]',
+        ].join(' '),
+        filled: [
+          'bg-[color:var(--theme-alpha-black-switch-333)]',
+          'has-[:hover:not(:disabled):not(:focus-visible)]:bg-[color:var(--theme-alpha-black-switch-5)]',
           'has-[:focus-visible:not([aria-invalid=true])]:before:block',
           'has-[:focus-visible:not([aria-invalid=true])]:shadow-[var(--effect-focus-ring-secondary)]',
         ].join(' '),
         ghost: [
           'bg-transparent',
+          'has-[:hover:not(:disabled):not(:focus-visible)]:bg-[color:var(--theme-alpha-black-switch-333)]',
           'has-[:focus-visible:not([aria-invalid=true])]:bg-[color:var(--theme-alpha-black-switch-333)]',
           'has-[:focus-visible:not([aria-invalid=true])]:border-[color:var(--theme-alpha-black-switch-333)]',
           'has-[:focus-visible:not([aria-invalid=true])]:shadow-[var(--effect-focus-ring-secondary)]',
@@ -121,7 +130,14 @@ const textareaVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-[color:var(--theme-alpha-black-switch-333)]',
+        default: [
+          'bg-[color:var(--theme-alpha-black-switch-333)]',
+          'enabled:hover:not-focus-visible:bg-transparent',
+        ].join(' '),
+        filled: [
+          'bg-[color:var(--theme-alpha-black-switch-333)]',
+          'enabled:hover:not-focus-visible:bg-transparent',
+        ].join(' '),
         ghost: 'bg-transparent',
         quiet: 'bg-transparent',
       },

@@ -3,10 +3,12 @@
 import * as React from 'react';
 import { CircleCheckIcon, ReplyIcon } from 'lucide-react';
 
+import { FiaSilcrow } from '@/foundations/icons';
 import { AvatarWithLabel, getUserInitials, type UserIdentity } from '@/molecules/avatar-with-label';
-import { Button } from '@/primitives/button';
+import { Button, IconButton } from '@/primitives/button';
 import { Kbd } from '@/primitives/kbd';
 import { Textarea } from '@/primitives/textarea';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/primitives/tooltip';
 import { cn } from '@/lib/utils';
 
 export type CommentCardScene =
@@ -27,6 +29,19 @@ export type CommentCardSubmitContext = {
   scene: Extract<CommentCardScene, 'new-comment' | 'edit-existing' | 'replying'>;
   commentId?: string;
   replyId?: string;
+};
+
+export type CommentCardFiaContext = {
+  source: 'comment-card';
+  scene: CommentCardScene;
+  commentId?: string;
+  replyId?: string;
+  comment: string;
+  reply?: string;
+  location: string;
+  locationHref?: string;
+  author: { id?: string; name: string };
+  replyAuthor?: { id?: string; name: string };
 };
 
 export type CommentCardProps = Omit<React.ComponentProps<'article'>, 'children'> & {
@@ -61,7 +76,10 @@ export type CommentCardProps = Omit<React.ComponentProps<'article'>, 'children'>
   onSaveChanges?: (value: string, context: CommentCardSubmitContext) => void;
   onAddReply?: (value: string, context: CommentCardSubmitContext) => void;
   onCancel?: () => void;
+  onEdit?: () => void;
   onReply?: () => void;
+  /** Supplies this thread as context to the future Fia sidecar. */
+  onSendToFia?: (context: CommentCardFiaContext) => void;
 };
 
 const DEFAULT_COMMENT =
@@ -76,7 +94,11 @@ function CommentAnchor({ active }: { active: boolean }) {
       data-state={active ? 'active' : 'quiet'}
       aria-hidden="true"
       className={cn(
-        'pointer-events-none absolute left-[calc(100%+var(--spacing-md))] top-1/2 -translate-y-1/2 rounded-full',
+        [
+          'pointer-events-none absolute left-[calc(100%+var(--spacing-md))] top-1/2 -translate-y-1/2 rounded-full',
+          'transition-[width,height,border-width,border-color,background-color,box-shadow] duration-fast ease-emphasized',
+          'motion-reduce:transition-none',
+        ],
         active
           ? [
               'size-[var(--spacing-xl)]',
@@ -127,12 +149,34 @@ function CommentIdentity({ userId, author, initials, avatarSrc, timestamp, resol
 }
 
 function CommentText({ children }: { children: React.ReactNode }) {
-  return <p className="w-full text-[length:var(--text-paragraph-small-regular-font-size)] leading-[var(--text-paragraph-small-regular-line-height)] text-[color:var(--muted-foreground)]">{children}</p>;
+  return <p className="w-full min-w-0 break-words [overflow-wrap:anywhere] text-[length:var(--text-paragraph-small-regular-font-size)] leading-[var(--text-paragraph-small-regular-line-height)] text-[color:var(--muted-foreground)]">{children}</p>;
 }
 
 function CommentLocation({ location, href }: { location: string; href?: string }) {
   const className = 'text-[length:var(--text-paragraph-small-regular-font-size)] leading-[var(--text-paragraph-small-regular-line-height)] text-[color:var(--muted-foreground)]';
   return href ? <a href={href} data-action="open-location" className={cn(className, 'hover:underline')}>{location}</a> : <span className={className}>{location}</span>;
+}
+
+function FiaCommentAction({ onClick }: { onClick: () => void }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={(
+          <IconButton
+            type="button"
+            size="sm"
+            variant="fiaGhost"
+            aria-label="Ask Fia about this comment"
+            data-action="send-to-fia"
+            onClick={onClick}
+          />
+        )}
+      >
+        <FiaSilcrow />
+      </TooltipTrigger>
+      <TooltipContent>Ask Fia</TooltipContent>
+    </Tooltip>
+  );
 }
 
 function ComposerActions({ editing, replying, submitting, onSubmit, onCancel }: { editing?: boolean; replying?: boolean; submitting?: boolean; onSubmit: () => void; onCancel?: () => void }) {
@@ -164,8 +208,8 @@ function CommentCard({
   replyAvatarSrc, replyTimestamp = '7m ago', replyComment = DEFAULT_REPLY,
   location = 'Ch. 1 · Sc. 1 · ¶ 3', locationHref, commentId, replyId,
   collaborationEnabled = false, maxLength = 500, autoFocus = false, submitting = false,
-  onSubmit, onAddComment, onSaveChanges, onAddReply, onCancel, onReply,
-  forceHover = false, className, onPointerEnter, onPointerLeave, ...props
+  onSubmit, onAddComment, onSaveChanges, onAddReply, onCancel, onEdit, onReply, onSendToFia,
+  forceHover = false, className, onClick, onKeyDown, onPointerEnter, onPointerLeave, tabIndex, ...props
 }: CommentCardProps) {
   const [pointerHovered, setPointerHovered] = React.useState(false);
   const resolvedAuthor = author ?? user?.name ?? 'Christian';
@@ -181,7 +225,7 @@ function CommentCard({
   const replying = renderedScene === 'replying';
   const existingHover = renderedScene === 'existing' && (forceHover || pointerHovered);
   const replyScene = renderedScene === 'reply' || replying || renderedScene === 'replied';
-  const activeAnchor = newComment || existingHover || editing || replying;
+  const activeAnchor = newComment || editing || replying;
   const [value, setValue] = React.useState(newComment ? '' : replying ? replyComment : comment);
 
   React.useEffect(() => {
@@ -213,6 +257,22 @@ function CommentCard({
   };
   const cardTimestamp = timestamp ?? (replyScene ? '2d ago' : 'Just now');
   const composer = newComment || editing || replying;
+  const sendToFia = React.useCallback(() => {
+    onSendToFia?.({
+      source: 'comment-card',
+      scene: renderedScene,
+      commentId,
+      replyId,
+      comment,
+      reply: replyScene && renderedScene !== 'reply' ? replyComment : undefined,
+      location,
+      locationHref,
+      author: { id: user?.id, name: resolvedAuthor },
+      replyAuthor: replyScene && renderedScene !== 'reply'
+        ? { id: replyUser?.id, name: resolvedReplyAuthor }
+        : undefined,
+    });
+  }, [comment, commentId, location, locationHref, onSendToFia, renderedScene, replyComment, replyId, replyScene, replyUser?.id, resolvedAuthor, resolvedReplyAuthor, user?.id]);
 
   return (
     <article
@@ -221,12 +281,31 @@ function CommentCard({
       data-collaboration={collaborationEnabled ? 'enabled' : 'solo'}
       data-hovered={existingHover || undefined}
       className={cn(
-        'relative flex w-[344px] flex-col overflow-visible rounded-[length:var(--rounded-xl)]',
+        'relative flex w-[344px] flex-col overflow-visible rounded-[length:var(--rounded-xl)] transition-[background-color,opacity]',
         composer
           ? ['border border-[color:color-mix(in_srgb,var(--tw-raw-pantones-saffron)_16%,transparent)]', 'bg-[color:var(--card)] shadow-[var(--shadow-lg-black)]']
           : 'bg-[color:var(--theme-alpha-black-switch-333)]',
-        renderedScene === 'existing' && !existingHover && 'opacity-56', className,
+        renderedScene === 'existing' && 'cursor-pointer',
+        renderedScene === 'existing' && !existingHover && 'opacity-56',
+        existingHover && 'bg-[color:var(--theme-alpha-black-switch-5)] opacity-100',
+        className,
       )}
+      tabIndex={renderedScene === 'existing' ? (tabIndex ?? 0) : tabIndex}
+      aria-label={renderedScene === 'existing' ? 'Edit comment' : undefined}
+      onClick={(event) => {
+        onClick?.(event);
+        if (event.defaultPrevented || renderedScene !== 'existing') return;
+        const target = event.target;
+        if (target instanceof Element && target.closest('a,button,[data-action]')) return;
+        onEdit?.();
+      }}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        if (event.defaultPrevented || renderedScene !== 'existing') return;
+        if (event.target !== event.currentTarget || (event.key !== 'Enter' && event.key !== ' ')) return;
+        event.preventDefault();
+        onEdit?.();
+      }}
       onPointerEnter={(event) => {
         setPointerHovered(true);
         onPointerEnter?.(event);
@@ -243,38 +322,44 @@ function CommentCard({
             <CommentIdentity userId={user?.id} author={resolvedAuthor} initials={resolvedInitials} avatarSrc={resolvedAvatarSrc} timestamp={cardTimestamp} resolved />
             <CommentText>{comment}</CommentText>
           </div>
-          <div className="h-px w-full bg-[color:var(--theme-alpha-black-switch-5)]" />
+          {renderedScene !== 'reply' ? (
+            <div className="h-px w-full bg-[color:var(--theme-alpha-black-switch-5)]" />
+          ) : null}
           {renderedScene === 'reply' ? (
-            <Button type="button" size="mini" variant="ghost" data-action="reply" className="self-start border-s-2" onClick={onReply}>Reply<ReplyIcon data-icon="inline-end" /></Button>
+            <Button type="button" size="small" variant="outline" roundness="default" data-action="reply" className="self-start" onClick={onReply}>Reply<ReplyIcon data-icon="inline-end" /></Button>
           ) : (
             <div className="flex flex-col gap-[var(--spacing-xs)]">
               <CommentIdentity userId={replyUser?.id} author={resolvedReplyAuthor} initials={resolvedReplyInitials} avatarSrc={resolvedReplyAvatarSrc} timestamp={renderedScene === 'replied' ? replyTimestamp : undefined} resolved={renderedScene === 'replied'} olive />
               {replying ? (
-                <Textarea value={value} onChange={(event) => setValue(event.target.value)} maxLength={maxLength} resizable autoFocus={autoFocus} className="min-h-[58px]" onKeyDown={handleKeyDown} />
+                <Textarea variant="filled" value={value} onChange={(event) => setValue(event.target.value)} maxLength={maxLength} resizable autoFocus={autoFocus} className="min-h-[58px]" onKeyDown={handleKeyDown} />
               ) : <CommentText>{replyComment}</CommentText>}
             </div>
           )}
           {renderedScene === 'replied' ? (
-            <Button type="button" size="mini" variant="ghost" data-action="reply" className="self-start border-s-2" onClick={onReply}>Reply<ReplyIcon data-icon="inline-end" /></Button>
+            <Button type="button" size="small" variant="outline" roundness="default" data-action="reply" className="self-start" onClick={onReply}>Reply<ReplyIcon data-icon="inline-end" /></Button>
           ) : null}
           {replying ? <ComposerActions replying submitting={submitting} onSubmit={submit} onCancel={onCancel} /> : null}
-          <div className="h-px w-full bg-[color:var(--border)]" />
-          <CommentLocation location={location} href={locationHref} />
+          {renderedScene !== 'reply' ? (
+            <div className="h-px w-full bg-[color:var(--border)]" />
+          ) : null}
+          <div className="flex w-full items-center justify-between gap-[var(--spacing-xs)]">
+            <CommentLocation location={location} href={locationHref} />
+            <FiaCommentAction onClick={sendToFia} />
+          </div>
         </div>
       ) : (
         <>
           <header className="px-[var(--spacing-md)] pb-[var(--spacing-xs)] pt-[var(--spacing-md)]">
-            <CommentIdentity userId={user?.id} author={resolvedAuthor} initials={resolvedInitials} avatarSrc={resolvedAvatarSrc} timestamp={newComment || editing ? undefined : cardTimestamp} resolved={existingHover} />
+            <CommentIdentity userId={user?.id} author={resolvedAuthor} initials={resolvedInitials} avatarSrc={resolvedAvatarSrc} timestamp={newComment || editing ? undefined : cardTimestamp} />
           </header>
           <div className="px-[var(--spacing-md)] py-[var(--spacing-xs)]">
             {newComment || editing ? (
-              <Textarea value={value} onChange={(event) => setValue(event.target.value)} placeholder={newComment ? 'Write a comment...' : undefined} maxLength={maxLength} showCharacterCount={newComment} resizable autoFocus={autoFocus} onKeyDown={handleKeyDown} />
-            ) : existingHover ? (
-              <Textarea value={comment} readOnly resizable className="shadow-[var(--effect-focus-ring)]" />
+              <Textarea variant="filled" value={value} onChange={(event) => setValue(event.target.value)} placeholder={newComment ? 'Write a comment...' : undefined} maxLength={maxLength} showCharacterCount={newComment} resizable autoFocus={autoFocus} onKeyDown={handleKeyDown} />
             ) : <CommentText>{comment}</CommentText>}
           </div>
           <footer className="flex items-center justify-between px-[var(--spacing-md)] pb-[var(--spacing-md)] pt-[var(--spacing-xs)]">
             {newComment || editing ? <ComposerActions editing={editing} submitting={submitting} onSubmit={submit} onCancel={onCancel} /> : <CommentLocation location={location} href={locationHref} />}
+            {!newComment && !editing ? <FiaCommentAction onClick={sendToFia} /> : null}
           </footer>
         </>
       )}
