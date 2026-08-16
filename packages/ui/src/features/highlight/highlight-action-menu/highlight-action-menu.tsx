@@ -87,10 +87,18 @@ function ActionButton({
       >
         <Icon className={ICON_GLYPH_CHROME} />
       </TooltipTrigger>
-      {/* side="right" -> the primitive's own Arrow auto-points left, back
-          at the trigger. sideOffset 4 matches TooltipContent's own
-          default — no reason to carry over Highlight Color Menu's +8px. */}
-      <TooltipContent side="right" sideOffset={4}>
+      {/*
+        side="right" -> the primitive's own Arrow auto-points left, back
+        at the trigger — it was rendering, just hidden: the pill's
+        decorative ring (shadow-[0px_0px_0px_4px_...]) extends 4px past
+        the button's actual layout box, so sideOffset's default 4px
+        landed the tooltip overlapping that ring, clipping both the
+        arrow and the text's leading edge behind it. 4 (offset) + 4
+        (ring) = 8 clears it. p-2xs overrides the primitive's own
+        asymmetric px-xs/py-1-5 padding with a uniform 4px, matching the
+        pill's own 4px-all-around padding.
+      */}
+      <TooltipContent side="right" sideOffset={8} className="p-[var(--spacing-2xs)]">
         {tooltip}
       </TooltipContent>
     </Tooltip>
