@@ -10,7 +10,7 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 import { Slider, type SliderProps } from '@/primitives/slider';
-import { ControlLabel } from '../control-label';
+import { ControlLabel } from './control-label';
 
 export type ControlSliderProps = SliderProps & {
   className?: string;

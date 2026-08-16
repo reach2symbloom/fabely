@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/primitives/select';
-import { ControlLabel } from '../control-label';
+import { ControlLabel } from './control-label';
 
 type BaseUiSelectProps = React.ComponentProps<typeof Select>;
 

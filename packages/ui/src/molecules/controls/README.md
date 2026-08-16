@@ -1,30 +1,27 @@
 # Controls
 
 Interactive control molecules — compose primitives into a functioning
-unit, not one-off primitive variants. Stays in
-`src/molecules/controls/`.
+unit, not one-off primitive variants. Stays in `src/molecules/controls/`.
 
-Shell folder: this branch (`mc-controls`) holds the folder and this
-README only. Each piece lands on its own `mc-controls-*` sub-branch as
-a subfolder here, then merges back into `mc-controls`, mirroring how
-`chapter-nav` grew.
-
-Each piece is its own folder. Compose across them; do not duplicate
-primitives into this tree.
-
-## Pieces
-
-| Piece | Folder | Status |
-| --- | --- | --- |
-| [Control Label](./control-label/README.md) | `control-label/` | Landed |
-| [Control Dropdown](./dropdown/README.md) | `dropdown/` | Landed |
-| [Control Slider](./slider/README.md) | `slider/` | Landed |
-| [Control Icon Button Group](./icon-button-group/README.md) | `icon-button-group/` | Landed |
-| Control Rich Divider (section divider) | `rich-divider/` | Blocked — needs the ornament SVG asset |
-
-## Figma
-
-[Controls](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16301-20374)
+Figma: [Controls](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16301-20374)
 frame. `Header variant` and `Chip icon + text` types use Rich Radio Chip,
 which isn't in this codebase yet (lives on the unmerged `pr/radio-group`
 branch) — out of scope until that lands.
+
+Small and similar enough to live as flat files rather than one folder per
+piece — compose across them; do not duplicate primitives into this tree.
+One Storybook entry (`controls.stories.tsx`) covers all of them in a
+single Overview playground.
+
+## Pieces
+
+| Piece | File | Composes |
+| --- | --- | --- |
+| Control Label | `control-label.tsx` | — (caption, no primitive) |
+| Control Dropdown | `control-dropdown.tsx` | `@/primitives/select` |
+| Control Slider | `control-slider.tsx` | `@/primitives/slider` |
+| Control Icon Button Group | `control-icon-button-group.tsx` | `@/primitives/button/icon-button` |
+| Control Rich Divider | `control-rich-divider.tsx` | `@/primitives/select`, `@/primitives/separator` |
+
+`assets/section-divider-ornament.tsx` is the exported Figma ornament SVG,
+recolored to `currentColor`.

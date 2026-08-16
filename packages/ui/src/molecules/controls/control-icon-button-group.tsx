@@ -14,7 +14,7 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 import { IconButton } from '@/primitives/button/icon-button';
-import { ControlLabel } from '../control-label';
+import { ControlLabel } from './control-label';
 
 export type ControlIconButtonOption = {
   value: string;
