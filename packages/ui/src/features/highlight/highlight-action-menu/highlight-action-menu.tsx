@@ -87,7 +87,10 @@ function ActionButton({
       >
         <Icon className={ICON_GLYPH_CHROME} />
       </TooltipTrigger>
-      <TooltipContent side="right" sideOffset={12}>
+      {/* side="right" -> the primitive's own Arrow auto-points left, back
+          at the trigger. sideOffset 4 matches TooltipContent's own
+          default — no reason to carry over Highlight Color Menu's +8px. */}
+      <TooltipContent side="right" sideOffset={4}>
         {tooltip}
       </TooltipContent>
     </Tooltip>
