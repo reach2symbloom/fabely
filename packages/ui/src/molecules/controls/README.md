@@ -16,8 +16,15 @@ primitives into this tree.
 
 | Piece | Folder | Status |
 | --- | --- | --- |
-| — | — | Not started |
+| [Control Label](./control-label/README.md) | `control-label/` | Landed |
+| [Control Dropdown](./dropdown/README.md) | `dropdown/` | Landed |
+| [Control Slider](./slider/README.md) | `slider/` | Landed |
+| [Control Icon Button Group](./icon-button-group/README.md) | `icon-button-group/` | Landed |
+| Control Rich Divider (section divider) | `rich-divider/` | Blocked — needs the ornament SVG asset |
 
 ## Figma
 
-TBD — add the Figma frame link here once pieces start landing.
+[Controls](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16301-20374)
+frame. `Header variant` and `Chip icon + text` types use Rich Radio Chip,
+which isn't in this codebase yet (lives on the unmerged `pr/radio-group`
+branch) — out of scope until that lands.
