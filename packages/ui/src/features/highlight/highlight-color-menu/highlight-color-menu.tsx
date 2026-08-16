@@ -33,29 +33,33 @@
  * would apply that color at rest too.
  *
  * Figma names a reusable "Icon Button Semantic" component (`16315:1141`)
- * for exactly 4 commands: Fia, Gather, Comment, Highlight. It's only
- * consumed here, so it lives here (see `IconButtonSemantic` below)
- * rather than as a shared primitive. `highlight` is a supported command
- * not currently wired into the toolbar — Figma's "Highlight" leading
- * action (Icon / highlighter, "mark, text") doesn't appear in the
- * confirmed 4-button User highlight layout above; add it if that turns
- * out to be a 5th action rather than an unused command.
+ * for exactly 4 commands: Fia, Gather, Comment, Highlight — glyph +
+ * hover-color mapping lives in `../icon-semantics` (shared with Highlight
+ * Action Menu, the other consumer); sizing/layout/tooltip copy here are
+ * this menu's own (see `IconButtonSemantic` below). `highlight` is a
+ * supported command not currently wired into the toolbar — Figma's
+ * "Highlight" leading action (Icon / highlighter, "mark, text") doesn't
+ * appear in the confirmed 4-button User highlight layout above; add it
+ * if that turns out to be a 5th action rather than an unused command.
  */
 
 'use client';
 
 import * as React from 'react';
-import { Copy, MessageSquare, Highlighter, CircleX } from 'lucide-react';
+import { Copy, CircleX } from 'lucide-react';
 import { motion } from 'motion/react';
 
 import { cn } from '@/lib/utils';
 import { SPRING_BLOOM } from '@/lib/motion';
-import { FiaSilcrow } from '@/foundations/icons';
-import { HighlightColor } from '../highlight-color';
 import { IconButton } from '@/primitives/button/icon-button';
 import { Separator } from '@/primitives/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/primitives/tooltip';
-import { GatherSearchNotesIcon } from './assets/gather-search-notes';
+import { HighlightColor } from '../highlight-color';
+import {
+  SEMANTIC_ICON,
+  SEMANTIC_HOVER_CLASS,
+  type SemanticCommand,
+} from '../icon-semantics';
 
 const MotionIconButton = motion.create(IconButton);
 
@@ -124,7 +128,7 @@ function ToolbarIconButton({
 }: {
   label: string;
   onClick?: () => void;
-  /** Literal `hover:text-[color:var(--...)]` class — see `SEMANTIC_ICON_BUTTON`. */
+  /** Literal `hover:text-[color:var(--...)]` class — see `../icon-semantics`. */
   hoverClassName?: string;
   children: React.ReactNode;
 }) {
@@ -153,33 +157,12 @@ function ToolbarIconButton({
   );
 }
 
-/**
- * Figma "Icon Button Semantic" (`16315:1141`) — command → glyph +
- * hover color. `hoverClassName` is a literal Tailwind class (not built
- * from a template string) so the JIT scanner can actually find it.
- */
-type SemanticCommand = 'fia' | 'gather' | 'comment' | 'highlight';
-
-const SEMANTIC_ICON_BUTTON: Record<
-  SemanticCommand,
-  {
-    label: string;
-    hoverClassName?: string;
-    Icon: React.ComponentType<{ className?: string }>;
-  }
-> = {
-  fia: {
-    label: 'Ask Fia',
-    hoverClassName: 'hover:text-[color:var(--tw-raw-fia-200)]',
-    Icon: FiaSilcrow,
-  },
-  gather: {
-    label: 'Gather & search notes',
-    hoverClassName: 'hover:text-[color:var(--tw-raw-secondary-200)]',
-    Icon: GatherSearchNotesIcon,
-  },
-  comment: { label: 'Comment', Icon: MessageSquare },
-  highlight: { label: 'Highlight', Icon: Highlighter },
+/** This menu's own short labels for the shared semantic commands. */
+const SEMANTIC_LABEL: Record<SemanticCommand, string> = {
+  fia: 'Ask Fia',
+  gather: 'Gather & search notes',
+  comment: 'Comment',
+  highlight: 'Highlight',
 };
 
 function IconButtonSemantic({
@@ -189,9 +172,13 @@ function IconButtonSemantic({
   command: SemanticCommand;
   onClick?: () => void;
 }) {
-  const { label, hoverClassName, Icon } = SEMANTIC_ICON_BUTTON[command];
+  const Icon = SEMANTIC_ICON[command];
   return (
-    <ToolbarIconButton label={label} hoverClassName={hoverClassName} onClick={onClick}>
+    <ToolbarIconButton
+      label={SEMANTIC_LABEL[command]}
+      hoverClassName={SEMANTIC_HOVER_CLASS[command]}
+      onClick={onClick}
+    >
       <Icon className={ICON_GLYPH_CHROME} />
     </ToolbarIconButton>
   );
