@@ -48,6 +48,11 @@ const CHIP_RADIO_HIDDEN = [
   'after:hidden',
 ].join(' ');
 
+/* FieldLabel's `choice="icon"` face has no hover in the primitive —
+ * `not-has-data-checked:` matches field.tsx's own selector so hover never
+ * fights the checked (primary gradient border) state. */
+const CHIP_HOVER = 'not-has-data-checked:hover:bg-[color:var(--theme-alpha-black-switch-333)]';
+
 /** Figma Rich Radio Chip Line 1 — Paragraph Small Regular; checked → `--foreground`. */
 function ChipTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -100,6 +105,7 @@ function ControlChipGroup({
             key={option.value}
             choice="icon"
             htmlFor={`${instanceId}-${option.value}`}
+            className={CHIP_HOVER}
           >
             <RadioGroupItem
               value={option.value}

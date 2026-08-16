@@ -21,7 +21,7 @@ single Overview playground.
 | Control Slider | `control-slider.tsx` | `@/primitives/slider` |
 | Control Icon Button Group | `control-icon-button-group.tsx` | `@/primitives/button/icon-button` |
 | Control Chip Group | `control-chip-group.tsx` | `@/primitives/radio-group`, `@/primitives/field` (Rich Radio Chip `choice="icon"`) |
-| Control Rich Divider | `control-rich-divider.tsx` | `@/primitives/select`, `@/primitives/separator` |
+| Control Rich Divider | `control-rich-divider.tsx` | `@/primitives/select` |
 
 `assets/section-divider-ornament.tsx` is the exported Figma ornament SVG,
 recolored to `currentColor`.

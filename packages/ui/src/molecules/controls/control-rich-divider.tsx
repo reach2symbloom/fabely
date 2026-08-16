@@ -3,11 +3,11 @@
  * ornament, quiet "Select & Combobox" chrome.
  *
  * Figma: Controls (`16301:20374`) `type=Custom dropdown` — "SECTION DIVIDER"
- * field: a rule / ornament / rule preview inside a bordered, transparent
- * field, chevron decoration from Select itself. Composes
- * `@/primitives/select` (field + popup/item behavior) and
- * `@/primitives/separator` (the flanking rules) — only the trigger's
- * content is custom here.
+ * field: the ornament glyph centered inside a bordered, transparent field,
+ * chevron decoration from Select itself. Composes `@/primitives/select`
+ * (field + popup/item behavior) — only the trigger's content is custom
+ * here. No flanking rule lines — the glyph alone is the preview; Foundations
+ * Separator is not used by this piece.
  *
  * Figma's frame is 224–300 wide (Hug); the field stretches full-width
  * within that range rather than pinning one value.
@@ -18,7 +18,6 @@
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
-import { Separator } from '@/primitives/separator';
 import {
   Select,
   SelectContent,
@@ -32,7 +31,6 @@ export type ControlRichDividerOption = {
   value: string;
   /** Accessible / listed name for this divider style. */
   label: string;
-  /** Omit for a continuous rule with no center glyph ("Plain"). */
   ornament?: React.ReactNode;
 };
 
@@ -63,7 +61,11 @@ const DEFAULT_RICH_DIVIDER_OPTIONS: ControlRichDividerOption[] = [
     label: 'Asterisks',
     ornament: <span className={GLYPH_CLASS}>∗∗∗</span>,
   },
-  { value: 'plain', label: 'Plain' },
+  {
+    value: 'plain',
+    label: 'Plain',
+    ornament: <span className={GLYPH_CLASS}>—</span>,
+  },
 ];
 
 export type ControlRichDividerProps = {
@@ -82,10 +84,12 @@ const TRIGGER_CHROME = [
   'rounded-[length:var(--rounded-lg)]',
   'border-[length:var(--stroke-thin)] border-[color:var(--theme-alpha-black-switch-10)]',
   'bg-transparent',
+  /* Same rest→hover fill step as the other quiet fields (Dropdown). */
+  'hover:bg-[color:var(--theme-alpha-black-switch-333)]',
 ].join(' ');
 
-/** Trigger preview — the actual rule/ornament/rule divider being configured. */
-function DividerPreview({
+/** The glyph alone, centered — used for both the trigger and popup rows. */
+function OrnamentPreview({
   ornament,
   className,
 }: {
@@ -96,36 +100,7 @@ function DividerPreview({
     <span
       data-slot="control-rich-divider-preview"
       className={cn(
-        'flex min-w-0 flex-1 items-center',
-        ornament != null && 'gap-[var(--spacing-sm)]',
-        'text-[color:var(--muted-foreground)]',
-        className,
-      )}
-    >
-      <Separator className="min-w-0 flex-1" />
-      {ornament != null ? <span className="shrink-0">{ornament}</span> : null}
-      <Separator className="min-w-0 flex-1" />
-    </span>
-  );
-}
-
-/**
- * Popup row preview — the glyph alone. Flanking rules belong to the one
- * divider being configured (the trigger); repeating them per list row reads
- * as a divider nested inside a divider.
- */
-function OrnamentPreview({
-  ornament,
-  className,
-}: {
-  ornament?: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <span
-      data-slot="control-rich-divider-option-preview"
-      className={cn(
-        'flex min-w-0 items-center justify-center text-[color:var(--muted-foreground)]',
+        'flex min-w-0 flex-1 items-center justify-center text-[color:var(--muted-foreground)]',
         className,
       )}
     >
@@ -163,7 +138,7 @@ function ControlRichDivider({
         }}
       >
         <SelectTrigger className={TRIGGER_CHROME}>
-          <DividerPreview ornament={activeOption?.ornament} />
+          <OrnamentPreview ornament={activeOption?.ornament} />
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (

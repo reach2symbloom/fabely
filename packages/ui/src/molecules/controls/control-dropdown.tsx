@@ -35,6 +35,9 @@ const TRIGGER_CHROME = [
   'px-[var(--spacing-sm)] py-[var(--spacing-1-875)]',
   'rounded-[length:var(--rounded-lg)] border-transparent',
   'bg-[color:var(--theme-alpha-black-switch-333)]',
+  /* Same alpha ladder as Icon Button's subtleFilled rest/hover. */
+  'hover:bg-[color:var(--theme-alpha-black-switch-5)]',
+  'hover:text-[color:var(--foreground)]',
 ].join(' ');
 
 function ControlDropdown({

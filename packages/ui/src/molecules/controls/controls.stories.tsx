@@ -152,7 +152,7 @@ export const Overview: Story = {
           <li>Control Icon Button Group's `icon` is caller-supplied; the demo's dashed-square glyph is Figma's own placeholder icon.</li>
           <li>Control Chip Group composes Radio Group's Rich Radio Chip "icon" choice (`FieldLabel choice="icon"`) — same pattern as `radio-group.stories.tsx`'s `RichRadioIconChipExample`, not a fork.</li>
           <li>Control Header (Header variant) replaces Control Label above a Chip Group — use one or the other, not both.</li>
-          <li>Control Rich Divider defaults to `DEFAULT_RICH_DIVIDER_OPTIONS` (Ornament — the exported Figma asset recolored to `currentColor`; Dots and Asterisks — text glyphs; Plain — a continuous rule); pass `options` to replace them. Field is `min-w-[224px] max-w-[300px]`, per Figma's Hug range.</li>
+          <li>Control Rich Divider defaults to `DEFAULT_RICH_DIVIDER_OPTIONS` (Ornament — the exported Figma asset recolored to `currentColor`; Dots, Asterisks, Plain — text glyphs); pass `options` to replace them. No flanking rule lines — the glyph alone is the preview. Field is `min-w-[224px] max-w-[300px]`, per Figma's Hug range.</li>
         </ul>
       }
       accessibility={
