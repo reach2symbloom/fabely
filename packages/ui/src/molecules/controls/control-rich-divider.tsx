@@ -48,8 +48,11 @@ const GLYPH_CLASS = [
 const DEFAULT_RICH_DIVIDER_OPTIONS: ControlRichDividerOption[] = [
   {
     value: 'ornament',
+    /* Fills whatever box it's placed in (trigger vs. popup row size it
+     * differently below) — sizing the glyph itself here would cap how
+     * large the trigger preview can render. */
     label: 'Ornament',
-    ornament: <SectionDividerOrnament className="h-[18px] w-24" />,
+    ornament: <SectionDividerOrnament className="h-full w-full" />,
   },
   {
     value: 'dots',
@@ -138,12 +141,21 @@ function ControlRichDivider({
         }}
       >
         <SelectTrigger className={TRIGGER_CHROME}>
-          <OrnamentPreview ornament={activeOption?.ornament} />
+          {/* Fills the trigger's full content height (48px field − 2×8px
+              padding = 32px = --spacing-2xl) so the glyph reads at size,
+              not as a small centered sliver. */}
+          <OrnamentPreview
+            ornament={activeOption?.ornament}
+            className="h-[length:var(--spacing-2xl)]"
+          />
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              <OrnamentPreview ornament={option.ornament} className="h-5 w-fit" />
+              <OrnamentPreview
+                ornament={option.ornament}
+                className="h-[length:var(--spacing-lg)] w-fit flex-none"
+              />
               {option.label}
             </SelectItem>
           ))}
