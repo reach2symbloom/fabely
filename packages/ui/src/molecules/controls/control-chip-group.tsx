@@ -77,6 +77,11 @@ function ControlChipGroup({
   defaultValue,
   onValueChange,
 }: ControlChipGroupProps) {
+  /* Multiple groups can share the same option values (e.g. two "Label"
+   * chip rows on one page) — a fixed `control-chip-${value}` id collides
+   * across instances and breaks every FieldLabel past the first. */
+  const instanceId = React.useId();
+
   return (
     <div
       data-slot="control-chip-group"
@@ -94,11 +99,11 @@ function ControlChipGroup({
           <FieldLabel
             key={option.value}
             choice="icon"
-            htmlFor={`control-chip-${option.value}`}
+            htmlFor={`${instanceId}-${option.value}`}
           >
             <RadioGroupItem
               value={option.value}
-              id={`control-chip-${option.value}`}
+              id={`${instanceId}-${option.value}`}
               className={CHIP_RADIO_HIDDEN}
             />
             {/* Not orientation="horizontal" — that forces FieldTitle to

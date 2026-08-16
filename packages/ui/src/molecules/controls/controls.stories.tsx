@@ -112,7 +112,7 @@ export const Overview: Story = {
       description="Interactive control molecules from Figma's Controls frame (16301:20374) — Label, Dropdown, Slider, Icon Button Group, Rich Divider, Chip Group, and Header, each composed from an existing primitive."
       playground={<ControlsPlayground />}
       variants={
-        <div className="grid gap-8 pe-12 sm:grid-cols-2">
+        <div className="flex flex-col gap-12 pe-12">
           <PrimitiveGalleryItem label="Control Label">
             <ControlLabel>Typography</ControlLabel>
           </PrimitiveGalleryItem>
@@ -140,11 +140,8 @@ export const Overview: Story = {
               <ControlChipGroup options={CHIP_OPTIONS} defaultValue="b" />
             </div>
           </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Control Rich Divider — 224px (min)">
-            <ControlRichDivider label="Section divider" defaultValue="ornament" className="w-56" />
-          </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Control Rich Divider — 300px (max)">
-            <ControlRichDivider label="Section divider" defaultValue="dots" className="w-[300px]" />
+          <PrimitiveGalleryItem label="Control Rich Divider">
+            <ControlRichDivider label="Section divider" defaultValue="ornament" className="w-60" />
           </PrimitiveGalleryItem>
         </div>
       }

@@ -84,6 +84,7 @@ const TRIGGER_CHROME = [
   'bg-transparent',
 ].join(' ');
 
+/** Trigger preview — the actual rule/ornament/rule divider being configured. */
 function DividerPreview({
   ornament,
   className,
@@ -104,6 +105,31 @@ function DividerPreview({
       <Separator className="min-w-0 flex-1" />
       {ornament != null ? <span className="shrink-0">{ornament}</span> : null}
       <Separator className="min-w-0 flex-1" />
+    </span>
+  );
+}
+
+/**
+ * Popup row preview — the glyph alone. Flanking rules belong to the one
+ * divider being configured (the trigger); repeating them per list row reads
+ * as a divider nested inside a divider.
+ */
+function OrnamentPreview({
+  ornament,
+  className,
+}: {
+  ornament?: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <span
+      data-slot="control-rich-divider-option-preview"
+      className={cn(
+        'flex min-w-0 items-center justify-center text-[color:var(--muted-foreground)]',
+        className,
+      )}
+    >
+      {ornament}
     </span>
   );
 }
@@ -142,8 +168,8 @@ function ControlRichDivider({
         <SelectContent>
           {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              <DividerPreview ornament={option.ornament} className="h-6 w-32" />
-              <span className="sr-only">{option.label}</span>
+              <OrnamentPreview ornament={option.ornament} className="h-5 w-fit" />
+              {option.label}
             </SelectItem>
           ))}
         </SelectContent>
