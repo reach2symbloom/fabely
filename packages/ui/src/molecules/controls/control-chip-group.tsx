@@ -53,6 +53,17 @@ const CHIP_RADIO_HIDDEN = [
  * fights the checked (primary gradient border) state. */
 const CHIP_HOVER = 'not-has-data-checked:hover:bg-[color:var(--theme-alpha-black-switch-333)]';
 
+/*
+ * Icon "handle" lightens on hover, same idea as the Slider thumb —
+ * `--foreground` down to `--muted-foreground`. `group-hover/field-label`
+ * (FieldLabel carries that group, per field.tsx) so hovering anywhere on
+ * the chip triggers it, not just the small icon itself.
+ */
+const CHIP_ICON_HOVER = [
+  'transition-colors',
+  'group-hover/field-label:text-[color:var(--muted-foreground)]',
+].join(' ');
+
 /** Figma Rich Radio Chip Line 1 — Paragraph Small Regular; checked → `--foreground`. */
 function ChipTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -122,7 +133,11 @@ function ControlChipGroup({
             >
               <span
                 aria-hidden="true"
-                className="flex size-[length:var(--icon-md)] shrink-0 items-center justify-center text-[color:var(--foreground)]"
+                className={cn(
+                  'flex size-[length:var(--icon-md)] shrink-0 items-center justify-center',
+                  'text-[color:var(--foreground)]',
+                  CHIP_ICON_HOVER,
+                )}
               >
                 {option.icon}
               </span>

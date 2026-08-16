@@ -17,11 +17,15 @@ export type ControlSliderProps = SliderProps & {
   label?: React.ReactNode;
 };
 
-/* Slider's `className` merges onto its Root, not the Thumb — target the
- * Thumb by its `data-slot` instead of forking the primitive. */
+/*
+ * Slider's `className` merges onto its Root, not the Thumb — target the
+ * Thumb by its `data-slot` instead of forking the primitive. Thumb rest is
+ * `--theme-neutrals-700`; hover lightens one step to `--theme-neutrals-600`
+ * (the same value `--primary` resolves to).
+ */
 const THUMB_HOVER = [
-  '[&_[data-slot=slider-thumb]]:transition-opacity',
-  '[&_[data-slot=slider-thumb]]:hover:opacity-[var(--opacity-hover-soft)]',
+  '[&_[data-slot=slider-thumb]]:transition-colors',
+  '[&_[data-slot=slider-thumb]]:hover:bg-[color:var(--theme-neutrals-600)]',
 ].join(' ');
 
 function ControlSlider({ className, label, ...sliderProps }: ControlSliderProps) {
