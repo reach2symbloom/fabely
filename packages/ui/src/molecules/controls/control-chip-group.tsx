@@ -48,20 +48,34 @@ const CHIP_RADIO_HIDDEN = [
   'after:hidden',
 ].join(' ');
 
-/* FieldLabel's `choice="icon"` face has no hover in the primitive —
- * `not-has-data-checked:` matches field.tsx's own selector so hover never
- * fights the checked (primary gradient border) state. */
-const CHIP_HOVER = 'not-has-data-checked:hover:bg-[color:var(--theme-alpha-black-switch-333)]';
+/*
+ * FieldLabel's `choice="icon"` face has no hover/active in the primitive,
+ * and the checked/unchecked swap has no transition — both instant. Adds
+ * Icon Button `outline` variant's own interaction recipe (`QUIET_INTERACTION`
+ * in primitives/button/shared.ts: rest → alpha-333/background, hover →
+ * alpha-5, active → alpha-10), gated by `not-has-data-checked:` so it never
+ * fights the checked gradient border, plus a transition so switching
+ * options isn't instant.
+ */
+const CHIP_INTERACTION = [
+  'transition-[background-color,border-color,box-shadow] duration-[var(--duration-fast)]',
+  'not-has-data-checked:hover:bg-[color:var(--theme-alpha-black-switch-5)]',
+  'not-has-data-checked:active:bg-[color:var(--theme-alpha-black-switch-10)]',
+].join(' ');
 
 /*
- * Icon "handle" lightens on hover, same idea as the Slider thumb —
- * `--foreground` down to `--muted-foreground`. `group-hover/field-label`
- * (FieldLabel carries that group, per field.tsx) so hovering anywhere on
- * the chip triggers it, not just the small icon itself.
+ * Icon "handle" — same rest/hover/active split as Icon Button `outline`:
+ * `--muted-foreground` at rest, `--foreground` on hover, active, or once
+ * checked. `group-hover`/`group-active` (FieldLabel carries that group,
+ * per field.tsx) so hovering/pressing anywhere on the chip triggers it,
+ * not just the small icon itself.
  */
-const CHIP_ICON_HOVER = [
-  'transition-colors',
-  'group-hover/field-label:text-[color:var(--muted-foreground)]',
+const CHIP_ICON_COLOR = [
+  'transition-colors duration-[var(--duration-fast)]',
+  'text-[color:var(--muted-foreground)]',
+  'group-hover/field-label:text-[color:var(--foreground)]',
+  'group-active/field-label:text-[color:var(--foreground)]',
+  'group-has-data-checked/field-label:text-[color:var(--foreground)]',
 ].join(' ');
 
 /** Figma Rich Radio Chip Line 1 — Paragraph Small Regular; checked → `--foreground`. */
@@ -75,6 +89,7 @@ function ChipTitle({ children }: { children: React.ReactNode }) {
         'leading-[var(--text-paragraph-small-regular-line-height)]',
         'tracking-[var(--text-paragraph-small-regular-letter-spacing)]',
         'text-[color:var(--text)]',
+        'transition-colors duration-[var(--duration-fast)]',
         'group-has-data-checked/field-label:text-[color:var(--foreground)]',
         '!w-fit whitespace-nowrap',
       )}
@@ -116,7 +131,7 @@ function ControlChipGroup({
             key={option.value}
             choice="icon"
             htmlFor={`${instanceId}-${option.value}`}
-            className={CHIP_HOVER}
+            className={CHIP_INTERACTION}
           >
             <RadioGroupItem
               value={option.value}
@@ -135,8 +150,7 @@ function ControlChipGroup({
                 aria-hidden="true"
                 className={cn(
                   'flex size-[length:var(--icon-md)] shrink-0 items-center justify-center',
-                  'text-[color:var(--foreground)]',
-                  CHIP_ICON_HOVER,
+                  CHIP_ICON_COLOR,
                 )}
               >
                 {option.icon}
