@@ -15,8 +15,9 @@
  * Figma asset — stacked pages + sparkle + magnifying glass, no Lucide
  * equivalent — see `./assets/gather-search-notes.tsx`), and Comment.
  * The trailing action (right of the color swatches) is "Remove
- * highlight" — a Lucide `X` placeholder for now, awaiting the actual
- * circle-x asset. System highlight's own icon set is still unconfirmed
+ * highlight" (`Icon / circle-x`). Figma's own source (`16317:987`) has
+ * exactly one Separator, before the swatches — not a second one after
+ * them. System highlight's own icon set is still unconfirmed
  * (Figma's source artwork differs from User's for at least the Ask
  * Fia / Gather & Search Notes slots) — it currently renders the same
  * 4 as User, which is likely wrong.
@@ -25,15 +26,23 @@
  * Hover/press use Motion's `SPRING_BLOOM` (see `@/lib/motion`) for a
  * spring scale on top of Icon Button's own CSS hover fill — Motion
  * drives the transform, Foundation tokens still drive the fill color.
- * Ask Fia uses `variant="fiaGhost"` (not `ghost`) so it stays Fia-green
- * at rest, matching Comment Card's own "Ask Fia" button — the only
- * button here that isn't `--muted-foreground`.
+ *
+ * Figma names a reusable "Icon Button Semantic" component (`16315:1141`)
+ * for exactly 4 color-coordinated commands: Fia, Gather, Comment,
+ * Highlight — each pairs one glyph with one variant (Fia → `fiaGhost`
+ * green; the rest → plain `ghost`). It's only consumed here, so it lives
+ * here rather than as a shared primitive (see `IconButtonSemantic`
+ * below) instead of being duplicated inline per button. `highlight` is
+ * a supported command not currently wired into the toolbar — Figma's
+ * "Highlight" leading action (Icon / highlighter, "mark, text") doesn't
+ * appear in the confirmed 4-button User highlight layout above; add it
+ * if that turns out to be a 5th action rather than an unused command.
  */
 
 'use client';
 
 import * as React from 'react';
-import { Copy, MessageSquare, X } from 'lucide-react';
+import { Copy, MessageSquare, Highlighter, CircleX } from 'lucide-react';
 import { motion } from 'motion/react';
 
 import { cn } from '@/lib/utils';
@@ -134,6 +143,42 @@ function ToolbarIconButton({
   );
 }
 
+/** Figma "Icon Button Semantic" (`16315:1141`) — command → glyph + variant. */
+type SemanticCommand = 'fia' | 'gather' | 'comment' | 'highlight';
+
+const SEMANTIC_ICON_BUTTON: Record<
+  SemanticCommand,
+  {
+    label: string;
+    variant: IconButtonVariant;
+    Icon: React.ComponentType<{ className?: string }>;
+  }
+> = {
+  fia: { label: 'Ask Fia', variant: 'fiaGhost', Icon: FiaSilcrow },
+  gather: {
+    label: 'Gather & search notes',
+    variant: 'ghost',
+    Icon: GatherSearchNotesIcon,
+  },
+  comment: { label: 'Comment', variant: 'ghost', Icon: MessageSquare },
+  highlight: { label: 'Highlight', variant: 'ghost', Icon: Highlighter },
+};
+
+function IconButtonSemantic({
+  command,
+  onClick,
+}: {
+  command: SemanticCommand;
+  onClick?: () => void;
+}) {
+  const { label, variant, Icon } = SEMANTIC_ICON_BUTTON[command];
+  return (
+    <ToolbarIconButton label={label} variant={variant} onClick={onClick}>
+      <Icon className={ICON_GLYPH_CHROME} />
+    </ToolbarIconButton>
+  );
+}
+
 function HighlightColorMenu({
   className,
   type = 'user',
@@ -171,15 +216,9 @@ function HighlightColorMenu({
       <ToolbarIconButton label="Copy" onClick={onCopy}>
         <Copy className={ICON_GLYPH_CHROME} />
       </ToolbarIconButton>
-      <ToolbarIconButton label="Ask Fia" variant="fiaGhost" onClick={onAskFia}>
-        <FiaSilcrow className={ICON_GLYPH_CHROME} />
-      </ToolbarIconButton>
-      <ToolbarIconButton label="Gather & search notes" onClick={onSearch}>
-        <GatherSearchNotesIcon className={ICON_GLYPH_CHROME} />
-      </ToolbarIconButton>
-      <ToolbarIconButton label="Comment" onClick={onComment}>
-        <MessageSquare className={ICON_GLYPH_CHROME} />
-      </ToolbarIconButton>
+      <IconButtonSemantic command="fia" onClick={onAskFia} />
+      <IconButtonSemantic command="gather" onClick={onSearch} />
+      <IconButtonSemantic command="comment" onClick={onComment} />
 
       {isUser ? (
         <>
@@ -203,16 +242,13 @@ function HighlightColorMenu({
               />
             ))}
           </div>
-          <div className={DIVIDER_CHROME}>
-            <Separator
-              orientation="vertical"
-              className={cn('h-full', DIVIDER_LINE_CHROME)}
-            />
+          {/* pl-2xs only, no divider — Figma's own source (16317:987)
+              has exactly one Separator, before the swatches. */}
+          <div className="pl-[var(--spacing-2xs)]">
+            <ToolbarIconButton label="Remove highlight" onClick={onRemove}>
+              <CircleX className={ICON_GLYPH_CHROME} />
+            </ToolbarIconButton>
           </div>
-          {/* Awaiting the actual asset — X is a placeholder. */}
-          <ToolbarIconButton label="Remove highlight" onClick={onRemove}>
-            <X className={ICON_GLYPH_CHROME} />
-          </ToolbarIconButton>
         </>
       ) : null}
     </div>
