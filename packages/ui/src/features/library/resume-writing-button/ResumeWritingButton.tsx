@@ -268,19 +268,10 @@ function ResumeWritingButton({
           'size-[length:var(--tw-raw-spacing-14)]',
         )}
       >
-        {/* Figma swaps the glyph itself on hover (arrow-right → move-right),
-            not just a scale — crossfade the two rather than only growing one. */}
         <ArrowRightIcon
           className={cn(
-            'transition-opacity duration-fast ease-emphasized',
-            'group-hover:opacity-0 group-data-[force-hover=true]:opacity-0',
-            'motion-reduce:transition-none',
-          )}
-        />
-        <MoveRightIcon
-          className={cn(
-            'absolute opacity-0 transition-opacity duration-fast ease-emphasized',
-            'group-hover:opacity-100 group-data-[force-hover=true]:opacity-100',
+            'transition-transform duration-fast ease-emphasized',
+            'group-hover:scale-110 group-data-[force-hover=true]:scale-110',
             'motion-reduce:transition-none',
           )}
         />
