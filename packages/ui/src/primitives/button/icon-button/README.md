@@ -36,7 +36,7 @@ library supersedes that:
 
 | Axis | Values | Primitive API |
 | --- | --- | --- |
-| Variant | Shared nine + Fade / Fade gold | `variant`: `primary` \| `primaryOutline` \| `secondary` \| `tertiary` \| `outline` \| `ghost` \| `fade` \| `fadeGold` \| `destructive` \| `fiaFilled` \| `fiaOutline` |
+| Variant | Shared nine + Fade / Fade gold / Glow | `variant`: `primary` \| `primaryOutline` \| `secondary` \| `tertiary` \| `outline` \| `ghost` \| `fade` \| `fadeGold` \| `glow` \| `destructive` \| `fiaFilled` \| `fiaOutline` |
 | Size | Mini · Small · Default · Large | `size`: `mini` \| `sm` \| `default` \| `lg` |
 | Roundness | Default · Round | `roundness`: `default` \| `round` |
 | Label | — | `aria-label` (required) |
@@ -111,6 +111,24 @@ ladder (24–40), not Figma’s 16×16 hug.
 
 **Deferred:** Figma `Show superscript` boolean (count badge on the glyph).
 
+### Variant `glow` (Icon-only)
+
+Opaque `--background` face, hairline `--tw-raw-secondary-200` ring at 42%,
+lavender drop-shadow halo (`--tw-raw-pantones-lavendar`). Hover / pressed /
+ancestor `group` hover widen the halo. Focus keeps the secondary ring
+(`box-shadow`; the halo is `drop-shadow` so they do not collide).
+
+Authored for the Resume Writing Button go-control; reusable anywhere a
+round secondary action needs a lavender bloom. Face size stays the Icon
+Button ladder — 56px on that card is a call-site override, not a new slot.
+
+| State | Fill | Border | Icon | Halo |
+| --- | --- | --- | --- | --- |
+| Default | `--background` | hairline secondary-200 @ 42% | `--tw-raw-secondary-200` | drop-shadow 0/0/4, lavender @ 50% |
+| Hover / pressed | unchanged | unchanged | `scale-125` | drop-shadow 0/0/12, lavender @ 40% |
+| Focus | — | — | — | halo + secondary ring |
+| Disabled | layer opacity 0.5 | — | — | — |
+
 ### Foundations
 
 | Token | Role |
@@ -134,3 +152,6 @@ ladder (24–40), not Figma’s 16×16 hug.
 9. `fade` / `fadeGold` are Icon-only (Figma Fade button). Hit target stays the Icon Button
    size ladder, not Figma’s 16×16 hug. Superscript axis not implemented.
    `fadeGold` hover glyph is `--primary` (not in the Figma Fade set).
+10. `glow` is Icon-only (Resume Writing Button go-control). Halo is
+    `drop-shadow` so it can sit next to the secondary focus `box-shadow`.
+    Not on Text Button.

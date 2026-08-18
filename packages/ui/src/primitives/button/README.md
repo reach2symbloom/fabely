@@ -41,7 +41,8 @@ Text and Icon Button consume **`buttonVariantClasses`** from [`shared.ts`](./sha
 `primary` · `primaryOutline` · `secondary` · `tertiary` · `outline` · `ghost` · `destructive` · `fiaFilled` · `fiaOutline`
 
 Icon Button also exposes **`fade`** / **`fadeGold`** (Figma Fade button) —
-quieter rest icon, hover to full opacity (`fadeGold` paints `--primary`).
+quieter rest icon, hover to full opacity (`fadeGold` paints `--primary`) —
+and **`glow`** (lavender halo + hairline secondary ring).
 Not on Text Button.
 
 Hover / pressed / focus / disabled follow the same library-authored model
