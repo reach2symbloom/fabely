@@ -14,4 +14,4 @@ primitives into this tree.
 
 | Piece | Folder | Status |
 | --- | --- | --- |
-| — | — | — |
+| Library List Item | `library-list-item/` | In progress (`ft-library-list-item`) |
