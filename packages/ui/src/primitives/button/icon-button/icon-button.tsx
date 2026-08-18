@@ -9,7 +9,8 @@
  * are Icon Button’s own (28 / 32 / 36 / 40). See docs/DESIGN.md “Size slots”.
  *
  * Shared variants: `../shared` (`buttonVariantClasses`), plus Icon-only
- * `fade` / `fadeGold` from Figma Fade button (`12042:25189`).
+ * `fade` / `fadeGold` from Figma Fade button (`12042:25189`), and `glow`
+ * (lavender halo — Resume Writing Button go-control).
  */
 import { Button as ButtonPrimitive } from '@base-ui/react/button';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -20,14 +21,15 @@ import {
 } from '../shared';
 
 /**
- * Shared Button variants plus Icon-only `fade` / `fadeGold` (Figma Fade button).
- * Fade is not on Text Button — rest is a quieter icon, not a labeled face.
+ * Shared Button variants plus Icon-only `fade` / `fadeGold` (Figma Fade button)
+ * and `glow` (lavender halo).
  */
 export type IconButtonVariant =
   | keyof typeof buttonVariantClasses
   | 'subtleFilled'
   | 'fade'
-  | 'fadeGold';
+  | 'fadeGold'
+  | 'glow';
 
 /**
  * Quiet filled face for icon affordances that must remain visibly distinct
@@ -82,6 +84,43 @@ const fadeGoldVariantClasses = [
   'focus-visible:text-[color:var(--primary)]',
 ];
 
+/**
+ * Icon-only `glow` — opaque face, hairline secondary ring, lavender halo.
+ * Halo is a drop-shadow so the secondary focus ring can still use
+ * `box-shadow`. `overflow-visible` so the halo is not clipped.
+ *
+ * `group-hover` / `group-data-[force-hover=true]` let a parent hit-target
+ * (Resume Writing Button) widen the halo without nesting a real button.
+ */
+const glowVariantClasses = [
+  'overflow-visible',
+  'bg-[color:var(--background)]',
+  'border-[length:var(--stroke-hairline)]',
+  'border-[color:color-mix(in_srgb,var(--tw-raw-secondary-200)_42%,transparent)]',
+  'text-[color:var(--tw-raw-secondary-200)]',
+  'drop-shadow-[0_0_4px_color-mix(in_srgb,var(--tw-raw-pantones-lavendar)_50%,transparent)]',
+  'hover:drop-shadow-[0_0_12px_color-mix(in_srgb,var(--tw-raw-pantones-lavendar)_40%,transparent)]',
+  'active:drop-shadow-[0_0_12px_color-mix(in_srgb,var(--tw-raw-pantones-lavendar)_40%,transparent)]',
+  'data-[pressed]:drop-shadow-[0_0_12px_color-mix(in_srgb,var(--tw-raw-pantones-lavendar)_40%,transparent)]',
+  'group-hover:drop-shadow-[0_0_12px_color-mix(in_srgb,var(--tw-raw-pantones-lavendar)_40%,transparent)]',
+  'group-data-[force-hover=true]:drop-shadow-[0_0_12px_color-mix(in_srgb,var(--tw-raw-pantones-lavendar)_40%,transparent)]',
+  '[&_svg]:origin-center [&_svg]:transition-transform [&_svg]:duration-fast [&_svg]:ease-emphasized',
+  'hover:[&_svg]:scale-125',
+  'active:[&_svg]:scale-125',
+  'data-[pressed]:[&_svg]:scale-125',
+  'group-hover:[&_svg]:scale-125',
+  'group-data-[force-hover=true]:[&_svg]:scale-125',
+  'motion-reduce:[&_svg]:transition-none',
+  'motion-reduce:hover:[&_svg]:scale-100 motion-reduce:active:[&_svg]:scale-100',
+  'motion-reduce:data-[pressed]:[&_svg]:scale-100',
+  'motion-reduce:group-hover:[&_svg]:scale-100',
+  'motion-reduce:group-data-[force-hover=true]:[&_svg]:scale-100',
+  'transition-[color,background-color,border-color,opacity,box-shadow,filter]',
+  'duration-fast ease-emphasized',
+  'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+  'disabled:opacity-50',
+];
+
 /** Shared size vocabulary — slots this control implements. */
 export type IconButtonSize = 'mini' | 'sm' | 'default' | 'lg';
 
@@ -108,6 +147,7 @@ const iconButtonVariants = cva(
         subtleFilled: subtleFilledVariantClasses,
         fade: fadeVariantClasses,
         fadeGold: fadeGoldVariantClasses,
+        glow: glowVariantClasses,
       },
       size: {
         /* 28, not the `--spacing-xl` (24) rest of the scale would suggest —

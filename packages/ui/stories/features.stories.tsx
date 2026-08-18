@@ -32,6 +32,11 @@ export const Overview: Story = {
             chrome. Landed:{' '}
             <code>Design System/Features/Chapter Nav Organism/*</code>.
           </li>
+          <li>
+            <strong>Library</strong> — <code>src/features/library/</code>.
+            Resume Writing Button:{' '}
+            <code>Design System/Features/Library/Resume Writing Button</code>.
+          </li>
         </ul>
       </PendingNotice>
     </div>
