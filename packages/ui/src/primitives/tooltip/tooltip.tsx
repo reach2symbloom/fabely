@@ -70,6 +70,15 @@ const tooltipContentVariants = cva(
     'text-balance',
     '**:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50',
     'has-data-[slot=kbd]:pe-[var(--spacing-2xs)]',
+    /* No border on whichever edge the pointer attaches to — same fill
+     * color makes the pointer read as a continuous part of the body
+     * instead of a shape sitting behind a border seam. */
+    'data-[side=bottom]:border-t-0',
+    'data-[side=top]:border-b-0',
+    'data-[side=left]:border-r-0',
+    'data-[side=inline-start]:border-r-0',
+    'data-[side=right]:border-l-0',
+    'data-[side=inline-end]:border-l-0',
     'data-[side=bottom]:slide-in-from-top-2',
     'data-[side=inline-end]:slide-in-from-left-2',
     'data-[side=inline-start]:slide-in-from-right-2',
@@ -105,24 +114,57 @@ const tooltipContentVariants = cva(
   },
 );
 
+/**
+ * Pointer — a single CSS border-triangle (no separate outline layer; see
+ * `highlight-action-menu.tsx`'s `ActionTooltipContent`, where the same
+ * technique was worked out first) built as a genuine part of the popup's
+ * shape rather than Base UI's own rotated-square Arrow. `size-0` box +
+ * one colored border side + the two perpendicular sides transparent is
+ * the classic CSS-triangle recipe; the third side (facing the popup body)
+ * is left at width `0` so the base sits flush with — and reads as one
+ * continuous fill with — the popup edge that has its own border omitted
+ * above.
+ *
+ * Cross-axis placement: top/bottom sides keep Base UI's own floating-ui
+ * computed `left` (so the pointer tracks the real anchor position even
+ * when `align` isn't centered); left/right sides force vertical centering
+ * (`top-1/2!`, `!` beating Base UI's inline `top` style) — ported as-is
+ * from the previous Arrow's own left/right behavior, unchanged.
+ *
+ * 7px half-size — matches the Action Menu's own triangle, and roughly
+ * the same visual "reach" as the previous 10px diamond's ~7px half
+ * diagonal. `sideOffset` was bumped 4 → 8 on `TooltipContent` below so
+ * this larger reach doesn't dip into the trigger.
+ */
 const tooltipArrowVariants = cva(
   [
-    'z-50 size-[length:var(--spacing-2-5)] translate-y-[calc(-50%-var(--spacing-3xs))] rotate-45',
-    'rounded-[length:var(--rounded-xs)]',
-    'data-[side=bottom]:top-[var(--spacing-3xs)]',
-    'data-[side=inline-end]:top-1/2! data-[side=inline-end]:-left-[var(--spacing-3xs)] data-[side=inline-end]:translate-x-[length:var(--spacing-1-5)] data-[side=inline-end]:-translate-y-1/2',
-    'data-[side=inline-start]:top-1/2! data-[side=inline-start]:-right-[var(--spacing-3xs)] data-[side=inline-start]:-translate-x-[length:var(--spacing-1-5)] data-[side=inline-start]:-translate-y-1/2',
-    'data-[side=left]:top-1/2! data-[side=left]:-right-[var(--spacing-3xs)] data-[side=left]:-translate-x-[length:var(--spacing-1-5)] data-[side=left]:-translate-y-1/2',
-    'data-[side=right]:top-1/2! data-[side=right]:-left-[var(--spacing-3xs)] data-[side=right]:translate-x-[length:var(--spacing-1-5)] data-[side=right]:-translate-y-1/2',
-    'data-[side=top]:-bottom-[length:var(--spacing-2-5)]',
+    'z-50 size-0 border-transparent',
+    'data-[side=bottom]:top-[-7px] data-[side=bottom]:border-x-[7px] data-[side=bottom]:border-b-[7px]',
+    'data-[side=top]:-bottom-[7px] data-[side=top]:border-x-[7px] data-[side=top]:border-t-[7px]',
+    'data-[side=right]:top-1/2! data-[side=right]:left-0 data-[side=right]:-translate-x-full data-[side=right]:-translate-y-1/2 data-[side=right]:border-y-[7px] data-[side=right]:border-r-[7px]',
+    'data-[side=inline-end]:top-1/2! data-[side=inline-end]:left-0 data-[side=inline-end]:-translate-x-full data-[side=inline-end]:-translate-y-1/2 data-[side=inline-end]:border-y-[7px] data-[side=inline-end]:border-r-[7px]',
+    'data-[side=left]:top-1/2! data-[side=left]:right-0 data-[side=left]:translate-x-full data-[side=left]:-translate-y-1/2 data-[side=left]:border-y-[7px] data-[side=left]:border-l-[7px]',
+    'data-[side=inline-start]:top-1/2! data-[side=inline-start]:right-0 data-[side=inline-start]:translate-x-full data-[side=inline-start]:-translate-y-1/2 data-[side=inline-start]:border-y-[7px] data-[side=inline-start]:border-l-[7px]',
   ].join(' '),
   {
     variants: {
       variant: {
-        default:
-          'bg-[color:var(--neutrals-new-150)] fill-[color:var(--neutrals-new-150)]',
-        inverse:
-          'bg-[color:var(--foreground)] fill-[color:var(--foreground)]',
+        default: [
+          'data-[side=top]:border-t-[color:var(--neutrals-new-150)]',
+          'data-[side=bottom]:border-b-[color:var(--neutrals-new-150)]',
+          'data-[side=left]:border-l-[color:var(--neutrals-new-150)]',
+          'data-[side=inline-start]:border-l-[color:var(--neutrals-new-150)]',
+          'data-[side=right]:border-r-[color:var(--neutrals-new-150)]',
+          'data-[side=inline-end]:border-r-[color:var(--neutrals-new-150)]',
+        ].join(' '),
+        inverse: [
+          'data-[side=top]:border-t-[color:var(--foreground)]',
+          'data-[side=bottom]:border-b-[color:var(--foreground)]',
+          'data-[side=left]:border-l-[color:var(--foreground)]',
+          'data-[side=inline-start]:border-l-[color:var(--foreground)]',
+          'data-[side=right]:border-r-[color:var(--foreground)]',
+          'data-[side=inline-end]:border-r-[color:var(--foreground)]',
+        ].join(' '),
       },
     },
     defaultVariants: {
@@ -134,7 +176,9 @@ const tooltipArrowVariants = cva(
 function TooltipContent({
   className,
   side = 'top',
-  sideOffset = 4,
+  /* 4 (Base UI's own default) sits the pointer's 7px reach inside the
+   * trigger; 8 gives the triangle room without dipping into it. */
+  sideOffset = 8,
   align = 'center',
   alignOffset = 0,
   variant = 'default',

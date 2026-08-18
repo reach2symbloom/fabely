@@ -26,11 +26,10 @@
  * Hover/press use Motion's `SPRING_BLOOM` (see `@/lib/motion`) for a
  * spring scale on top of Icon Button's own CSS hover fill — Motion
  * drives the transform, Foundation tokens still drive the fill color.
- * Rest is `--theme-alpha-black-switch-20` for every icon; Fia and
- * Gather additionally swap to their own brand color ONLY on hover
- * (Fia → `--tw-raw-fia-200`, Gather → `--tw-raw-secondary-200`) via an
- * explicit `hover:text-[color:...]` override — not `fiaGhost`, which
- * would apply that color at rest too.
+ * Rest is `--theme-alpha-black-switch-20` for every icon except Fia,
+ * which is always its brand color (`--tw-raw-fia-200`) for
+ * discoverability, not gated behind hover. Gather still only swaps to
+ * its own brand color (`--tw-raw-secondary-200`) on hover.
  *
  * Figma names a reusable "Icon Button Semantic" component (`16315:1141`)
  * for exactly 4 commands: Fia, Gather, Comment, Highlight — glyph +
@@ -57,7 +56,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/primitives/tooltip';
 import { HighlightColor } from '../highlight-color';
 import {
   SEMANTIC_ICON,
-  SEMANTIC_HOVER_CLASS,
+  SEMANTIC_ACCENT_CLASS,
   type SemanticCommand,
 } from '../icon-semantics';
 
@@ -123,13 +122,13 @@ const DIVIDER_LINE_CHROME = 'bg-[color:var(--border)]';
 function ToolbarIconButton({
   label,
   onClick,
-  hoverClassName,
+  accentClassName,
   children,
 }: {
   label: string;
   onClick?: () => void;
-  /** Literal `hover:text-[color:var(--...)]` class — see `../icon-semantics`. */
-  hoverClassName?: string;
+  /** Literal `text-[color:var(--...)]` (rest or hover) — see `../icon-semantics`. */
+  accentClassName?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -141,7 +140,7 @@ function ToolbarIconButton({
             variant="ghost"
             size="mini"
             roundness="round"
-            className={cn(ICON_BUTTON_CHROME, hoverClassName)}
+            className={cn(ICON_BUTTON_CHROME, accentClassName)}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.94 }}
             transition={SPRING_BLOOM}
@@ -176,7 +175,7 @@ function IconButtonSemantic({
   return (
     <ToolbarIconButton
       label={SEMANTIC_LABEL[command]}
-      hoverClassName={SEMANTIC_HOVER_CLASS[command]}
+      accentClassName={SEMANTIC_ACCENT_CLASS[command]}
       onClick={onClick}
     >
       <Icon className={ICON_GLYPH_CHROME} />
