@@ -19,3 +19,4 @@ it in a second feature folder.
 | [Chat Elements](./chat-elements/README.md) | Manuscript chat/assistant chrome — pieces land on sub-branches |
 | [Chapter Nav](./chapter-nav/README.md) | Manuscript location chrome — button, add-section, list item, header, menu |
 | [Highlight](./highlight/README.md) | Manuscript text-highlight chrome — pieces land on sub-branches |
+| [Library](./library/README.md) | Pieces land on sub-branches |
