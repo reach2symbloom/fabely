@@ -41,10 +41,32 @@ export const SEMANTIC_ICON: Record<
  * Rest stays the shared neutral tone for most commands. Fia is the
  * exception — it's always its brand color, not just on hover, so the
  * Fia action reads as discoverable at a glance rather than blending
- * into the neutral row until a user happens to hover it. Gather still
- * only swaps to its brand color on hover.
+ * into the neutral row until a user happens to hover it. Gather,
+ * Comment, and Highlight only swap to their own color on hover — same
+ * pantones Highlight Color Menu's own swatches use (`blue-messaging`,
+ * `saffron`) so each action's hover state doubles as a preview of its
+ * matching highlight color.
  */
 export const SEMANTIC_ACCENT_CLASS: Partial<Record<SemanticCommand, string>> = {
-  fia: 'text-[color:var(--tw-raw-fia-200)]',
+  /* A plain (unmodified) color class loses to Ghost's own `hover:`/
+   * `active:`/etc. state classes on hover — a `:hover` pseudo-class
+   * selector is more specific than a bare class selector regardless of
+   * source order, so fia would flash back to Ghost's white/foreground
+   * the moment you hovered it. Repeating the color under every state
+   * Ghost itself uses (same fix as the `fiaGhost` button variant in
+   * `primitives/button/shared.ts`) keeps fia green through hover/
+   * active/press/focus, not just at rest.
+   */
+  fia: [
+    'text-[color:var(--tw-raw-fia-200)]',
+    'hover:text-[color:var(--tw-raw-fia-200)]',
+    'active:text-[color:var(--tw-raw-fia-200)]',
+    'data-[pressed]:text-[color:var(--tw-raw-fia-200)]',
+    'focus-visible:text-[color:var(--tw-raw-fia-200)]',
+  ].join(' '),
   gather: 'hover:text-[color:var(--tw-raw-secondary-200)]',
+  /* blue-messaging's "Main" step is 500, not 200 (200 is a near-white
+   * pale tint) — unlike fia/secondary, where 200 is their Main. */
+  comment: 'hover:text-[color:var(--tw-raw-blue-messaging-500)]',
+  highlight: 'hover:text-[color:var(--tw-raw-pantones-saffron)]',
 };
