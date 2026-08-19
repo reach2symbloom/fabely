@@ -65,6 +65,8 @@ const RAIL_GEOMETRY = cn(
   RAIL_OFFSET,
 );
 
+type RailRect = { top: number; height: number };
+
 function LibraryNav({
   books,
   activeId: activeIdProp,
@@ -87,6 +89,45 @@ function LibraryNav({
     [isControlled, onActiveChange],
   );
 
+  /*
+   * Rail accent — one persistent element that slides between rows, not a
+   * per-`<li>` mount/unmount (that reads as a snap, no transition). Position
+   * is measured off the DOM rather than derived from index: each row's
+   * height is itself animated (the active row grows to reveal its "Resume
+   * writing" button — see Library List Item), so a static per-row height
+   * assumption would immediately drift out of sync. A ResizeObserver on the
+   * active `<li>` re-measures on every frame of that row's own height
+   * transition, keeping the two animations locked together instead of the
+   * rail arriving early/late.
+   */
+  const itemRefs = React.useRef(new Map<string, HTMLLIElement>());
+  const [railRect, setRailRect] = React.useState<RailRect | null>(null);
+
+  const measureRail = React.useCallback(() => {
+    if (activeId == null) return;
+    const el = itemRefs.current.get(activeId);
+    if (!el) return;
+    setRailRect((current) =>
+      current != null && current.top === el.offsetTop && current.height === el.offsetHeight
+        ? current
+        : { top: el.offsetTop, height: el.offsetHeight },
+    );
+  }, [activeId]);
+
+  React.useLayoutEffect(() => {
+    measureRail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId, books]);
+
+  React.useEffect(() => {
+    if (activeId == null) return;
+    const el = itemRefs.current.get(activeId);
+    if (!el) return;
+    const observer = new ResizeObserver(measureRail);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [activeId, measureRail]);
+
   return (
     <nav
       aria-label="Library"
@@ -101,19 +142,34 @@ function LibraryNav({
           'bg-[color-mix(in_srgb,var(--tw-raw-secondary-ghost)_12%,transparent)]',
         )}
       />
+      {railRect ? (
+        <span
+          aria-hidden
+          data-slot="library-nav-rail-accent"
+          className={cn(
+            'pointer-events-none absolute w-[length:var(--stroke-thick)] rounded-[length:var(--stroke-hairline)]',
+            RAIL_OFFSET,
+            'transition-[top,height] duration-[var(--duration-fast)] ease-emphasized motion-reduce:transition-none',
+          )}
+          style={{
+            top: railRect.top,
+            height: railRect.height,
+            background: 'var(--gradient-primary-top-bottom)',
+          }}
+        />
+      ) : null}
       <ul className="m-0 flex list-none flex-col p-0">
         {books.map((book) => {
           const active = book.id === activeId;
           return (
-            <li key={book.id} className="relative">
-              {active ? (
-                <span
-                  aria-hidden
-                  data-slot="library-nav-rail-accent"
-                  className={RAIL_GEOMETRY}
-                  style={{ background: 'var(--gradient-primary-top-bottom)' }}
-                />
-              ) : null}
+            <li
+              key={book.id}
+              ref={(el) => {
+                if (el) itemRefs.current.set(book.id, el);
+                else itemRefs.current.delete(book.id);
+              }}
+              className="relative"
+            >
               <div
                 onClick={() => select(book.id)}
                 onKeyDown={(event) => {

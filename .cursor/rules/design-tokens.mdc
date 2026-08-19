@@ -20,6 +20,12 @@ Primitives and composition tiers (atoms → templates) must pass `pnpm check:tok
 - Size always from `--icon-*`, including when sizing via icon-context selectors (`[&>svg]:…`, `[&_svg]:…`, `svg:…`). Never hardcoded px on icons.
 - Glyphs: Lucide for system UI, Solar Bold Duotone for illustrative accents. Never mix sets in one interface.
 
+## Images
+
+- Multi-color rasters (file-type marks, photos, illustrations) live in `packages/ui/src/foundations/images/` — not iconography.
+- Iconography is `currentColor` glyphs only (Lucide, Solar, Fabely Icons).
+- When a raster sits at icon scale, still size the frame with `--icon-*`.
+
 ## Colors
 
 - Semantic color classes only. Never hex literals.

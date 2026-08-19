@@ -25,6 +25,7 @@ import {
   AvatarImage,
   type AvatarSize,
 } from '@/primitives/avatar';
+import { buttonLinkVariants } from '@/primitives/button';
 
 export type AvatarWithLabelSize = 'xs' | 'sm' | 'md';
 
@@ -78,8 +79,23 @@ type AvatarWithLabelShared = {
    * Second line (Figma 2 lines=True).
    * When the root is interactive (`href`), pass non-interactive nodes only
    * (no nested links) — e.g. a styled span for “Upgrade plan” / “Author”.
+   * Wins over `actionLabel` when both are set.
    */
   action?: React.ReactNode;
+  /**
+   * Convenience for the common "Upgrade plan" pattern — a label in Link
+   * Button `fia` chrome (Figma's own Upgrade plan / Upgrade color; see
+   * Chapter Menu Header, Bookshelf Template). Renders as a real
+   * `<a>`/`<button>` when this root is static; downgrades to a
+   * non-interactive `<span>` with the same chrome when this root is itself
+   * interactive (`href` set), per the no-nested-links rule above — in that
+   * case `actionHref`/`onActionClick` have no effect. Ignored entirely when
+   * `action` is passed directly.
+   */
+  actionLabel?: React.ReactNode;
+  /** Renders `actionLabel` as a real `<a>` — only when this root is static. */
+  actionHref?: string;
+  onActionClick?: React.MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>;
   /**
    * Padded chrome (Figma MD + 2 lines). Defaults on for `size="md"` +
    * `action`; pass `false` for flush stacks (Chapter Menu Header author).
@@ -119,6 +135,9 @@ function AvatarWithLabel({
   src,
   alt,
   action,
+  actionLabel,
+  actionHref,
+  onActionClick,
   padded: paddedProp,
   active = false,
   gradient: gradientProp,
@@ -128,7 +147,40 @@ function AvatarWithLabel({
   ...props
 }: AvatarWithLabelProps) {
   const interactive = href != null && href !== '';
-  const twoLines = action != null && action !== false && action !== '';
+
+  const resolvedAction =
+    action ??
+    (actionLabel != null
+      ? interactive
+        ? (
+            <span
+              className={cn(buttonLinkVariants({ variant: 'fia', size: 'mini' }), 'pointer-events-none')}
+            >
+              {actionLabel}
+            </span>
+          )
+        : actionHref != null
+          ? (
+              <a
+                href={actionHref}
+                className={buttonLinkVariants({ variant: 'fia', size: 'mini' })}
+                onClick={onActionClick}
+              >
+                {actionLabel}
+              </a>
+            )
+          : (
+              <button
+                type="button"
+                className={buttonLinkVariants({ variant: 'fia', size: 'mini' })}
+                onClick={onActionClick}
+              >
+                {actionLabel}
+              </button>
+            )
+      : undefined);
+
+  const twoLines = resolvedAction != null && resolvedAction !== false && resolvedAction !== '';
   const padded = paddedProp ?? (size === 'md' && twoLines);
   const gradient =
     gradientProp ?? (size === 'md' && Boolean(src) && twoLines);
@@ -204,7 +256,7 @@ function AvatarWithLabel({
             data-slot="avatar-with-label-action"
             className={cn('min-w-0', interactive && 'pointer-events-none')}
           >
-            {action}
+            {resolvedAction}
           </div>
         ) : null}
       </div>

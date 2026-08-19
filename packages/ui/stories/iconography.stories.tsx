@@ -562,6 +562,10 @@ export const BestPractices: Story = {
             body: 'Do not place Lucide and Solar side-by-side in the same toolbar, list, alert, or nav. If a screen needs illustration, isolate Solar to the empty/hero region and keep chrome on Lucide.',
           },
           {
+            title: 'File-type marks are Images',
+            body: 'Multi-color PDF / Doc / Docx rasters are representational art, not currentColor glyphs. Import from @/foundations/images. Do not add them to Fabely Icons or mix them into the Lucide / Solar catalogs.',
+          },
+          {
             title: 'Stay on the size scale',
             body: 'Only use --icon-2xs … --icon-3xl. Ad-hoc 14px / 18px / 22px sizes fragment the system (legacy Badge 14px is a known debt — migrate to XS or SM).',
           },

@@ -5,8 +5,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type MouseEvent } from 'react';
 
-import { cn } from '@/lib/utils';
-import { buttonLinkVariants } from '@/primitives/button';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
 import {
@@ -24,20 +22,10 @@ const DEMO_AVATAR =
   'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=faces';
 
 const DEMO_PROFILE_HREF = '/author/christian-davis';
+const DEMO_UPGRADE_HREF = '/pricing';
 
-/** Non-interactive second line — safe inside a profile `<a>`. */
-function UpgradeLabel() {
-  return (
-    <span
-      className={cn(
-        buttonLinkVariants({ variant: 'secondary', size: 'mini' }),
-        'pointer-events-none no-underline',
-      )}
-    >
-      Upgrade plan
-    </span>
-  );
-}
+/** Bookshelf Template's footer swatch — lavender, not Avatar's generic blush default. */
+const LAVENDER_FALLBACK = 'bg-[var(--tw-raw-pantones-lavendar)]';
 
 const meta = {
   title: 'Design System/Molecules/Avatar with Label',
@@ -73,7 +61,8 @@ function AvatarWithLabelPlayground() {
               name="Christian Davis"
               initials="CD"
               src={style === 'avatar' ? DEMO_AVATAR : undefined}
-              action={lines === '2' ? <UpgradeLabel /> : undefined}
+              actionLabel={lines === '2' ? 'Upgrade plan' : undefined}
+              actionHref={DEMO_UPGRADE_HREF}
               active={active}
               href={DEMO_PROFILE_HREF}
               onClick={(event: MouseEvent<HTMLAnchorElement>) => {
@@ -86,7 +75,8 @@ function AvatarWithLabelPlayground() {
               name="Christian Davis"
               initials="CD"
               src={style === 'avatar' ? DEMO_AVATAR : undefined}
-              action={lines === '2' ? <UpgradeLabel /> : undefined}
+              actionLabel={lines === '2' ? 'Upgrade plan' : undefined}
+              actionHref={DEMO_UPGRADE_HREF}
               active={active}
             />
           )}
@@ -166,7 +156,8 @@ export const Overview: Story = {
               name="Christian Davis"
               initials="CD"
               src={DEMO_AVATAR}
-              action={<UpgradeLabel />}
+              actionLabel="Upgrade plan"
+              actionHref={DEMO_UPGRADE_HREF}
               href={DEMO_PROFILE_HREF}
               onClick={(event) => event.preventDefault()}
             />
@@ -186,7 +177,8 @@ export const Overview: Story = {
               size="md"
               name="Christian Davis"
               initials="CD"
-              action={<UpgradeLabel />}
+              actionLabel="Upgrade plan"
+              actionHref={DEMO_UPGRADE_HREF}
             />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Static · XS">
@@ -197,7 +189,8 @@ export const Overview: Story = {
               size="md"
               name="Christian Davis"
               initials="CD"
-              action={<UpgradeLabel />}
+              actionLabel="Upgrade plan"
+              actionHref={DEMO_UPGRADE_HREF}
               href={DEMO_PROFILE_HREF}
               active
               onClick={(event) => event.preventDefault()}
@@ -214,6 +207,16 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Initials · SM">
             <AvatarWithLabel size="sm" name="Christian Davis" initials="CD" />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Fia action · Initials · MD (lavender fallback)">
+            <AvatarWithLabel
+              size="md"
+              name="Christian Davis"
+              initials="CD"
+              actionLabel="Upgrade plan"
+              actionHref={DEMO_UPGRADE_HREF}
+              fallbackClassName={LAVENDER_FALLBACK}
+            />
+          </PrimitiveGalleryItem>
         </div>
       }
       usageGuidance={
@@ -226,6 +229,13 @@ export const Overview: Story = {
           <li>
             When interactive, keep <code>action</code> non-interactive (no nested
             links) — e.g. a styled span for “Upgrade plan”.
+          </li>
+          <li>
+            For the "Upgrade plan" pattern itself, prefer{' '}
+            <code>actionLabel</code> + <code>actionHref</code> over hand-rolling{' '}
+            <code>action</code> — it renders Figma's <code>fia</code> Link
+            Button chrome and already downgrades to a non-interactive span
+            when this root is itself a link.
           </li>
           <li>
             MD + image + action defaults <code>gradient</code> on; override with
