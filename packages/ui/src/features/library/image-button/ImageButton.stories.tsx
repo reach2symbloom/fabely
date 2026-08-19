@@ -15,7 +15,7 @@ import {
   PrimitivePage,
 } from '../../../../stories/PrimitivePage';
 
-import { ImageButton } from './ImageButton';
+import { ImageButton, type ImageButtonType } from './ImageButton';
 
 const meta = {
   title: 'Design System/Features/Library/Image Button',
@@ -29,6 +29,11 @@ type Story = StoryObj<typeof meta>;
 
 const FIGMA_SET_URL =
   'https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16455-16979';
+
+const TYPE_LABEL: Record<ImageButtonType, string> = {
+  'import-notes': 'Import notes',
+  'import-manuscript': 'Import manuscript',
+};
 
 /** Library canvas — Foundations tw-raw/black (#080B0C); dark so switch alphas resolve for Library. */
 function LibraryCanvas({
@@ -50,15 +55,22 @@ function LibraryCanvas({
   );
 }
 
-function FigmaVariantExample({ forceHover }: { forceHover: boolean }) {
+function FigmaVariantExample({
+  type,
+  forceHover,
+}: {
+  type: ImageButtonType;
+  forceHover: boolean;
+}) {
   return (
     <LibraryCanvas className="w-[292.5px]">
-      <ImageButton forceHover={forceHover} href="#" />
+      <ImageButton type={type} forceHover={forceHover} href="#" />
     </LibraryCanvas>
   );
 }
 
 function ButtonPlayground() {
+  const [type, setType] = useState<ImageButtonType>('import-notes');
   const [forceHover, setForceHover] = useState(false);
 
   return (
@@ -67,12 +79,23 @@ function ButtonPlayground() {
       preview={
         <div className="-m-8 dark bg-[color:var(--tw-raw-black)] p-8">
           <div className="mx-auto w-[292.5px] py-[length:var(--spacing-md)]">
-            <ImageButton forceHover={forceHover} href="#" />
+            <ImageButton type={type} forceHover={forceHover} href="#" />
           </div>
         </div>
       }
       controls={
         <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
+          <InlineSegmentedControl
+            label="Type"
+            value={type}
+            onChange={(value) => setType(value as ImageButtonType)}
+            options={[
+              { value: 'import-notes', label: TYPE_LABEL['import-notes'] },
+              { value: 'import-manuscript', label: TYPE_LABEL['import-manuscript'] },
+            ]}
+            fullWidth
+            className="col-span-2"
+          />
           <InlineSegmentedControl
             label="Hover"
             value={forceHover ? 'on' : 'off'}
@@ -100,18 +123,33 @@ function OverviewPage() {
           <a href={FIGMA_SET_URL} target="_blank" rel="noreferrer">
             Image buttons
           </a>{' '}
-          set (<code>16455:16979</code>) — Import notes, Rest / Hover.
+          set (<code>16455:16979</code>) — Import notes × Rest/Hover. Import
+          manuscript is an instance override of the same component, not a
+          separate Figma variant, but modeled here as its own{' '}
+          <code>type</code> since both recur as real Library entry points.
         </>
       }
       playground={<ButtonPlayground />}
       variants={
-        <div className="flex flex-col gap-[length:var(--spacing-lg)]">
-          <PrimitiveGalleryItem label="Rest">
-            <FigmaVariantExample forceHover={false} />
-          </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Hover">
-            <FigmaVariantExample forceHover />
-          </PrimitiveGalleryItem>
+        <div className="flex flex-col gap-[length:var(--spacing-2xl)]">
+          {(['import-notes', 'import-manuscript'] as const).map((type) => (
+            <div
+              key={type}
+              className="flex flex-col gap-[length:var(--spacing-md)]"
+            >
+              <h3 className="font-sans text-sm font-medium text-foreground">
+                {TYPE_LABEL[type]}
+              </h3>
+              <div className="flex flex-col gap-[length:var(--spacing-lg)]">
+                <PrimitiveGalleryItem label="Rest">
+                  <FigmaVariantExample type={type} forceHover={false} />
+                </PrimitiveGalleryItem>
+                <PrimitiveGalleryItem label="Hover">
+                  <FigmaVariantExample type={type} forceHover />
+                </PrimitiveGalleryItem>
+              </div>
+            </div>
+          ))}
         </div>
       }
       usageGuidance={
@@ -121,8 +159,11 @@ function OverviewPage() {
             for a button — this component has no built-in file input.
           </li>
           <li>
-            <code>type</code> defaults to (and today only supports){' '}
-            <code>&quot;import-notes&quot;</code>.
+            <code>type</code> defaults to{' '}
+            <code>&quot;import-notes&quot;</code>; each value fills in its
+            own title, subtitle, and thumbnail. Override any of them with
+            the <code>title</code> / <code>subtitle</code> /{' '}
+            <code>thumbnailSrc</code> props.
           </li>
           <li>
             Use <code>forceHover</code> in Storybook to lock the hover state
@@ -151,10 +192,24 @@ export const Overview: Story = {
   render: () => <OverviewPage />,
 };
 
-export const Rest: Story = {
-  render: () => <FigmaVariantExample forceHover={false} />,
+export const ImportNotesRest: Story = {
+  name: 'Import notes / Rest',
+  render: () => <FigmaVariantExample type="import-notes" forceHover={false} />,
 };
 
-export const Hover: Story = {
-  render: () => <FigmaVariantExample forceHover />,
+export const ImportNotesHover: Story = {
+  name: 'Import notes / Hover',
+  render: () => <FigmaVariantExample type="import-notes" forceHover />,
+};
+
+export const ImportManuscriptRest: Story = {
+  name: 'Import manuscript / Rest',
+  render: () => (
+    <FigmaVariantExample type="import-manuscript" forceHover={false} />
+  ),
+};
+
+export const ImportManuscriptHover: Story = {
+  name: 'Import manuscript / Hover',
+  render: () => <FigmaVariantExample type="import-manuscript" forceHover />,
 };

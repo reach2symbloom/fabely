@@ -1,9 +1,13 @@
 /**
  * Image Button — thumbnail + copy + trailing icon action card.
  *
- * Figma set: Image buttons (`16455:16979`). Axes are Type × Hover; only
- * `Import notes` is published today, so `type` is a one-value literal
- * union left open for future card types rather than a boolean.
+ * Figma set: Image buttons (`16455:16979`). The set's only variant axes
+ * are Type=Import notes × Hover — `Import your manuscript`
+ * (`16455:17561`) is not a second Figma variant, just an instance of the
+ * same component with its text and thumbnail overridden. Modeled here as
+ * a second `type` anyway (rather than requiring callers to pass three
+ * literal props every time), since both are real recurring Library
+ * entry points sharing one chrome.
  *
  * Placement: NO — Library product chrome. Stays in
  * `src/features/library/image-button/`.
@@ -17,10 +21,10 @@ import { cn } from '@/lib/utils';
 import { PressRippleLayer, usePressRipple } from '@/foundations/motion';
 import { Separator } from '@/primitives/separator';
 
-export type ImageButtonType = 'import-notes';
+export type ImageButtonType = 'import-notes' | 'import-manuscript';
 
 export type ImageButtonProps = {
-  /** Only `'import-notes'` is defined in Figma today. */
+  /** Defaults to `'import-notes'`. */
   type?: ImageButtonType;
   /** Storybook / playground — lock hover paint without a pointer. */
   forceHover?: boolean;
@@ -35,13 +39,30 @@ export type ImageButtonProps = {
   onClick?: React.MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>;
 };
 
-const THUMBNAIL_SRC = new URL(
+const IMPORT_NOTES_THUMBNAIL = new URL(
   './assets/import-notes-thumbnail.png',
   import.meta.url,
 ).href;
 
-const COPY_BY_TYPE: Record<ImageButtonType, { title: string; subtitle: string }> = {
-  'import-notes': { title: 'Bring in your notes', subtitle: '.txt, .docx, .pdf' },
+const IMPORT_MANUSCRIPT_THUMBNAIL = new URL(
+  './assets/import-manuscript-thumbnail.png',
+  import.meta.url,
+).href;
+
+const DEFAULTS_BY_TYPE: Record<
+  ImageButtonType,
+  { title: string; subtitle: string; thumbnailSrc: string }
+> = {
+  'import-notes': {
+    title: 'Bring in your notes',
+    subtitle: '.txt, .docx, .pdf',
+    thumbnailSrc: IMPORT_NOTES_THUMBNAIL,
+  },
+  'import-manuscript': {
+    title: 'Import your manuscript',
+    subtitle: '.txt, .docx, .pdf',
+    thumbnailSrc: IMPORT_MANUSCRIPT_THUMBNAIL,
+  },
 };
 
 /**
@@ -72,7 +93,7 @@ const paragraphRegular = [
 function ImageButton({
   type = 'import-notes',
   forceHover = false,
-  thumbnailSrc = THUMBNAIL_SRC,
+  thumbnailSrc,
   thumbnailAlt = '',
   title,
   subtitle,
@@ -80,9 +101,10 @@ function ImageButton({
   className,
   onClick,
 }: ImageButtonProps) {
-  const copy = COPY_BY_TYPE[type];
-  const resolvedTitle = title ?? copy.title;
-  const resolvedSubtitle = subtitle ?? copy.subtitle;
+  const defaults = DEFAULTS_BY_TYPE[type];
+  const resolvedTitle = title ?? defaults.title;
+  const resolvedSubtitle = subtitle ?? defaults.subtitle;
+  const resolvedThumbnailSrc = thumbnailSrc ?? defaults.thumbnailSrc;
 
   const { ripples, spawnRipple, dismissRipple } = usePressRipple();
 
@@ -121,7 +143,7 @@ function ImageButton({
         {/* 72px — falls between --tw-raw-spacing-14 (56) and -16 (64); not a spacing token. */}
         <div className="relative size-[72px] shrink-0">
           <img
-            src={thumbnailSrc}
+            src={resolvedThumbnailSrc}
             alt={thumbnailAlt}
             className="absolute inset-0 size-full object-cover"
           />

@@ -28,8 +28,13 @@ set (`16455:16979`). Axes:
 | Type | Import notes |
 | Hover | False / True |
 
-Only `Import notes` is published; `type` is a one-value literal union so a
-second card type is additive, not a breaking change.
+[Import your manuscript](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16455-17561)
+(`16455:17561`) is **not** a second Figma variant — it's an instance of
+the same `Import notes` component with its title text and thumbnail
+overridden (subtitle and icon unchanged). Modeled here as a second
+`type: 'import-manuscript'` anyway, since both recur as real Library
+entry points and each should fill in its own defaults rather than every
+call site repeating three literal props.
 
 ## Colors (Foundations)
 
@@ -72,9 +77,9 @@ instead of two raster assets.
 
 | Prop | Notes |
 | --- | --- |
-| `type` | `'import-notes'` (default, only value today) |
+| `type` | `'import-notes'` (default) or `'import-manuscript'` — each fills in its own default title, subtitle, and thumbnail |
 | `href` | Renders as a link; omit for a `<button>` |
 | `onClick` | Fires on click — no built-in file input |
 | `forceHover` | Storybook — lock hover paint |
-| `title` / `subtitle` | Copy overrides — default to the Import notes copy |
-| `thumbnailSrc` / `thumbnailAlt` | Override the bundled illustration |
+| `title` / `subtitle` | Copy overrides — default to the selected `type`'s copy |
+| `thumbnailSrc` / `thumbnailAlt` | Override the `type`'s bundled illustration |
