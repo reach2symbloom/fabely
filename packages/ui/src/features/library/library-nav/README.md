@@ -46,10 +46,15 @@ structural variants. No other axes published.
   navigates. No separate "select vs. open" distinction; selecting a row
   and opening it are the same click.
 - **Rail track** — a plain full-height `<span>`, always rendered.
-- **Rail accent** — a second `<span>`, only rendered for the active `<li>`,
-  same geometry as the track, filled with the gradient. No position
-  tracking, no transition — it mounts/unmounts with whichever row is
-  active, snapping rather than sliding.
+- **Rail accent** — one persistent `<span>`, absolutely positioned at
+  `top`/`height` measured off the active `<li>` (`el.offsetTop` /
+  `el.offsetHeight`, `<nav>` as the positioned ancestor) and animated on
+  `[top,height]` (`--duration-fast` / `ease-emphasized`) so it slides
+  between rows instead of mounting/unmounting per row. A `ResizeObserver`
+  on the active `<li>` re-measures continuously while that row's own height
+  transitions (it grows to reveal its "Resume writing" button — see
+  Library List Item), so the rail tracks the row's animation in real time
+  rather than jumping to a stale end value.
 - **Width** — defaults to `max-w-[350px]` (Figma's own item width); each
   Library List Item gets `className="max-w-none"` so it fills whatever
   width the list is given rather than capping at its own standalone
@@ -78,7 +83,11 @@ An earlier pass (`LibraryNavOrganism`, since removed) built this on Base UI
 Tabs — `role="tablist"`/`"tab"`, roving-tabindex arrow-key navigation, and
 an auto-animated sliding rail via `Tabs.Indicator`. Compared side by side
 in Storybook against this simpler `<nav>`/`<ul>`/`<li>` + real-`href`
-version; this one was chosen. If keyboard row-to-row navigation or an
-animated rail turns out to matter later, that's the reference to revisit —
-not preserved in this tree, but recoverable from git history
-(`ft-library-nav` branch, prior to this file's rewrite).
+version; this one was chosen — but neither pass was ever committed as a
+distinct revision, so there was no artifact to fall back to once the
+sliding motion was missed later. The rail's smooth slide has since been
+rebuilt directly on top of the `<nav>`/`<ul>`/`<li>` structure (DOM
+measurement + `ResizeObserver`, see Structure above) rather than by
+reintroducing Tabs — keyboard row-to-row navigation and the `tablist` role
+are still deliberately not part of this component; that tradeoff, not the
+animated rail, is what the side-by-side comparison was actually about.

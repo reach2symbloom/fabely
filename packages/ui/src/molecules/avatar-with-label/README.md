@@ -15,7 +15,7 @@ YES — identity chrome reused in nav, menus, and headers. Lives in
 | --- | --- |
 | Avatar | Compose — size map XS→`extraTiny`, SM→`tiny`, MD→`regular`. Gradient via Avatar `gradient`. |
 | Item | Generic list row — different job. Do not wrap Item. |
-| Link Button | Second line is an open slot; when the root has `href`, pass a non-interactive node (no nested links). |
+| Link Button | Second line is an open slot (`action`), or use `actionLabel`/`actionHref` for the built-in `fia` chrome. When the root has `href`, any second-line content renders non-interactive (no nested links). |
 
 ## Interactive vs static
 
@@ -37,7 +37,8 @@ prop here — do not strip hover with feature-local CSS.
 | `name` | First line |
 | `initials` | Fallback initials |
 | `src` / `alt` | Image — omit for Initials style |
-| `action` | Second line; enables 2-line text stack |
+| `action` | Second line; enables 2-line text stack. Wins over `actionLabel`. |
+| `actionLabel` / `actionHref` / `onActionClick` | Convenience for the common "Upgrade plan" pattern — builds the second line as Link Button `fia` chrome (Figma's Upgrade plan / Upgrade color; see Chapter Menu Header, Bookshelf Template) instead of hand-rolling it per host. Renders a real `<a>`/`<button>` when this root is static; downgrades to a non-interactive `<span>` with the same chrome when this root is itself interactive (`href` set) — same no-nested-links rule as `action`. |
 | `padded` | Padded chrome at rest; defaults on for `md` + `action`. Interactive + flush still gets hover padding (negative margin keeps rest layout). |
 | `active` | Force Hover=True fill |
 | `gradient` | Avatar ring; defaults on for MD + image + `action` |
