@@ -18,6 +18,7 @@ import * as React from 'react';
 import { EllipsisVerticalIcon, GitBranchIcon, MoveRightIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { PressRippleLayer, usePressRipple } from '@/foundations/motion';
 import { Badge, type BadgeVariant } from '@/primitives/badge';
 import { ButtonLink, IconButton } from '@/primitives/button';
 
@@ -59,8 +60,6 @@ export type LibraryListItemProps = {
   /** Fires on any click on the row (after the ripple spawns) — e.g. Library Nav uses this to detect a click on the already-active book and treat it as "open". */
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 };
-
-type RippleState = { id: number; x: number; y: number };
 
 const DEFAULT_TITLE =
   'The Semantic Continuum Theory: The Folding of Unity (t) into Meaning';
@@ -118,47 +117,6 @@ const BOWSTRING_RETRACT_EASE = 'ease-[cubic-bezier(0.08,0.82,0.17,1)]';
  */
 const BOWSTRING_RELEASE_EASE = 'ease-[cubic-bezier(0.34,1.56,0.64,1)]';
 
-/**
- * Ripple — press feedback. A circle expands from the click point and fades
- * out; only `transform`/`opacity` animate (GPU-composited, no layout
- * thrashing). Mounts at `scale(0)`, flips to expanded on the next frame (the
- * classic two-step trick — a transition needs a style change on a
- * subsequent paint to actually play, not just an initial state), then
- * unmounts itself via `onTransitionEnd`. Kept low-opacity/restrained to
- * match this row's other treatments (glow, edge highlight), not a bold
- * Material ripple — this fires on every click, so per animation-vocabulary's
- * "frequency of use" principle it needs to stay quiet.
- */
-function Ripple({ x, y, onDone }: { x: number; y: number; onDone: () => void }) {
-  const [expanded, setExpanded] = React.useState(false);
-
-  React.useEffect(() => {
-    const raf = requestAnimationFrame(() => setExpanded(true));
-    /* Fallback cleanup — `motion-reduce:transition-none` means no transition
-     * plays for reduced-motion users, so `onTransitionEnd` never fires. */
-    const fallback = window.setTimeout(onDone, 600);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.clearTimeout(fallback);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <span
-      aria-hidden
-      onTransitionEnd={onDone}
-      className={cn(
-        'pointer-events-none absolute size-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full',
-        'bg-[color:var(--tw-raw-white)]',
-        'transition-[scale,opacity] duration-[520ms] ease-emphasized motion-reduce:transition-none',
-        expanded ? 'scale-100 opacity-0' : 'scale-0 opacity-[0.12]',
-      )}
-      style={{ left: x, top: y }}
-    />
-  );
-}
-
 function LibraryListItem({
   variant = 'existing-book',
   active = false,
@@ -185,21 +143,11 @@ function LibraryListItem({
   const resolvedLinkLabel =
     linkLabel ?? (isExistingBook ? 'Continue writing' : 'Start writing');
 
-  const [ripples, setRipples] = React.useState<RippleState[]>([]);
-  const rippleIdRef = React.useRef(0);
+  const { ripples, spawnRipple, dismissRipple } = usePressRipple();
 
   function handleClick(event: React.MouseEvent<HTMLDivElement>) {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const id = rippleIdRef.current++;
-    setRipples((current) => [
-      ...current,
-      { id, x: event.clientX - bounds.left, y: event.clientY - bounds.top },
-    ]);
+    spawnRipple(event);
     onClick?.(event);
-  }
-
-  function removeRipple(id: number) {
-    setRipples((current) => current.filter((ripple) => ripple.id !== id));
   }
 
   /**
@@ -347,22 +295,11 @@ function LibraryListItem({
         }}
       />
 
-      {ripples.length > 0 ? (
-        <div
-          aria-hidden
-          data-slot="library-list-item-ripple-layer"
-          className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[inherit]"
-        >
-          {ripples.map((ripple) => (
-            <Ripple
-              key={ripple.id}
-              x={ripple.x}
-              y={ripple.y}
-              onDone={() => removeRipple(ripple.id)}
-            />
-          ))}
-        </div>
-      ) : null}
+      <PressRippleLayer
+        ripples={ripples}
+        onDismiss={dismissRipple}
+        dataSlot="library-list-item-ripple-layer"
+      />
 
       {href != null ? (
         <a

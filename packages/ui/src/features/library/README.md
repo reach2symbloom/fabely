@@ -18,3 +18,5 @@ primitives into this tree.
 | Library Nav | `library-nav/` | In progress (`ft-library-nav`) |
 | [Resume Writing Button](./resume-writing-button/README.md) | `resume-writing-button/` | In progress (`ft-library-resume-writing-button`) |
 | [Bookshelf Template](./bookshelf-template/README.md) | `bookshelf-template/` | In progress (`ft-library-bookshelf-template`) |
+| [Image Button](./image-button/README.md) | `image-button/` | In progress (`ft-library-code-image-button`) |
+| [Library Cover](./library-cover/README.md) | `library-cover/` | Merged (`ft-library-cover`) |
