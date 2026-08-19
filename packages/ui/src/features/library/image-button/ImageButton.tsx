@@ -171,7 +171,16 @@ function ImageButton({
           <p
             className={cn(
               paragraphRegular,
-              'whitespace-nowrap text-[color:var(--muted-foreground)]',
+              /* --theme-alpha-black-switch-60 directly, not --muted-foreground:
+               * the latter is declared once at :root as var(--theme-alpha-black-switch-60)
+               * with no redeclaration inside .dark, so a locally-.dark-wrapped
+               * canvas (Storybook's LibraryCanvas) inherits the resolved
+               * :root (light/black-based) value instead of re-resolving
+               * against its own .dark scope — renders near-invisible on
+               * this black surface. Referencing the switch token directly
+               * re-resolves fresh at the point of use, matching Library
+               * List Item's meta-text precedent. */
+              'whitespace-nowrap text-[color:var(--theme-alpha-black-switch-60)]',
             )}
           >
             {resolvedSubtitle}
