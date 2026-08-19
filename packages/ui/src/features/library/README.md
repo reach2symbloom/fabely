@@ -21,3 +21,5 @@ primitives into this tree.
 | [Image Button](./image-button/README.md) | `image-button/` | In progress (`ft-library-code-image-button`) |
 | [Library Cover](./library-cover/README.md) | `library-cover/` | Merged (`ft-library-cover`) |
 | [Add Document List Item](./add-document-list-item/README.md) | `add-document-list-item/` | Merged (`ft-library-add-document`) |
+| [API Connection](./api-connection/README.md) | `api-connection/` | In progress (`ft-library-source-and-notes`) |
+| [Sources & Notes Card](./sources-notes-card/README.md) | `sources-notes-card/` | In progress (`ft-library-source-and-notes`) |
