@@ -30,7 +30,15 @@ const CHECKERBOARD: CSSProperties = {
   backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
 };
 
-function Row({ asset, importPath }: { asset: ImageAsset; importPath: string }) {
+function Row({
+  asset,
+  importPath,
+  recordName,
+}: {
+  asset: ImageAsset;
+  importPath: string;
+  recordName: string;
+}) {
   return (
     <tr>
       <td style={{ ...cellStyle, padding: '16px 12px' }}>
@@ -51,14 +59,23 @@ function Row({ asset, importPath }: { asset: ImageAsset; importPath: string }) {
         </div>
       </td>
       <td style={{ ...cellStyle, fontFamily: 'ui-sans-serif, system-ui, sans-serif' }}>{asset.name}</td>
-      <td style={cellStyle}>{`BRAND_LOGOS['${asset.key}']`}</td>
+      <td style={cellStyle}>{`${recordName}['${asset.key}']`}</td>
       <td style={cellStyle}>{importPath}</td>
       <td style={{ ...cellStyle, opacity: 0.75 }}>{asset.file}</td>
     </tr>
   );
 }
 
-export function ImageSwatchTable({ assets, importPath }: { assets: ImageAsset[]; importPath: string }) {
+export function ImageSwatchTable({
+  assets,
+  importPath,
+  recordName,
+}: {
+  assets: ImageAsset[];
+  importPath: string;
+  /** Name of the exported record, e.g. "BRAND_LOGOS" or "SPOT_IMAGES" — shown in the Key column as `recordName['key']`. */
+  recordName: string;
+}) {
   return (
     <table style={{ borderCollapse: 'collapse', width: '100%', marginBottom: 24 }}>
       <thead>
@@ -72,7 +89,7 @@ export function ImageSwatchTable({ assets, importPath }: { assets: ImageAsset[];
       </thead>
       <tbody>
         {assets.map((asset) => (
-          <Row key={asset.key} asset={asset} importPath={importPath} />
+          <Row key={asset.key} asset={asset} importPath={importPath} recordName={recordName} />
         ))}
       </tbody>
     </table>

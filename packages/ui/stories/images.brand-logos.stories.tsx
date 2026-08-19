@@ -53,7 +53,11 @@ export const BrandLogos: Story = {
       </PendingNotice>
 
       <SectionHeading>foundations / images / brand-logos ({assets.length})</SectionHeading>
-      <ImageSwatchTable assets={assets} importPath="@/foundations/images/brand-logos" />
+      <ImageSwatchTable
+        assets={assets}
+        importPath="@/foundations/images/brand-logos"
+        recordName="BRAND_LOGOS"
+      />
     </div>
   ),
 };
