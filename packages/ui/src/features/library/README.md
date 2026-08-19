@@ -18,3 +18,4 @@ primitives into this tree.
 | Library Nav | `library-nav/` | In progress (`ft-library-nav`) |
 | [Resume Writing Button](./resume-writing-button/README.md) | `resume-writing-button/` | In progress (`ft-library-resume-writing-button`) |
 | [Image Button](./image-button/README.md) | `image-button/` | In progress (`ft-library-code-image-button`) |
+| [API Connection](./api-connections/README.md) | `api-connections/` | In progress (`ft-library-api-connections`) |
