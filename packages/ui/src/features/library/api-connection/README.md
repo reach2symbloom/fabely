@@ -20,6 +20,7 @@ Searched primitives / atoms / molecules / organisms / features:
 | --- | --- |
 | **Icon Button** | Nest — unlink control (`fade` variant, sized down to Figma's 16px "Fade button" via `className`) and (indirectly) the ghost text Button below. |
 | **Button `ghost` `mini`** | Nest — Figma's "Select files" control is a ghost text Button with a trailing chevron, height matches `mini` (24px) exactly. |
+| **Tooltip** | Nest — unlink has no Figma tooltip, added anyway: a 16px icon-only control with no visible label leaves no way to tell what it does before clicking. |
 | **Add Document List Item** | Skip — different row job (doc row, not integration row); no shared structure beyond "row with a trailing control". |
 
 ## Authoritative Figma
@@ -60,7 +61,9 @@ doesn't surface the master's other variants.
 - **Unlink** — nested `<IconButton variant="fade">`, sized down from
   its `default` 36px slot to Figma's 16px via `className` (`size-*` /
   `p-0` / icon-size utilities all win over the variant's own through
-  `tailwind-merge`).
+  `tailwind-merge`). Wrapped in `<Tooltip>` — `unlinkLabel` doubles as
+  both the tooltip copy and the button's `aria-label`, same pattern as
+  Highlight Action Menu's icon-only controls.
 - **Select files** — nested `<Button variant="ghost" size="mini">` with
   a trailing Lucide `ChevronRight`, or a plain anchor with the same
   visual treatment when `selectFilesHref` is set (no Button primitive

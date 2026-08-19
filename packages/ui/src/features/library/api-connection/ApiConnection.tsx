@@ -8,6 +8,12 @@
  * still branches the status copy/dot color since a real integration can
  * disconnect.
  *
+ * Unlink carries a Tooltip (not in Figma) — at 16px with no visible
+ * label, hovering it without one leaves no way to tell what it does
+ * before clicking. Reuses `unlinkLabel` as both the tooltip copy and
+ * the Icon Button's `aria-label`, same pattern as Highlight Action
+ * Menu's icon-only controls.
+ *
  * Placement: NO — Library product chrome. Stays in
  * `src/features/library/api-connection/`.
  */
@@ -18,6 +24,7 @@ import { ChevronRightIcon, UnlinkIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button, IconButton } from '@/primitives/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/primitives/tooltip';
 import { OpenAiMark } from './assets/openai-mark';
 
 export type ApiConnectionBrand = 'google-drive' | 'openai';
@@ -144,15 +151,22 @@ function ApiConnection({
           </span>
         </div>
 
-        <IconButton
-          type="button"
-          variant="fade"
-          aria-label={resolvedUnlinkLabel}
-          onClick={onUnlink}
-          className="size-[length:var(--spacing-md)] rounded-[length:var(--rounded-lg)] p-0 [&_svg:not([class*='size-'])]:size-[length:var(--icon-xs)]"
-        >
-          <UnlinkIcon />
-        </IconButton>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <IconButton
+                type="button"
+                variant="fade"
+                aria-label={resolvedUnlinkLabel}
+                onClick={onUnlink}
+                className="size-[length:var(--spacing-md)] rounded-[length:var(--rounded-lg)] p-0 [&_svg:not([class*='size-'])]:size-[length:var(--icon-xs)]"
+              />
+            }
+          >
+            <UnlinkIcon />
+          </TooltipTrigger>
+          <TooltipContent>{resolvedUnlinkLabel}</TooltipContent>
+        </Tooltip>
       </div>
 
       {selectFilesHref != null ? (
