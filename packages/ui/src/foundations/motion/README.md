@@ -22,3 +22,26 @@ separate duration/easing scale.
 primitives. Prefer Foundations tokens; add here when a second use appears.
 
 See Storybook → Foundations → Motion.
+
+## Press Ripple
+
+[`press-ripple.tsx`](./press-ripple.tsx) — the neutral white click-origin
+ripple, promoted from Library List Item once Image Button needed the same
+feedback. Import from `@/foundations/motion`:
+
+```tsx
+const { ripples, spawnRipple, dismissRipple } = usePressRipple();
+
+<div onClick={spawnRipple} className="relative ...">
+  <PressRippleLayer ripples={ripples} onDismiss={dismissRipple} />
+  {/* ...content... */}
+</div>
+```
+
+`PressRippleLayer` renders nothing while `ripples` is empty and clips to
+the parent's own border radius (`rounded-[inherit]`) — the parent just
+needs `relative` positioning.
+
+Not for Resume Writing Button's go-control ripple — that one is a WAAPI
+`element.animate` in `--tw-raw-pantones-lavendar`, a deliberately
+different (branded, CTA-only) feel, not a duplicate of this pattern.

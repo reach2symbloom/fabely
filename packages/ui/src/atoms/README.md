@@ -14,3 +14,5 @@ Vendor-derived wrappers live under [`../primitives/`](../primitives/) — not he
 | [Add Section Button](./add-section-button/README.md) | Icon + label pill; always paired with dividers in product |
 | [Cycle Switch](./cycle-switch/README.md) | One-way cycle through options; not a binary Switch |
 | [Book Cover](./book-cover/README.md) | Portrait cover + hover/focus edit scrim |
+| [Status](./status/README.md) | Colored dot + label state readout |
+| [Brand Link](./brand-link/README.md) | Service logo + name lockup |

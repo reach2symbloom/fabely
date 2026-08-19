@@ -112,6 +112,7 @@ const preview: Preview = {
                 ['Lucide', 'Solar', 'Fabely Icons'],
                 'Best Practices',
               ],
+              'Images',
             ],
             // Primitives: wrapped vendor components (flat, alphabetical).
             // Nested families (e.g. Button) must be listed explicitly — otherwise

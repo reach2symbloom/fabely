@@ -17,3 +17,9 @@ primitives into this tree.
 | Library List Item | `library-list-item/` | Merged (`ft-library-list-item`) |
 | Library Nav | `library-nav/` | In progress (`ft-library-nav`) |
 | [Resume Writing Button](./resume-writing-button/README.md) | `resume-writing-button/` | In progress (`ft-library-resume-writing-button`) |
+| [Bookshelf Template](./bookshelf-template/README.md) | `bookshelf-template/` | In progress (`ft-library-bookshelf-template`) |
+| [Image Button](./image-button/README.md) | `image-button/` | In progress (`ft-library-code-image-button`) |
+| [API Connection](./api-connections/README.md) | `api-connections/` | In progress (`ft-library-api-connections`) — canonical; a second, parallel implementation from `ft-library-sources-and-notes-card` (`api-connection/`, singular) was reconciled into this one during the merge that landed Sources & Notes Card |
+| [Library Cover](./library-cover/README.md) | `library-cover/` | Merged (`ft-library-cover`) |
+| [Add Document List Item](./add-document-list-item/README.md) | `add-document-list-item/` | Merged (`ft-library-add-document`) |
+| [Sources & Notes Card](./sources-notes-card/README.md) | `sources-notes-card/` | Merged (`ft-library-sources-and-notes-card`) |
