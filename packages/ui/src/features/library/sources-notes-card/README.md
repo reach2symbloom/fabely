@@ -17,7 +17,7 @@ Searched primitives / atoms / molecules / organisms / features:
 | Candidate | Verdict |
 | --- | --- |
 | **Image Button** | Nest — the two entry-point cards ("Bring in your notes" / "Import your manuscript") are exactly Image Button's `import-notes` / `import-manuscript` types, reused as-is. |
-| **API Connection** | Nest — each row in the Connections section. New piece, built alongside this organism (`../api-connection/`). |
+| **API Connection** | Nest — each row in the Connections section, the canonical `../api-connections/` implementation (composes `Status`/`BrandLink` atoms, all 12 Foundations brand marks). A second, parallel `api-connection/` (singular) was built alongside this organism originally; reconciled away when this branch merged, since `api-connections/` already existed and covers everything this card needs — see its own README. |
 | **Add Document List Item** | Skip — unrelated row (added document, not a source/connection). |
 
 ## Authoritative Figma
@@ -38,7 +38,7 @@ section" are the same state in Figma and here.
 | Role | Figma | Token |
 | --- | --- | --- |
 | Card border | alpha-black 10% | `--theme-alpha-black-switch-10` |
-| Eyebrow icon + label | white 50% | `--muted-foreground` |
+| Eyebrow icon + label | white 50% | `--theme-alpha-black-switch-60` (direct — not `--muted-foreground`, which doesn't re-resolve on a locally-`.dark`-wrapped canvas; see API Connection's README for the full explanation) |
 | Description | white 75% | `--text` |
 
 ## Structure

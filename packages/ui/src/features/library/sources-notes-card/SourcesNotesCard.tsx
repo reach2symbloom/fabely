@@ -25,7 +25,7 @@ import * as React from 'react';
 import { CloudUploadIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { ApiConnection, type ApiConnectionProps } from '../api-connection';
+import { ApiConnection, type ApiConnectionProps } from '../api-connections';
 import { ImageButton, type ImageButtonProps } from '../image-button';
 
 export type SourcesNotesCardConnection = ApiConnectionProps & {
@@ -99,9 +99,13 @@ function SourcesNotesCard({
         <div className="flex items-center gap-[length:var(--spacing-xs)]">
           <CloudUploadIcon
             aria-hidden
-            className="size-[length:var(--icon-sm)] text-[color:var(--muted-foreground)]"
+            /* --theme-alpha-black-switch-60 directly, not --muted-foreground
+             * — the latter doesn't re-resolve on a locally-.dark-wrapped
+             * canvas (e.g. this component's own Storybook LibraryCanvas);
+             * see Image Button / API Connection for the full explanation. */
+            className="size-[length:var(--icon-sm)] text-[color:var(--theme-alpha-black-switch-60)]"
           />
-          <p className={cn(caption, 'whitespace-nowrap text-[color:var(--muted-foreground)]')}>
+          <p className={cn(caption, 'whitespace-nowrap text-[color:var(--theme-alpha-black-switch-60)]')}>
             {heading}
           </p>
         </div>
@@ -131,7 +135,7 @@ function SourcesNotesCard({
           data-slot="sources-notes-card-connections"
           className="flex w-full flex-col items-start gap-[length:var(--spacing-xs)] pt-[length:var(--spacing-xs)]"
         >
-          <p className={cn(caption, 'whitespace-nowrap text-[color:var(--muted-foreground)]')}>
+          <p className={cn(caption, 'whitespace-nowrap text-[color:var(--theme-alpha-black-switch-60)]')}>
             {connectionsHeading}
           </p>
           {connections.map(({ key, ...connection }, index) => (
