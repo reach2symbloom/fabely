@@ -17,6 +17,7 @@ Searched primitives / atoms / molecules / organisms / features:
 | **Resume Writing Button** | Compose pattern — whole card is the single hit target (`<a>` when `href` is set, otherwise `<button>`), inner chrome unstyled for interaction. Its go-control ripple is a *different* WAAPI/lavender pattern, not reused here. |
 | **Separator** | Compose — vertical divider between thumbnail and copy. |
 | **Foundations Press Ripple** | Compose — `usePressRipple` / `PressRippleLayer` from `@/foundations/motion` (promoted from Library List Item's inline ripple; see [foundations/motion/README.md](../../../foundations/motion/README.md#press-ripple)). |
+| **Foundations Spot Images** | Compose — `SPOT_IMAGES` from `@/foundations/images/spot-images`, not a locally-bundled PNG (see [foundations/images/spot-images/README.md](../../../foundations/images/spot-images/README.md)). |
 
 ## Authoritative Figma
 
@@ -44,7 +45,7 @@ call site repeating three literal props.
 | Card hover border | alpha/black/switch/alpha-15 | `--theme-alpha-black-switch-15` |
 | Card hover fill | alpha/black/switch/alpha-333 | `--theme-alpha-black-switch-333` |
 | Title | alpha/black/switch/alpha-75 | `--theme-alpha-black-switch-75` |
-| Subtitle | muted-foreground | `--muted-foreground` |
+| Subtitle | muted-foreground | `--theme-alpha-black-switch-60` (direct — not `--muted-foreground`, which doesn't re-resolve on a locally-`.dark`-wrapped canvas; see API Connection's README for the full explanation) |
 | Divider | alpha/black/switch/alpha-5 | `Separator` default |
 | Icon rest / hover | white 50% / 100% | `opacity-50` / `opacity-100` on the same Lucide glyph |
 
@@ -56,9 +57,11 @@ instead of two raster assets.
 ## Structure
 
 - **Thumbnail** — 72×72 (falls between the 56/64 spacing tokens; not a
-  spacing-token size, kept literal). Figma bakes a radial vignette as an
-  exported SVG gradient (`r=10` scaled 3.6× in a 72×72 box — a plain
-  circle reaching the box's closest side); reproduced as a literal CSS
+  spacing-token size, kept literal). Sourced from Foundations'
+  `SPOT_IMAGES` (one illustration per `type`, promoted out of this
+  folder's own `assets/`). Figma bakes a radial vignette as an exported
+  SVG gradient (`r=10` scaled 3.6× in a 72×72 box — a plain circle
+  reaching the box's closest side); reproduced as a literal CSS
   `radial-gradient` with the same stops rather than shipping the SVG.
 - **Divider** — `Separator` `vertical` `thin`, height-matched via
   `self-stretch` on the row so it always spans the card's content height.

@@ -19,6 +19,7 @@ import { CloudUploadIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { PressRippleLayer, usePressRipple } from '@/foundations/motion';
+import { SPOT_IMAGES } from '@/foundations/images/spot-images';
 import { Separator } from '@/primitives/separator';
 
 export type ImageButtonType = 'import-notes' | 'import-manuscript';
@@ -39,16 +40,6 @@ export type ImageButtonProps = {
   onClick?: React.MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>;
 };
 
-const IMPORT_NOTES_THUMBNAIL = new URL(
-  './assets/import-notes-thumbnail.png',
-  import.meta.url,
-).href;
-
-const IMPORT_MANUSCRIPT_THUMBNAIL = new URL(
-  './assets/import-manuscript-thumbnail.png',
-  import.meta.url,
-).href;
-
 const DEFAULTS_BY_TYPE: Record<
   ImageButtonType,
   { title: string; subtitle: string; thumbnailSrc: string }
@@ -56,12 +47,12 @@ const DEFAULTS_BY_TYPE: Record<
   'import-notes': {
     title: 'Bring in your notes',
     subtitle: '.txt, .docx, .pdf',
-    thumbnailSrc: IMPORT_NOTES_THUMBNAIL,
+    thumbnailSrc: SPOT_IMAGES['import-notes'],
   },
   'import-manuscript': {
     title: 'Import your manuscript',
     subtitle: '.txt, .docx, .pdf',
-    thumbnailSrc: IMPORT_MANUSCRIPT_THUMBNAIL,
+    thumbnailSrc: SPOT_IMAGES['import-manuscript'],
   },
 };
 
