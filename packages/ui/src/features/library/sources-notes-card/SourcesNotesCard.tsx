@@ -138,8 +138,12 @@ function SourcesNotesCard({
           <p className={cn(caption, 'whitespace-nowrap text-[color:var(--theme-alpha-black-switch-60)]')}>
             {connectionsHeading}
           </p>
-          {connections.map(({ key, ...connection }, index) => (
-            <ApiConnection key={key ?? connection.brand ?? index} {...connection} />
+          {connections.map(({ key, className: connectionClassName, ...connection }, index) => (
+            <ApiConnection
+              key={key ?? connection.brand ?? index}
+              className={cn('max-w-none', connectionClassName)}
+              {...connection}
+            />
           ))}
         </div>
       ) : null}
