@@ -20,3 +20,4 @@ primitives into this tree.
 | [Bookshelf Template](./bookshelf-template/README.md) | `bookshelf-template/` | In progress (`ft-library-bookshelf-template`) |
 | [Image Button](./image-button/README.md) | `image-button/` | In progress (`ft-library-code-image-button`) |
 | [Library Cover](./library-cover/README.md) | `library-cover/` | Merged (`ft-library-cover`) |
+| [Add Document List Item](./add-document-list-item/README.md) | `add-document-list-item/` | Merged (`ft-library-add-document`) |
