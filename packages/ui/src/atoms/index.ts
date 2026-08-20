@@ -4,3 +4,4 @@ export * from './cycle-switch';
 export * from './book-cover';
 export * from './status';
 export * from './brand-link';
+export * from './lateral-toggles';

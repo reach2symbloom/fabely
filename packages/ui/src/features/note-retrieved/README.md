@@ -16,6 +16,8 @@ primitives into this tree.
 | Piece | Folder | Status |
 | --- | --- | --- |
 | [Fia Answer](./fia-answer/README.md) | `fia-answer/` | Landed |
+| [Gather Bookmark Button](./gather-bookmark-button/README.md) | `gather-bookmark-button/` | Landed |
+| [Note Card](./note-card/README.md) | `note-card/` | Landed |
 
 ## Figma
 

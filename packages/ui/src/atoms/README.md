@@ -16,3 +16,4 @@ Vendor-derived wrappers live under [`../primitives/`](../primitives/) — not he
 | [Book Cover](./book-cover/README.md) | Portrait cover + hover/focus edit scrim |
 | [Status](./status/README.md) | Colored dot + label state readout |
 | [Brand Link](./brand-link/README.md) | Service logo + name lockup |
+| [Lateral Toggles](./lateral-toggles/README.md) | Prev/Next chapter nav — shortcut hint, label, truncated title |
