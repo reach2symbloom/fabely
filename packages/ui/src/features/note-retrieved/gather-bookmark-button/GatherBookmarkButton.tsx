@@ -153,8 +153,13 @@ function GatherBookmarkButton({
         forceHover={forceHover}
         aria-label={label}
         className={cn(
-          'h-full p-[length:var(--spacing-2xs)]',
-          mode === 'gather' && 'gap-[length:var(--spacing-2xs)]',
+          'h-full py-[length:var(--spacing-2xs)]',
+          /* Roam has no label to balance against, so its segments get a
+           * touch more breathing room (6px) than Gather's icon+label
+           * pairing (4px) — Gather is untouched. */
+          mode === 'roam'
+            ? 'px-[length:var(--spacing-1-5)]'
+            : 'px-[length:var(--spacing-2xs)] gap-[length:var(--spacing-2xs)]',
           HOVER_DEEPEN
         )}
         trailingContent={
@@ -187,15 +192,20 @@ function GatherBookmarkButton({
        * unaffected by hovering the bookmark segment. Figma's chevron column
        * is a 24×32 frame (4px horizontal padding, 8px vertical) around a
        * 16px "Fade button" — not Icon Button's own square `sm` (32×32)
-       * footprint, so width/height/padding are overridden to match exactly. */}
+       * footprint, so width/height/padding are overridden to match exactly
+       * in Gather. Roam gets 6px horizontal padding instead and hugs to
+       * that (no fixed width — a fixed width would just re-center the
+       * glyph inside itself and silently swallow the padding change). */}
       <IconButton
         variant="ghost"
         aria-label="More options"
         onClick={onMenuClick}
         data-force-hover={forceHover || undefined}
         className={cn(
-          'h-full w-[24px]',
-          'px-[length:var(--spacing-2xs)] py-[length:var(--spacing-xs)]',
+          'h-full',
+          mode === 'roam'
+            ? 'px-[length:var(--spacing-1-5)] py-[length:var(--spacing-xs)]'
+            : 'w-[24px] px-[length:var(--spacing-2xs)] py-[length:var(--spacing-xs)]',
           CHEVRON_COLOR,
           HOVER_DEEPEN
         )}
