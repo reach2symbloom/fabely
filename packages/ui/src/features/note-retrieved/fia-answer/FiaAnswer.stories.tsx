@@ -1,7 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { useState } from 'react';
+
+import { Input } from '@/primitives/input';
+import { Textarea } from '@/primitives/textarea';
 
 import { PlaygroundPanel } from '../../../../stories/PlaygroundPanel';
-import { PrimitiveGalleryItem, PrimitivePage } from '../../../../stories/PrimitivePage';
+import {
+  PRIMITIVE_PLAYGROUND_CONTROL_GRID,
+  PrimitiveGalleryItem,
+  PrimitivePage,
+} from '../../../../stories/PrimitivePage';
 
 import { FiaAnswer } from './FiaAnswer';
 
@@ -13,7 +21,7 @@ const copy = {
 };
 
 const meta = {
-  title: 'Design System/Features/Note Retrieved/Fia Answer',
+  title: 'Design System/Features/Gather/Fia Answer',
   component: FiaAnswer,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
@@ -23,27 +31,55 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const controlLabelStyle = 'mb-1.5 font-sans text-xs text-muted-foreground';
+
+function FiaAnswerPlayground() {
+  const [answer, setAnswer] = useState(copy.answer);
+  const [source, setSource] = useState(copy.source);
+  const [resultCount, setResultCount] = useState(copy.resultCount);
+
+  return (
+    <PlaygroundPanel
+      preview={
+        <div className="flex w-full items-center justify-center">
+          <FiaAnswer answer={answer} source={source} resultCount={resultCount} />
+        </div>
+      }
+      controls={
+        <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
+          <div className="col-span-2">
+            <div className={controlLabelStyle}>Answer</div>
+            <Textarea
+              value={answer}
+              onChange={(event) => setAnswer(event.target.value)}
+              rows={3}
+            />
+          </div>
+          <div>
+            <div className={controlLabelStyle}>Source</div>
+            <Input value={source} onChange={(event) => setSource(event.target.value)} />
+          </div>
+          <div>
+            <div className={controlLabelStyle}>Result count</div>
+            <Input
+              type="number"
+              value={resultCount}
+              onChange={(event) => setResultCount(Number(event.target.value))}
+            />
+          </div>
+        </div>
+      }
+    />
+  );
+}
+
 export const Overview: Story = {
   parameters: { layout: 'fullscreen' },
   render: () => (
     <PrimitivePage
       title="Fia Answer"
       description="A single retrieved answer row in Fia's search results."
-      playground={
-        <PlaygroundPanel
-          preview={
-            <div className="flex w-full items-center justify-center">
-              <FiaAnswer {...copy} />
-            </div>
-          }
-          controls={
-            <p className="text-sm text-muted-foreground">
-              No configurable states — content is passed via <code>answer</code>, <code>source</code>, and{' '}
-              <code>resultCount</code> props.
-            </p>
-          }
-        />
-      }
+      playground={<FiaAnswerPlayground />}
       variants={
         <div className="flex flex-col gap-[var(--spacing-md)]">
           <PrimitiveGalleryItem label="Default">
