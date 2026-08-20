@@ -81,8 +81,14 @@ named state, they decode into content state plus real CSS `:hover`:
   text is itself editable), body is the same kind of `variant="invisible"`
   `Textarea` as annotation — genuinely editable inline, `Enter` also commits
   rather than adding a line. Over the threshold, it renders as a
-  `line-clamp-6` `<button>` instead: read-only, and clicking it calls
-  `onOpenNote` — a hook for a full-width note view that doesn't exist yet.
+  `line-clamp-6` `<button>` instead: read-only, and **double**-clicking it
+  calls `onOpenNote` — a hook for a full-width note view that doesn't exist
+  yet. Not a single click: the body still reads and behaves like a normal
+  paragraph (selectable, readable), and a single click fired far too
+  easily while doing either. Keyboard access stays a single Enter/Space
+  (there's no keyboard equivalent of "double-press" a reasonable user
+  would expect) via an explicit `onKeyDown`, not the button's native click
+  activation.
   **Typing past the threshold mid-edit doesn't eject the field into that
   read-only view** — that would drop focus/cursor position out from under
   the user's own keystroke. Instead, while focused, a body that's grown past
@@ -171,7 +177,7 @@ Removed; `invisible` owns its own (lack of) radius now, unconditionally.
 | `annotation` / `defaultAnnotation` / `onAnnotationChange` | — | Editable `Textarea`, wraps 2–3 lines; empty shows "Add annotation"; `Enter` commits |
 | `body` / `onBodyChange` | — | Required initial value. Editable inline under `bodyTruncateThreshold`; truncated + read-only over it (reassessed on blur, not mid-keystroke) |
 | `bodyTruncateThreshold` | `359` | Character count above which body truncates instead of staying editable |
-| `onOpenNote` | — | Hook — fires from the truncated body button *and* the Expand icon; opens the full note (view not built yet) |
+| `onOpenNote` | — | Hook — fires on **double**-click of the truncated body (single Enter/Space if focused via keyboard) *and* a single click of the Expand icon; opens the full note (view not built yet) |
 | `date` / `wordCount` | — | Footer metadata; each only renders if provided |
 | `badgeLabel` | `'Notes'` | Trailing `Badge` text |
 | `index` | — | Small ordinal in the footer ("1."), left of `date`, decorative (`aria-hidden`) |

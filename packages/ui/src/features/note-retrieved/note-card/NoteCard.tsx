@@ -74,9 +74,12 @@ type NoteCardProps = {
    */
   bodyTruncateThreshold?: number;
   /**
-   * Fires when a truncated (long) body is clicked — the hook point for
-   * opening the note in a full-width view. That view doesn't exist yet;
-   * this only wires the trigger.
+   * Fires when a truncated (long) body is double-clicked (or the footer's
+   * Expand icon is clicked) — the hook point for opening the note in a
+   * full-width view. That view doesn't exist yet; this only wires the
+   * trigger. Double-click, not single: the body still reads as a normal
+   * paragraph, and a single click would fire too easily while selecting
+   * or reading text. Keyboard access is still a single Enter/Space.
    */
   onOpenNote?: () => void;
   date?: string;
@@ -326,11 +329,22 @@ function NoteCard({
             />
           </div>
           {showReadOnlyBody ? (
-            /* Long body is read-only + truncated — click opens the full
-             * note (hook only; that view doesn't exist yet). */
+            /* Long body is read-only + truncated — double-click opens the
+             * full note (hook only; that view doesn't exist yet). Not a
+             * plain onClick: this text otherwise looks and reads like a
+             * normal paragraph, and a single click would fire mid-select
+             * or mid-read far too easily. Keyboard access stays a single
+             * Enter/Space via onKeyDown — a "double-press" convention
+             * isn't a thing keyboard users would expect. */
             <button
               type="button"
-              onClick={onOpenNote}
+              onDoubleClick={onOpenNote}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  onOpenNote?.();
+                }
+              }}
               aria-label="Open full note"
               className={cn(
                 'line-clamp-6 w-full cursor-pointer text-left',

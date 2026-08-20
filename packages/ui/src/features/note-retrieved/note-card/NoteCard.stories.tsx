@@ -18,12 +18,27 @@ import { NoteCard, type NoteCardProps } from './NoteCard';
 const SAMPLE = {
   title: 'Eldergrove Wand Selection',
   annotation: 'Author note explaining the sequence before Sophia receives her wand.',
+  /* Exactly 359 chars — matches `bodyTruncateThreshold`'s own default
+   * deliberately (see NoteCard.tsx), so this sample sits right at the
+   * editable/short boundary and demos default to the more common
+   * "editable inline" state. Not `> 359`, so it does NOT truncate. */
   body: "Zeera leads Sophia through the root-woven entrance of the Eldergrove and explains that no wand may be taken by force. The trees must first recognize the apprentice's inner magic, and Sophia must wait for the grove to answer her. Just as the branches begin to stir, a deep rumbling rises from the dark woods, warning them that something ancient is approaching…",
   date: '3/20/2025',
   wordCount: 1230,
 } satisfies Pick<NoteCardProps, 'title' | 'annotation' | 'body' | 'date' | 'wordCount'>;
 
+/** Comfortably under the threshold — stays editable inline. */
 const SHORT_BODY = 'Sophia hesitates at the threshold, unsure the grove will answer her.';
+
+/**
+ * Comfortably over the threshold — genuinely truncates, unlike `SAMPLE.body`
+ * (which sits exactly at the 359-char boundary on purpose). `OpenNoteExample`
+ * needs this: it demonstrates the truncated/double-click-to-open flow, which
+ * `SAMPLE.body` alone can no longer trigger.
+ */
+const LONG_BODY =
+  SAMPLE.body.slice(0, -1) +
+  ", and the wind itself seems to hold its breath, waiting to see whether Sophia's courage will match her curiosity…";
 
 const meta = {
   title: 'Design System/Features/Gather/Note Card',
@@ -176,14 +191,14 @@ function OpenNoteExample() {
         <NoteCard
           defaultTitle={SAMPLE.title}
           defaultAnnotation={SAMPLE.annotation}
-          body={SAMPLE.body}
+          body={LONG_BODY}
           date={SAMPLE.date}
           wordCount={SAMPLE.wordCount}
           index={1}
           onOpenNote={() => setOpenCount((count) => count + 1)}
         />
         <p className="text-sm text-muted-foreground">
-          onOpenNote fired {openCount} time{openCount === 1 ? '' : 's'} — click the truncated body above.
+          onOpenNote fired {openCount} time{openCount === 1 ? '' : 's'} — double-click the truncated body above (or its Expand icon).
         </p>
       </div>
     </CardShell>
@@ -216,21 +231,30 @@ function ControlledExample() {
   );
 }
 
+type BodyLength = 'short' | 'default' | 'long';
+
+const BODY_BY_LENGTH: Record<BodyLength, string> = {
+  short: SHORT_BODY,
+  default: SAMPLE.body,
+  long: LONG_BODY,
+};
+
 function NoteCardPlayground() {
   const [hasTitle, setHasTitle] = useState(true);
   const [mode, setMode] = useState<NonNullable<NoteCardProps['mode']>>('gather');
   const [pinned, setPinned] = useState(false);
   const [forceHover, setForceHover] = useState(false);
+  const [bodyLength, setBodyLength] = useState<BodyLength>('default');
 
   return (
     <PlaygroundPanel
       preview={
         <CardShell>
           <NoteCard
-            key={hasTitle ? 'title' : 'empty'}
+            key={`${hasTitle ? 'title' : 'empty'}-${bodyLength}`}
             defaultTitle={hasTitle ? SAMPLE.title : undefined}
             defaultAnnotation={hasTitle ? SAMPLE.annotation : undefined}
-            body={SAMPLE.body}
+            body={BODY_BY_LENGTH[bodyLength]}
             date={SAMPLE.date}
             wordCount={SAMPLE.wordCount}
             index={1}
@@ -250,6 +274,18 @@ function NoteCardPlayground() {
             options={[
               { value: 'off', label: 'Empty' },
               { value: 'on', label: 'Has title' },
+            ]}
+            fullWidth
+            className="col-span-2"
+          />
+          <InlineSegmentedControl
+            label="Body"
+            value={bodyLength}
+            onChange={(v) => setBodyLength(v as BodyLength)}
+            options={[
+              { value: 'short', label: 'Short' },
+              { value: 'default', label: 'Default' },
+              { value: 'long', label: 'Long' },
             ]}
             fullWidth
             className="col-span-2"
