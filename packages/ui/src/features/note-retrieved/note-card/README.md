@@ -81,14 +81,24 @@ named state, they decode into content state plus real CSS `:hover`:
   text is itself editable), body is the same kind of `variant="invisible"`
   `Textarea` as annotation — genuinely editable inline, `Enter` also commits
   rather than adding a line. Over the threshold, it renders as a
-  `line-clamp-6` `<button>` instead: read-only, and **double**-clicking it
-  calls `onOpenNote` — a hook for a full-width note view that doesn't exist
-  yet. Not a single click: the body still reads and behaves like a normal
+  read-only `<button>` instead, and **double**-clicking it calls
+  `onOpenNote` — a hook for a full-width note view that doesn't exist yet.
+  Not a single click: the body still reads and behaves like a normal
   paragraph (selectable, readable), and a single click fired far too
   easily while doing either. Keyboard access stays a single Enter/Space
   (there's no keyboard equivalent of "double-press" a reasonable user
   would expect) via an explicit `onKeyDown`, not the button's native click
   activation.
+  **Truncation is paragraph-aware, not one `line-clamp` over the whole
+  flow.** `body` is split on blank-line breaks into paragraphs; the
+  read-only button renders the first *two* as independent blocks (a real
+  `gap-[--spacing-sm]` between them, each with its own `line-clamp-6`
+  safety net), and drops anything beyond the second outright. A single
+  shared clamp across a multi-paragraph body counts *total visual lines*,
+  so it clips wherever the 6th line happens to land — usually mid-way
+  through the first paragraph, never reaching the second at all. A body
+  with no blank-line breaks (one long paragraph) still gets exactly one
+  block, clamped the same way as before.
   **Typing past the threshold mid-edit doesn't eject the field into that
   read-only view** — that would drop focus/cursor position out from under
   the user's own keystroke. Instead, while focused, a body that's grown past

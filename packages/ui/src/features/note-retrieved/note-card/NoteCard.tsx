@@ -232,6 +232,15 @@ function NoteCard({
    * reassessed.
    */
   const showReadOnlyBody = isBodyOverThreshold && !isEditingBody;
+  /* First two blank-line-separated paragraphs of the truncated read-only
+   * body — see the render below for why this isn't a single `line-clamp`
+   * over the whole flow. A body with no blank-line breaks at all (a
+   * single long paragraph) yields one entry here, same as before. */
+  const bodyParagraphs = body
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .slice(0, 2);
 
   const hasTitle = Boolean(title);
 
@@ -385,7 +394,19 @@ function NoteCard({
              * normal paragraph, and a single click would fire mid-select
              * or mid-read far too easily. Keyboard access stays a single
              * Enter/Space via onKeyDown — a "double-press" convention
-             * isn't a thing keyboard users would expect. */
+             * isn't a thing keyboard users would expect.
+             *
+             * Rendered as real, separate paragraph blocks — not one
+             * `line-clamp` spanning the whole pre-line-flattened body. A
+             * single shared clamp counts *total visual lines* across the
+             * entire flow, so it clips wherever the Nth line happens to
+             * fall — often mid-paragraph-one for a multi-paragraph body,
+             * never even reaching paragraph two. Splitting on blank-line
+             * breaks and showing the first two as independent blocks (each
+             * with its own `line-clamp-6` safety net, not a shared one)
+             * guarantees paragraph one renders in full and paragraph two
+             * is genuinely visible, with anything beyond it dropped
+             * outright rather than clipped partway through. */
             <button
               type="button"
               onDoubleClick={onOpenNote}
@@ -397,14 +418,8 @@ function NoteCard({
               }}
               aria-label="Open full note"
               className={cn(
-                'line-clamp-6 w-full cursor-pointer text-left',
-                /* Plain text collapses newlines by default — a multi-
-                 * paragraph body (blank-line-separated) would otherwise
-                 * render as one continuous run. pre-line preserves the
-                 * breaks while still collapsing incidental whitespace
-                 * runs, and doesn't interfere with line-clamp's own
-                 * line-counting. */
-                'whitespace-pre-line',
+                'flex w-full cursor-pointer flex-col text-left',
+                'gap-[length:var(--spacing-sm)]',
                 'border-0 bg-transparent p-0 outline-none',
                 'rounded-[length:var(--rounded-xs)]',
                 'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
@@ -416,7 +431,11 @@ function NoteCard({
                 'text-[color:var(--theme-alpha-black-switch-70)]'
               )}
             >
-              {body}
+              {bodyParagraphs.map((paragraph, index) => (
+                <span key={index} className="line-clamp-6 block whitespace-pre-line">
+                  {paragraph}
+                </span>
+              ))}
             </button>
           ) : (
             <Textarea
