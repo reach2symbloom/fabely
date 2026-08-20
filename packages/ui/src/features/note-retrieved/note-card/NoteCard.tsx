@@ -398,6 +398,13 @@ function NoteCard({
               aria-label="Open full note"
               className={cn(
                 'line-clamp-6 w-full cursor-pointer text-left',
+                /* Plain text collapses newlines by default — a multi-
+                 * paragraph body (blank-line-separated) would otherwise
+                 * render as one continuous run. pre-line preserves the
+                 * breaks while still collapsing incidental whitespace
+                 * runs, and doesn't interfere with line-clamp's own
+                 * line-counting. */
+                'whitespace-pre-line',
                 'border-0 bg-transparent p-0 outline-none',
                 'rounded-[length:var(--rounded-xs)]',
                 'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',

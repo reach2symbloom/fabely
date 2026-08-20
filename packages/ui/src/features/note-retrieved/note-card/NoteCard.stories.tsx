@@ -224,10 +224,9 @@ function ControlledExample() {
   );
 }
 
-type BodyLength = 'short' | 'default' | 'long';
+type BodyLength = 'default' | 'long';
 
 const BODY_BY_LENGTH: Record<BodyLength, string> = {
-  short: SHORT_BODY,
   default: SAMPLE.body,
   long: LONG_BODY,
 };
@@ -277,7 +276,6 @@ function NoteCardPlayground() {
             value={bodyLength}
             onChange={(v) => setBodyLength(v as BodyLength)}
             options={[
-              { value: 'short', label: 'Short' },
               { value: 'default', label: 'Default' },
               { value: 'long', label: 'Long' },
             ]}
