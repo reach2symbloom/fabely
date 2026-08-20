@@ -94,8 +94,8 @@ function PinButton({
         'size-[length:var(--spacing-2xl)] rounded-[length:var(--rounded-md)]',
         'border-0 p-0 outline-none select-none',
         /* Figma 16233:7891 — chip background is hover-only, both selected and not. */
-        'bg-[var(--theme-alpha-black-switch-0)] hover:bg-[var(--theme-alpha-black-switch-5)]',
-        'data-[force-hover=true]:bg-[var(--theme-alpha-black-switch-5)]',
+        'bg-[var(--theme-alpha-black-switch-0)] hover:bg-[var(--theme-alpha-black-switch-333)]',
+        'data-[force-hover=true]:bg-[var(--theme-alpha-black-switch-333)]',
         'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
         'disabled:pointer-events-none disabled:opacity-50',
         /* Glyph color — unselected alpha-20, selected alpha-50 (no hover shift, no primary). */

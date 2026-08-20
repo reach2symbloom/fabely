@@ -20,7 +20,7 @@ Input Group (`InputGroupTextarea`).
 
 | Prop | Values | Notes |
 | --- | --- | --- |
-| `variant` | `default` \| `filled` \| `ghost` \| `quiet` | Filled = surface-only hover; Quiet = inline / in-chrome |
+| `variant` | `default` \| `filled` \| `ghost` \| `quiet` \| `invisible` | Filled = surface-only hover; Quiet = inline / in-chrome; Invisible = zero chrome ever (no Figma axis) |
 | `textStyle` | `body` \| `heading` | Body = Paragraph Small; Heading = Heading 2, wraps, `field-sizing-content` |
 | `roundness` | `default` \| `round` | Figma Roundness; Round → `--radius` (16; Figma is 18) |
 | `resizable` | `boolean` (default `true`) | CSS `resize-y` / `resize-none`; insets grip from the border. Off for heading titles. |
@@ -51,6 +51,14 @@ Input Group (`InputGroupTextarea`).
 - **Inline heading titles** — `variant="quiet"` + `textStyle="heading"` +
   `resizable={false}` (Chapter Menu Header book title). Grows with wrap;
   no resize grip.
+- **Invisible** — no hover/focus decoration at all (not even `quiet`'s faint
+  border), `rounded-none`, and no built-in growth cap of its own — a
+  consumer that lets content grow past some length while editing (see
+  [Note Card](../../features/note-retrieved/note-card/README.md)'s body
+  field) is expected to cap it themselves via `max-h-*`/`overflow-y-auto`.
+  Added specifically for [Note Card](../../features/note-retrieved/note-card/README.md)'s
+  title/annotation/body fields, which need to read as plain text at rest
+  with the only affordance being the native cursor on hover.
 - **Input Group demos** — re-verify once partners settle (shell already bare-hosts
   this control). See Input Group README / docket.
 

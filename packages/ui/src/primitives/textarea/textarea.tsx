@@ -6,7 +6,9 @@
  *
  * Figma axes → props:
  * - Roundness Default | Round → `roundness`
- * - Style Default | Filled | Ghost | Quiet → `variant` (parity with Input)
+ * - Style Default | Filled | Ghost | Quiet → `variant` (parity with Input),
+ *   plus `invisible` (no Figma axis — zero chrome ever, not even on hover
+ *   or focus; the only affordance is the native text cursor)
  * - Type Body | Heading → `textStyle` (Heading 2 for inline titles)
  * - State Empty | Placeholder | Value | Focus | Error | Error Focus | Disabled
  *   → native value / placeholder / focus-visible / aria-invalid / disabled
@@ -87,6 +89,11 @@ const textareaShellVariants = cva(
           'has-[:focus-visible:not([aria-invalid=true])]:shadow-none',
           'has-[:disabled]:hover:bg-[color:var(--background)]',
         ].join(' '),
+        /* Zero chrome, ever — no hover fill, no focus border/ring. The only
+         * affordance is the native text cursor. Deliberately doesn't inherit
+         * error/disabled decoration from the base classes below it visually
+         * (still functions, just renders invisibly by design). */
+        invisible: 'bg-transparent',
       },
       roundness: {
         default: 'rounded-[length:var(--rounded-lg)]',
@@ -107,6 +114,14 @@ const textareaShellVariants = cva(
         resizable: true,
         roundness: 'round',
         class: 'pr-[var(--spacing-1-75)] pb-[var(--spacing-1-75)]',
+      },
+      /* Invisible never paints a box, so any radius would only be visible
+       * as an odd corner-clip on the native focus outline — kill it. `!`
+       * because this shell isn't run through `cn()`/twMerge at the call
+       * site, so plain class order can't be trusted to win the cascade. */
+      {
+        variant: 'invisible',
+        class: 'rounded-none!',
       },
     ],
     defaultVariants: {
@@ -140,6 +155,7 @@ const textareaVariants = cva(
         ].join(' '),
         ghost: 'bg-transparent',
         quiet: 'bg-transparent',
+        invisible: 'bg-transparent',
       },
       textStyle: {
         body: [
@@ -197,6 +213,11 @@ const textareaVariants = cva(
       {
         textStyle: 'heading',
         variant: 'ghost',
+        class: 'block h-auto overflow-hidden px-0 py-0',
+      },
+      {
+        textStyle: 'heading',
+        variant: 'invisible',
         class: 'block h-auto overflow-hidden px-0 py-0',
       },
     ],

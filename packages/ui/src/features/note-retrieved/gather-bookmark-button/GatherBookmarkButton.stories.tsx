@@ -49,7 +49,7 @@ function ModeExample() {
   return (
     <div className="flex items-center gap-[var(--spacing-lg)]">
       <div className="flex flex-col items-center gap-[var(--spacing-xs)]">
-        <GatherBookmarkButton mode="gather" forceHover />
+        <GatherBookmarkButton mode="gather" />
         <span className="text-xs text-muted-foreground">Gather</span>
       </div>
       <div className="flex flex-col items-center gap-[var(--spacing-xs)]">
@@ -146,7 +146,7 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Gather Bookmark Button"
-      description="Split control — bookmark toggle + menu chevron — for pinning notes/answers into a scene from the Gather panel. Gather mode reveals an Add/Remove-from-scene label on hover; Roam mode stays housed but label-less. Figma Bookmark Button (16228:3535)."
+      description="Split control — bookmark toggle + menu chevron — for pinning notes/answers into a scene from the Gather panel. Gather and Roam share one fill/divider/color model; the only difference is Gather always shows an Add/Remove-from-scene label. Figma Bookmark Button (16228:3535)."
       playground={<GatherBookmarkPlayground />}
       variants={
         <div className="flex flex-wrap gap-[var(--spacing-md)]">
@@ -177,16 +177,16 @@ export const Overview: Story = {
             it, it doesn&apos;t replace it.
           </li>
           <li>
-            <code>mode=&quot;gather&quot;</code> (default) reveals an
-            &quot;Add to scene&quot; / &quot;Remove from scene&quot; label on
-            hover of the bookmark icon specifically.{' '}
-            <code>mode=&quot;roam&quot;</code> never shows the label and
-            stays visibly housed even at rest.
+            <code>mode=&quot;gather&quot;</code> (default) always shows an
+            &quot;Add to scene&quot; / &quot;Remove from scene&quot; label —
+            not hover-gated. <code>mode=&quot;roam&quot;</code> never shows
+            it. That&apos;s the only difference between the two modes.
           </li>
           <li>
-            Once <code>active</code>, the chip stays housed (
-            <code>alpha-333</code>) regardless of mode or hover — selection
-            state, not hover, drives the persistent background.
+            Fill, divider, and icon color are identical in both modes: the
+            chip is always housed (<code>alpha-333</code>), and each segment
+            independently deepens to <code>alpha-5</code> on its own hover —
+            regardless of <code>active</code> or <code>mode</code>.
           </li>
           <li>
             Use <code>forceHover</code> in Storybook to lock the hover paint

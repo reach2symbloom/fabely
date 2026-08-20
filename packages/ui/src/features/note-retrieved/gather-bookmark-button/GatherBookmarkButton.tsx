@@ -4,22 +4,20 @@
  *
  * Distinct from the [Bookmark Button](../../../atoms/bookmark-button/README.md)
  * atom, which this component reuses internally as its toggle — this one adds
- * the chip housing, a hover-reveal "Add to scene" / "Remove from scene"
- * label (Gather mode only), and a trailing chevron menu trigger.
+ * the chip housing, an "Add to scene" / "Remove from scene" label (Gather
+ * mode only), and a trailing chevron menu trigger.
  *
  * Built on [Button Group](../../../primitives/button-group/README.md) — two
  * genuinely independent joined segments (bookmark, chevron), not one shared
  * div with a whole-row hover wash. That's what makes hovering one segment
- * leave the other alone, and lets the group hug to icon-only width when
- * Roam mode/no label is showing (each segment sizes to its own content;
- * there's no shared container reserving space for the other).
+ * leave the other alone.
  *
- * The *default* fill, though, lives on the outer `ButtonGroup` itself, not
- * on either segment — each segment only ever adds a hover-triggered
- * *deepening* on top of that shared base. Painting the base fill on each
- * segment independently made the divider between them read as sitting
- * between two separately-colored boxes rather than embedded in one
- * continuous pill.
+ * `Gather` and `Roam` share one fill/divider/color model — the *only*
+ * difference between them is whether the label renders. An earlier pass
+ * gave Gather a transparent, hover-reveal-everything treatment distinct
+ * from Roam's always-housed one; they're unified now, by design, not by
+ * Figma source (Figma's own mockup happens to differ here too, but the
+ * product decision is parity).
  *
  * Visual source: Figma **Bookmark Button** (Gather composite)
  * ([Bookmark Button](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16228-3535)
@@ -56,6 +54,18 @@ function ChevronDownGlyph({ className }: { className?: string }) {
   );
 }
 
+/** Shared, mode-independent fill rule — container base + per-segment hover deepen. */
+const GROUP_BG = 'bg-[var(--theme-alpha-black-switch-333)]';
+/**
+ * `transition-colors` lives here, not just on the outer `ButtonGroup` — a
+ * CSS transition only animates the element it's declared on, not
+ * descendants, so without this each segment's own `hover:bg-*` snapped
+ * instantly regardless of the group's transition.
+ */
+const HOVER_DEEPEN =
+  'transition-colors duration-[var(--duration-fast)] ease-[var(--ease-emphasized)] hover:bg-[var(--theme-alpha-black-switch-5)] data-[force-hover=true]:bg-[var(--theme-alpha-black-switch-5)]';
+const CHEVRON_COLOR = 'text-[color:var(--theme-alpha-black-switch-50)]';
+
 type GatherBookmarkButtonMode = 'gather' | 'roam';
 
 type GatherBookmarkButtonProps = {
@@ -65,9 +75,10 @@ type GatherBookmarkButtonProps = {
   defaultActive?: boolean;
   onActiveChange?: (active: boolean) => void;
   /**
-   * Figma `mode` — `gather` reveals an "Add to scene" / "Remove from scene"
-   * label on hover; `roam` never shows the label but stays visibly housed
-   * (`alpha-333`) even at rest.
+   * Figma `mode` — the only thing this actually changes now: `gather` shows
+   * the "Add to scene" / "Remove from scene" label (always, not just on
+   * hover); `roam` never shows it. Fill, divider, and icon color are
+   * identical between the two.
    */
   mode?: GatherBookmarkButtonMode;
   /** Figma `Show superscript` — badge only renders while active. */
@@ -115,33 +126,7 @@ function GatherBookmarkButton({
     onActiveChange?.(next);
   };
 
-  /** Figma: once active, or in Roam mode, the group stays visibly housed. */
-  const persistentHoused = active || mode === 'roam';
   const label = active ? activeLabel : inactiveLabel;
-
-  /**
-   * Rest/default fill lives on the group, painted once. Each segment below
-   * only ever adds its OWN hover-triggered deepening on top of that shared
-   * base — never a base fill of its own — so the divider between them sits
-   * on one continuous background instead of between two separate boxes.
-   */
-  const groupBg = persistentHoused
-    ? 'bg-[var(--theme-alpha-black-switch-333)]'
-    : 'bg-transparent';
-
-  /**
-   * Independent per-segment hover deepening. `!persistentHoused` only
-   * happens in `gather` mode (Roam is always persistently housed): the
-   * group is transparent, so a segment's own hover paints the full
-   * `alpha-333` itself. Once housed and `active`, there's no further
-   * hover change (static). Housed-but-inactive (Roam) deepens the
-   * group's `alpha-333` base to `alpha-5` on that segment's own hover.
-   */
-  const hoverDeepenClasses = !persistentHoused
-    ? 'hover:bg-[var(--theme-alpha-black-switch-333)] data-[force-hover=true]:bg-[var(--theme-alpha-black-switch-333)]'
-    : active
-      ? ''
-      : 'hover:bg-[var(--theme-alpha-black-switch-5)] data-[force-hover=true]:bg-[var(--theme-alpha-black-switch-5)]';
 
   return (
     <ButtonGroup
@@ -150,7 +135,7 @@ function GatherBookmarkButton({
       className={cn(
         'h-[length:var(--spacing-2xl)] overflow-hidden rounded-[length:var(--rounded-md)]',
         'transition-colors duration-[var(--duration-fast)] ease-[var(--ease-emphasized)]',
-        groupBg,
+        GROUP_BG,
         /* Figma chip is --rounded-md (8); Button Group's own default end-cap
          * is --rounded-lg (12) — override both end caps to match. */
         '[&>[data-slot]:first-child]:rounded-l-[length:var(--rounded-md)]!',
@@ -168,21 +153,16 @@ function GatherBookmarkButton({
         forceHover={forceHover}
         aria-label={label}
         className={cn(
-          'group/label h-full p-[length:var(--spacing-2xs)]',
-          'transition-[background-color,gap] duration-[var(--duration-fast)] ease-[var(--ease-emphasized)]',
-          mode === 'gather' && 'gap-0 hover:gap-[length:var(--spacing-2xs)]',
-          mode === 'gather' && forceHover && 'gap-[length:var(--spacing-2xs)]',
-          hoverDeepenClasses
+          'h-full p-[length:var(--spacing-2xs)]',
+          mode === 'gather' && 'gap-[length:var(--spacing-2xs)]',
+          HOVER_DEEPEN
         )}
         trailingContent={
           mode === 'gather' && (
             <span
               className={cn(
                 'overflow-hidden whitespace-nowrap',
-                'max-w-0 opacity-0',
-                'transition-[max-width,opacity] duration-[var(--duration-fast)] ease-[var(--ease-emphasized)]',
-                'group-hover/label:max-w-[140px] group-hover/label:opacity-100',
-                forceHover && 'max-w-[140px] opacity-100',
+                'pl-[length:var(--spacing-2xs)] pr-[length:var(--spacing-1-5)]',
                 'font-[family-name:var(--text-paragraph-mini-regular-font-family)]',
                 '[font-weight:var(--text-paragraph-mini-regular-font-weight)]',
                 'text-[length:var(--text-paragraph-mini-regular-font-size)]',
@@ -197,14 +177,11 @@ function GatherBookmarkButton({
         }
       />
 
-      {/* Only present once housed — no reserved dead space at rest. Figma
-       * measures the line inset 4px from both the top and bottom of the
-       * 32px row (`16231:7040`: y=4, height=24). */}
-      {persistentHoused && (
-        <ButtonGroupSeparator
-          className="my-[length:var(--spacing-2xs)]! bg-[var(--theme-alpha-black-switch-5)]!"
-        />
-      )}
+      {/* Always present — Figma measures the line inset 4px from both the
+       * top and bottom of the 32px row (`16231:7040`: y=4, height=24). */}
+      <ButtonGroupSeparator
+        className="my-[length:var(--spacing-2xs)]! bg-[var(--theme-alpha-black-switch-5)]!"
+      />
 
       {/* A real, independent Icon Button — its own hover deepening, entirely
        * unaffected by hovering the bookmark segment. Figma's chevron column
@@ -219,15 +196,8 @@ function GatherBookmarkButton({
         className={cn(
           'h-full w-[24px]',
           'px-[length:var(--spacing-2xs)] py-[length:var(--spacing-xs)]',
-          /* Same deepening rule as the bookmark segment — independent, own hover. */
-          hoverDeepenClasses,
-          persistentHoused
-            ? 'text-[color:var(--theme-alpha-black-switch-50)]'
-            : [
-                'text-[color:var(--theme-alpha-black-switch-20)]',
-                'hover:text-[color:var(--theme-alpha-black-switch-50)]',
-                'data-[force-hover=true]:text-[color:var(--theme-alpha-black-switch-50)]',
-              ]
+          CHEVRON_COLOR,
+          HOVER_DEEPEN
         )}
       >
         <ChevronDownGlyph />

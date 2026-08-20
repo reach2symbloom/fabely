@@ -1,7 +1,7 @@
 # Gather Bookmark Button
 
 Split control for pinning a note/answer into a scene from the Gather panel:
-a bookmark toggle, an optional hover-reveal label, and a menu chevron.
+a bookmark toggle, an always-visible label (Gather mode), and a menu chevron.
 
 ## Purpose
 
@@ -9,6 +9,11 @@ Distinct from the [Bookmark Button](../../../atoms/bookmark-button/README.md)
 atom — that one is a bare icon toggle usable anywhere; this composite wraps
 it with Gather-specific chrome (chip housing, "Add to scene" / "Remove from
 scene" copy, a menu trigger) and belongs only in the Gather panel context.
+`Gather` and `Roam` modes share one fill/divider/color model — the *only*
+difference between them is whether the label renders. An earlier pass gave
+Gather a transparent, hover-reveal-everything treatment distinct from Roam's
+always-housed one; they're unified now, by product decision, not because
+Figma's own mockup shows them that way (it still differs there too).
 Storybook groups it under **Features/Gather** even though its folder is
 `features/note-retrieved/`, matching the existing convention set by
 [Fia Answer](../fia-answer/README.md) — the sidenav was renamed to "Gather"
@@ -26,10 +31,10 @@ without renaming the underlying folder.
 ## Composition
 
 ```text
-GatherBookmarkButton → ButtonGroup (carries the default/rest fill)
+GatherBookmarkButton → ButtonGroup (always housed, alpha-333)
   ├── BookmarkButton atom (padding + own hover-deepen; label passed as `trailingContent`, inside the same button)
-  ├── ButtonGroupSeparator (only once housed)
-  └── IconButton (chevron, "ghost", own hover-deepen)
+  ├── ButtonGroupSeparator (always rendered)
+  └── IconButton (chevron, "ghost", own hover-deepen; identical color/fill to the bookmark segment)
 ```
 
 **The label is inside the button, not next to it.** The first pass rendered
@@ -55,45 +60,40 @@ the primitive built for "two-plus real, independent controls joined into one
 strip," so this rebuild composes on it instead of re-deriving that behavior
 by hand:
 
-1. **Hug-to-content width** — `ButtonGroupSeparator` is only rendered
-   (mounted, not just hidden) once the control is housed (`active` or
-   `roam`); each segment sizes to its own content, so there's no shared
-   container reserving space for the other. Roam mode / no revealed label
-   naturally hugs down to icon + chevron.
+1. **Hug-to-content width** — each segment sizes to its own content, so
+   there's no shared container reserving dead space for the other. Roam mode
+   (no label) naturally hugs down to icon + chevron; Gather's label pushes
+   the bookmark segment wider.
 2. **Independent hover** — the bookmark segment and the chevron
-   (`IconButton`) each carry their own `hover:bg-*` / `hover:text-*`, not a
-   shared wash from a common ancestor. Hovering one never lights up the
-   other, matching Figma's `Hover=Bookmark` (only the label pill darkens)
-   and `Hover=Chevron` (only the chevron box darkens) being genuinely
-   distinct variants.
+   (`IconButton`) each carry their own `hover:bg-*`, not a shared wash from a
+   common ancestor. Hovering one never lights up the other, matching Figma's
+   `Hover=Bookmark` (only the label pill darkens) and `Hover=Chevron` (only
+   the chevron box darkens) being genuinely distinct variants.
 
-**Default fill lives on the group; segments only ever deepen.** An earlier
-pass painted the full fill (`alpha-333` etc.) independently on *each*
-segment, including at rest. Two segments each separately colored the same
-value happen to look identical when touching — but the moment either one's
-hover state differed even slightly, or you inspected the DOM, the divider
-between them read as sitting between two separate painted boxes rather than
-embedded in one continuous pill. Fixed by moving the rest/default fill onto
-the `ButtonGroup` itself (`groupBg`, painted once), and reducing each
-segment to a `hoverDeepenClasses` rule that only ever *adds* a hover-time
-color on top of that shared base — never repaints it independently:
+**Default fill lives on the group; segments only ever deepen — and this is
+now true unconditionally, in both modes.** An earlier pass gave the group's
+own fill and the divider's presence a whole conditional matrix keyed off
+`active`/`mode` (transparent-until-active in Gather, always-housed in Roam,
+label only appearing on hover). That's gone: the group is *always* housed at
+`--theme-alpha-black-switch-333` — `GROUP_BG`, applied unconditionally, no
+`active`/`mode` branching — and each segment (`BookmarkButton`'s root,
+`IconButton`) shares one `HOVER_DEEPEN` class string that just adds
+`hover:bg-[...-5]` / `data-[force-hover=true]:bg-[...-5]` on top of that
+base. The chevron's color is likewise a flat, unconditional `alpha-50`
+(`CHEVRON_COLOR`) — no more "housed vs. rest" distinction, since the group
+is always housed now. `HOVER_DEEPEN` also carries its own
+`transition-colors duration-[--duration-fast] ease-[--ease-emphasized]`
+rather than relying on the outer group's transition — a CSS transition only
+animates the element it's declared on, so without this each segment's
+background snapped instantly regardless of the group's own transition.
 
-- **Group fill** — `active` (any mode) or `roam` mode keeps the group housed
-  (`--theme-alpha-black-switch-333`) permanently; `gather`-inactive is
-  transparent.
-- **Segment hover-deepen** — `gather`-inactive: a segment's own hover paints
-  the group's `alpha-333` itself (group is transparent, so this is the first
-  fill either segment shows). Housed + `active`: no further hover change
-  (static). Housed-but-inactive (`roam`): each segment independently deepens
-  the group's `alpha-333` base to `alpha-5` on its own hover — the chevron
-  is not exempt, it deepens exactly like the bookmark segment.
-- **Label reveal** — only in `gather` mode: the segment's `gap` and the
-  label's `max-width` both animate from `0`, scoped to that segment's own
-  `hover:` so hovering the chevron never triggers it.
-- **Chevron color** — permanent `alpha-50` once housed, `alpha-20`
-  otherwise — verified against the raw Figma export's `imgVector2` /
-  `imgVector3` chevron assets, which are the same path at `alpha-50` and
-  `alpha-20` respectively.
+**The label is always visible in Gather mode — not hover-revealed.** The
+only remaining difference between the two modes: `mode="gather"` always
+renders the "Add to scene" / "Remove from scene" label via `trailingContent`
+(rest, hover, and active alike); `mode="roam"` never renders it. There's no
+`max-width`/`opacity` reveal animation left to describe — the label is just
+there, styled with `pl-[--spacing-2xs] pr-[--spacing-1-5]` (4px / 6px) so it
+doesn't crowd the glyph or the segment's own trailing edge.
 
 **Chevron footprint.** Figma's chevron column is a `24×32` frame (`4px`
 horizontal padding, `8px` vertical) around a `16px` "Fade button" —
@@ -128,7 +128,9 @@ past the icon's box).
 the line sits at `y=4` with `height=24` inside the `32px` row). Overridden
 via `className="my-[length:var(--spacing-2xs)]! bg-[...]!"` (both need `!`
 to beat the primitive's own `!important`-free but still-specific
-`data-vertical:` rule).
+`data-vertical:` rule). It's always mounted now (not conditional on
+`active`/`mode`) — the group is always housed, so there's always a divider
+to draw.
 
 **Simplification:** Figma's `Hover=Chevron` variant washes the *entire* row
 (both segments) alpha-333, not just the chevron's own box — an artifact of
@@ -148,11 +150,11 @@ rather than fought.
 | Prop | Default | Notes |
 | --- | --- | --- |
 | `active` / `defaultActive` / `onActiveChange` | — | Controlled/uncontrolled bookmarked state |
-| `mode` | `'gather'` | `'gather'` reveals the hover label; `'roam'` never does and stays housed at rest |
+| `mode` | `'gather'` | `'gather'` always shows the label; `'roam'` never does. Fill, divider, and icon color are identical between the two |
 | `showSuperscript` | `false` | Forwarded to the internal `BookmarkButton` |
 | `superscriptValue` | `2` | Forwarded to the internal `BookmarkButton` |
-| `activeLabel` | `'Remove from scene'` | Gather-mode hover label when active |
-| `inactiveLabel` | `'Add to scene'` | Gather-mode hover label when inactive |
+| `activeLabel` | `'Remove from scene'` | Gather-mode label when active |
+| `inactiveLabel` | `'Add to scene'` | Gather-mode label when inactive |
 | `onMenuClick` | — | Chevron button's click handler (scene picker, etc.) |
 | `groupLabel` | `'Bookmark'` | Accessible name for the `ButtonGroup` itself (the two segments have their own names) |
 | `size` | `'default'` | Forwarded to the internal `BookmarkButton`'s glyph size (`sm` / `default` / `lg`) — e.g. [Note Card](../note-card/README.md) uses `sm` to match `PinButton`'s fixed `--icon-sm` glyph |
@@ -163,11 +165,11 @@ rather than fought.
 | Concern | Foundations |
 | --- | --- |
 | Group height | `--spacing-2xl` (32px) |
-| Segment housed background | `--theme-alpha-black-switch-333` |
-| Roam hover background | `--theme-alpha-black-switch-5` |
-| Chevron (housed) | `--theme-alpha-black-switch-50` |
-| Chevron (rest) | `--theme-alpha-black-switch-20` |
+| Group background (always housed) | `--theme-alpha-black-switch-333` |
+| Segment hover-deepen (both segments, both modes) | `--theme-alpha-black-switch-5` |
+| Chevron color (always) | `--theme-alpha-black-switch-50` |
 | Label typography | `--text-paragraph-mini-regular-*`, `--muted-foreground` |
+| Label padding | `--spacing-2xs` left (4px) / `--spacing-1-5` right (6px) |
 | Chevron column | `24×32` (`w-[24px] h-full`, `px-2xs`/`py-xs`) |
 | Chevron glyph | Custom `~7×4` path (Figma `1463:191`), not Lucide |
 | Divider inset | `--spacing-2xs` (4px) top/bottom |

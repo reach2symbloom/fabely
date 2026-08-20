@@ -43,25 +43,39 @@ Figma encodes this as **7 named `Title × Hover × Pin` variants**
 named state, they decode into content state plus real CSS `:hover`:
 
 - **Title / annotation are editable, not static text.** Real `Textarea`
-  fields, `variant="ghost"` — no visible chrome until hovered/focused, so
-  they read as plain text at rest and reveal a subtle box once you're about
-  to edit. Empty renders the native `placeholder` ("Add title" / "Add
-  annotation" in `--theme-alpha-black-switch-50`); a value renders in
-  `--theme-alpha-black-switch-70`. Title uses `textStyle="heading"` (single
-  row, Figma's Hover=Bookmark note explicitly calls this an inline title);
-  annotation uses `textStyle="body"` and is allowed to wrap 2–3 lines.
-  Typography is overridden via `className` to Foundations' own
+  fields, `variant="invisible"` — zero chrome ever, not even on hover or
+  focus; the only affordance is the native text cursor. (An earlier pass
+  used `variant="quiet"`, which still drew a faint hover/focus box; that
+  read as too much chrome for what's meant to feel like plain text you can
+  click into, so the primitive gained a dedicated `invisible` variant and
+  these fields moved onto it.) Empty renders the native `placeholder` ("Add
+  title" / "Add annotation" in `--theme-alpha-black-switch-50`); a value
+  renders in `--theme-alpha-black-switch-70`. Title uses `textStyle="heading"`
+  (single row, Figma's Hover=Bookmark note explicitly calls this an inline
+  title); annotation uses `textStyle="body"` and is allowed to wrap 2–3
+  lines. Typography is overridden via `className` to Foundations' own
   `xl-regular` (title) / `small-regular` (annotation) tokens rather than the
   primitive's baked-in heading-2/paragraph-small defaults. `Enter` commits
   (blurs) instead of inserting a newline in both — they're single fields,
   not paragraphs.
-- **Body is editable when short, read-only + truncated when long.** Under
-  `bodyTruncateThreshold` characters (default `240`), body is the same kind
-  of `Textarea` as annotation — genuinely editable inline, `Enter` also
-  commits rather than adding a line. Over the threshold, it renders as a
+- **Body is editable when short, read-only + truncated when long — and the
+  switch is gated on focus, not raw length.** Under `bodyTruncateThreshold`
+  characters (default `359` — set to the exact character count of the
+  sample Eldergrove paragraph used across these stories, so the default demo
+  text is itself editable), body is the same kind of `variant="invisible"`
+  `Textarea` as annotation — genuinely editable inline, `Enter` also commits
+  rather than adding a line. Over the threshold, it renders as a
   `line-clamp-6` `<button>` instead: read-only, and clicking it calls
   `onOpenNote` — a hook for a full-width note view that doesn't exist yet.
-  Body's own state is simpler than title/annotation's full
+  **Typing past the threshold mid-edit doesn't eject the field into that
+  read-only view** — that would drop focus/cursor position out from under
+  the user's own keystroke. Instead, while focused, a body that's grown past
+  the threshold caps its growth at `12` lines (double the read-only view's
+  own `line-clamp-6`) and becomes a scroll container
+  (`max-h-[...] overflow-y-auto`) rather than growing the row unbounded.
+  Only once the field is blurred is the length reassessed: over the
+  threshold, it flips to the read-only truncated view; still under it, it
+  stays editable. Body's own state is simpler than title/annotation's full
   controlled/uncontrolled pair: it's always internally uncontrolled (seeded
   from the `body` prop), reporting edits via `onBodyChange` rather than
   requiring a controlled round-trip — there's no "empty body" placeholder
@@ -132,8 +146,8 @@ title/annotation column.
 | --- | --- | --- |
 | `title` / `defaultTitle` / `onTitleChange` | — | Editable `Textarea`; empty shows "Add title"; `Enter` commits |
 | `annotation` / `defaultAnnotation` / `onAnnotationChange` | — | Editable `Textarea`, wraps 2–3 lines; empty shows "Add annotation"; `Enter` commits |
-| `body` / `onBodyChange` | — | Required initial value. Editable inline under `bodyTruncateThreshold`; truncated + read-only over it |
-| `bodyTruncateThreshold` | `240` | Character count above which body truncates instead of staying editable |
+| `body` / `onBodyChange` | — | Required initial value. Editable inline under `bodyTruncateThreshold`; truncated + read-only over it (reassessed on blur, not mid-keystroke) |
+| `bodyTruncateThreshold` | `359` | Character count above which body truncates instead of staying editable |
 | `onOpenNote` | — | Hook — fires from the truncated body button *and* the Expand icon; opens the full note (view not built yet) |
 | `date` / `wordCount` | — | Footer metadata; each only renders if provided |
 | `badgeLabel` | `'Notes'` | Trailing `Badge` text |
@@ -162,7 +176,9 @@ title/annotation column.
 | Annotation → body gap | `--spacing-xs` (8px) |
 | Body → footer metadata gap | `--spacing-sm` (12px) |
 | Title/annotation shell radius | `--rounded-md` (8px) — one notch down from the primitive's own `--rounded-lg` |
+| Body edit-mode growth cap | `12` lines (`--text-paragraph-regular-regular-line-height` × 12) once over `bodyTruncateThreshold` while focused, then scrolls |
 | Pin / Bookmark glyph size | `--icon-sm` (16px), matched between both |
+| Pin hover background | `--theme-alpha-black-switch-333` — matches the row's own hover wash |
 | Motion | `--duration-fast` / `--ease-emphasized` |
 
 ## Deferred

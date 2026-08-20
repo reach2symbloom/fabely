@@ -161,6 +161,20 @@ function RoundExample() {
   );
 }
 
+function InvisibleExample() {
+  return (
+    <div className="w-full max-w-xs">
+      <Textarea
+        variant="invisible"
+        resizable={false}
+        placeholder="Click to edit..."
+        aria-label="Message"
+        defaultValue="No box, no hover state, no focus ring — just a text cursor."
+      />
+    </div>
+  );
+}
+
 function RtlExample() {
   return (
     <DirectionProvider direction="rtl">
@@ -222,6 +236,7 @@ function TextareaPlayground() {
               { value: 'filled', label: 'Filled' },
               { value: 'ghost', label: 'Ghost' },
               { value: 'quiet', label: 'Quiet' },
+              { value: 'invisible', label: 'Invisible' },
             ]}
             onChange={(v) => setVariant(v as TextareaVariant)}
             fullWidth
@@ -349,6 +364,9 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Heading (quiet)">
             <HeadingExample />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Invisible">
+            <InvisibleExample />
+          </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="RTL">
             <RtlExample />
           </PrimitiveGalleryItem>
@@ -369,10 +387,14 @@ export const Overview: Story = {
           </li>
           <li>
             <code>variant</code> supports <code>default</code> /{' '}
-            <code>filled</code> / <code>ghost</code> / <code>quiet</code>. Filled
-            deepens its surface on hover without adding a border. Quiet heading titles use{' '}
+            <code>filled</code> / <code>ghost</code> / <code>quiet</code> /{' '}
+            <code>invisible</code>. Filled deepens its surface on hover without
+            adding a border. Quiet heading titles use{' '}
             <code>textStyle=&quot;heading&quot;</code> and{' '}
-            <code>resizable=&#123;false&#125;</code> — wraps, no grip.
+            <code>resizable=&#123;false&#125;</code> — wraps, no grip.{' '}
+            <code>invisible</code> has no Figma axis — zero chrome ever, not
+            even on hover or focus (no border, no radius, no shadow); the
+            only affordance is the native text cursor.
           </li>
           <li>
             <code>resizable</code> maps to CSS <code>resize-y</code> (Figma grip
@@ -439,6 +461,10 @@ export const Round: Story = {
 
 export const Heading: Story = {
   render: () => <HeadingExample />,
+};
+
+export const Invisible: Story = {
+  render: () => <InvisibleExample />,
 };
 
 export const RTL: Story = {

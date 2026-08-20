@@ -116,7 +116,7 @@ function NoteCard({
   onAnnotationChange,
   body: initialBody,
   onBodyChange,
-  bodyTruncateThreshold = 240,
+  bodyTruncateThreshold = 359,
   onOpenNote,
   date,
   wordCount,
@@ -153,7 +153,18 @@ function NoteCard({
   const annotation = isAnnotationControlled ? annotationProp : uncontrolledAnnotation;
 
   const [body, setBody] = useState(initialBody);
-  const isBodyLong = body.length > bodyTruncateThreshold;
+  const [isEditingBody, setIsEditingBody] = useState(false);
+  const isBodyOverThreshold = body.length > bodyTruncateThreshold;
+  /**
+   * Typing past the threshold mid-edit must not eject the field into the
+   * read-only truncated view — that would drop focus/cursor position out
+   * from under the user's own keystroke. So the switch to read-only is
+   * gated on `!isEditingBody`, not on length alone: growth is capped and
+   * scrollable instead (see the body `Textarea` below), and the read-only
+   * view only takes over once they click off and the length is
+   * reassessed.
+   */
+  const showReadOnlyBody = isBodyOverThreshold && !isEditingBody;
 
   const hasTitle = Boolean(title);
 
@@ -196,7 +207,7 @@ function NoteCard({
               )}
             >
               <Textarea
-                variant="ghost"
+                variant="invisible"
                 textStyle="heading"
                 rows={1}
                 value={title}
@@ -223,7 +234,7 @@ function NoteCard({
               {/* `body` textStyle (not `heading`) — annotation is allowed to
                * wrap 2-3 lines, unlike the single-row title. */}
               <Textarea
-                variant="ghost"
+                variant="invisible"
                 textStyle="body"
                 resizable={false}
                 value={annotation}
@@ -249,7 +260,7 @@ function NoteCard({
                 )}
               />
             </div>
-            <div className="flex shrink-0 items-center gap-[length:var(--spacing-3xs)] pl-[length:var(--spacing-xs)] pt-[length:var(--spacing-3xs)]">
+            <div className="flex shrink-0 items-center gap-[length:var(--spacing-xs)] pl-[length:var(--spacing-xs)] pt-[length:var(--spacing-3xs)]">
               {showPin && (
                 <PinButton
                   pressed={pinned}
@@ -277,7 +288,7 @@ function NoteCard({
               />
             </div>
           </div>
-          {isBodyLong ? (
+          {showReadOnlyBody ? (
             /* Long body is read-only + truncated — click opens the full
              * note (hook only; that view doesn't exist yet). */
             <button
@@ -301,11 +312,13 @@ function NoteCard({
             </button>
           ) : (
             <Textarea
-              variant="ghost"
+              variant="invisible"
               textStyle="body"
               resizable={false}
               value={body}
               aria-label="Note body"
+              onFocus={() => setIsEditingBody(true)}
+              onBlur={() => setIsEditingBody(false)}
               onChange={(event) => {
                 const next = event.target.value;
                 setBody(next);
@@ -318,7 +331,13 @@ function NoteCard({
                 'text-[length:var(--text-paragraph-regular-regular-font-size)]',
                 'leading-[var(--text-paragraph-regular-regular-line-height)]',
                 'tracking-[var(--text-paragraph-regular-regular-letter-spacing)]',
-                'text-[color:var(--theme-alpha-black-switch-70)]'
+                'text-[color:var(--theme-alpha-black-switch-70)]',
+                /* Past the threshold mid-edit: stop growing at 2x the
+                 * read-only view's own line-clamp-6 cap (12 lines) and
+                 * scroll instead, rather than growing the row unbounded. */
+                isEditingBody &&
+                  isBodyOverThreshold &&
+                  'max-h-[calc(var(--text-paragraph-regular-regular-line-height)*12)] overflow-y-auto'
               )}
             />
           )}
@@ -384,7 +403,7 @@ function NoteCard({
               'group-hover/card:opacity-100 group-data-[force-hover=true]/card:opacity-100'
             )}
           >
-            {isBodyLong && (
+            {showReadOnlyBody && (
               <IconButton
                 variant="ghost"
                 roundness="round"
