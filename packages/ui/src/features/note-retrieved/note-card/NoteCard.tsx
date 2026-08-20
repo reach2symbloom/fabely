@@ -6,10 +6,14 @@
  *
  * Figma encodes this as 7 named `Title × Hover × Pin` variants — decoded
  * here into real CSS `:hover` plus two content booleans (`title`, `pinned`)
- * rather than reproduced as literal named states. One nuance worth keeping
- * explicit: the bookmark control's Figma `mode` tracks whether the note
- * *has* a title — `gather` (hover-reveals "Add to scene") when it does,
- * `roam` (icon-only chip) when it doesn't yet.
+ * rather than reproduced as literal named states.
+ *
+ * `mode` (`gather` / `roam`) is the surrounding page context this card is
+ * rendered in — Gather panel vs. Roam — and passes straight through to the
+ * `GatherBookmarkButton`. It is NOT derived from whether the note has a
+ * title; Figma's mockup only happens to show Roam mode in its title-less
+ * example frames, which is a coincidence of that particular mockup, not a
+ * rule.
  *
  * Visual source: Figma **Note card**
  * ([Note card](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16064-4975)
@@ -19,27 +23,73 @@
 
 import { ChevronsUpDownIcon, EllipsisVerticalIcon } from 'lucide-react';
 import { useState } from 'react';
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 
 import { PinButton } from '@/atoms/pin-button';
 import { cn } from '@/lib/utils';
-import { GatherBookmarkButton } from '@/features/note-retrieved/gather-bookmark-button';
+import {
+  GatherBookmarkButton,
+  type GatherBookmarkButtonMode,
+} from '@/features/note-retrieved/gather-bookmark-button';
 import { Badge } from '@/primitives/badge';
 import { IconButton } from '@/primitives/button/icon-button';
+import { Textarea } from '@/primitives/textarea';
 
 type NoteCardProps = {
-  /** Note title. Empty/undefined shows the "Add title" placeholder. */
+  /** Note title — an editable invisible input; empty shows "Add title". */
   title?: string;
-  /** Short author annotation. Empty/undefined shows "Add annotation". */
+  defaultTitle?: string;
+  onTitleChange?: (title: string) => void;
+  /** Short author annotation — an editable invisible input; empty shows "Add annotation". */
   annotation?: string;
-  /** Main note/answer body — always shown. */
+  defaultAnnotation?: string;
+  onAnnotationChange?: (annotation: string) => void;
+  /**
+   * Main note/answer body — always shown. Initial/uncontrolled value; edits
+   * are self-managed internally and reported via `onBodyChange`, unlike
+   * `title`/`annotation`'s full controlled/uncontrolled pair (there's no
+   * "empty body" placeholder state to mirror, so the simpler pattern fits).
+   */
   body: string;
+  onBodyChange?: (body: string) => void;
+  /**
+   * Above this character count, body renders truncated (`line-clamp`) and
+   * read-only instead of editable — click opens the full note instead of
+   * editing inline. Below it, body is a genuinely editable `Textarea` like
+   * `annotation`.
+   */
+  bodyTruncateThreshold?: number;
+  /**
+   * Fires when a truncated (long) body is clicked — the hook point for
+   * opening the note in a full-width view. That view doesn't exist yet;
+   * this only wires the trigger.
+   */
+  onOpenNote?: () => void;
   date?: string;
   wordCount?: number;
   /** Trailing badge label. */
   badgeLabel?: string;
   /** Small ordinal shown bottom-left of the card (list position). */
   index?: ReactNode;
+  /**
+   * Surrounding page context — Gather panel vs. Roam — forwarded directly
+   * to `GatherBookmarkButton`'s own `mode`. Not derived from `title`.
+   */
+  mode?: GatherBookmarkButtonMode;
+  /**
+   * Whether the Pin control renders at all — distinct from `pinned` (its
+   * current state) and `pinInteractive` (whether it can be toggled). A
+   * context that doesn't support pinning sets this `false`; Figma's own
+   * source only ever showed Pin once already pinned, which meant there was
+   * no way to pin from an unpinned state through this control.
+   */
+  showPin?: boolean;
+  /**
+   * Whether the Pin control (when shown) can be toggled — distinct from
+   * whether it's shown at all. `false` renders it read-only/disabled,
+   * reflecting `pinned` without letting the user change it.
+   */
+  pinInteractive?: boolean;
   /** Pinned-to-scene state (controlled). */
   pinned?: boolean;
   defaultPinned?: boolean;
@@ -48,31 +98,41 @@ type NoteCardProps = {
   bookmarked?: boolean;
   defaultBookmarked?: boolean;
   onBookmarkedChange?: (bookmarked: boolean) => void;
-  /** Footer "reorder" action — hover-revealed. */
-  onReorder?: () => void;
   /** Footer "more options" action — hover-revealed. */
   onMoreOptions?: () => void;
+  /** Bottom divider — off for the last row in a list, or a caller that draws its own separators. */
+  showBottomBorder?: boolean;
   className?: string;
   /** Storybook / playground — lock the row's hover paint without a pointer. */
   forceHover?: boolean;
 };
 
 function NoteCard({
-  title,
-  annotation,
-  body,
+  title: titleProp,
+  defaultTitle = '',
+  onTitleChange,
+  annotation: annotationProp,
+  defaultAnnotation = '',
+  onAnnotationChange,
+  body: initialBody,
+  onBodyChange,
+  bodyTruncateThreshold = 240,
+  onOpenNote,
   date,
   wordCount,
   badgeLabel = 'Notes',
   index,
+  mode = 'gather',
+  showPin = true,
+  pinInteractive = true,
   pinned: pinnedProp,
   defaultPinned = false,
   onPinnedChange,
   bookmarked: bookmarkedProp,
   defaultBookmarked = false,
   onBookmarkedChange,
-  onReorder,
   onMoreOptions,
+  showBottomBorder = true,
   className,
   forceHover = false,
 }: NoteCardProps) {
@@ -84,7 +144,26 @@ function NoteCard({
   const [uncontrolledBookmarked, setUncontrolledBookmarked] = useState(defaultBookmarked);
   const bookmarked = isBookmarkedControlled ? Boolean(bookmarkedProp) : uncontrolledBookmarked;
 
+  const isTitleControlled = titleProp !== undefined;
+  const [uncontrolledTitle, setUncontrolledTitle] = useState(defaultTitle);
+  const title = isTitleControlled ? titleProp : uncontrolledTitle;
+
+  const isAnnotationControlled = annotationProp !== undefined;
+  const [uncontrolledAnnotation, setUncontrolledAnnotation] = useState(defaultAnnotation);
+  const annotation = isAnnotationControlled ? annotationProp : uncontrolledAnnotation;
+
+  const [body, setBody] = useState(initialBody);
+  const isBodyLong = body.length > bodyTruncateThreshold;
+
   const hasTitle = Boolean(title);
+
+  /** Enter commits (blurs) instead of inserting a newline — title/annotation aren't paragraphs. */
+  const commitOnEnter = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      event.currentTarget.blur();
+    }
+  };
 
   return (
     <div
@@ -97,47 +176,85 @@ function NoteCard({
         className
       )}
     >
-      <div className="flex w-full flex-col items-start border-b-[length:var(--stroke-thin)] border-solid border-[color:var(--theme-alpha-black-switch-5)] py-[length:var(--spacing-md)]">
-        <div
-          className={cn(
-            'flex w-full flex-col items-start',
-            hasTitle ? 'gap-[length:var(--spacing-2xs)]' : 'gap-[length:var(--spacing-sm)]'
-          )}
-        >
+      <div
+        className={cn(
+          'flex w-full flex-col items-start py-[length:var(--spacing-md)]',
+          showBottomBorder &&
+            'border-b-[length:var(--stroke-thin)] border-solid border-[color:var(--theme-alpha-black-switch-5)]'
+        )}
+      >
+        <div className="flex w-full flex-col items-start gap-[length:var(--spacing-xs)]">
           <div className="flex w-full items-start gap-[length:var(--spacing-xs)]">
-            <div className="flex min-w-0 flex-1 flex-col items-start gap-[length:var(--spacing-2xs)]">
-              <p
+            <div
+              className={cn(
+                'flex min-w-0 flex-1 flex-col items-start gap-[length:var(--spacing-3xs)]',
+                /* Textarea's shell owns the visible hover/focus radius, not
+                 * the inner <textarea> — no className passthrough on the
+                 * shell, so scope the override here instead. One notch
+                 * down from the primitive's default --rounded-lg. */
+                '[&_[data-slot=textarea-control]]:rounded-[length:var(--rounded-md)]!'
+              )}
+            >
+              <Textarea
+                variant="ghost"
+                textStyle="heading"
+                rows={1}
+                value={title}
+                placeholder="Add title"
+                aria-label="Note title"
+                onKeyDown={commitOnEnter}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  if (!isTitleControlled) {
+                    setUncontrolledTitle(next);
+                  }
+                  onTitleChange?.(next);
+                }}
                 className={cn(
-                  'w-full font-[family-name:var(--text-paragraph-xl-medium-font-family)]',
-                  '[font-weight:var(--text-paragraph-xl-medium-font-weight)]',
-                  'text-[length:var(--text-paragraph-xl-medium-font-size)]',
-                  'leading-[var(--text-paragraph-xl-medium-line-height)]',
-                  'tracking-[var(--text-paragraph-xl-medium-letter-spacing)]',
-                  hasTitle
-                    ? 'text-[color:var(--theme-alpha-black-switch-70)]'
-                    : 'text-[color:var(--theme-alpha-black-switch-50)]'
+                  'font-[family-name:var(--text-paragraph-xl-regular-font-family)]',
+                  '[font-weight:var(--text-paragraph-xl-regular-font-weight)]',
+                  'text-[length:var(--text-paragraph-xl-regular-font-size)]',
+                  'leading-[var(--text-paragraph-xl-regular-line-height)]',
+                  'tracking-[var(--text-paragraph-xl-regular-letter-spacing)]',
+                  'text-[color:var(--theme-alpha-black-switch-70)]',
+                  'placeholder:text-[color:var(--theme-alpha-black-switch-50)]'
                 )}
-              >
-                {hasTitle ? title : 'Add title'}
-              </p>
-              <p
+              />
+              {/* `body` textStyle (not `heading`) — annotation is allowed to
+               * wrap 2-3 lines, unlike the single-row title. */}
+              <Textarea
+                variant="ghost"
+                textStyle="body"
+                resizable={false}
+                value={annotation}
+                placeholder="Add annotation"
+                aria-label="Note annotation"
+                onKeyDown={commitOnEnter}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  if (!isAnnotationControlled) {
+                    setUncontrolledAnnotation(next);
+                  }
+                  onAnnotationChange?.(next);
+                }}
                 className={cn(
-                  'w-full font-[family-name:var(--text-paragraph-mini-regular-font-family)]',
-                  '[font-weight:var(--text-paragraph-mini-regular-font-weight)]',
-                  'text-[length:var(--text-paragraph-mini-regular-font-size)]',
-                  'leading-[var(--text-paragraph-mini-regular-line-height)]',
-                  'tracking-[var(--text-paragraph-mini-regular-letter-spacing)]',
-                  'text-[color:var(--theme-alpha-black-switch-50)]'
+                  'min-h-[length:var(--text-paragraph-small-regular-line-height)] px-0 py-0',
+                  'font-[family-name:var(--text-paragraph-small-regular-font-family)]',
+                  '[font-weight:var(--text-paragraph-small-regular-font-weight)]',
+                  'text-[length:var(--text-paragraph-small-regular-font-size)]',
+                  'leading-[var(--text-paragraph-small-regular-line-height)]',
+                  'tracking-[var(--text-paragraph-small-regular-letter-spacing)]',
+                  'text-[color:var(--theme-alpha-black-switch-50)]',
+                  'placeholder:text-[color:var(--theme-alpha-black-switch-50)]'
                 )}
-              >
-                {hasTitle ? (annotation ?? '') : 'Add annotation'}
-              </p>
+              />
             </div>
             <div className="flex shrink-0 items-center gap-[length:var(--spacing-3xs)] pl-[length:var(--spacing-xs)] pt-[length:var(--spacing-3xs)]">
-              {pinned && (
+              {showPin && (
                 <PinButton
-                  pressed
-                  aria-label="Unpin"
+                  pressed={pinned}
+                  disabled={!pinInteractive}
+                  aria-label={pinned ? 'Unpin' : 'Pin'}
                   onPressedChange={(next) => {
                     if (!isPinnedControlled) {
                       setUncontrolledPinned(next);
@@ -147,7 +264,8 @@ function NoteCard({
                 />
               )}
               <GatherBookmarkButton
-                mode={hasTitle ? 'gather' : 'roam'}
+                mode={mode}
+                size="sm"
                 active={isBookmarkedControlled ? bookmarkedProp : undefined}
                 defaultActive={isBookmarkedControlled ? undefined : defaultBookmarked}
                 onActiveChange={(next) => {
@@ -159,22 +277,69 @@ function NoteCard({
               />
             </div>
           </div>
-          <p
-            className={cn(
-              'w-full font-[family-name:var(--text-paragraph-regular-regular-font-family)]',
-              '[font-weight:var(--text-paragraph-regular-regular-font-weight)]',
-              'text-[length:var(--text-paragraph-regular-regular-font-size)]',
-              'leading-[var(--text-paragraph-regular-regular-line-height)]',
-              'tracking-[var(--text-paragraph-regular-regular-letter-spacing)]',
-              'text-[color:var(--theme-alpha-black-switch-70)]'
-            )}
-          >
-            {body}
-          </p>
+          {isBodyLong ? (
+            /* Long body is read-only + truncated — click opens the full
+             * note (hook only; that view doesn't exist yet). */
+            <button
+              type="button"
+              onClick={onOpenNote}
+              aria-label="Open full note"
+              className={cn(
+                'line-clamp-6 w-full cursor-pointer text-left',
+                'border-0 bg-transparent p-0 outline-none',
+                'rounded-[length:var(--rounded-xs)]',
+                'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+                'font-[family-name:var(--text-paragraph-regular-regular-font-family)]',
+                '[font-weight:var(--text-paragraph-regular-regular-font-weight)]',
+                'text-[length:var(--text-paragraph-regular-regular-font-size)]',
+                'leading-[var(--text-paragraph-regular-regular-line-height)]',
+                'tracking-[var(--text-paragraph-regular-regular-letter-spacing)]',
+                'text-[color:var(--theme-alpha-black-switch-70)]'
+              )}
+            >
+              {body}
+            </button>
+          ) : (
+            <Textarea
+              variant="ghost"
+              textStyle="body"
+              resizable={false}
+              value={body}
+              aria-label="Note body"
+              onChange={(event) => {
+                const next = event.target.value;
+                setBody(next);
+                onBodyChange?.(next);
+              }}
+              className={cn(
+                'min-h-[length:var(--text-paragraph-regular-regular-line-height)] px-0 py-0',
+                'font-[family-name:var(--text-paragraph-regular-regular-font-family)]',
+                '[font-weight:var(--text-paragraph-regular-regular-font-weight)]',
+                'text-[length:var(--text-paragraph-regular-regular-font-size)]',
+                'leading-[var(--text-paragraph-regular-regular-line-height)]',
+                'tracking-[var(--text-paragraph-regular-regular-letter-spacing)]',
+                'text-[color:var(--theme-alpha-black-switch-70)]'
+              )}
+            />
+          )}
         </div>
 
-        <div className="mt-[length:var(--spacing-2xs)] flex h-[length:var(--spacing-2xl)] w-full items-center gap-[length:var(--spacing-xs)]">
+        <div className="mt-[length:var(--spacing-sm)] flex h-[length:var(--spacing-2xl)] w-full items-center gap-[length:var(--spacing-xs)]">
           <div className="flex min-w-0 flex-1 items-center gap-[length:var(--spacing-xs)]">
+            {index !== undefined && (
+              <span
+                aria-hidden
+                className={cn(
+                  'whitespace-nowrap font-[family-name:var(--text-paragraph-mini-regular-font-family)]',
+                  '[font-weight:var(--text-paragraph-mini-regular-font-weight)]',
+                  'text-[length:var(--text-paragraph-mini-regular-font-size)]',
+                  'leading-[var(--text-paragraph-mini-regular-line-height)]',
+                  'text-[color:var(--theme-alpha-black-switch-20)]'
+                )}
+              >
+                {index}.
+              </span>
+            )}
             {date && (
               <span
                 className={cn(
@@ -207,7 +372,11 @@ function NoteCard({
             <Badge>{badgeLabel}</Badge>
           </div>
 
-          {/* Reorder / more — revealed on card hover, never at rest. */}
+          {/* Expand / more — revealed on card hover, never at rest. Expand
+           * only appears when body is actually truncated — a short body is
+           * already fully visible and editable inline, nothing to expand
+           * into. Both share the row's hover reveal; expand reuses the same
+           * onOpenNote hook the truncated body button itself calls. */}
           <div
             className={cn(
               'flex shrink-0 items-center gap-[length:var(--spacing-3xs)] pl-[length:var(--spacing-xs)]',
@@ -215,15 +384,17 @@ function NoteCard({
               'group-hover/card:opacity-100 group-data-[force-hover=true]/card:opacity-100'
             )}
           >
-            <IconButton
-              variant="ghost"
-              roundness="round"
-              size="sm"
-              aria-label="Reorder"
-              onClick={onReorder}
-            >
-              <ChevronsUpDownIcon aria-hidden />
-            </IconButton>
+            {isBodyLong && (
+              <IconButton
+                variant="ghost"
+                roundness="round"
+                size="sm"
+                aria-label="Expand note"
+                onClick={onOpenNote}
+              >
+                <ChevronsUpDownIcon aria-hidden />
+              </IconButton>
+            )}
             <IconButton
               variant="ghost"
               roundness="round"
@@ -236,22 +407,6 @@ function NoteCard({
           </div>
         </div>
       </div>
-
-      {index !== undefined && (
-        <span
-          aria-hidden
-          className={cn(
-            'pointer-events-none absolute left-[length:var(--spacing-md)] top-[22px]',
-            'font-[family-name:var(--text-paragraph-mini-regular-font-family)]',
-            '[font-weight:var(--text-paragraph-mini-regular-font-weight)]',
-            'text-[length:var(--text-paragraph-mini-regular-font-size)]',
-            'leading-[var(--text-paragraph-mini-regular-line-height)]',
-            'text-[color:var(--theme-alpha-black-switch-20)]'
-          )}
-        >
-          {index}
-        </span>
-      )}
     </div>
   );
 }

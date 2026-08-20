@@ -155,6 +155,7 @@ rather than fought.
 | `inactiveLabel` | `'Add to scene'` | Gather-mode hover label when inactive |
 | `onMenuClick` | — | Chevron button's click handler (scene picker, etc.) |
 | `groupLabel` | `'Bookmark'` | Accessible name for the `ButtonGroup` itself (the two segments have their own names) |
+| `size` | `'default'` | Forwarded to the internal `BookmarkButton`'s glyph size (`sm` / `default` / `lg`) — e.g. [Note Card](../note-card/README.md) uses `sm` to match `PinButton`'s fixed `--icon-sm` glyph |
 | `forceHover` | `false` | Storybook-only — locks both segments' hover paint via `data-force-hover` without a real pointer |
 
 ## Tokens

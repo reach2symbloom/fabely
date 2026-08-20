@@ -30,7 +30,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { BookmarkButton } from '@/atoms/bookmark-button';
+import { BookmarkButton, type BookmarkButtonSize } from '@/atoms/bookmark-button';
 import { cn } from '@/lib/utils';
 import { ButtonGroup, ButtonGroupSeparator } from '@/primitives/button-group';
 import { IconButton } from '@/primitives/button/icon-button';
@@ -82,6 +82,8 @@ type GatherBookmarkButtonProps = {
   onMenuClick?: () => void;
   /** Accessible name for the group itself (the two segments have their own). */
   groupLabel?: string;
+  /** Glyph size — forwarded to the internal `BookmarkButton`. */
+  size?: BookmarkButtonSize;
   className?: string;
   /** Storybook / playground — lock both segments' hover paint without a pointer. */
   forceHover?: boolean;
@@ -98,6 +100,7 @@ function GatherBookmarkButton({
   inactiveLabel = 'Add to scene',
   onMenuClick,
   groupLabel = 'Bookmark',
+  size = 'default',
   className,
   forceHover = false,
 }: GatherBookmarkButtonProps) {
@@ -156,6 +159,7 @@ function GatherBookmarkButton({
       )}
     >
       <BookmarkButton
+        size={size}
         pressed={isControlled ? activeProp : undefined}
         defaultPressed={isControlled ? undefined : defaultActive}
         onPressedChange={handlePressedChange}

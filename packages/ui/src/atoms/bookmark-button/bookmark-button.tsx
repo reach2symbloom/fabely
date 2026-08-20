@@ -137,4 +137,4 @@ function BookmarkButton({
   );
 }
 
-export { BookmarkButton, type BookmarkButtonProps };
+export { BookmarkButton, type BookmarkButtonProps, type BookmarkButtonSize };
