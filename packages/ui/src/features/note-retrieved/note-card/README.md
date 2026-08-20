@@ -180,14 +180,14 @@ Removed; `invisible` owns its own (lack of) radius now, unconditionally.
 | `onOpenNote` | — | Hook — fires on **double**-click of the truncated body (single Enter/Space if focused via keyboard) *and* a single click of the Expand icon; opens the full note (view not built yet) |
 | `date` | — | Footer metadata; only renders if provided |
 | `wordCount` | live count of `body` | Footer metadata; defaults to a real, live word count of the note text (not a caller-supplied guess). Only updates on blur, not per-keystroke — recounting live while typing read as distracting. Pass explicitly to override with something else (e.g. a linked manuscript excerpt's count) |
-| `badgeLabel` | `'Notes'` | Trailing `Badge` text |
+| `tag` | `'notes'` | Trailing `Badge` — closed set (`notes` \| `research` \| `manuscript`), each with its own label + color |
 | `index` | — | Small ordinal in the footer ("1."), left of `date`, decorative (`aria-hidden`) |
 | `mode` | `'gather'` | Surrounding page context — forwarded to `GatherBookmarkButton`'s own `mode` |
 | `showPin` | `true` | Whether the Pin control renders at all — independent of `pinned` |
 | `pinInteractive` | `true` | Whether the (shown) Pin control can be toggled, vs. read-only/`disabled` |
 | `pinned` / `defaultPinned` / `onPinnedChange` | — | Controlled/uncontrolled pinned state |
 | `bookmarked` / `defaultBookmarked` / `onBookmarkedChange` | — | Forwarded to `GatherBookmarkButton`'s `active` |
-| `onMoreOptions` | — | Hover-revealed 3-dot menu handler |
+| `onCopyNote` / `onCopyHighlights` / `onDeleteNote` | — | Hover-revealed 3-dot `DropdownMenu` — Copy note to clipboard / Copy all highlights / Delete note (destructive) |
 | `showBottomBorder` | `true` | Off for the last row in a list, or a caller that draws its own separators |
 | `forceHover` | `false` | Storybook-only — locks the row's hover paint via `data-force-hover` without a real pointer |
 
@@ -211,9 +211,19 @@ Removed; `invisible` owns its own (lack of) radius now, unconditionally.
 | Pin hover background | `--theme-alpha-black-switch-333` — matches the row's own hover wash |
 | Motion | `--duration-fast` / `--ease-emphasized` |
 
+**The 3-dot button opens a real `DropdownMenu`** (not a bare callback) —
+Copy note to clipboard, Copy all highlights, Delete note (`variant="destructive"`,
+via [Dropdown Menu](../../../primitives/dropdown-menu/README.md)'s own
+`ListItem`-backed rows). `onCopyNote` / `onCopyHighlights` / `onDeleteNote`
+are the three item handlers; the trigger composes straight onto the
+existing `IconButton` via Base UI's `render` prop
+(`DropdownMenuTrigger render={<IconButton .../>}`), so there's no separate
+wrapper element or duplicated hit target.
+
 ## Deferred
 
-- **More menu content** — `onMoreOptions` is a bare callback; the actual
-  "more options" menu isn't built yet.
 - **Full note view** — `onOpenNote` is a bare callback/hook; the full-width
   note view it's meant to open doesn't exist yet.
+- **Copy/delete implementations** — `onCopyNote` / `onCopyHighlights` /
+  `onDeleteNote` are bare callbacks; the actual clipboard-write and
+  delete-confirmation logic aren't built yet.

@@ -238,6 +238,7 @@ function NoteCardPlayground() {
   const [pinned, setPinned] = useState(false);
   const [forceHover, setForceHover] = useState(false);
   const [bodyLength, setBodyLength] = useState<BodyLength>('default');
+  const [tag, setTag] = useState<NonNullable<NoteCardProps['tag']>>('notes');
 
   return (
     <PlaygroundPanel
@@ -254,6 +255,7 @@ function NoteCardPlayground() {
             pinned={pinned}
             onPinnedChange={setPinned}
             forceHover={forceHover}
+            tag={tag}
           />
         </CardShell>
       }
@@ -289,6 +291,18 @@ function NoteCardPlayground() {
             options={[
               { value: 'gather', label: 'Gather' },
               { value: 'roam', label: 'Roam' },
+            ]}
+            fullWidth
+            className="col-span-2"
+          />
+          <InlineSegmentedControl
+            label="Tag"
+            value={tag}
+            onChange={(v) => setTag(v as NonNullable<NoteCardProps['tag']>)}
+            options={[
+              { value: 'notes', label: 'Notes' },
+              { value: 'research', label: 'Research' },
+              { value: 'manuscript', label: 'Manuscript' },
             ]}
             fullWidth
             className="col-span-2"
@@ -400,8 +414,11 @@ export const Overview: Story = {
             Footer Expand / more actions are hover-revealed only. Expand
             only renders when body is truncated, and reuses{' '}
             <code>onOpenNote</code> — the same hook the truncated body
-            itself calls; pass <code>onMoreOptions</code> for the 3-dot
-            menu.
+            itself calls. The 3-dot button opens a real{' '}
+            <code>DropdownMenu</code> (Copy note to clipboard / Copy all
+            highlights / Delete note) — wire{' '}
+            <code>onCopyNote</code> / <code>onCopyHighlights</code> /{' '}
+            <code>onDeleteNote</code> for each item.
           </li>
         </ul>
       }

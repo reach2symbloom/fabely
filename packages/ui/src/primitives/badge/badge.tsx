@@ -32,6 +32,10 @@ export type BadgeRoundness = 'default' | 'round';
  * - `destructive` ← Figma Destructive
  * - `success`     ← Figma Success (no vendor equivalent)
  * - `alert`       ← Figma Alert (no vendor equivalent)
+ * - `fia`         ← no Figma Badge axis at all — added for Note Card's tag
+ *                   colors (Notes/Research/Manuscript), reusing the Fia
+ *                   brand tokens already used elsewhere (Button's
+ *                   `fiaGhost`/`fiaFilled`/`fiaOutline`)
  *
  * Link-as-anchor is not a variant — use Base UI `render={<a href=… />}` with
  * any Figma color variant (see Storybook Link composition / playground).
@@ -43,7 +47,8 @@ export type BadgeVariant =
   | 'outline'
   | 'ghost'
   | 'success'
-  | 'alert';
+  | 'alert'
+  | 'fia';
 
 type VendorVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost';
 
@@ -56,6 +61,7 @@ function toVendorVariant(variant: BadgeVariant): VendorVariant {
     case 'destructive':
     case 'success':
     case 'alert':
+    case 'fia':
       return 'default';
     default:
       return variant;
@@ -128,6 +134,17 @@ const badgeVariants = cva(
         success: [
           'bg-[color-mix(in_srgb,var(--tw-raw-success-ghost)_12%,transparent)] text-[color:var(--tw-raw-success-500)]',
           'focus-visible:shadow-[var(--effect-focus-ring-success)]',
+          '[a&]:hover:opacity-90',
+        ],
+        /* No Figma Badge axis for this — reuses the Fia brand ghost tint
+         * (`--tw-raw-fia-ghost`, same 12% pattern as destructive/success)
+         * and its darker `-600` for readable text against that light
+         * wash, matching alert's own light-bg/darker-text pairing. No
+         * dedicated Fia focus ring token exists, so falls back to
+         * `--effect-focus-ring-secondary` like ghost/outline do. */
+        fia: [
+          'bg-[color-mix(in_srgb,var(--tw-raw-fia-ghost)_12%,transparent)] text-[color:var(--tw-raw-fia-600)]',
+          'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           '[a&]:hover:opacity-90',
         ],
         alert: [

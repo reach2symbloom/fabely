@@ -21,7 +21,7 @@
  */
 'use client';
 
-import { ChevronsUpDownIcon, EllipsisVerticalIcon } from 'lucide-react';
+import { ChevronsUpDownIcon, Copy, EllipsisVerticalIcon, Highlighter, Trash2 } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
@@ -33,8 +33,14 @@ import {
   GatherBookmarkButton,
   type GatherBookmarkButtonMode,
 } from '@/features/note-retrieved/gather-bookmark-button';
-import { Badge } from '@/primitives/badge';
+import { Badge, type BadgeVariant } from '@/primitives/badge';
 import { IconButton } from '@/primitives/button/icon-button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/primitives/dropdown-menu';
 import { Textarea } from '@/primitives/textarea';
 
 /**
@@ -48,6 +54,23 @@ import { Textarea } from '@/primitives/textarea';
  * way to know Pin moved at all and it just snaps.
  */
 const MotionPinIconButton = motion.create(PinIconButton);
+
+type NoteTag = 'notes' | 'research' | 'manuscript';
+
+const NOTE_TAG_LABEL: Record<NoteTag, string> = {
+  notes: 'Notes',
+  research: 'Research',
+  manuscript: 'Manuscript',
+};
+
+/** `notes` → Badge's own `default` (Figma Primary); `research` → the Fia
+ * brand color (no Figma Badge axis for it — see Badge's own docstring);
+ * `manuscript` → `secondary`. */
+const NOTE_TAG_BADGE_VARIANT: Record<NoteTag, BadgeVariant> = {
+  notes: 'default',
+  research: 'fia',
+  manuscript: 'secondary',
+};
 
 type NoteCardProps = {
   /** Note title — an editable invisible input; empty shows "Add title". */
@@ -90,8 +113,12 @@ type NoteCardProps = {
    * rather than the note text itself).
    */
   wordCount?: number;
-  /** Trailing badge label. */
-  badgeLabel?: string;
+  /**
+   * Trailing badge — a closed set, each with its own color: `notes` is the
+   * default (Badge's own `default`/Primary), `research` uses the Fia brand
+   * color, `manuscript` uses `secondary`.
+   */
+  tag?: NoteTag;
   /** Small ordinal shown bottom-left of the card (list position). */
   index?: ReactNode;
   /**
@@ -121,8 +148,10 @@ type NoteCardProps = {
   bookmarked?: boolean;
   defaultBookmarked?: boolean;
   onBookmarkedChange?: (bookmarked: boolean) => void;
-  /** Footer "more options" action — hover-revealed. */
-  onMoreOptions?: () => void;
+  /** Footer "more options" menu — hover-revealed trigger, Dropdown Menu content. */
+  onCopyNote?: () => void;
+  onCopyHighlights?: () => void;
+  onDeleteNote?: () => void;
   /** Bottom divider — off for the last row in a list, or a caller that draws its own separators. */
   showBottomBorder?: boolean;
   className?: string;
@@ -143,7 +172,7 @@ function NoteCard({
   onOpenNote,
   date,
   wordCount,
-  badgeLabel = 'Notes',
+  tag = 'notes',
   index,
   mode = 'gather',
   showPin = true,
@@ -154,7 +183,9 @@ function NoteCard({
   bookmarked: bookmarkedProp,
   defaultBookmarked = false,
   onBookmarkedChange,
-  onMoreOptions,
+  onCopyNote,
+  onCopyHighlights,
+  onDeleteNote,
   showBottomBorder = true,
   className,
   forceHover = false,
@@ -480,7 +511,7 @@ function NoteCard({
             >
               {displayWordCount.toLocaleString()} words
             </span>
-            <Badge>{badgeLabel}</Badge>
+            <Badge variant={NOTE_TAG_BADGE_VARIANT[tag]}>{NOTE_TAG_LABEL[tag]}</Badge>
           </div>
 
           {/* Expand / more — revealed on card hover, never at rest. Expand
@@ -506,15 +537,34 @@ function NoteCard({
                 <ChevronsUpDownIcon aria-hidden />
               </IconButton>
             )}
-            <IconButton
-              variant="ghost"
-              roundness="round"
-              size="sm"
-              aria-label="More options"
-              onClick={onMoreOptions}
-            >
-              <EllipsisVerticalIcon aria-hidden />
-            </IconButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <IconButton
+                    variant="ghost"
+                    roundness="round"
+                    size="sm"
+                    aria-label="More options"
+                  />
+                }
+              >
+                <EllipsisVerticalIcon aria-hidden />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onCopyNote}>
+                  <Copy aria-hidden />
+                  Copy note to clipboard
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onCopyHighlights}>
+                  <Highlighter aria-hidden />
+                  Copy all highlights
+                </DropdownMenuItem>
+                <DropdownMenuItem variant="destructive" onClick={onDeleteNote}>
+                  <Trash2 aria-hidden />
+                  Delete note
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
