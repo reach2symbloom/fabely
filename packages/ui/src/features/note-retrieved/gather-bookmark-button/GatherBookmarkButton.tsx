@@ -2,7 +2,7 @@
  * Gather Bookmark Button — a split control (bookmark toggle + menu chevron)
  * for pinning notes/answers into a scene from the Gather panel.
  *
- * Distinct from the [Bookmark Button](../../../atoms/bookmark-button/README.md)
+ * Distinct from the [Bookmark Icon Button](../../../atoms/bookmark-icon-button/README.md)
  * atom, which this component reuses internally as its toggle — this one adds
  * the chip housing, an "Add to scene" / "Remove from scene" label (Gather
  * mode only), and a trailing chevron menu trigger.
@@ -29,7 +29,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { BookmarkButton, type BookmarkButtonSize } from '@/atoms/bookmark-button';
+import { BookmarkIconButton, type BookmarkIconButtonSize } from '@/atoms/bookmark-icon-button';
 import { TRANSITION_EMPHASIZED_FAST } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import { ButtonGroup, ButtonGroupSeparator } from '@/primitives/button-group';
@@ -43,7 +43,7 @@ import { IconButton } from '@/primitives/button/icon-button';
  * of these primitives themselves.
  */
 const MotionButtonGroup = motion.create(ButtonGroup);
-const MotionBookmarkButton = motion.create(BookmarkButton);
+const MotionBookmarkButton = motion.create(BookmarkIconButton);
 const MotionButtonGroupSeparator = motion.create(ButtonGroupSeparator);
 const MotionIconButton = motion.create(IconButton);
 
@@ -115,8 +115,8 @@ type GatherBookmarkButtonProps = {
   onMenuClick?: () => void;
   /** Accessible name for the group itself (the two segments have their own). */
   groupLabel?: string;
-  /** Glyph size — forwarded to the internal `BookmarkButton`. */
-  size?: BookmarkButtonSize;
+  /** Glyph size — forwarded to the internal `BookmarkIconButton`. */
+  size?: BookmarkIconButtonSize;
   className?: string;
   /** Storybook / playground — lock both segments' hover paint without a pointer. */
   forceHover?: boolean;
@@ -129,7 +129,7 @@ function GatherBookmarkButton({
   mode = 'gather',
   showSuperscript = false,
   superscriptValue = 2,
-  activeLabel = 'Remove from scene',
+  activeLabel = 'Added to scene',
   inactiveLabel = 'Add to scene',
   onMenuClick,
   groupLabel = 'Bookmark',
@@ -149,6 +149,11 @@ function GatherBookmarkButton({
   };
 
   const label = active ? activeLabel : inactiveLabel;
+  /* Visible copy can read as a status ("Added to scene") rather than an
+   * action — the accessible name still needs to say what activating the
+   * control DOES, so it's kept action-oriented and independent of
+   * `label`/`activeLabel` rather than mirroring the visible text. */
+  const accessibleLabel = active ? 'Remove from scene' : 'Add to scene';
 
   const prefersReducedMotion = useReducedMotion();
   const layoutTransition = prefersReducedMotion
@@ -182,7 +187,7 @@ function GatherBookmarkButton({
         showSuperscript={showSuperscript}
         superscriptValue={superscriptValue}
         forceHover={forceHover}
-        aria-label={label}
+        aria-label={accessibleLabel}
         className={cn(
           'h-full py-[length:var(--spacing-2xs)]',
           /* Roam has no label to balance against, so its segments get a

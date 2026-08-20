@@ -5,7 +5,7 @@ a bookmark toggle, an always-visible label (Gather mode), and a menu chevron.
 
 ## Purpose
 
-Distinct from the [Bookmark Button](../../../atoms/bookmark-button/README.md)
+Distinct from the [Bookmark Button](../../../atoms/bookmark-icon-button/README.md)
 atom — that one is a bare icon toggle usable anywhere; this composite wraps
 it with Gather-specific chrome (chip housing, "Add to scene" / "Remove from
 scene" copy, a menu trigger) and belongs only in the Gather panel context.
@@ -26,23 +26,23 @@ without renaming the underlying folder.
 | Figma [Bookmark Button](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16228-3535) (`16228:3535`) | Visual — Mode × Active × Hover, chip + label + chevron |
 | [Button Group](../../../primitives/button-group/README.md) | Joins the two segments — geometry, hug-width, focus z-index |
 | [Icon Button](../../../primitives/button/icon-button/README.md) | The chevron trigger |
-| [Bookmark Button](../../../atoms/bookmark-button/README.md) atom | The toggle itself — including its own click target for the revealed label, via `trailingContent` |
+| [Bookmark Button](../../../atoms/bookmark-icon-button/README.md) atom | The toggle itself — including its own click target for the revealed label, via `trailingContent` |
 
 ## Composition
 
 ```text
 GatherBookmarkButton → ButtonGroup (always housed, alpha-333)
-  ├── BookmarkButton atom (padding + own hover-deepen; label passed as `trailingContent`, inside the same button)
+  ├── BookmarkIconButton atom (padding + own hover-deepen; label passed as `trailingContent`, inside the same button)
   ├── ButtonGroupSeparator (always rendered)
   └── IconButton (chevron, "ghost", own hover-deepen; identical color/fill to the bookmark segment)
 ```
 
 **The label is inside the button, not next to it.** The first pass rendered
 the revealed "Add to scene" text as a sibling `<span>` beside the
-`BookmarkButton` atom — visually attached, but not part of its click target,
+`BookmarkIconButton` atom — visually attached, but not part of its click target,
 so hovering/clicking the text itself didn't show the pointer cursor or
 toggle anything. Fixed by adding an optional `trailingContent` slot to the
-`BookmarkButton` atom itself (rendered inside the same `<button>`, after the
+`BookmarkIconButton` atom itself (rendered inside the same `<button>`, after the
 glyph) — this composite passes the label through it instead of placing it
 outside. The atom's own standalone usage is unaffected; the prop defaults to
 nothing.
@@ -76,7 +76,7 @@ own fill and the divider's presence a whole conditional matrix keyed off
 `active`/`mode` (transparent-until-active in Gather, always-housed in Roam,
 label only appearing on hover). That's gone: the group is *always* housed at
 `--theme-alpha-black-switch-333` — `GROUP_BG`, applied unconditionally, no
-`active`/`mode` branching — and each segment (`BookmarkButton`'s root,
+`active`/`mode` branching — and each segment (`BookmarkIconButton`'s root,
 `IconButton`) shares one `HOVER_DEEPEN` class string that just adds
 `hover:bg-[...-5]` / `data-[force-hover=true]:bg-[...-5]` on top of that
 base. The chevron's color is likewise a flat, unconditional `alpha-50`
@@ -89,11 +89,22 @@ background snapped instantly regardless of the group's own transition.
 
 **The label is always visible in Gather mode — not hover-revealed.** The
 only remaining difference between the two modes: `mode="gather"` always
-renders the "Add to scene" / "Remove from scene" label via `trailingContent`
+renders the "Add to scene" / "Added to scene" label via `trailingContent`
 (rest, hover, and active alike); `mode="roam"` never renders it. There's no
 `max-width`/`opacity` reveal animation left to describe — the label is just
 there, styled with `pl-[--spacing-2xs] pr-[--spacing-1-5]` (4px / 6px) so it
 doesn't crowd the glyph or the segment's own trailing edge.
+
+**Visible label and accessible name intentionally diverge once active.**
+`activeLabel` defaults to "Added to scene" — a status, confirming the
+celebration that just played (see [Bookmark Icon Button](../../../atoms/bookmark-icon-button/README.md)),
+not an instruction. But a screen reader user still needs to know that
+*activating* the control removes the note — "Added to scene, button" gives
+no such hint. So the toggle's `aria-label` is computed independently
+(`accessibleLabel`, always "Add to scene" / "Remove from scene") rather
+than mirroring whatever `label` currently reads. `inactiveLabel`'s default
+happens to match its own accessible name, since there's no status/action
+mismatch to resolve on that side.
 
 **Chevron footprint.** Figma's chevron column is a `24×32` frame (`4px`
 horizontal padding, `8px` vertical) around a `16px` "Fade button" —
@@ -112,7 +123,7 @@ Button export — rendered as a small inline `ChevronDownGlyph`, matching the
 `~7×4` rendered size Figma's own 33%/20% insets produce inside its `12px`
 icon box.
 
-**Vertical centering.** An earlier pass nudged the internal `BookmarkButton`
+**Vertical centering.** An earlier pass nudged the internal `BookmarkIconButton`
 down (`mt-[length:var(--spacing-3xs)]`) to keep its superscript badge from
 visually poking above this segment's own top edge. That broke the segment's
 natural, Figma-matched vertical centering (`get_metadata` on `16231:7077`
@@ -146,7 +157,7 @@ targeting `--rounded-md`) so the `!important` join classes get superseded
 rather than fought.
 
 **The Gather↔Roam label change is animated as one persistent button, not a
-swap.** `ButtonGroup`, `BookmarkButton`, `ButtonGroupSeparator`, and the
+swap.** `ButtonGroup`, `BookmarkIconButton`, `ButtonGroupSeparator`, and the
 chevron `IconButton` are each wrapped with `motion.create(...)` — an
 untouched ref pass-through to each primitive's own root element (the same
 pattern already proven by `MotionIconButton` in Highlight Action Menu), so
@@ -169,7 +180,7 @@ none of the four primitives themselves changed. Three coordinated pieces:
    resizes against just the *entering* string's width, not both at once —
    without it, the segment would briefly overshoot to fit both strings
    simultaneously.
-3. **Icon scale** — lives in [Bookmark Button](../../../atoms/bookmark-button/README.md)
+3. **Icon scale** — lives in [Bookmark Button](../../../atoms/bookmark-icon-button/README.md)
    itself (a subtle `1` → `1.08` Motion scale on `pressed`), not
    reimplemented here — this composite only adds the label crossfade and
    the group-level layout tracking around that shared, unmodified atom.
@@ -190,13 +201,13 @@ its final value with no intermediate frames).
 | --- | --- | --- |
 | `active` / `defaultActive` / `onActiveChange` | — | Controlled/uncontrolled bookmarked state |
 | `mode` | `'gather'` | `'gather'` always shows the label; `'roam'` never does. Fill, divider, and icon color are identical between the two |
-| `showSuperscript` | `false` | Forwarded to the internal `BookmarkButton` |
-| `superscriptValue` | `2` | Forwarded to the internal `BookmarkButton` |
-| `activeLabel` | `'Remove from scene'` | Gather-mode label when active |
-| `inactiveLabel` | `'Add to scene'` | Gather-mode label when inactive |
+| `showSuperscript` | `false` | Forwarded to the internal `BookmarkIconButton` |
+| `superscriptValue` | `2` | Forwarded to the internal `BookmarkIconButton` |
+| `activeLabel` | `'Added to scene'` | Gather-mode *visible* label when active — a status, not a command. The accessible name stays `'Remove from scene'` regardless (see "Visible label and accessible name" above) |
+| `inactiveLabel` | `'Add to scene'` | Gather-mode label when inactive — visible and accessible name match here, since there's no status/action mismatch to resolve |
 | `onMenuClick` | — | Chevron button's click handler (scene picker, etc.) |
 | `groupLabel` | `'Bookmark'` | Accessible name for the `ButtonGroup` itself (the two segments have their own names) |
-| `size` | `'default'` | Forwarded to the internal `BookmarkButton`'s glyph size (`sm` / `default` / `lg`) — e.g. [Note Card](../note-card/README.md) uses `sm` to match `PinButton`'s fixed `--icon-sm` glyph |
+| `size` | `'default'` | Forwarded to the internal `BookmarkIconButton`'s glyph size (`sm` / `default` / `lg`) — e.g. [Note Card](../note-card/README.md) uses `sm` to match `PinIconButton`'s fixed `--icon-sm` glyph |
 | `forceHover` | `false` | Storybook-only — locks both segments' hover paint via `data-force-hover` without a real pointer |
 
 ## Tokens

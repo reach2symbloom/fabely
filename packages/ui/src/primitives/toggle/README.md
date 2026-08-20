@@ -87,6 +87,6 @@ Position=Single. Same chrome as Toggle Group items via shared
 
 - [Toggle Group](../toggle-group/README.md) — clustered toggles (shares
   `toggleVariants`)
-- [Bookmark Button](../../atoms/bookmark-button/README.md) — atom demo of
+- [Bookmark Button](../../atoms/bookmark-icon-button/README.md) — atom demo of
   Toggle with Lucide Bookmark fill in/out (Storybook Demo)
 - Docs: https://ui.shadcn.com/docs/components/base/toggle

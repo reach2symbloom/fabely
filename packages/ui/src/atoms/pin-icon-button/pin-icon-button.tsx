@@ -1,6 +1,6 @@
 /**
- * Fabely Pin Button — icon toggle in a square hit-target chip. Unlike
- * Bookmark Button, this one does carry container chrome per Figma: a
+ * Fabely Pin Icon Button — icon toggle in a square hit-target chip. Unlike
+ * Bookmark Icon Button, this one does carry container chrome per Figma: a
  * transparent-to-`alpha-5` hover background on a `--rounded-md` 32px chip.
  * The glyph itself swaps shape on select (tailed outline → headless solid),
  * not just color — verified against the raw Figma SVG paths, not the
@@ -42,7 +42,7 @@ function PinGlyph({ active, className }: { active: boolean; className?: string }
   );
 }
 
-type PinButtonProps = Omit<TogglePrimitive.Props, 'children'> & {
+type PinIconButtonProps = Omit<TogglePrimitive.Props, 'children'> & {
   /** Figma `Show superscript` — badge only renders while pressed. */
   showSuperscript?: boolean;
   /** Badge content when `showSuperscript` is active. Figma default is "2". */
@@ -51,7 +51,7 @@ type PinButtonProps = Omit<TogglePrimitive.Props, 'children'> & {
   forceHover?: boolean;
 };
 
-function PinButton({
+function PinIconButton({
   className,
   pressed: pressedProp,
   defaultPressed = false,
@@ -61,7 +61,7 @@ function PinButton({
   forceHover = false,
   'aria-label': ariaLabelProp,
   ...props
-}: PinButtonProps) {
+}: PinIconButtonProps) {
   const isControlled = pressedProp !== undefined;
   const [uncontrolledPressed, setUncontrolledPressed] = useState(defaultPressed);
   const pressed = isControlled ? Boolean(pressedProp) : uncontrolledPressed;
@@ -82,7 +82,7 @@ function PinButton({
 
   return (
     <TogglePrimitive
-      data-slot="pin-button"
+      data-slot="pin-icon-button"
       data-force-hover={forceHover || undefined}
       {...props}
       pressed={isControlled ? pressedProp : undefined}
@@ -139,4 +139,4 @@ function PinButton({
   );
 }
 
-export { PinButton, type PinButtonProps };
+export { PinIconButton, type PinIconButtonProps };

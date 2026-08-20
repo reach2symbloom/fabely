@@ -21,17 +21,17 @@ by Figma.
 ## Composition
 
 ```text
-PinButton → Base UI Toggle (headless, unstyled) + inline Pin glyph (two Figma paths) + Superscript badge
+PinIconButton → Base UI Toggle (headless, unstyled) + inline Pin glyph (two Figma paths) + Superscript badge
 ```
 
 Fetching the raw Figma SVG assets showed unselected and selected are two
 different paths, not one path recolored: unselected is the full pin outline
 (head loop + diagonal tail); selected is only the head-loop segment of that
 same path, so the tail visually disappears. Both are embedded verbatim as
-inline `<path>` data in `pin-button.tsx` rather than approximated with a
+inline `<path>` data in `pin-icon-button.tsx` rather than approximated with a
 Lucide icon, since no bundled icon matches this exact geometry.
 
-Also verified by decoding the outer variant tree (`PinButton1` in the raw
+Also verified by decoding the outer variant tree (`PinIconButton1` in the raw
 Figma export): the inner glyph never actually receives a `hover` prop from
 any of the four Hover×Active combinations shown — hover only ever toggles
 the chip's own background. So, unlike Bookmark Button, hover here has zero

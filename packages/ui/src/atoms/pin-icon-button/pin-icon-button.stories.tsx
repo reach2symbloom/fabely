@@ -1,5 +1,5 @@
 /**
- * Pin Button — Fabely atom. Overview + focused demos.
+ * Pin Icon Button — Fabely atom. Overview + focused demos.
  */
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -13,14 +13,14 @@ import {
   PrimitivePage,
 } from '../../../stories/PrimitivePage';
 
-import { PinButton } from './pin-button';
+import { PinIconButton } from './pin-icon-button';
 
 const meta = {
-  title: 'Design System/Atoms/Pin Button',
-  component: PinButton,
+  title: 'Design System/Atoms/Pin Icon Button',
+  component: PinIconButton,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
-} satisfies Meta<typeof PinButton>;
+} satisfies Meta<typeof PinIconButton>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -42,14 +42,14 @@ function parseFigmaState(value: FigmaState): { pressed: boolean; forceHover: boo
 }
 
 function DemoExample() {
-  return <PinButton defaultPressed />;
+  return <PinIconButton defaultPressed />;
 }
 
 function OffOnExample() {
   return (
     <div className="flex items-center gap-[var(--spacing-md)]">
-      <PinButton aria-label="Pin" />
-      <PinButton defaultPressed aria-label="Unpin" />
+      <PinIconButton aria-label="Pin" />
+      <PinIconButton defaultPressed aria-label="Unpin" />
     </div>
   );
 }
@@ -57,14 +57,14 @@ function OffOnExample() {
 function ControlledExample() {
   const [pressed, setPressed] = useState(false);
 
-  return <PinButton pressed={pressed} onPressedChange={setPressed} />;
+  return <PinIconButton pressed={pressed} onPressedChange={setPressed} />;
 }
 
 function SuperscriptExample() {
   return (
     <div className="flex items-center gap-[var(--spacing-md)]">
-      <PinButton defaultPressed={false} showSuperscript aria-label="Pin" />
-      <PinButton defaultPressed showSuperscript aria-label="Unpin" />
+      <PinIconButton defaultPressed={false} showSuperscript aria-label="Pin" />
+      <PinIconButton defaultPressed showSuperscript aria-label="Unpin" />
     </div>
   );
 }
@@ -78,7 +78,7 @@ function PinPlayground() {
     <PlaygroundPanel
       preview={
         <div className="flex min-h-40 items-center justify-center">
-          <PinButton
+          <PinIconButton
             key={figmaState}
             showSuperscript={showSuperscript}
             defaultPressed={pressed}
@@ -117,7 +117,7 @@ export const Overview: Story = {
   parameters: { layout: 'fullscreen' },
   render: () => (
     <PrimitivePage
-      title="Pin Button"
+      title="Pin Icon Button"
       description="Icon toggle in a 32px rounded-md chip. Unselected tailed outline (alpha-20), selected headless solid glyph (alpha-50); chip background is hover-only, independent of selection. Figma Pin Button (16233:7891)."
       playground={<PinPlayground />}
       variants={
@@ -139,7 +139,7 @@ export const Overview: Story = {
       usageGuidance={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            Use <code>PinButton</code> for a pin / unpin affordance in lists
+            Use <code>PinIconButton</code> for a pin / unpin affordance in lists
             and cards.
           </li>
           <li>

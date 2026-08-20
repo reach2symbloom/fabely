@@ -1,5 +1,5 @@
 /**
- * Bookmark Button — first Fabely atom. Overview + focused demos.
+ * Bookmark Icon Button — first Fabely atom. Overview + focused demos.
  */
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -13,14 +13,14 @@ import {
   PrimitivePage,
 } from '../../../stories/PrimitivePage';
 
-import { BookmarkButton } from './bookmark-button';
+import { BookmarkIconButton } from './bookmark-icon-button';
 
 const meta = {
-  title: 'Design System/Atoms/Bookmark Button',
-  component: BookmarkButton,
+  title: 'Design System/Atoms/Bookmark Icon Button',
+  component: BookmarkIconButton,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
-} satisfies Meta<typeof BookmarkButton>;
+} satisfies Meta<typeof BookmarkIconButton>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -46,14 +46,14 @@ function parseFigmaState(value: FigmaState): { pressed: boolean; forceHover: boo
 }
 
 function DemoExample() {
-  return <BookmarkButton defaultPressed />;
+  return <BookmarkIconButton defaultPressed />;
 }
 
 function OffOnExample() {
   return (
     <div className="flex items-center gap-[var(--spacing-md)]">
-      <BookmarkButton aria-label="Bookmark" />
-      <BookmarkButton defaultPressed aria-label="Remove bookmark" />
+      <BookmarkIconButton aria-label="Bookmark" />
+      <BookmarkIconButton defaultPressed aria-label="Remove bookmark" />
     </div>
   );
 }
@@ -61,9 +61,9 @@ function OffOnExample() {
 function SizeExample() {
   return (
     <div className="flex items-center gap-[var(--spacing-xs)]">
-      <BookmarkButton size="sm" defaultPressed />
-      <BookmarkButton size="default" defaultPressed />
-      <BookmarkButton size="lg" defaultPressed />
+      <BookmarkIconButton size="sm" defaultPressed />
+      <BookmarkIconButton size="default" defaultPressed />
+      <BookmarkIconButton size="lg" defaultPressed />
     </div>
   );
 }
@@ -71,14 +71,32 @@ function SizeExample() {
 function ControlledExample() {
   const [pressed, setPressed] = useState(false);
 
-  return <BookmarkButton pressed={pressed} onPressedChange={setPressed} />;
+  return <BookmarkIconButton pressed={pressed} onPressedChange={setPressed} />;
+}
+
+function CelebrationExample() {
+  const [pressed, setPressed] = useState(false);
+
+  return (
+    <div className="flex flex-col items-center gap-[var(--spacing-sm)]">
+      <BookmarkIconButton
+        size="lg"
+        pressed={pressed}
+        onPressedChange={setPressed}
+      />
+      <span className="text-xs text-muted-foreground">
+        Click repeatedly — celebration only plays entering selected, never
+        leaving it.
+      </span>
+    </div>
+  );
 }
 
 function SuperscriptExample() {
   return (
     <div className="flex items-center gap-[var(--spacing-md)]">
-      <BookmarkButton defaultPressed={false} showSuperscript aria-label="Bookmark" />
-      <BookmarkButton defaultPressed showSuperscript aria-label="Remove bookmark" />
+      <BookmarkIconButton defaultPressed={false} showSuperscript aria-label="Bookmark" />
+      <BookmarkIconButton defaultPressed showSuperscript aria-label="Remove bookmark" />
     </div>
   );
 }
@@ -93,7 +111,7 @@ function BookmarkPlayground() {
     <PlaygroundPanel
       preview={
         <div className="flex min-h-40 items-center justify-center">
-          <BookmarkButton
+          <BookmarkIconButton
             key={figmaState}
             size={size}
             showSuperscript={showSuperscript}
@@ -141,7 +159,7 @@ export const Overview: Story = {
   parameters: { layout: 'fullscreen' },
   render: () => (
     <PrimitivePage
-      title="Bookmark Button"
+      title="Bookmark Icon Button"
       description="Bare icon toggle, no button chrome. Unselected alpha-20 → alpha-50 hover (stroke); selected primary (filled). Figma Bookmark Icon Button (16066:5970)."
       playground={<BookmarkPlayground />}
       variants={
@@ -161,12 +179,15 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Superscript">
             <SuperscriptExample />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Celebration">
+            <CelebrationExample />
+          </PrimitiveGalleryItem>
         </div>
       }
       usageGuidance={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            Use <code>BookmarkButton</code> for save / bookmark affordances.
+            Use <code>BookmarkIconButton</code> for save / bookmark affordances.
             It carries no container chrome — no fill, no radius, no hover
             pill; only the glyph itself changes.
           </li>
@@ -216,4 +237,8 @@ export const Controlled: Story = {
 
 export const Superscript: Story = {
   render: () => <SuperscriptExample />,
+};
+
+export const Celebration: Story = {
+  render: () => <CelebrationExample />,
 };

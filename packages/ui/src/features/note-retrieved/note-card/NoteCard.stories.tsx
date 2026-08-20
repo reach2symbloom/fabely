@@ -339,7 +339,7 @@ export const Overview: Story = {
           <li>
             Use <code>NoteCard</code> for rows in the Gather panel's note
             list. Composes the <code>GatherBookmarkButton</code> feature and
-            the <code>PinButton</code> atom directly — don&apos;t rebuild
+            the <code>PinIconButton</code> atom directly — don&apos;t rebuild
             either.
           </li>
           <li>

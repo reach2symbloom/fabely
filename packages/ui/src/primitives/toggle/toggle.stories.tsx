@@ -13,7 +13,7 @@ import {
   UnderlineIcon,
 } from 'lucide-react';
 
-import { BookmarkButton } from '../../atoms/bookmark-button';
+import { BookmarkIconButton } from '../../atoms/bookmark-icon-button';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
 import {
@@ -44,7 +44,7 @@ const ROUNDNESSES: ToggleRoundness[] = ['default', 'round'];
 
 /** Demo — Bookmark Button atom (outline unselected, filled on pressed). */
 function DemoExample() {
-  return <BookmarkButton defaultPressed />;
+  return <BookmarkIconButton defaultPressed />;
 }
 
 function OutlineExample() {
@@ -136,7 +136,7 @@ function TogglePlayground() {
     <PlaygroundPanel
       preview={
         <div className="flex min-h-40 items-center justify-center gap-[var(--spacing-md)]">
-          <BookmarkButton size={size} defaultPressed />
+          <BookmarkIconButton size={size} defaultPressed />
           <Toggle
             variant={variant}
             size={size}
@@ -219,7 +219,7 @@ export const Overview: Story = {
           </li>
           <li>
             For a bookmark / save affordance, use the{' '}
-            <code>BookmarkButton</code> atom (see Demo) — it composes Base
+            <code>BookmarkIconButton</code> atom (see Demo) — it composes Base
             UI&apos;s headless Toggle directly, without this component&apos;s
             chrome.
           </li>

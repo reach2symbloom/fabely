@@ -1,8 +1,9 @@
-# Bookmark Button
+# Bookmark Icon Button
 
 Bare icon toggle — no button chrome at all. Three states: unselected
 (stroked outline, `alpha-20` rest → `alpha-50` hover), selected (solid
-filled glyph, `primary`).
+filled glyph, `primary`). Entering selected plays a one-shot "captured"
+celebration — see Motion below.
 
 ## Purpose
 
@@ -21,13 +22,13 @@ carries pill/ghost/outline chrome this control deliberately has none of.
 ## Composition
 
 ```text
-BookmarkButton → Base UI Toggle (headless, unstyled) + Lucide Bookmark + Superscript badge
+BookmarkIconButton → Base UI Toggle (headless, unstyled) + Lucide Bookmark + Superscript badge
 ```
 
 Fetching the raw Figma SVG assets (not just the screenshot) showed unselected
 and selected are genuinely different shapes, not the same path recolored:
 unselected/hover share one path drawn as a stroked outline; selected is a
-separate, solid-filled path. `BookmarkButton` reproduces that with the same
+separate, solid-filled path. `BookmarkIconButton` reproduces that with the same
 Lucide glyph rendered two ways — stroke-only when unselected, filled when
 selected — rather than a single shape with a fill-opacity trick.
 
@@ -41,16 +42,47 @@ Color transition uses Foundations `--duration-fast` / `--ease-emphasized`.
 Hover-only color step is scoped with `not-data-pressed:not-aria-pressed:hover:`
 so it never fights the selected-state color rule.
 
-The glyph also carries a subtle Motion scale (`1` unselected → `1.08`
-selected, `TRANSITION_EMPHASIZED_FAST` from `@/lib/motion` — the same
-resolved `--duration-fast`/`--ease-emphasized` curve as the color
-transition, not a spring) via a `motion.span` wrapping just the icon —
-color/fill still comes entirely from the CSS `transition-colors` above,
-untouched; Motion only owns the scale. Respects
-`prefers-reduced-motion` (`useReducedMotion()` collapses it to
-`duration: 0`). This benefits every consumer of this atom automatically,
-including [Gather Bookmark Button](../../features/note-retrieved/gather-bookmark-button/README.md),
-which layers its own label-crossfade and layout/FLIP animation on top.
+**Entering selected plays a one-shot "captured" celebration — never the
+reverse.** A `useEffect` compares `pressed` against a ref of its previous
+value each render; only the unselected→selected edge (`justSelected`)
+triggers anything. Deselecting is a plain CSS unfill (the color transition
+above), nothing more — celebrating a *removal* would read backwards. Two
+coordinated pieces, both keyed off that same edge:
+
+1. **Icon pop** — an imperative `useAnimate()` call (not the declarative
+   `animate` prop: this needs to *replay* an identical keyframe sequence
+   every time the edge fires, not settle at a differing target value) on a
+   `motion.span` wrapping just the glyph: `scale: [1, 1.2, 0.96, 1]` over
+   `POP_DURATION_S` (`0.4`s), `times: [0, 0.3, 0.65, 1]` — overshoot past
+   1, undershoot slightly, settle. Reads as a crisp "landed" confirmation,
+   not a bounce (peaks at 30% in, then two smaller corrections — a bounce
+   would keep oscillating). Color/fill is untouched, still the plain CSS
+   `transition-colors` above; Motion only ever owns this scale.
+2. **Spark burst** — 7 tiny rays (`SPARK_ANGLES`, an odd count so the
+   spread doesn't read as a mechanical square/hexagon), each a
+   static-`rotate`d wrapper (sets direction) around a `motion.span` that
+   only animates its own local `y` + `opacity` — rotating the parent first
+   means "move up" in the child's local space already points radially
+   outward, so no per-spark trig is needed. Three size tiers cycle across
+   the 7 (`SPARK_TIERS`, 2×6 / 2.5×8 / 3×10px), bigger sparks traveling
+   slightly further (12/14/16px) before fading to 0 opacity — varied, not
+   a uniform ring. Delayed `SPARK_BASE_DELAY_S` (0.11s) plus a small
+   per-spark `SPARK_STAGGER_S` (0.015s) so the burst fires right around
+   the pop's peak and has a little life to it rather than appearing as one
+   static frame. Pure Motion + CSS — no particle/confetti dependency.
+   Absolutely positioned (`pointer-events-none`) inside the same
+   `relative` icon span the superscript badge already uses, so it can
+   never affect layout; the whole burst unmounts (`showBurst` → `false`)
+   once the last spark's own animation completes, leaving nothing behind.
+
+Both respect `prefers-reduced-motion` — `useReducedMotion()` short-circuits
+the whole `justSelected` branch, so reduced-motion users just see the
+state change (color) with no pop, no sparks. This benefits every consumer
+of this atom automatically, including
+[Gather Bookmark Button](../../features/note-retrieved/gather-bookmark-button/README.md),
+which layers its own label-crossfade and layout/FLIP animation on top —
+the two don't conflict: this atom's `scale` transform doesn't affect the
+box Motion's `layout` measures for FLIP purposes.
 
 The optional count badge (Figma `Show superscript`, `16231:7082`/`7091`) sits
 absolute at `-top-2 left-4` of the Icon box, `paragraph-mini-medium`
@@ -82,7 +114,10 @@ chrome for either to style.
 | Glyph (default size) | Lucide · `--icon-md` (Figma 20) |
 | Glyph (`sm` / `lg`) | `--icon-sm` / `--icon-lg` |
 | Color | `currentColor` ← `--theme-alpha-black-switch-20` / `-50` / `--primary` |
-| Motion | `--duration-fast` / `--ease-emphasized` |
+| Color motion | `--duration-fast` / `--ease-emphasized` |
+| Celebration spark color | `--primary` |
+| Celebration pop | `0.4`s, `ease-emphasized`, keyframes `[1, 1.2, 0.96, 1]` at `[0, 0.3, 0.65, 1]` |
+| Celebration sparks | 7, three size tiers (2×6 / 2.5×8 / 3×10px), travel 12/14/16px, `0.22`s each, `0.11`s base delay + `0.015`s/spark stagger |
 | Focus | `--effect-focus-ring-secondary` |
 
 ## Deferred

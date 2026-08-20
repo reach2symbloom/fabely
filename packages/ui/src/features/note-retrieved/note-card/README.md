@@ -9,7 +9,7 @@ expand/more actions.
 
 Composes existing pieces rather than rebuilding any of them:
 [Gather Bookmark Button](../gather-bookmark-button/README.md) for the
-bookmark/scene action, the [Pin Button](../../../atoms/pin-button/README.md)
+bookmark/scene action, the [Pin Button](../../../atoms/pin-icon-button/README.md)
 atom for the pinned indicator, and the [Textarea](../../../primitives/textarea/README.md)
 primitive for the editable title/annotation/short-body fields. Storybook
 groups it under **Features/Gather** even though its folder is
@@ -22,7 +22,7 @@ groups it under **Features/Gather** even though its folder is
 | --- | --- |
 | Figma [Note card](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16064-4975) (`16064:4975`) | Visual — Title × Hover × Pin |
 | [Gather Bookmark Button](../gather-bookmark-button/README.md) | The bookmark/scene action, top-right |
-| [Pin Button](../../../atoms/pin-button/README.md) atom | The pinned indicator, top-right |
+| [Pin Button](../../../atoms/pin-icon-button/README.md) atom | The pinned indicator, top-right |
 | [Textarea](../../../primitives/textarea/README.md) | Title (`textStyle="heading"`, single row), annotation and short body (`textStyle="body"`, wraps) |
 | [Icon Button](../../../primitives/button/icon-button/README.md) | Expand / more, hover-revealed footer actions |
 | [Badge](../../../primitives/badge/README.md) | The trailing "Notes" badge — its `default` size/roundness already produces Figma's exact `18px` height, no overrides needed |
@@ -32,7 +32,7 @@ groups it under **Features/Gather** even though its folder is
 ```text
 NoteCard (group/card, hover:bg-alpha-333)
   └── border-b row (optional — showBottomBorder)
-        ├── title row (justify-between) — title Textarea (flex-1) — PinButton (optional) + GatherBookmarkButton
+        ├── title row (justify-between) — title Textarea (flex-1) — PinIconButton (optional) + GatherBookmarkButton
         ├── annotation Textarea (own row, full card width)
         ├── body — editable Textarea (short) OR truncated read-only button (long, calls onOpenNote)
         └── footer: index. · date · wordcount · Badge — Expand (long body only) / more IconButtons (hover-revealed)
@@ -126,14 +126,14 @@ variant. `mode` (`'gather'` default / `'roam'`) is a plain prop, forwarded
 straight through to `GatherBookmarkButton`.
 
 **Pin and Bookmark match glyph size and rest color.** `GatherBookmarkButton`
-gained a `size` passthrough (to its internal `BookmarkButton`) specifically
+gained a `size` passthrough (to its internal `BookmarkIconButton`) specifically
 so this composite could set `size="sm"` (`--icon-sm`, 16px) — matching
-`PinButton`'s own fixed glyph size exactly, rather than Bookmark defaulting
+`PinIconButton`'s own fixed glyph size exactly, rather than Bookmark defaulting
 to 20px next to Pin's 16px. Both already shared the same rest-state color
 token (`--theme-alpha-black-switch-20`) without any change needed.
 
 **Pin visibility vs. interactivity are separate axes, deliberately not
-Figma-literal.** Figma's source only ever renders `PinButton` once the card
+Figma-literal.** Figma's source only ever renders `PinIconButton` once the card
 is already `pinned` — there's no way to pin an unpinned note through this
 control at all. `showPin` (whether the control renders) and `pinInteractive`
 (whether it can be toggled, vs. read-only) are independent props precisely

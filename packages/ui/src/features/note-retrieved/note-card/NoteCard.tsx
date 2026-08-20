@@ -22,10 +22,12 @@
 'use client';
 
 import { ChevronsUpDownIcon, EllipsisVerticalIcon } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
 
-import { PinButton } from '@/atoms/pin-button';
+import { PinIconButton } from '@/atoms/pin-icon-button';
+import { TRANSITION_EMPHASIZED_FAST } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import {
   GatherBookmarkButton,
@@ -34,6 +36,18 @@ import {
 import { Badge } from '@/primitives/badge';
 import { IconButton } from '@/primitives/button/icon-button';
 import { Textarea } from '@/primitives/textarea';
+
+/**
+ * `layout` here (row + Pin wrapper), sharing the exact same transition as
+ * Gather Bookmark Button's own internal layout tracking — Pin sits before
+ * Bookmark in this row, and Bookmark's width change moves Pin's position
+ * too (this row is itself the flex item `justify-between` right-aligns in
+ * the title row above, so growing Bookmark pushes the whole cluster's
+ * left edge — and Pin with it — rather than only affecting Bookmark's own
+ * box). Without Pin also being layout-tracked, Motion's FLIP pass has no
+ * way to know Pin moved at all and it just snaps.
+ */
+const MotionPinIconButton = motion.create(PinIconButton);
 
 type NoteCardProps = {
   /** Note title — an editable invisible input; empty shows "Add title". */
@@ -168,6 +182,14 @@ function NoteCard({
 
   const hasTitle = Boolean(title);
 
+  const prefersReducedMotion = useReducedMotion();
+  /* Same resolved --duration-fast/--ease-emphasized transition as Gather
+   * Bookmark Button's own internal layout tracking, so Pin's glide and
+   * Bookmark's own resize read as one coordinated motion, not two. */
+  const layoutTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : TRANSITION_EMPHASIZED_FAST;
+
   /** Enter commits (blurs) instead of inserting a newline — title/annotation aren't paragraphs. */
   const commitOnEnter = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -237,9 +259,15 @@ function NoteCard({
                   'placeholder:text-[color:var(--theme-alpha-black-switch-50)]'
                 )}
               />
-              <div className="flex shrink-0 items-center gap-[length:var(--spacing-xs)] pl-[length:var(--spacing-xs)] pt-[length:var(--spacing-3xs)]">
+              <motion.div
+                layout
+                transition={layoutTransition}
+                className="flex shrink-0 items-center gap-[length:var(--spacing-xs)] pl-[length:var(--spacing-xs)] pt-[length:var(--spacing-3xs)]"
+              >
                 {showPin && (
-                  <PinButton
+                  <MotionPinIconButton
+                    layout
+                    transition={layoutTransition}
                     pressed={pinned}
                     disabled={!pinInteractive}
                     aria-label={pinned ? 'Unpin' : 'Pin'}
@@ -263,7 +291,7 @@ function NoteCard({
                     onBookmarkedChange?.(next);
                   }}
                 />
-              </div>
+              </motion.div>
             </div>
             {/* `body` textStyle (not `heading`) — annotation is allowed to
              * wrap 2-3 lines. Its own full-width row, decoupled from the

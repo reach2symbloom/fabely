@@ -197,9 +197,11 @@ export const Overview: Story = {
       accessibility={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            The bookmark toggle exposes &quot;Add to scene&quot; /
-            &quot;Remove from scene&quot; as its accessible name — the
-            visible label is decorative and mirrors it on hover.
+            The bookmark toggle&apos;s accessible name is always
+            action-oriented (&quot;Add to scene&quot; / &quot;Remove from
+            scene&quot;) independent of the visible label, which defaults
+            to &quot;Added to scene&quot; once active — a status, not a
+            command a screen reader user could act on.
           </li>
           <li>
             The chevron is a separate button (&quot;More options&quot;), not
