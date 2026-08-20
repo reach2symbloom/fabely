@@ -57,6 +57,7 @@ deferred superscript axis.
 | `size` | `default` | `sm` / `default` / `lg` — glyph size only, no hit-target chrome |
 | `showSuperscript` | `false` | Figma `Show superscript`; badge only renders while `pressed` |
 | `superscriptValue` | `2` | Badge content; Figma default is the literal "2" |
+| `forceHover` | `false` | Storybook-only — locks the hover paint via `data-force-hover` without a real pointer |
 | `aria-label` | auto | `"Bookmark"` off · `"Remove bookmark"` on |
 
 There is no `variant` or `roundness` prop — this control has no container

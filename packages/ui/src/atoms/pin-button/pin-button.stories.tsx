@@ -1,5 +1,5 @@
 /**
- * Bookmark Button — first Fabely atom. Overview + focused demos.
+ * Pin Button — Fabely atom. Overview + focused demos.
  */
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -13,21 +13,17 @@ import {
   PrimitivePage,
 } from '../../../stories/PrimitivePage';
 
-import { BookmarkButton } from './bookmark-button';
+import { PinButton } from './pin-button';
 
 const meta = {
-  title: 'Design System/Atoms/Bookmark Button',
-  component: BookmarkButton,
+  title: 'Design System/Atoms/Pin Button',
+  component: PinButton,
   tags: ['ai-generated'],
   parameters: { layout: 'centered' },
-} satisfies Meta<typeof BookmarkButton>;
+} satisfies Meta<typeof PinButton>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
-
-type Size = 'sm' | 'default' | 'lg';
-
-const SIZES: Size[] = ['sm', 'default', 'lg'];
 
 type FigmaState = 'unselected-rest' | 'unselected-hover' | 'selected-rest' | 'selected-hover';
 
@@ -46,24 +42,14 @@ function parseFigmaState(value: FigmaState): { pressed: boolean; forceHover: boo
 }
 
 function DemoExample() {
-  return <BookmarkButton defaultPressed />;
+  return <PinButton defaultPressed />;
 }
 
 function OffOnExample() {
   return (
     <div className="flex items-center gap-[var(--spacing-md)]">
-      <BookmarkButton aria-label="Bookmark" />
-      <BookmarkButton defaultPressed aria-label="Remove bookmark" />
-    </div>
-  );
-}
-
-function SizeExample() {
-  return (
-    <div className="flex items-center gap-[var(--spacing-xs)]">
-      <BookmarkButton size="sm" defaultPressed />
-      <BookmarkButton size="default" defaultPressed />
-      <BookmarkButton size="lg" defaultPressed />
+      <PinButton aria-label="Pin" />
+      <PinButton defaultPressed aria-label="Unpin" />
     </div>
   );
 }
@@ -71,20 +57,19 @@ function SizeExample() {
 function ControlledExample() {
   const [pressed, setPressed] = useState(false);
 
-  return <BookmarkButton pressed={pressed} onPressedChange={setPressed} />;
+  return <PinButton pressed={pressed} onPressedChange={setPressed} />;
 }
 
 function SuperscriptExample() {
   return (
     <div className="flex items-center gap-[var(--spacing-md)]">
-      <BookmarkButton defaultPressed={false} showSuperscript aria-label="Bookmark" />
-      <BookmarkButton defaultPressed showSuperscript aria-label="Remove bookmark" />
+      <PinButton defaultPressed={false} showSuperscript aria-label="Pin" />
+      <PinButton defaultPressed showSuperscript aria-label="Unpin" />
     </div>
   );
 }
 
-function BookmarkPlayground() {
-  const [size, setSize] = useState<Size>('default');
+function PinPlayground() {
   const [showSuperscript, setShowSuperscript] = useState(false);
   const [figmaState, setFigmaState] = useState<FigmaState>('unselected-rest');
   const { pressed, forceHover } = parseFigmaState(figmaState);
@@ -93,9 +78,8 @@ function BookmarkPlayground() {
     <PlaygroundPanel
       preview={
         <div className="flex min-h-40 items-center justify-center">
-          <BookmarkButton
+          <PinButton
             key={figmaState}
-            size={size}
             showSuperscript={showSuperscript}
             defaultPressed={pressed}
             forceHover={forceHover}
@@ -109,14 +93,6 @@ function BookmarkPlayground() {
             value={figmaState}
             onChange={(v) => setFigmaState(v as FigmaState)}
             options={FIGMA_STATES}
-            fullWidth
-            className="col-span-2"
-          />
-          <InlineSegmentedControl
-            label="Size"
-            value={size}
-            onChange={(v) => setSize(v as Size)}
-            options={SIZES.map((value) => ({ value, label: value }))}
             fullWidth
             className="col-span-2"
           />
@@ -141,9 +117,9 @@ export const Overview: Story = {
   parameters: { layout: 'fullscreen' },
   render: () => (
     <PrimitivePage
-      title="Bookmark Button"
-      description="Bare icon toggle, no button chrome. Unselected alpha-20 → alpha-50 hover (stroke); selected primary (filled). Figma Bookmark Icon Button (16066:5970)."
-      playground={<BookmarkPlayground />}
+      title="Pin Button"
+      description="Icon toggle in a 32px rounded-md chip. Unselected tailed outline (alpha-20), selected headless solid glyph (alpha-50); chip background is hover-only, independent of selection. Figma Pin Button (16233:7891)."
+      playground={<PinPlayground />}
       variants={
         <div className="flex flex-wrap gap-[var(--spacing-md)]">
           <PrimitiveGalleryItem label="Demo">
@@ -151,9 +127,6 @@ export const Overview: Story = {
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Off / On">
             <OffOnExample />
-          </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Size">
-            <SizeExample />
           </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Controlled">
             <ControlledExample />
@@ -166,18 +139,18 @@ export const Overview: Story = {
       usageGuidance={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            Use <code>BookmarkButton</code> for save / bookmark affordances.
-            It carries no container chrome — no fill, no radius, no hover
-            pill; only the glyph itself changes.
+            Use <code>PinButton</code> for a pin / unpin affordance in lists
+            and cards.
           </li>
           <li>
-            Unselected is a stroked outline (<code>alpha-20</code> rest,{' '}
-            <code>alpha-50</code> hover); selected swaps to a solid filled
-            glyph in <code>primary</code>.
+            The glyph swaps shape on select (tailed outline → headless solid)
+            — not a recolor trick, it&apos;s two different paths straight
+            from Figma&apos;s raw SVG export.
           </li>
           <li>
-            Default <code>aria-label</code> switches between &quot;Bookmark&quot;
-            and &quot;Remove bookmark&quot;; override when the action differs.
+            Chip background only ever responds to <code>:hover</code>,
+            regardless of selection — selection is carried entirely by the
+            glyph.
           </li>
           <li>
             Use <code>forceHover</code> in Storybook to lock the hover paint
@@ -204,10 +177,6 @@ export const Demo: Story = {
 
 export const OffOn: Story = {
   render: () => <OffOnExample />,
-};
-
-export const Size: Story = {
-  render: () => <SizeExample />,
 };
 
 export const Controlled: Story = {

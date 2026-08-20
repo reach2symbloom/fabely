@@ -36,6 +36,8 @@ type BookmarkButtonProps = Omit<TogglePrimitive.Props, 'children'> & {
   showSuperscript?: boolean;
   /** Badge content when `showSuperscript` is active. Figma default is "2". */
   superscriptValue?: ReactNode;
+  /** Storybook / playground — lock hover paint without a pointer. */
+  forceHover?: boolean;
 };
 
 function BookmarkButton({
@@ -46,6 +48,7 @@ function BookmarkButton({
   onPressedChange,
   showSuperscript = false,
   superscriptValue = 2,
+  forceHover = false,
   'aria-label': ariaLabelProp,
   ...props
 }: BookmarkButtonProps) {
@@ -71,6 +74,7 @@ function BookmarkButton({
   return (
     <TogglePrimitive
       data-slot="bookmark-button"
+      data-force-hover={forceHover || undefined}
       {...props}
       pressed={isControlled ? pressedProp : undefined}
       defaultPressed={isControlled ? undefined : defaultPressed}
@@ -84,6 +88,7 @@ function BookmarkButton({
         /* Figma 16066:5970 — unselected alpha-20 → alpha-50 hover; selected primary. */
         'text-[color:var(--theme-alpha-black-switch-20)]',
         'not-data-pressed:not-aria-pressed:hover:text-[color:var(--theme-alpha-black-switch-50)]',
+        'not-data-pressed:not-aria-pressed:data-[force-hover=true]:text-[color:var(--theme-alpha-black-switch-50)]',
         'data-pressed:text-[color:var(--primary)]',
         'aria-pressed:text-[color:var(--primary)]',
         '[&_svg]:transition-colors',
