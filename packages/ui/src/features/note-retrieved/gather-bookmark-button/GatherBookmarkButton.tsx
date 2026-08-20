@@ -77,7 +77,7 @@ const GROUP_BG = 'bg-[var(--theme-alpha-black-switch-333)]';
  * instantly regardless of the group's transition.
  */
 const HOVER_DEEPEN =
-  'transition-colors duration-[var(--duration-fast)] ease-[var(--ease-emphasized)] hover:bg-[var(--theme-alpha-black-switch-5)] data-[force-hover=true]:bg-[var(--theme-alpha-black-switch-5)]';
+  'transition-colors duration-[var(--duration-fast)] ease-[var(--ease-emphasized)] hover:bg-[var(--theme-alpha-black-switch-333)] data-[force-hover=true]:bg-[var(--theme-alpha-black-switch-333)]';
 /**
  * Matches Bookmark Button's own rest/hover model exactly (alpha-20 →
  * alpha-50) — `IconButton`'s `ghost` variant bakes in its own generic

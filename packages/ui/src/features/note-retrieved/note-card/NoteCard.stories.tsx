@@ -24,8 +24,7 @@ const SAMPLE = {
    * "editable inline" state. Not `> 359`, so it does NOT truncate. */
   body: "Zeera leads Sophia through the root-woven entrance of the Eldergrove and explains that no wand may be taken by force. The trees must first recognize the apprentice's inner magic, and Sophia must wait for the grove to answer her. Just as the branches begin to stir, a deep rumbling rises from the dark woods, warning them that something ancient is approaching…",
   date: '3/20/2025',
-  wordCount: 1230,
-} satisfies Pick<NoteCardProps, 'title' | 'annotation' | 'body' | 'date' | 'wordCount'>;
+} satisfies Pick<NoteCardProps, 'title' | 'annotation' | 'body' | 'date'>;
 
 /** Comfortably under the threshold — stays editable inline. */
 const SHORT_BODY = 'Sophia hesitates at the threshold, unsure the grove will answer her.';
@@ -34,11 +33,14 @@ const SHORT_BODY = 'Sophia hesitates at the threshold, unsure the grove will ans
  * Comfortably over the threshold — genuinely truncates, unlike `SAMPLE.body`
  * (which sits exactly at the 359-char boundary on purpose). `OpenNoteExample`
  * needs this: it demonstrates the truncated/double-click-to-open flow, which
- * `SAMPLE.body` alone can no longer trigger.
+ * `SAMPLE.body` alone can no longer trigger. Three paragraphs, not one
+ * continuous block — closer to what a real long note actually looks like.
  */
-const LONG_BODY =
-  SAMPLE.body.slice(0, -1) +
-  ", and the wind itself seems to hold its breath, waiting to see whether Sophia's courage will match her curiosity…";
+const LONG_BODY = `Zeera leads Sophia through the root-woven entrance of the Eldergrove and explains that no wand may be taken by force. The trees must first recognize the apprentice's inner magic, and Sophia must wait for the grove to answer her. Just as the branches begin to stir, a deep rumbling rises from the dark woods, warning them that something ancient is approaching.
+
+Sophia hesitates at the threshold, unsure whether the grove will answer her at all — Zeera has told her plainly that not every apprentice is chosen, and that the trees have turned candidates away before without a word of explanation. The wind itself seems to hold its breath, waiting to see whether her courage will match her curiosity.
+
+Then, without warning, one low branch bends toward her palm — not offered, exactly, but not withdrawn either. Zeera says nothing, only watches to see what Sophia will do next.`;
 
 const meta = {
   title: 'Design System/Features/Gather/Note Card',
@@ -70,7 +72,6 @@ function DemoExample() {
         defaultAnnotation={SAMPLE.annotation}
         body={SAMPLE.body}
         date={SAMPLE.date}
-        wordCount={SAMPLE.wordCount}
         index={1}
       />
     </CardShell>
@@ -80,7 +81,7 @@ function DemoExample() {
 function EmptyExample() {
   return (
     <CardShell>
-      <NoteCard body={SAMPLE.body} date={SAMPLE.date} wordCount={SAMPLE.wordCount} index={2} />
+      <NoteCard body={SAMPLE.body} date={SAMPLE.date} index={2} />
     </CardShell>
   );
 }
@@ -93,7 +94,6 @@ function PinnedExample() {
         defaultAnnotation={SAMPLE.annotation}
         body={SAMPLE.body}
         date={SAMPLE.date}
-        wordCount={SAMPLE.wordCount}
         defaultPinned
         defaultBookmarked
         index={1}
@@ -110,7 +110,6 @@ function RoamExample() {
         defaultAnnotation={SAMPLE.annotation}
         body={SAMPLE.body}
         date={SAMPLE.date}
-        wordCount={SAMPLE.wordCount}
         mode="roam"
         index={1}
       />
@@ -126,7 +125,6 @@ function NoPinExample() {
         defaultAnnotation={SAMPLE.annotation}
         body={SAMPLE.body}
         date={SAMPLE.date}
-        wordCount={SAMPLE.wordCount}
         showPin={false}
         index={1}
       />
@@ -142,7 +140,6 @@ function PinReadOnlyExample() {
         defaultAnnotation={SAMPLE.annotation}
         body={SAMPLE.body}
         date={SAMPLE.date}
-        wordCount={SAMPLE.wordCount}
         defaultPinned
         pinInteractive={false}
         index={1}
@@ -159,7 +156,6 @@ function HoverExample() {
         defaultAnnotation={SAMPLE.annotation}
         body={SAMPLE.body}
         date={SAMPLE.date}
-        wordCount={SAMPLE.wordCount}
         index={1}
         forceHover
       />
@@ -175,7 +171,6 @@ function ShortBodyExample() {
         defaultAnnotation={SAMPLE.annotation}
         body={SHORT_BODY}
         date={SAMPLE.date}
-        wordCount={42}
         index={1}
       />
     </CardShell>
@@ -193,7 +188,6 @@ function OpenNoteExample() {
           defaultAnnotation={SAMPLE.annotation}
           body={LONG_BODY}
           date={SAMPLE.date}
-          wordCount={SAMPLE.wordCount}
           index={1}
           onOpenNote={() => setOpenCount((count) => count + 1)}
         />
@@ -220,7 +214,6 @@ function ControlledExample() {
         onAnnotationChange={setAnnotation}
         body={SAMPLE.body}
         date={SAMPLE.date}
-        wordCount={SAMPLE.wordCount}
         index={1}
         pinned={pinned}
         onPinnedChange={setPinned}
@@ -256,7 +249,6 @@ function NoteCardPlayground() {
             defaultAnnotation={hasTitle ? SAMPLE.annotation : undefined}
             body={BODY_BY_LENGTH[bodyLength]}
             date={SAMPLE.date}
-            wordCount={SAMPLE.wordCount}
             index={1}
             mode={mode}
             pinned={pinned}

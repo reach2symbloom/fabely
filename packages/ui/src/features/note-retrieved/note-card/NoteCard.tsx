@@ -83,6 +83,12 @@ type NoteCardProps = {
    */
   onOpenNote?: () => void;
   date?: string;
+  /**
+   * Footer word count. Defaults to a live count of the actual `body` text
+   * (updates as the user edits it inline) — pass this only to override
+   * that with something else (e.g. a linked manuscript excerpt's count
+   * rather than the note text itself).
+   */
   wordCount?: number;
   /** Trailing badge label. */
   badgeLabel?: string;
@@ -170,8 +176,21 @@ function NoteCard({
   const annotation = isAnnotationControlled ? annotationProp : uncontrolledAnnotation;
 
   const [body, setBody] = useState(initialBody);
+  /* Word count is computed from this, not live `body` — recounting on
+   * every keystroke reads as distracting/jittery. Only syncs from `body`
+   * on blur (see the body Textarea's onBlur below), i.e. once the edit is
+   * actually "saved," matching how the truncate/read-only reassessment
+   * itself is already gated on blur, not on every change. */
+  const [committedBody, setCommittedBody] = useState(initialBody);
   const [isEditingBody, setIsEditingBody] = useState(false);
   const isBodyOverThreshold = body.length > bodyTruncateThreshold;
+  /* Trimmed + split on whitespace runs — empty body counts as 0, not 1
+   * (an empty string still "splits" into one empty-string element). */
+  const trimmedCommittedBody = committedBody.trim();
+  const computedWordCount = trimmedCommittedBody
+    ? trimmedCommittedBody.split(/\s+/).length
+    : 0;
+  const displayWordCount = wordCount ?? computedWordCount;
   /**
    * Typing past the threshold mid-edit must not eject the field into the
    * read-only truncated view — that would drop focus/cursor position out
@@ -370,7 +389,10 @@ function NoteCard({
               placeholder="Add your note..."
               aria-label="Note body"
               onFocus={() => setIsEditingBody(true)}
-              onBlur={() => setIsEditingBody(false)}
+              onBlur={() => {
+                setIsEditingBody(false);
+                setCommittedBody(body);
+              }}
               onChange={(event) => {
                 const next = event.target.value;
                 setBody(next);
@@ -389,10 +411,27 @@ function NoteCard({
                 'placeholder:text-[color:var(--theme-alpha-black-switch-50)]',
                 /* Past the threshold mid-edit: stop growing at 2x the
                  * read-only view's own line-clamp-6 cap (12 lines) and
-                 * scroll instead, rather than growing the row unbounded. */
+                 * scroll instead, rather than growing the row unbounded.
+                 * A native <textarea> can't be meaningfully wrapped by our
+                 * ScrollArea primitive — its own field-sizing-content
+                 * intrinsic sizing silently caps at whatever fits inside a
+                 * height-constrained ancestor rather than overflowing it,
+                 * so ScrollArea's viewport never sees anything to scroll.
+                 * Styling the textarea's own native scrollbar to match
+                 * Foundations' look (thin thumb, 2px end padding) instead —
+                 * see the [&::-webkit-scrollbar*] rules and
+                 * scrollbar-color below. */
                 isEditingBody &&
                   isBodyOverThreshold &&
-                  'max-h-[calc(var(--text-paragraph-regular-regular-line-height)*12)] overflow-y-auto'
+                  cn(
+                    'max-h-[calc(var(--text-paragraph-regular-regular-line-height)*12)] overflow-y-auto',
+                    'pr-[length:var(--spacing-3xs)]',
+                    '[scrollbar-width:thin] [scrollbar-color:var(--theme-alpha-white-no-switch-25)_transparent]',
+                    '[&::-webkit-scrollbar]:w-[length:var(--spacing-2xs)]',
+                    '[&::-webkit-scrollbar-track]:bg-transparent',
+                    '[&::-webkit-scrollbar-thumb]:rounded-[length:var(--rounded-sm)]',
+                    '[&::-webkit-scrollbar-thumb]:bg-[color:var(--theme-alpha-white-no-switch-25)]'
+                  )
               )}
             />
           )}
@@ -427,22 +466,20 @@ function NoteCard({
                 {date}
               </span>
             )}
-            {date && wordCount !== undefined && (
+            {date && (
               <span className="text-[color:var(--theme-alpha-black-switch-50)]">·</span>
             )}
-            {wordCount !== undefined && (
-              <span
-                className={cn(
-                  'whitespace-nowrap font-[family-name:var(--text-paragraph-mini-regular-font-family)]',
-                  '[font-weight:var(--text-paragraph-mini-regular-font-weight)]',
-                  'text-[length:var(--text-paragraph-mini-regular-font-size)]',
-                  'leading-[var(--text-paragraph-mini-regular-line-height)]',
-                  'text-[color:var(--theme-alpha-black-switch-50)]'
-                )}
-              >
-                {wordCount.toLocaleString()} words
-              </span>
-            )}
+            <span
+              className={cn(
+                'whitespace-nowrap font-[family-name:var(--text-paragraph-mini-regular-font-family)]',
+                '[font-weight:var(--text-paragraph-mini-regular-font-weight)]',
+                'text-[length:var(--text-paragraph-mini-regular-font-size)]',
+                'leading-[var(--text-paragraph-mini-regular-line-height)]',
+                'text-[color:var(--theme-alpha-black-switch-50)]'
+              )}
+            >
+              {displayWordCount.toLocaleString()} words
+            </span>
             <Badge>{badgeLabel}</Badge>
           </div>
 

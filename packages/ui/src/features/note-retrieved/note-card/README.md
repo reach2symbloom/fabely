@@ -178,7 +178,8 @@ Removed; `invisible` owns its own (lack of) radius now, unconditionally.
 | `body` / `onBodyChange` | — | Required initial value. Editable inline under `bodyTruncateThreshold`; truncated + read-only over it (reassessed on blur, not mid-keystroke) |
 | `bodyTruncateThreshold` | `359` | Character count above which body truncates instead of staying editable |
 | `onOpenNote` | — | Hook — fires on **double**-click of the truncated body (single Enter/Space if focused via keyboard) *and* a single click of the Expand icon; opens the full note (view not built yet) |
-| `date` / `wordCount` | — | Footer metadata; each only renders if provided |
+| `date` | — | Footer metadata; only renders if provided |
+| `wordCount` | live count of `body` | Footer metadata; defaults to a real, live word count of the note text (not a caller-supplied guess). Only updates on blur, not per-keystroke — recounting live while typing read as distracting. Pass explicitly to override with something else (e.g. a linked manuscript excerpt's count) |
 | `badgeLabel` | `'Notes'` | Trailing `Badge` text |
 | `index` | — | Small ordinal in the footer ("1."), left of `date`, decorative (`aria-hidden`) |
 | `mode` | `'gather'` | Surrounding page context — forwarded to `GatherBookmarkButton`'s own `mode` |
@@ -205,7 +206,7 @@ Removed; `invisible` owns its own (lack of) radius now, unconditionally.
 | Title → annotation gap | `--spacing-3xs` (2px flex-gap; `Textarea`'s own 1px shell border nets it to ~4px rendered) |
 | Annotation → body gap | `--spacing-xs` (8px) |
 | Body → footer metadata gap | `--spacing-sm` (12px) |
-| Body edit-mode growth cap | `12` lines (`--text-paragraph-regular-regular-line-height` × 12) once over `bodyTruncateThreshold` while focused, then scrolls |
+| Body edit-mode growth cap | `12` lines (`--text-paragraph-regular-regular-line-height` × 12) once over `bodyTruncateThreshold` while focused, then scrolls via the textarea's own `overflow-y`, styled to match Foundations' scrollbar (thin thumb, `--theme-alpha-white-no-switch-25`, `--spacing-3xs` end padding) — not the `ScrollArea` primitive, which can't meaningfully wrap a native `<textarea>` (its `field-sizing-content` sizing silently caps at whatever fits a height-constrained ancestor rather than overflowing it, so `ScrollArea`'s own viewport never sees anything to scroll) |
 | Pin / Bookmark glyph size | `--icon-sm` (16px), matched between both |
 | Pin hover background | `--theme-alpha-black-switch-333` — matches the row's own hover wash |
 | Motion | `--duration-fast` / `--ease-emphasized` |
