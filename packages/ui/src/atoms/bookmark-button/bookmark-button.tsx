@@ -38,6 +38,12 @@ type BookmarkButtonProps = Omit<TogglePrimitive.Props, 'children'> & {
   superscriptValue?: ReactNode;
   /** Storybook / playground — lock hover paint without a pointer. */
   forceHover?: boolean;
+  /**
+   * Extra content rendered inside this same button, after the glyph — e.g. a
+   * composite wrapping this atom with a revealed label that should share its
+   * click target and cursor, not sit as an inert sibling next to it.
+   */
+  trailingContent?: ReactNode;
 };
 
 function BookmarkButton({
@@ -49,6 +55,7 @@ function BookmarkButton({
   showSuperscript = false,
   superscriptValue = 2,
   forceHover = false,
+  trailingContent,
   'aria-label': ariaLabelProp,
   ...props
 }: BookmarkButtonProps) {
@@ -125,6 +132,7 @@ function BookmarkButton({
           </span>
         )}
       </span>
+      {trailingContent}
     </TogglePrimitive>
   );
 }

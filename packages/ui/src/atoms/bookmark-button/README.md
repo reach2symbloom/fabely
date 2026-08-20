@@ -58,6 +58,7 @@ deferred superscript axis.
 | `showSuperscript` | `false` | Figma `Show superscript`; badge only renders while `pressed` |
 | `superscriptValue` | `2` | Badge content; Figma default is the literal "2" |
 | `forceHover` | `false` | Storybook-only — locks the hover paint via `data-force-hover` without a real pointer |
+| `trailingContent` | — | Extra content inside this same button, after the glyph — e.g. [Gather Bookmark Button](../../features/note-retrieved/gather-bookmark-button/README.md)'s revealed label, sharing this button's click target/cursor instead of sitting as an inert sibling |
 | `aria-label` | auto | `"Bookmark"` off · `"Remove bookmark"` on |
 
 There is no `variant` or `roundness` prop — this control has no container
