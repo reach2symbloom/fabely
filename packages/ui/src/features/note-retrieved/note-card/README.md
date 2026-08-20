@@ -133,12 +133,17 @@ does nothing, since nothing re-supplies a new prop) — use `defaultTitle` /
 interactive demo, or pass both the value and its `onChange` for a real
 controlled instance (see the `Controlled` story).
 
-**Title/annotation's shell radius is one notch down from the primitive's
-default**, `--rounded-md` (8px) instead of `Textarea`'s own `--rounded-lg`
-(12px). The primitive doesn't expose a `className` on its shell wrapper (only
-on the inner `<textarea>`), so this is scoped from the parent via
-`[&_[data-slot=textarea-control]]:rounded-[length:var(--rounded-md)]!` on the
-title/annotation column.
+**Title/annotation/body carry no shell radius at all**, via the primitive's
+`invisible` variant itself (`rounded-none!`) — not a parent-level override.
+An earlier pass, back when these fields used `variant="quiet"`, scoped a
+`--rounded-md` correction onto the title/annotation column from outside the
+primitive (`quiet`'s own shell radius needed correcting one notch down).
+That override quietly became a bug once the fields moved to `invisible`: its
+descendant-selector class carries higher CSS specificity than the
+primitive's own `rounded-none!`, so even though both are `!important`, the
+column-level rule kept winning and the radius stayed visible — most
+obviously as a rounded clip on the title's own text-selection highlight.
+Removed; `invisible` owns its own (lack of) radius now, unconditionally.
 
 ## API
 
@@ -175,7 +180,6 @@ title/annotation column.
 | Title → annotation gap | `--spacing-3xs` (2px flex-gap; `Textarea`'s own 1px shell border nets it to ~4px rendered) |
 | Annotation → body gap | `--spacing-xs` (8px) |
 | Body → footer metadata gap | `--spacing-sm` (12px) |
-| Title/annotation shell radius | `--rounded-md` (8px) — one notch down from the primitive's own `--rounded-lg` |
 | Body edit-mode growth cap | `12` lines (`--text-paragraph-regular-regular-line-height` × 12) once over `bodyTruncateThreshold` while focused, then scrolls |
 | Pin / Bookmark glyph size | `--icon-sm` (16px), matched between both |
 | Pin hover background | `--theme-alpha-black-switch-333` — matches the row's own hover wash |

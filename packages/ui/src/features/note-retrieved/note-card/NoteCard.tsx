@@ -196,16 +196,7 @@ function NoteCard({
       >
         <div className="flex w-full flex-col items-start gap-[length:var(--spacing-xs)]">
           <div className="flex w-full items-start gap-[length:var(--spacing-xs)]">
-            <div
-              className={cn(
-                'flex min-w-0 flex-1 flex-col items-start gap-[length:var(--spacing-3xs)]',
-                /* Textarea's shell owns the visible hover/focus radius, not
-                 * the inner <textarea> — no className passthrough on the
-                 * shell, so scope the override here instead. One notch
-                 * down from the primitive's default --rounded-lg. */
-                '[&_[data-slot=textarea-control]]:rounded-[length:var(--rounded-md)]!'
-              )}
-            >
+            <div className="flex min-w-0 flex-1 flex-col items-start gap-[length:var(--spacing-3xs)]">
               <Textarea
                 variant="invisible"
                 textStyle="heading"
