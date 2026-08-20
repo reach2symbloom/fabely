@@ -9,7 +9,9 @@
  * The scrim is Foundations' `--effect-gradient-fade-up`
  * ([Gradients](../../../foundations/effects/gradients/README.md)),
  * lifted out of this component into its own Effects token — Figma names
- * this exact style "gradients/fade/fade up".
+ * this exact style "gradients/fade/fade up". A `backdrop-blur-[5px]` sits
+ * alongside it — not in Figma, added so text scrolling underneath reads as
+ * genuinely obscured rather than just dimmed.
  *
  * Figma authors "Mode=Dark"/"Mode=Light" as two separate variants, each
  * hand-simulating the other theme's colors (the Dark variant hardcodes
@@ -55,6 +57,7 @@ function NoteFooter({
         'flex w-full items-center justify-between',
         'p-[var(--spacing-md)]',
         'bg-[image:var(--effect-gradient-fade-up)]',
+        'backdrop-blur-[5px]',
         className
       )}
     >

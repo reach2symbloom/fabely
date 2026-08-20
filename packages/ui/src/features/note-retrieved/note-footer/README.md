@@ -3,8 +3,9 @@
 Bottom-edge scrim over scrollable note content, with a `prev`/`next`
 [Lateral Toggles](../../../atoms/lateral-toggles/README.md) pair docked at
 its left/right edges. Fades from transparent to the theme's own surface
-color, signalling more content beneath while keeping chapter navigation
-reachable. No rounded corners — Figma's own root frame has none.
+color and blurs what's underneath, signalling more content beneath while
+keeping chapter navigation reachable. No rounded corners — Figma's own
+root frame has none.
 
 ## Sources
 
@@ -24,6 +25,15 @@ foundation — Foundations didn't have a gradients concept before this
 component needed one, so `fade-down`/`fade-left`/`fade-right` were added
 alongside it (the same two-stop fade rotated to the other three edges) so
 future top-edge / horizontal-scroll use cases don't repeat the derivation.
+
+## Backdrop blur
+
+`backdrop-blur-[5px]` isn't in Figma — added alongside the gradient so
+content scrolling underneath reads as genuinely obscured, not just dimmed.
+No Foundations blur token exists yet (scattered ad hoc values elsewhere —
+`2.5px` in Bookshelf Template, `3px` in Library List Item, Tailwind's
+`sm` in the overlay primitives); not introducing one here either, since
+nothing yet suggests `5px` specifically should generalize.
 
 ## No `mode` prop
 
@@ -71,3 +81,4 @@ than re-centering it.
 | --- | --- |
 | Padding | `--spacing-md` (16px) |
 | Scrim gradient | `--effect-gradient-fade-up` |
+| Backdrop blur | `5px` (literal — see Backdrop blur above) |
