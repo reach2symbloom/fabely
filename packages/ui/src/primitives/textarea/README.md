@@ -58,7 +58,11 @@ Input Group (`InputGroupTextarea`).
   field) is expected to cap it themselves via `max-h-*`/`overflow-y-auto`.
   Added specifically for [Note Card](../../features/note-retrieved/note-card/README.md)'s
   title/annotation/body fields, which need to read as plain text at rest
-  with the only affordance being the native cursor on hover.
+  with the only affordance being the native cursor on hover. The caret
+  itself is colored `--primary` (`caret-color`) rather than the browser
+  default — there's no standard CSS property to control caret *thickness*
+  across browsers (no `caret-width` exists in any spec), so only the color
+  is themeable.
 - **Input Group demos** — re-verify once partners settle (shell already bare-hosts
   this control). See Input Group README / docket.
 

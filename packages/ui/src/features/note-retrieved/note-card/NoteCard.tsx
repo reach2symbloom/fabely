@@ -195,8 +195,17 @@ function NoteCard({
         )}
       >
         <div className="flex w-full flex-col items-start gap-[length:var(--spacing-xs)]">
-          <div className="flex w-full items-start gap-[length:var(--spacing-xs)]">
-            <div className="flex min-w-0 flex-1 flex-col items-start gap-[length:var(--spacing-3xs)]">
+          {/* Title + annotation share a tighter sub-column (2px flex-gap;
+           * the shell's own 1px transparent border top/bottom nets it to
+           * ~4px rendered) — kept close to each other while still being
+           * "decoupled" from the icon cluster: annotation is its own full-
+           * width row, no longer squeezed into title's row alongside Pin/
+           * Bookmark. The outer gap-xs above governs the (unchanged) 8px
+           * gap down to body. */}
+          <div className="flex w-full flex-col items-start gap-[length:var(--spacing-3xs)]">
+            {/* Title row — space-between: title flexes, icon cluster hugs
+             * the right edge. */}
+            <div className="flex w-full items-start justify-between gap-[length:var(--spacing-xs)]">
               <Textarea
                 variant="invisible"
                 textStyle="heading"
@@ -213,71 +222,79 @@ function NoteCard({
                   onTitleChange?.(next);
                 }}
                 className={cn(
+                  'min-w-0 flex-1 pt-[length:var(--spacing-3xs)]',
                   'font-[family-name:var(--text-paragraph-xl-regular-font-family)]',
                   '[font-weight:var(--text-paragraph-xl-regular-font-weight)]',
                   'text-[length:var(--text-paragraph-xl-regular-font-size)]',
                   'leading-[var(--text-paragraph-xl-regular-line-height)]',
                   'tracking-[var(--text-paragraph-xl-regular-letter-spacing)]',
                   'text-[color:var(--theme-alpha-black-switch-70)]',
+                  /* Hover-only, one notch up the alpha scale (70 → 75) —
+                   * a quiet "this is editable" cue that doesn't compete
+                   * with the focus/typing state, which is unchanged. */
+                  'hover:text-[color:var(--theme-alpha-black-switch-75)]',
                   'placeholder:text-[color:var(--theme-alpha-black-switch-50)]'
                 )}
               />
-              {/* `body` textStyle (not `heading`) — annotation is allowed to
-               * wrap 2-3 lines, unlike the single-row title. */}
-              <Textarea
-                variant="invisible"
-                textStyle="body"
-                resizable={false}
-                value={annotation}
-                placeholder="Add annotation"
-                aria-label="Note annotation"
-                onKeyDown={commitOnEnter}
-                onChange={(event) => {
-                  const next = event.target.value;
-                  if (!isAnnotationControlled) {
-                    setUncontrolledAnnotation(next);
-                  }
-                  onAnnotationChange?.(next);
-                }}
-                className={cn(
-                  'min-h-[length:var(--text-paragraph-small-regular-line-height)] px-0 py-0',
-                  'font-[family-name:var(--text-paragraph-small-regular-font-family)]',
-                  '[font-weight:var(--text-paragraph-small-regular-font-weight)]',
-                  'text-[length:var(--text-paragraph-small-regular-font-size)]',
-                  'leading-[var(--text-paragraph-small-regular-line-height)]',
-                  'tracking-[var(--text-paragraph-small-regular-letter-spacing)]',
-                  'text-[color:var(--theme-alpha-black-switch-50)]',
-                  'placeholder:text-[color:var(--theme-alpha-black-switch-50)]'
+              <div className="flex shrink-0 items-center gap-[length:var(--spacing-xs)] pl-[length:var(--spacing-xs)] pt-[length:var(--spacing-3xs)]">
+                {showPin && (
+                  <PinButton
+                    pressed={pinned}
+                    disabled={!pinInteractive}
+                    aria-label={pinned ? 'Unpin' : 'Pin'}
+                    onPressedChange={(next) => {
+                      if (!isPinnedControlled) {
+                        setUncontrolledPinned(next);
+                      }
+                      onPinnedChange?.(next);
+                    }}
+                  />
                 )}
-              />
-            </div>
-            <div className="flex shrink-0 items-center gap-[length:var(--spacing-xs)] pl-[length:var(--spacing-xs)] pt-[length:var(--spacing-3xs)]">
-              {showPin && (
-                <PinButton
-                  pressed={pinned}
-                  disabled={!pinInteractive}
-                  aria-label={pinned ? 'Unpin' : 'Pin'}
-                  onPressedChange={(next) => {
-                    if (!isPinnedControlled) {
-                      setUncontrolledPinned(next);
+                <GatherBookmarkButton
+                  mode={mode}
+                  size="sm"
+                  active={isBookmarkedControlled ? bookmarkedProp : undefined}
+                  defaultActive={isBookmarkedControlled ? undefined : defaultBookmarked}
+                  onActiveChange={(next) => {
+                    if (!isBookmarkedControlled) {
+                      setUncontrolledBookmarked(next);
                     }
-                    onPinnedChange?.(next);
+                    onBookmarkedChange?.(next);
                   }}
                 />
-              )}
-              <GatherBookmarkButton
-                mode={mode}
-                size="sm"
-                active={isBookmarkedControlled ? bookmarkedProp : undefined}
-                defaultActive={isBookmarkedControlled ? undefined : defaultBookmarked}
-                onActiveChange={(next) => {
-                  if (!isBookmarkedControlled) {
-                    setUncontrolledBookmarked(next);
-                  }
-                  onBookmarkedChange?.(next);
-                }}
-              />
+              </div>
             </div>
+            {/* `body` textStyle (not `heading`) — annotation is allowed to
+             * wrap 2-3 lines. Its own full-width row, decoupled from the
+             * title row above — no longer squeezed by the icon cluster. */}
+            <Textarea
+              variant="invisible"
+              textStyle="body"
+              resizable={false}
+              value={annotation}
+              placeholder="Add annotation"
+              aria-label="Note annotation"
+              onKeyDown={commitOnEnter}
+              onChange={(event) => {
+                const next = event.target.value;
+                if (!isAnnotationControlled) {
+                  setUncontrolledAnnotation(next);
+                }
+                onAnnotationChange?.(next);
+              }}
+              className={cn(
+                'min-h-[length:var(--text-paragraph-small-regular-line-height)] px-0 py-0',
+                'font-[family-name:var(--text-paragraph-small-regular-font-family)]',
+                '[font-weight:var(--text-paragraph-small-regular-font-weight)]',
+                'text-[length:var(--text-paragraph-small-regular-font-size)]',
+                'leading-[var(--text-paragraph-small-regular-line-height)]',
+                'tracking-[var(--text-paragraph-small-regular-letter-spacing)]',
+                'text-[color:var(--theme-alpha-black-switch-50)]',
+                /* Hover-only, one notch up (50 → 60) — same quiet cue as title. */
+                'hover:text-[color:var(--theme-alpha-black-switch-60)]',
+                'placeholder:text-[color:var(--theme-alpha-black-switch-50)]'
+              )}
+            />
           </div>
           {showReadOnlyBody ? (
             /* Long body is read-only + truncated — click opens the full
@@ -324,6 +341,8 @@ function NoteCard({
                 'leading-[var(--text-paragraph-regular-regular-line-height)]',
                 'tracking-[var(--text-paragraph-regular-regular-letter-spacing)]',
                 'text-[color:var(--theme-alpha-black-switch-70)]',
+                /* Hover-only, one notch up (70 → 75) — same quiet cue as title. */
+                'hover:text-[color:var(--theme-alpha-black-switch-75)]',
                 'placeholder:text-[color:var(--theme-alpha-black-switch-50)]',
                 /* Past the threshold mid-edit: stop growing at 2x the
                  * read-only view's own line-clamp-6 cap (12 lines) and

@@ -228,7 +228,7 @@ const textareaVariants = cva(
        * order is enough to win — no `!` needed here. */
       {
         variant: 'invisible',
-        class: 'rounded-none',
+        class: 'rounded-none caret-[color:var(--primary)]',
       },
     ],
     defaultVariants: {
