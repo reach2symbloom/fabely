@@ -60,10 +60,13 @@ named state, they decode into content state plus real CSS `:hover`:
   click into, so the primitive gained a dedicated `invisible` variant and
   these fields moved onto it.) Empty renders the native `placeholder` ("Add
   title" / "Add annotation" in `--theme-alpha-black-switch-50`); a value
-  renders in `--theme-alpha-black-switch-70`, and steps one notch up the
-  alpha scale on hover (`-75`) — a quiet, hover-only "this is editable" cue
-  that doesn't touch the focus/typing state. Annotation does the same at
-  its own base (`-50` → `-60` on hover). Title uses `textStyle="heading"`
+  renders in `--theme-alpha-black-switch-70`, and steps up the alpha scale
+  on hover (`-80`) — a quiet, hover-only "this is editable" cue that
+  doesn't touch the focus/typing state. (The next fine-grained step, `-75`,
+  read as too subtle to actually notice — `-80` is the smallest jump that
+  reads clearly.) Annotation does the same at its own base (`-50` → `-60`
+  on hover — already a full 10-point step, so it didn't need the same
+  correction). Title uses `textStyle="heading"`
   (single row, Figma's Hover=Bookmark note explicitly calls this an inline
   title); annotation uses `textStyle="body"` and is allowed to wrap 2–3
   lines. Typography is overridden via `className` to Foundations' own
@@ -187,8 +190,8 @@ Removed; `invisible` owns its own (lack of) radius now, unconditionally.
 | --- | --- |
 | Row hover wash | `--theme-alpha-black-switch-333` |
 | Divider | `--theme-alpha-black-switch-5`, `--stroke-thin` |
-| Title | `--text-paragraph-xl-regular-*`, `--theme-alpha-black-switch-70`, hover `-75` |
-| Body | `--text-paragraph-regular-regular-*`, `--theme-alpha-black-switch-70`, hover `-75` |
+| Title | `--text-paragraph-xl-regular-*`, `--theme-alpha-black-switch-70`, hover `-80` |
+| Body | `--text-paragraph-regular-regular-*`, `--theme-alpha-black-switch-70`, hover `-80` |
 | Annotation | `--text-paragraph-small-regular-*`, `--theme-alpha-black-switch-50`, hover `-60` |
 | Metadata / placeholder text | `--text-paragraph-mini-regular-*` (metadata) / `--theme-alpha-black-switch-50` |
 | Index ordinal | `--theme-alpha-black-switch-20` |

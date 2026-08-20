@@ -229,10 +229,11 @@ function NoteCard({
                   'leading-[var(--text-paragraph-xl-regular-line-height)]',
                   'tracking-[var(--text-paragraph-xl-regular-letter-spacing)]',
                   'text-[color:var(--theme-alpha-black-switch-70)]',
-                  /* Hover-only, one notch up the alpha scale (70 → 75) —
-                   * a quiet "this is editable" cue that doesn't compete
-                   * with the focus/typing state, which is unchanged. */
-                  'hover:text-[color:var(--theme-alpha-black-switch-75)]',
+                  /* Hover-only, one notch up the alpha scale (70 → 80 — the
+                   * next +5 step at 75 read as too subtle to notice) — a
+                   * quiet "this is editable" cue that doesn't compete with
+                   * the focus/typing state, which is unchanged. */
+                  'hover:text-[color:var(--theme-alpha-black-switch-80)]',
                   'placeholder:text-[color:var(--theme-alpha-black-switch-50)]'
                 )}
               />
@@ -341,8 +342,8 @@ function NoteCard({
                 'leading-[var(--text-paragraph-regular-regular-line-height)]',
                 'tracking-[var(--text-paragraph-regular-regular-letter-spacing)]',
                 'text-[color:var(--theme-alpha-black-switch-70)]',
-                /* Hover-only, one notch up (70 → 75) — same quiet cue as title. */
-                'hover:text-[color:var(--theme-alpha-black-switch-75)]',
+                /* Hover-only, one notch up (70 → 80) — same quiet cue as title. */
+                'hover:text-[color:var(--theme-alpha-black-switch-80)]',
                 'placeholder:text-[color:var(--theme-alpha-black-switch-50)]',
                 /* Past the threshold mid-edit: stop growing at 2x the
                  * read-only view's own line-clamp-6 cap (12 lines) and
