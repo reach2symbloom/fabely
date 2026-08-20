@@ -98,8 +98,13 @@ function PinButton({
         'data-[force-hover=true]:bg-[var(--theme-alpha-black-switch-333)]',
         'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
         'disabled:pointer-events-none disabled:opacity-50',
-        /* Glyph color — unselected alpha-20, selected alpha-50 (no hover shift, no primary). */
+        /* Glyph color — matches Bookmark Button's own model exactly: rest
+         * alpha-20, hover alpha-50 (pin's own pressed state happens to land
+         * on the same alpha-50, so hover and pressed read identically here,
+         * unlike Bookmark's separate `primary` pressed color). */
         'text-[color:var(--theme-alpha-black-switch-20)]',
+        'hover:text-[color:var(--theme-alpha-black-switch-50)]',
+        'data-[force-hover=true]:text-[color:var(--theme-alpha-black-switch-50)]',
         'data-pressed:text-[color:var(--theme-alpha-black-switch-50)]',
         'aria-pressed:text-[color:var(--theme-alpha-black-switch-50)]',
         '[&_svg]:transition-colors',

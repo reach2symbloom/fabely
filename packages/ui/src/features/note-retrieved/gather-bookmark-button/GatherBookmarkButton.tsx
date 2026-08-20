@@ -64,7 +64,15 @@ const GROUP_BG = 'bg-[var(--theme-alpha-black-switch-333)]';
  */
 const HOVER_DEEPEN =
   'transition-colors duration-[var(--duration-fast)] ease-[var(--ease-emphasized)] hover:bg-[var(--theme-alpha-black-switch-5)] data-[force-hover=true]:bg-[var(--theme-alpha-black-switch-5)]';
-const CHEVRON_COLOR = 'text-[color:var(--theme-alpha-black-switch-50)]';
+/**
+ * Matches Bookmark Button's own rest/hover model exactly (alpha-20 →
+ * alpha-50) — `IconButton`'s `ghost` variant bakes in its own generic
+ * `text-muted-foreground` / `hover:text-foreground`, which resolved to a
+ * near-white glyph on hover; these need the same `hover:`/`force-hover:`
+ * specificity to actually override it, not just a flat always-on color.
+ */
+const CHEVRON_COLOR =
+  'text-[color:var(--theme-alpha-black-switch-20)] hover:text-[color:var(--theme-alpha-black-switch-50)] data-[force-hover=true]:text-[color:var(--theme-alpha-black-switch-50)]';
 
 type GatherBookmarkButtonMode = 'gather' | 'roam';
 
