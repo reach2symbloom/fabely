@@ -22,7 +22,7 @@ carries pill/ghost/outline chrome this control deliberately has none of.
 ## Composition
 
 ```text
-BookmarkIconButton → Base UI Toggle (headless, unstyled) + Lucide Bookmark + Superscript badge
+BookmarkIconButton → Base UI Toggle (headless, unstyled) + Lucide Bookmark + Superscript badge + useSelectionCelebration (pop + star burst)
 ```
 
 Fetching the raw Figma SVG assets (not just the screenshot) showed unselected
@@ -43,41 +43,49 @@ Hover-only color step is scoped with `not-data-pressed:not-aria-pressed:hover:`
 so it never fights the selected-state color rule.
 
 **Entering selected plays a one-shot "captured" celebration — never the
-reverse.** A `useEffect` compares `pressed` against a ref of its previous
-value each render; only the unselected→selected edge (`justSelected`)
-triggers anything. Deselecting is a plain CSS unfill (the color transition
-above), nothing more — celebrating a *removal* would read backwards. Two
-coordinated pieces, both keyed off that same edge:
+reverse.** Lives entirely in the shared
+[`useSelectionCelebration`](../../hooks/use-selection-celebration.tsx) hook,
+not duplicated here — [Pin Icon Button](../../pin-icon-button/README.md)
+uses the exact same hook, so both controls run on identical timing by
+construction, not by convention (a design goal stated explicitly, after an
+earlier pass had two independently-tuned copies). The hook compares
+`pressed` against a ref of its previous value each render; only the
+unselected→selected edge (`justSelected`) triggers anything. Deselecting is
+a plain CSS unfill (the color transition above), nothing more — celebrating
+a *removal* would read backwards. Two coordinated pieces, both keyed off
+that same edge and both starting together (not sequenced):
 
 1. **Icon pop** — an imperative `useAnimate()` call (not the declarative
    `animate` prop: this needs to *replay* an identical keyframe sequence
    every time the edge fires, not settle at a differing target value) on a
-   `motion.span` wrapping just the glyph: `scale: [1, 1.2, 0.96, 1]` over
-   `POP_DURATION_S` (`0.4`s), `times: [0, 0.3, 0.65, 1]` — overshoot past
-   1, undershoot slightly, settle. Reads as a crisp "landed" confirmation,
-   not a bounce (peaks at 30% in, then two smaller corrections — a bounce
-   would keep oscillating). Color/fill is untouched, still the plain CSS
+   `motion.span` wrapping just the glyph (`ref={iconScope}` from the hook):
+   `scale: [1, 1.2, 0.96, 1]` over `0.4`s, `times: [0, 0.3, 0.65, 1]` —
+   overshoot past 1, undershoot slightly, settle. Reads as a crisp "landed"
+   confirmation, not a bounce. Color/fill is untouched, still the plain CSS
    `transition-colors` above; Motion only ever owns this scale.
-2. **Spark burst** — 7 tiny rays (`SPARK_ANGLES`, an odd count so the
-   spread doesn't read as a mechanical square/hexagon), each a
+2. **Star/glint burst** — 5 small Lucide `Sparkle` glyphs (an odd count so
+   the spread doesn't read as a mechanical square/hexagon), each a
    static-`rotate`d wrapper (sets direction) around a `motion.span` that
-   only animates its own local `y` + `opacity` — rotating the parent first
-   means "move up" in the child's local space already points radially
-   outward, so no per-spark trig is needed. Three size tiers cycle across
-   the 7 (`SPARK_TIERS`, 2×6 / 2.5×8 / 3×10px), bigger sparks traveling
-   slightly further (12/14/16px) before fading to 0 opacity — varied, not
-   a uniform ring. Delayed `SPARK_BASE_DELAY_S` (0.11s) plus a small
-   per-spark `SPARK_STAGGER_S` (0.015s) so the burst fires right around
-   the pop's peak and has a little life to it rather than appearing as one
-   static frame. Pure Motion + CSS — no particle/confetti dependency.
-   Absolutely positioned (`pointer-events-none`) inside the same
-   `relative` icon span the superscript badge already uses, so it can
-   never affect layout; the whole burst unmounts (`showBurst` → `false`)
-   once the last spark's own animation completes, leaving nothing behind.
+   animates its own local `y` + `opacity` + `scale` — rotating the parent
+   first means "move up" in the child's local space already points
+   radially outward, so no per-star trig is needed. Size (5–8px), starting
+   offset, travel distance (8–12px), and duration (0.3–0.4s) all vary
+   slightly per star so the burst doesn't read as one uniform ring. Fires
+   almost immediately (`0.03`s base delay) plus a very slight per-star
+   stagger (`0.015`s) — essentially simultaneous with the icon pop, not
+   sequenced after it. **Stacks behind the glyph** (`z-0` on the burst vs.
+   `z-10` on the icon wrapper) so the icon stays visually on top
+   throughout — the stars read as emerging from behind it, not overlapping
+   in front. Pure Motion + a Lucide icon (already a dependency elsewhere in
+   this codebase) — no particle/confetti library. Absolutely positioned
+   (`pointer-events-none`) inside the same `relative` icon span the
+   superscript badge already uses, so it can never affect layout or hit
+   targets; the whole burst unmounts once the last star's own animation
+   completes, leaving nothing behind.
 
 Both respect `prefers-reduced-motion` — `useReducedMotion()` short-circuits
 the whole `justSelected` branch, so reduced-motion users just see the
-state change (color) with no pop, no sparks. This benefits every consumer
+state change (color) with no pop, no stars. This benefits every consumer
 of this atom automatically, including
 [Gather Bookmark Button](../../features/note-retrieved/gather-bookmark-button/README.md),
 which layers its own label-crossfade and layout/FLIP animation on top —
@@ -115,9 +123,9 @@ chrome for either to style.
 | Glyph (`sm` / `lg`) | `--icon-sm` / `--icon-lg` |
 | Color | `currentColor` ← `--theme-alpha-black-switch-20` / `-50` / `--primary` |
 | Color motion | `--duration-fast` / `--ease-emphasized` |
-| Celebration spark color | `--primary` |
+| Celebration star color | `--primary` |
 | Celebration pop | `0.4`s, `ease-emphasized`, keyframes `[1, 1.2, 0.96, 1]` at `[0, 0.3, 0.65, 1]` |
-| Celebration sparks | 7, three size tiers (2×6 / 2.5×8 / 3×10px), travel 12/14/16px, `0.22`s each, `0.11`s base delay + `0.015`s/spark stagger |
+| Celebration stars | 5 (Lucide `Sparkle`), 5–8px, travel 8–12px, `0.3–0.4`s each, `ease-out`, `0.03`s base delay + `0.015`s/star stagger — shared with Pin Icon Button via `useSelectionCelebration` |
 | Focus | `--effect-focus-ring-secondary` |
 
 ## Deferred

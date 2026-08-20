@@ -4,10 +4,10 @@
  * unselected `alpha-20` (stroke) → unselected hover `alpha-50` (stroke) →
  * selected `primary` (a genuinely filled glyph, not just recolored).
  *
- * Entering selected plays a one-shot, restrained "captured" celebration —
- * a quick icon scale pop plus a handful of tiny sparks radiating from
- * behind the glyph — never on the reverse (unselecting), which is a plain
- * unfill. See the README for the full rationale.
+ * Entering selected plays the shared `useSelectionCelebration` "captured"
+ * celebration (see that hook) — never on the reverse (unselecting), which
+ * is a plain unfill. Pin Icon Button shares the exact same hook, so both
+ * controls run on identical timing by construction, not by convention.
  *
  * Composes the headless Base UI Toggle primitive directly (not the styled
  * [Toggle](../../primitives/toggle/README.md) atom — that one carries pill
@@ -20,11 +20,11 @@
 
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
 import { BookmarkIcon } from 'lucide-react';
-import { motion, useAnimate, useReducedMotion } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
+import { motion } from 'motion/react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { EASE_EMPHASIZED } from '@/lib/motion';
+import { useSelectionCelebration } from '@/hooks/use-selection-celebration';
 import { useSuperscript } from '@/hooks/use-superscript';
 import { cn } from '@/lib/utils';
 
@@ -35,66 +35,6 @@ const ICON_SIZE: Record<BookmarkIconButtonSize, string> = {
   default: 'size-[length:var(--icon-md)]',
   lg: 'size-[length:var(--icon-lg)]',
 };
-
-/** 7-way, not an even count — avoids the axis-aligned symmetry a square/
- * hexagon reads as "mechanical"; an odd spread reads more like a sparkle. */
-const SPARK_ANGLES = [0, 51, 103, 154, 206, 257, 309];
-/** Three size tiers, cycled by index, so the burst isn't one uniform ring —
- * bigger sparks also travel slightly further, both within the 12–16px ask. */
-const SPARK_TIERS = [
-  { width: 2, height: 6, travel: 12 },
-  { width: 2.5, height: 8, travel: 14 },
-  { width: 3, height: 10, travel: 16 },
-];
-const SPARK_DURATION_S = 0.22;
-const SPARK_BASE_DELAY_S = 0.11; // syncs the burst to the pop's first (biggest) peak
-const SPARK_STAGGER_S = 0.015; // slight — gives the burst life, not a scatter
-const POP_DURATION_S = 0.4;
-
-/**
- * Tiny radial burst behind the glyph — pure Motion + CSS, no particle
- * dependency. Each spark is a static-rotated wrapper (sets its outward
- * direction) around a `motion.span` that only ever animates its own
- * local `y` + `opacity`, so no per-spark trig is needed: rotating the
- * parent first means "move up" in the child's local space already points
- * radially outward at that angle. Delayed to fire around the icon pop's
- * peak (~30% into `POP_DURATION_S`), not at the click itself, and lightly
- * staggered per-spark so the burst reads as one small event, not a single
- * static frame.
- */
-function SparkBurst({ onSettled }: { onSettled: () => void }) {
-  const lastIndex = SPARK_ANGLES.length - 1;
-  return (
-    <span
-      aria-hidden
-      className="pointer-events-none absolute inset-0 z-0 overflow-visible"
-    >
-      {SPARK_ANGLES.map((angle, i) => {
-        const tier = SPARK_TIERS[i % SPARK_TIERS.length];
-        return (
-          <span
-            key={angle}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-            style={{ rotate: `${angle}deg` }}
-          >
-            <motion.span
-              className="block rounded-[length:var(--rounded-full)] bg-[var(--primary)]"
-              style={{ width: tier.width, height: tier.height }}
-              initial={{ y: 0, opacity: 1 }}
-              animate={{ y: -tier.travel, opacity: 0 }}
-              transition={{
-                duration: SPARK_DURATION_S,
-                delay: SPARK_BASE_DELAY_S + i * SPARK_STAGGER_S,
-                ease: EASE_EMPHASIZED,
-              }}
-              onAnimationComplete={i === lastIndex ? onSettled : undefined}
-            />
-          </span>
-        );
-      })}
-    </span>
-  );
-}
 
 type BookmarkIconButtonProps = Omit<TogglePrimitive.Props, 'children'> & {
   /** Glyph size — `--icon-sm` / `--icon-md` / `--icon-lg`. */
@@ -144,38 +84,7 @@ function BookmarkIconButton({
     ariaLabelProp ?? (pressed ? 'Remove bookmark' : 'Bookmark');
 
   const superscriptVisible = useSuperscript({ show: showSuperscript, active: pressed });
-  const prefersReducedMotion = useReducedMotion();
-
-  const [iconScope, animateIcon] = useAnimate();
-  const [showBurst, setShowBurst] = useState(false);
-  const [burstKey, setBurstKey] = useState(0);
-  const wasPressedRef = useRef(pressed);
-
-  /* Celebrate only on the unselected → selected edge, never on mount and
-   * never on the reverse — "removing from scene" is a plain unfill via
-   * the existing CSS color transition below, untouched. */
-  useEffect(() => {
-    const justSelected = pressed && !wasPressedRef.current;
-    wasPressedRef.current = pressed;
-    if (!justSelected) return;
-
-    if (prefersReducedMotion) {
-      /* State still changes (fill/stroke CSS transition), just no pop, no sparks. */
-      return;
-    }
-
-    /* Overshoot past 1, undershoot slightly, settle — reads as a crisp
-     * "landed" confirmation rather than a bounce. Peaks early (30%) so
-     * the spark burst's own delay can fire right at that crest. */
-    animateIcon(
-      iconScope.current,
-      { scale: [1, 1.2, 0.96, 1] },
-      { duration: POP_DURATION_S, ease: EASE_EMPHASIZED, times: [0, 0.3, 0.65, 1] }
-    );
-    setBurstKey((key) => key + 1);
-    setShowBurst(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pressed]);
+  const { iconScope, burst } = useSelectionCelebration(pressed);
 
   return (
     <TogglePrimitive
@@ -204,9 +113,7 @@ function BookmarkIconButton({
       )}
     >
       <span className="relative inline-flex">
-        {showBurst && (
-          <SparkBurst key={burstKey} onSettled={() => setShowBurst(false)} />
-        )}
+        {burst}
         {/* Scale only — color/fill still comes from the CSS `transition-colors`
          * above (unchanged), not from Motion. `ref` is the useAnimate scope
          * the celebration pop imperatively targets on the selecting edge;

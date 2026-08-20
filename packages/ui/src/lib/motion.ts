@@ -38,3 +38,12 @@ export const TRANSITION_EMPHASIZED_FAST: Transition = {
   duration: 0.2,
   ease: EASE_EMPHASIZED,
 };
+
+/**
+ * Foundations' `--ease-out` (`cubic-bezier(0, 0, 0.58, 1)`) resolved for
+ * Motion. Starts at true rest (control point `(0, 0)`, no initial
+ * velocity) rather than `EASE_EMPHASIZED`'s aggressive front-loaded burst —
+ * reach for this where a punchy start would read as "shooting" rather
+ * than "floating" (e.g. small particles drifting outward).
+ */
+export const EASE_OUT: Transition['ease'] = [0, 0, 0.58, 1];

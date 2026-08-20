@@ -6,6 +6,10 @@
  * not just color — verified against the raw Figma SVG paths, not the
  * screenshot.
  *
+ * Entering selected plays the shared `useSelectionCelebration` "captured"
+ * celebration (see that hook) — the exact same one Bookmark Icon Button
+ * uses, so both run on identical timing by construction.
+ *
  * Composes the headless Base UI Toggle primitive directly (no ghost/outline
  * skin, no roundness prop — the chip shape here is fixed by Figma).
  * Visual source: Figma **Pin Button**
@@ -15,9 +19,11 @@
 'use client';
 
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
+import { motion } from 'motion/react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 
+import { useSelectionCelebration } from '@/hooks/use-selection-celebration';
 import { useSuperscript } from '@/hooks/use-superscript';
 import { cn } from '@/lib/utils';
 
@@ -79,6 +85,7 @@ function PinIconButton({
   const ariaLabel = ariaLabelProp ?? (pressed ? 'Unpin' : 'Pin');
 
   const superscriptVisible = useSuperscript({ show: showSuperscript, active: pressed });
+  const { iconScope, burst } = useSelectionCelebration(pressed);
 
   return (
     <TogglePrimitive
@@ -114,7 +121,14 @@ function PinIconButton({
       )}
     >
       <span className="relative inline-flex size-[length:var(--icon-md)] items-center justify-center">
-        <PinGlyph active={pressed} className="size-[length:var(--icon-sm)]" />
+        {burst}
+        {/* `ref` is the useAnimate scope the celebration pop imperatively
+         * targets on the selecting edge; otherwise this span just sits at
+         * rest (scale 1). Color/shape swap still comes from the CSS
+         * `transition-colors` above and `PinGlyph`'s own path swap. */}
+        <motion.span ref={iconScope} className="relative z-10 inline-flex">
+          <PinGlyph active={pressed} className="size-[length:var(--icon-sm)]" />
+        </motion.span>
         {superscriptVisible && (
           <span
             aria-hidden
