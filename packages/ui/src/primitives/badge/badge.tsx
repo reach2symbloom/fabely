@@ -138,12 +138,14 @@ const badgeVariants = cva(
         ],
         /* No Figma Badge axis for this — reuses the Fia brand ghost tint
          * (`--tw-raw-fia-ghost`, same 12% pattern as destructive/success)
-         * and its darker `-600` for readable text against that light
-         * wash, matching alert's own light-bg/darker-text pairing. No
-         * dedicated Fia focus ring token exists, so falls back to
-         * `--effect-focus-ring-secondary` like ghost/outline do. */
+         * and `--tw-raw-fia-200`, the actual Fia brand color (marked
+         * "Main" in foundations/colors.css — not a darker-for-contrast
+         * shade like alert/success/destructive use, Fia's own identity
+         * color is the text). No dedicated Fia focus ring token exists,
+         * so falls back to `--effect-focus-ring-secondary` like
+         * ghost/outline do. */
         fia: [
-          'bg-[color-mix(in_srgb,var(--tw-raw-fia-ghost)_12%,transparent)] text-[color:var(--tw-raw-fia-600)]',
+          'bg-[color-mix(in_srgb,var(--tw-raw-fia-ghost)_12%,transparent)] text-[color:var(--tw-raw-fia-200)]',
           'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           '[a&]:hover:opacity-90',
         ],
