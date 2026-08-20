@@ -75,11 +75,13 @@ named state, they decode into content state plus real CSS `:hover`:
   (`max-h-[...] overflow-y-auto`) rather than growing the row unbounded.
   Only once the field is blurred is the length reassessed: over the
   threshold, it flips to the read-only truncated view; still under it, it
-  stays editable. Body's own state is simpler than title/annotation's full
-  controlled/uncontrolled pair: it's always internally uncontrolled (seeded
-  from the `body` prop), reporting edits via `onBodyChange` rather than
-  requiring a controlled round-trip — there's no "empty body" placeholder
-  state to justify the extra API surface.
+  stays editable. Empty renders the native `placeholder` ("Add your note…"
+  in `--theme-alpha-black-switch-50`, matching title/annotation). Body's own
+  state is simpler than title/annotation's full controlled/uncontrolled
+  pair: it's always internally uncontrolled (seeded from the `body` prop),
+  reporting edits via `onBodyChange` rather than requiring a controlled
+  round-trip — a bare placeholder string doesn't need the full
+  value/defaultValue/onChange trio to justify the extra API surface.
 - **`pinned`** — see "Pin visibility vs. interactivity" below; this isn't
   Figma-literal anymore.
 - **Real hover** (`group/card` + `:hover`, not a JS-tracked "Hover" enum) —

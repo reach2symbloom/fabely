@@ -307,6 +307,7 @@ function NoteCard({
               textStyle="body"
               resizable={false}
               value={body}
+              placeholder="Add your note..."
               aria-label="Note body"
               onFocus={() => setIsEditingBody(true)}
               onBlur={() => setIsEditingBody(false)}
@@ -323,6 +324,7 @@ function NoteCard({
                 'leading-[var(--text-paragraph-regular-regular-line-height)]',
                 'tracking-[var(--text-paragraph-regular-regular-letter-spacing)]',
                 'text-[color:var(--theme-alpha-black-switch-70)]',
+                'placeholder:text-[color:var(--theme-alpha-black-switch-50)]',
                 /* Past the threshold mid-edit: stop growing at 2x the
                  * read-only view's own line-clamp-6 cap (12 lines) and
                  * scroll instead, rather than growing the row unbounded. */
