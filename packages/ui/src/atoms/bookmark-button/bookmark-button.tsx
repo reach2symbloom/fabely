@@ -1,8 +1,12 @@
 /**
- * Fabely Bookmark Button — icon toggle that fills the bookmark glyph when
- * pressed.
+ * Fabely Bookmark Button — bare icon toggle, no button chrome (no fill
+ * container, no roundness, no ghost/outline skin). Three states only:
+ * unselected `alpha-20` (stroke) → unselected hover `alpha-50` (stroke) →
+ * selected `primary` (a genuinely filled glyph, not just recolored).
  *
- * Composes the [Toggle](../../primitives/toggle/README.md) primitive.
+ * Composes the headless Base UI Toggle primitive directly (not the styled
+ * [Toggle](../../primitives/toggle/README.md) atom — that one carries pill
+ * chrome this control deliberately has none of).
  * Visual source: Figma **Bookmark Icon Button**
  * ([Bookmark Icon Button](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16066-5970)
  * `16066:5970`).
@@ -10,43 +14,38 @@
 'use client';
 
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
-import type { VariantProps } from 'class-variance-authority';
 import { BookmarkIcon } from 'lucide-react';
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 
+import { useSuperscript } from '@/hooks/use-superscript';
 import { cn } from '@/lib/utils';
-import {
-  Toggle,
-  type ToggleRoundness,
-} from '@/primitives/toggle';
-import { toggleVariants } from '@/primitives/toggle/toggle-variants';
 
-type ToggleSize = NonNullable<VariantProps<typeof toggleVariants>['size']>;
-type ToggleVariant = NonNullable<VariantProps<typeof toggleVariants>['variant']>;
+type BookmarkButtonSize = 'sm' | 'default' | 'lg';
 
-const ICON_SIZE: Record<ToggleSize, string> = {
+const ICON_SIZE: Record<BookmarkButtonSize, string> = {
   sm: 'size-[length:var(--icon-sm)]',
   default: 'size-[length:var(--icon-md)]',
-  lg: 'size-[length:var(--icon-md)]',
+  lg: 'size-[length:var(--icon-lg)]',
 };
 
 type BookmarkButtonProps = Omit<TogglePrimitive.Props, 'children'> & {
-  /** Toggle Skin — Ghost or Outline. */
-  variant?: ToggleVariant;
-  /** Toggle Size — maps hit target; glyph uses `--icon-*`. */
-  size?: ToggleSize;
-  /** Figma Bookmark Icon Button is full-round by default. */
-  roundness?: ToggleRoundness;
+  /** Glyph size — `--icon-sm` / `--icon-md` / `--icon-lg`. */
+  size?: BookmarkButtonSize;
+  /** Figma `Show superscript` — badge only renders while pressed. */
+  showSuperscript?: boolean;
+  /** Badge content when `showSuperscript` is active. Figma default is "2". */
+  superscriptValue?: ReactNode;
 };
 
 function BookmarkButton({
   className,
-  variant = 'ghost',
   size = 'default',
-  roundness = 'round',
   pressed: pressedProp,
   defaultPressed = false,
   onPressedChange,
+  showSuperscript = false,
+  superscriptValue = 2,
   'aria-label': ariaLabelProp,
   ...props
 }: BookmarkButtonProps) {
@@ -67,33 +66,61 @@ function BookmarkButton({
   const ariaLabel =
     ariaLabelProp ?? (pressed ? 'Remove bookmark' : 'Bookmark');
 
+  const superscriptVisible = useSuperscript({ show: showSuperscript, active: pressed });
+
   return (
-    <Toggle
+    <TogglePrimitive
       data-slot="bookmark-button"
       {...props}
-      variant={variant}
-      size={size}
-      roundness={roundness}
       pressed={isControlled ? pressedProp : undefined}
       defaultPressed={isControlled ? undefined : defaultPressed}
       onPressedChange={handlePressedChange}
       aria-label={ariaLabel}
       className={cn(
-        /* Figma 16066:5970 — off outline = foreground; on fill = primary. */
-        'text-[color:var(--foreground)]',
+        'inline-flex shrink-0 cursor-pointer items-center justify-center',
+        'bg-transparent border-0 p-0 outline-none select-none',
+        'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+        'disabled:pointer-events-none disabled:opacity-50',
+        /* Figma 16066:5970 — unselected alpha-20 → alpha-50 hover; selected primary. */
+        'text-[color:var(--theme-alpha-black-switch-20)]',
+        'not-data-pressed:not-aria-pressed:hover:text-[color:var(--theme-alpha-black-switch-50)]',
         'data-pressed:text-[color:var(--primary)]',
         'aria-pressed:text-[color:var(--primary)]',
-        '[&_svg]:fill-[currentColor] [&_svg]:[fill-opacity:0]',
-        'data-pressed:[&_svg]:[fill-opacity:1]',
-        'aria-pressed:[&_svg]:[fill-opacity:1]',
-        '[&_svg]:transition-[color,fill-opacity]',
+        '[&_svg]:transition-colors',
         '[&_svg]:duration-[var(--duration-fast)]',
         '[&_svg]:ease-[var(--ease-emphasized)]',
         className
       )}
     >
-      <BookmarkIcon aria-hidden className={ICON_SIZE[size ?? 'default']} />
-    </Toggle>
+      <span className="relative inline-flex">
+        <BookmarkIcon
+          aria-hidden
+          className={ICON_SIZE[size]}
+          fill={pressed ? 'currentColor' : 'none'}
+          stroke="currentColor"
+          strokeWidth={pressed ? 0 : 2}
+        />
+        {superscriptVisible && (
+          <span
+            aria-hidden
+            className={cn(
+              /* Figma 16231:7082/7091 — Superscript, offset from the Icon box. */
+              'absolute -top-2 left-4',
+              'flex items-center justify-center',
+              'px-[length:var(--spacing-2xs)] py-[length:var(--spacing-3xs)]',
+              'font-[family-name:var(--text-paragraph-mini-medium-font-family)]',
+              '[font-weight:var(--text-paragraph-mini-medium-font-weight)]',
+              'text-[10px] leading-[var(--text-paragraph-mini-medium-line-height)]',
+              'tracking-[var(--text-paragraph-mini-medium-letter-spacing)]',
+              'text-[color:var(--muted-foreground)]',
+              'whitespace-nowrap'
+            )}
+          >
+            {superscriptValue}
+          </span>
+        )}
+      </span>
+    </TogglePrimitive>
   );
 }
 

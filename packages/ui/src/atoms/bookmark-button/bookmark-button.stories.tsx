@@ -12,7 +12,6 @@ import {
   PrimitiveGalleryItem,
   PrimitivePage,
 } from '../../../stories/PrimitivePage';
-import type { ToggleRoundness } from '../../primitives/toggle';
 
 import { BookmarkButton } from './bookmark-button';
 
@@ -26,12 +25,9 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-type Variant = 'ghost' | 'outline';
 type Size = 'sm' | 'default' | 'lg';
 
-const VARIANTS: Variant[] = ['ghost', 'outline'];
 const SIZES: Size[] = ['sm', 'default', 'lg'];
-const ROUNDNESSES: ToggleRoundness[] = ['default', 'round'];
 
 function DemoExample() {
   return <BookmarkButton defaultPressed />;
@@ -59,53 +55,47 @@ function SizeExample() {
 function ControlledExample() {
   const [pressed, setPressed] = useState(false);
 
+  return <BookmarkButton pressed={pressed} onPressedChange={setPressed} />;
+}
+
+function SuperscriptExample() {
   return (
-    <BookmarkButton
-      pressed={pressed}
-      onPressedChange={setPressed}
-      variant="outline"
-    />
+    <div className="flex items-center gap-[var(--spacing-md)]">
+      <BookmarkButton defaultPressed={false} showSuperscript aria-label="Bookmark" />
+      <BookmarkButton defaultPressed showSuperscript aria-label="Remove bookmark" />
+    </div>
   );
 }
 
 function BookmarkPlayground() {
-  const [variant, setVariant] = useState<Variant>('ghost');
   const [size, setSize] = useState<Size>('default');
-  const [roundness, setRoundness] = useState<ToggleRoundness>('round');
+  const [showSuperscript, setShowSuperscript] = useState(false);
 
   return (
     <PlaygroundPanel
       preview={
         <div className="flex min-h-40 items-center justify-center">
-          <BookmarkButton
-            variant={variant}
-            size={size}
-            roundness={roundness}
-            defaultPressed
-          />
+          <BookmarkButton size={size} showSuperscript={showSuperscript} defaultPressed />
         </div>
       }
       controls={
         <div className={PRIMITIVE_PLAYGROUND_CONTROL_GRID}>
-          <InlineSegmentedControl
-            label="Variant"
-            value={variant}
-            onChange={(v) => setVariant(v as Variant)}
-            options={VARIANTS.map((value) => ({ value, label: value }))}
-            fullWidth
-          />
           <InlineSegmentedControl
             label="Size"
             value={size}
             onChange={(v) => setSize(v as Size)}
             options={SIZES.map((value) => ({ value, label: value }))}
             fullWidth
+            className="col-span-2"
           />
           <InlineSegmentedControl
-            label="Roundness"
-            value={roundness}
-            onChange={(v) => setRoundness(v as ToggleRoundness)}
-            options={ROUNDNESSES.map((value) => ({ value, label: value }))}
+            label="Superscript"
+            value={showSuperscript ? 'on' : 'off'}
+            onChange={(v) => setShowSuperscript(v === 'on')}
+            options={[
+              { value: 'off', label: 'Off' },
+              { value: 'on', label: 'On' },
+            ]}
             fullWidth
             className="col-span-2"
           />
@@ -120,7 +110,7 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Bookmark Button"
-      description="Icon toggle that fills the Lucide bookmark when pressed. Composes Toggle; Figma Bookmark Icon Button (16066:5970)."
+      description="Bare icon toggle, no button chrome. Unselected alpha-20 → alpha-50 hover (stroke); selected primary (filled). Figma Bookmark Icon Button (16066:5970)."
       playground={<BookmarkPlayground />}
       variants={
         <div className="flex flex-wrap gap-[var(--spacing-md)]">
@@ -136,17 +126,22 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Controlled">
             <ControlledExample />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Superscript">
+            <SuperscriptExample />
+          </PrimitiveGalleryItem>
         </div>
       }
       usageGuidance={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
             Use <code>BookmarkButton</code> for save / bookmark affordances.
-            Prefer bare <code>Toggle</code> for generic on/off chrome.
+            It carries no container chrome — no fill, no radius, no hover
+            pill; only the glyph itself changes.
           </li>
           <li>
-            Glyph fill animates via <code>fill-opacity</code> on pressed —
-            outline empty when off, solid when on.
+            Unselected is a stroked outline (<code>alpha-20</code> rest,{' '}
+            <code>alpha-50</code> hover); selected swaps to a solid filled
+            glyph in <code>primary</code>.
           </li>
           <li>
             Default <code>aria-label</code> switches between &quot;Bookmark&quot;
@@ -157,7 +152,7 @@ export const Overview: Story = {
       accessibility={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            Built on Toggle — <code>aria-pressed</code> /{' '}
+            Built on Base UI Toggle — <code>aria-pressed</code> /{' '}
             <code>data-pressed</code>, Space / Enter to flip.
           </li>
           <li>Icon-only; always exposes an accessible name.</li>
@@ -181,4 +176,8 @@ export const Size: Story = {
 
 export const Controlled: Story = {
   render: () => <ControlledExample />,
+};
+
+export const Superscript: Story = {
+  render: () => <SuperscriptExample />,
 };
