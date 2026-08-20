@@ -21,7 +21,7 @@
  */
 'use client';
 
-import { ChevronsUpDownIcon, Copy, EllipsisVerticalIcon, Highlighter, Trash2 } from 'lucide-react';
+import { Archive, ChevronsUpDownIcon, Copy, EllipsisVerticalIcon, Highlighter, Trash2 } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
@@ -151,6 +151,7 @@ type NoteCardProps = {
   /** Footer "more options" menu — hover-revealed trigger, Dropdown Menu content. */
   onCopyNote?: () => void;
   onCopyHighlights?: () => void;
+  onArchiveNote?: () => void;
   onDeleteNote?: () => void;
   /** Bottom divider — off for the last row in a list, or a caller that draws its own separators. */
   showBottomBorder?: boolean;
@@ -185,6 +186,7 @@ function NoteCard({
   onBookmarkedChange,
   onCopyNote,
   onCopyHighlights,
+  onArchiveNote,
   onDeleteNote,
   showBottomBorder = true,
   className,
@@ -575,14 +577,22 @@ function NoteCard({
               >
                 <EllipsisVerticalIcon aria-hidden />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              {/* `min-w-0 w-fit` overrides the primitive's own default
+               * `min-w-72` — that width is sized for typical menus with
+               * icon + copy + shortcut; this one's short, shortcut-free
+               * labels should just hug their own content instead. */}
+              <DropdownMenuContent align="end" className="w-fit min-w-0">
                 <DropdownMenuItem onClick={onCopyNote}>
                   <Copy aria-hidden />
-                  Copy note to clipboard
+                  Copy note
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={onCopyHighlights}>
                   <Highlighter aria-hidden />
-                  Copy all highlights
+                  Copy highlights
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onArchiveNote}>
+                  <Archive aria-hidden />
+                  Archive note
                 </DropdownMenuItem>
                 <DropdownMenuItem variant="destructive" onClick={onDeleteNote}>
                   <Trash2 aria-hidden />

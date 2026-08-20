@@ -199,7 +199,7 @@ Removed; `invisible` owns its own (lack of) radius now, unconditionally.
 | `pinInteractive` | `true` | Whether the (shown) Pin control can be toggled, vs. read-only/`disabled` |
 | `pinned` / `defaultPinned` / `onPinnedChange` | — | Controlled/uncontrolled pinned state |
 | `bookmarked` / `defaultBookmarked` / `onBookmarkedChange` | — | Forwarded to `GatherBookmarkButton`'s `active` |
-| `onCopyNote` / `onCopyHighlights` / `onDeleteNote` | — | Hover-revealed 3-dot `DropdownMenu` — Copy note to clipboard / Copy all highlights / Delete note (destructive) |
+| `onCopyNote` / `onCopyHighlights` / `onArchiveNote` / `onDeleteNote` | — | Hover-revealed 3-dot `DropdownMenu` — Copy note / Copy highlights / Archive note / Delete note (destructive) |
 | `showBottomBorder` | `true` | Off for the last row in a list, or a caller that draws its own separators |
 | `forceHover` | `false` | Storybook-only — locks the row's hover paint via `data-force-hover` without a real pointer |
 
@@ -224,18 +224,23 @@ Removed; `invisible` owns its own (lack of) radius now, unconditionally.
 | Motion | `--duration-fast` / `--ease-emphasized` |
 
 **The 3-dot button opens a real `DropdownMenu`** (not a bare callback) —
-Copy note to clipboard, Copy all highlights, Delete note (`variant="destructive"`,
+Copy note, Copy highlights, Archive note, Delete note (`variant="destructive"`,
 via [Dropdown Menu](../../../primitives/dropdown-menu/README.md)'s own
-`ListItem`-backed rows). `onCopyNote` / `onCopyHighlights` / `onDeleteNote`
-are the three item handlers; the trigger composes straight onto the
-existing `IconButton` via Base UI's `render` prop
+`ListItem`-backed rows). `onCopyNote` / `onCopyHighlights` / `onArchiveNote`
+/ `onDeleteNote` are the four item handlers; the trigger composes straight
+onto the existing `IconButton` via Base UI's `render` prop
 (`DropdownMenuTrigger render={<IconButton .../>}`), so there's no separate
-wrapper element or duplicated hit target.
+wrapper element or duplicated hit target. `DropdownMenuContent` gets
+`className="w-fit min-w-0"` — the primitive's own default width is
+`w-(--anchor-width) min-w-72`, sized for typical menus with icon + copy +
+shortcut; this menu's short, shortcut-free labels hug their own content
+instead (verified live: renders at 168px, tracking the widest item's own
+148px content width, not the primitive's fixed 288px floor).
 
 ## Deferred
 
 - **Full note view** — `onOpenNote` is a bare callback/hook; the full-width
   note view it's meant to open doesn't exist yet.
-- **Copy/delete implementations** — `onCopyNote` / `onCopyHighlights` /
-  `onDeleteNote` are bare callbacks; the actual clipboard-write and
-  delete-confirmation logic aren't built yet.
+- **Copy/archive/delete implementations** — `onCopyNote` / `onCopyHighlights`
+  / `onArchiveNote` / `onDeleteNote` are bare callbacks; the actual
+  clipboard-write, archive, and delete-confirmation logic aren't built yet.

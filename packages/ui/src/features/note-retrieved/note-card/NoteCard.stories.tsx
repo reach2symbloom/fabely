@@ -413,10 +413,12 @@ export const Overview: Story = {
             is available in every mode, short or long body alike, and
             reuses <code>onOpenNote</code> — the same hook the truncated
             body itself calls. The 3-dot button opens a real{' '}
-            <code>DropdownMenu</code> (Copy note to clipboard / Copy all
-            highlights / Delete note) — wire{' '}
+            <code>DropdownMenu</code> (Copy note / Copy highlights /
+            Archive note / Delete note), sized to hug its own content
+            rather than the primitive's default fixed min-width — wire{' '}
             <code>onCopyNote</code> / <code>onCopyHighlights</code> /{' '}
-            <code>onDeleteNote</code> for each item.
+            <code>onArchiveNote</code> / <code>onDeleteNote</code> for
+            each item.
           </li>
         </ul>
       }
