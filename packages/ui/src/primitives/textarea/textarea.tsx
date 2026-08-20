@@ -220,6 +220,16 @@ const textareaVariants = cva(
         variant: 'invisible',
         class: 'block h-auto overflow-hidden px-0 py-0',
       },
+      /* The shell's own `rounded-none` (above) only zeroes the wrapper —
+       * the native <textarea> is its own scroll/clip box, and browsers
+       * clip its rendering (including the selection highlight) to its
+       * own border-radius regardless of the shell around it. This one
+       * flows through `cn()`/twMerge at the call site, so plain class
+       * order is enough to win — no `!` needed here. */
+      {
+        variant: 'invisible',
+        class: 'rounded-none',
+      },
     ],
     defaultVariants: {
       variant: 'default',
