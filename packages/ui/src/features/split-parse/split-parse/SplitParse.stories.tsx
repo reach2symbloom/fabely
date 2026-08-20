@@ -13,7 +13,7 @@ import {
   PrimitivePage,
 } from '../../../../stories/PrimitivePage';
 
-import { SplitParse, type SplitParseState, type SplitParseSurface } from './SplitParse';
+import { SplitParse, type SplitParseState } from './SplitParse';
 
 const meta = {
   title: 'Design System/Features/Split & Parse',
@@ -45,17 +45,6 @@ function StateExample() {
   );
 }
 
-function PrimarySurfaceExample() {
-  return (
-    <div
-      className={`${DEMO_WIDTH} flex flex-col gap-[var(--spacing-md)] rounded-[length:var(--rounded-lg)] bg-[color:var(--primary)] p-[var(--spacing-md)]`}
-    >
-      <SplitParse surface="primary" state="default" />
-      <SplitParse surface="primary" state="split-created" />
-    </div>
-  );
-}
-
 function InteractiveExample() {
   const [state, setState] = useState<SplitParseState>('default');
 
@@ -72,26 +61,18 @@ function InteractiveExample() {
 
 function SplitParsePlayground() {
   const [state, setState] = useState<SplitParseState>('default');
-  const [surface, setSurface] = useState<SplitParseSurface>('default');
-
-  const preview = (
-    <div className={DEMO_WIDTH}>
-      <SplitParse
-        state={state}
-        surface={surface}
-        onParse={() => setState('split-created')}
-        onUndo={() => setState('default')}
-      />
-    </div>
-  );
 
   return (
     <PlaygroundPanel
       preview={
-        <div
-          className={`flex min-h-40 w-full items-center justify-center p-[var(--spacing-lg)] ${surface === 'primary' ? 'bg-[color:var(--primary)]' : ''}`}
-        >
-          {preview}
+        <div className="flex min-h-40 w-full items-center justify-center p-[var(--spacing-lg)]">
+          <div className={DEMO_WIDTH}>
+            <SplitParse
+              state={state}
+              onParse={() => setState('split-created')}
+              onUndo={() => setState('default')}
+            />
+          </div>
         </div>
       }
       controls={
@@ -103,17 +84,6 @@ function SplitParsePlayground() {
             options={[
               { value: 'default', label: 'Parse here' },
               { value: 'split-created', label: 'Note parsed' },
-            ]}
-            fullWidth
-            className="col-span-2"
-          />
-          <InlineSegmentedControl
-            label="Surface"
-            value={surface}
-            onChange={(v) => setSurface(v as SplitParseSurface)}
-            options={[
-              { value: 'default', label: 'Default' },
-              { value: 'primary', label: 'Primary' },
             ]}
             fullWidth
             className="col-span-2"
@@ -139,9 +109,6 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="State">
             <StateExample />
           </PrimitiveGalleryItem>
-          <PrimitiveGalleryItem label="Primary surface">
-            <PrimarySurfaceExample />
-          </PrimitiveGalleryItem>
           <PrimitiveGalleryItem label="Interactive">
             <InteractiveExample />
           </PrimitiveGalleryItem>
@@ -150,10 +117,12 @@ export const Overview: Story = {
       usageGuidance={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            <code>surface=&quot;primary&quot;</code> is for a split marker
-            placed inside a <code>--primary</code>-colored highlight span —
-            not app dark theme. See the component README for why Figma&apos;s
-            <code>mode</code> prop isn&apos;t reproduced as-is.
+            No <code>mode</code>/<code>surface</code> prop — colors flip with
+            the app&apos;s own light/dark theme automatically. Use
+            Storybook&apos;s theme toolbar toggle (top toolbar, sun/moon icon)
+            to see the dark-mode look, rather than a separate demo. See the
+            component README for why an earlier <code>surface</code> prop
+            was removed.
           </li>
           <li>
             <code>onParse</code>/<code>onUndo</code> only fire the callback —
@@ -165,15 +134,31 @@ export const Overview: Story = {
             variant (Figma&apos;s own &quot;Fade button&quot;) at a smaller,
             padding-free footprint.
           </li>
+          <li>
+            The dashed rule deepens on hover of the <code>default</code>-state
+            row — not in Figma (which shows no distinct hover swatch), added
+            as a legible affordance for an otherwise-inert-looking row.
+          </li>
+          <li>
+            The <code>default</code> ↔ <code>split-created</code> flip is
+            Motion-animated (also not in Figma) — click through Interactive
+            to see it both directions. Respects{' '}
+            <code>prefers-reduced-motion</code> (instant, no keyframes). See
+            the component README for the full choreography.
+          </li>
         </ul>
       }
       accessibility={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            The <code>default</code>-state row is a real{' '}
-            <code>&lt;button&gt;</code>; the <code>split-created</code>-state
-            row is a status display with its own independently focusable
-            undo <code>&lt;button&gt;</code> (&quot;Undo split&quot;).
+            The <code>default</code>-state row is a{' '}
+            <code>role=&quot;button&quot;</code> div (keyboard-operable via
+            Enter/Space) rather than a real <code>&lt;button&gt;</code> — the{' '}
+            <code>split-created</code>-state row nests a real undo{' '}
+            <code>&lt;button&gt;</code> (&quot;Undo split&quot;), and a{' '}
+            <code>&lt;button&gt;</code> can never validly contain another
+            one. A stable root across both states is also what makes the
+            transition animatable — see the README.
           </li>
         </ul>
       }
@@ -187,11 +172,6 @@ export const Demo: Story = {
 
 export const State: Story = {
   render: () => <StateExample />,
-};
-
-export const PrimarySurface: Story = {
-  name: 'Primary surface',
-  render: () => <PrimarySurfaceExample />,
 };
 
 export const Interactive: Story = {
