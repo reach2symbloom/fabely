@@ -21,3 +21,20 @@ export const SPRING_BLOOM: Transition = {
   damping: 22,
   mass: 0.6,
 };
+
+/**
+ * Eased (non-spring) layout/crossfade preset — Foundations' own
+ * `--duration-fast` (200ms) / `--ease-emphasized`
+ * (`cubic-bezier(0.22, 1, 0.36, 1)`), the same curve already driving this
+ * codebase's CSS hover/fill transitions. Motion can't consume a CSS
+ * `var()` directly, so this is that curve's resolved value, not a new
+ * one — reach for it for layout/FLIP and content crossfades that should
+ * read as controlled and precise, not springy (see `SPRING_BLOOM` for
+ * when a spring fits better instead).
+ */
+export const EASE_EMPHASIZED: Transition['ease'] = [0.22, 1, 0.36, 1];
+
+export const TRANSITION_EMPHASIZED_FAST: Transition = {
+  duration: 0.2,
+  ease: EASE_EMPHASIZED,
+};

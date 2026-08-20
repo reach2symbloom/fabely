@@ -25,13 +25,27 @@
  */
 'use client';
 
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { BookmarkButton, type BookmarkButtonSize } from '@/atoms/bookmark-button';
+import { TRANSITION_EMPHASIZED_FAST } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import { ButtonGroup, ButtonGroupSeparator } from '@/primitives/button-group';
 import { IconButton } from '@/primitives/button/icon-button';
+
+/**
+ * Motion-wrapped, not rebuilt — `motion.create` passes an untouched ref
+ * through to each primitive's own root element (same pattern already
+ * proven by `MotionIconButton` in Highlight Action Menu), so `layout`
+ * here gets FLIP tracking on the real DOM box with zero changes to any
+ * of these primitives themselves.
+ */
+const MotionButtonGroup = motion.create(ButtonGroup);
+const MotionBookmarkButton = motion.create(BookmarkButton);
+const MotionButtonGroupSeparator = motion.create(ButtonGroupSeparator);
+const MotionIconButton = motion.create(IconButton);
 
 /** Figma `Icon / chevron-down` (`1463:191`) — exact path, not Lucide's. */
 const CHEVRON_DOWN_PATH =
@@ -136,8 +150,15 @@ function GatherBookmarkButton({
 
   const label = active ? activeLabel : inactiveLabel;
 
+  const prefersReducedMotion = useReducedMotion();
+  const layoutTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : TRANSITION_EMPHASIZED_FAST;
+
   return (
-    <ButtonGroup
+    <MotionButtonGroup
+      layout
+      transition={layoutTransition}
       aria-label={groupLabel}
       data-slot="gather-bookmark-button"
       className={cn(
@@ -151,7 +172,9 @@ function GatherBookmarkButton({
         className
       )}
     >
-      <BookmarkButton
+      <MotionBookmarkButton
+        layout
+        transition={layoutTransition}
         size={size}
         pressed={isControlled ? activeProp : undefined}
         defaultPressed={isControlled ? undefined : defaultActive}
@@ -172,9 +195,13 @@ function GatherBookmarkButton({
         )}
         trailingContent={
           mode === 'gather' && (
+            /* One persistent label, crossfading its text — not two labels
+             * swapped. `popLayout` pulls the exiting string out of flow
+             * immediately so the parent's own `layout` FLIP resizes
+             * against just the entering string's width, not both at once. */
             <span
               className={cn(
-                'overflow-hidden whitespace-nowrap',
+                'relative overflow-hidden whitespace-nowrap',
                 'pl-[length:var(--spacing-2xs)] pr-[length:var(--spacing-1-5)]',
                 'font-[family-name:var(--text-paragraph-mini-regular-font-family)]',
                 '[font-weight:var(--text-paragraph-mini-regular-font-weight)]',
@@ -184,15 +211,31 @@ function GatherBookmarkButton({
                 'text-[color:var(--muted-foreground)]'
               )}
             >
-              {label}
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.span
+                  key={label}
+                  className="block"
+                  initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 3 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -3 }}
+                  transition={layoutTransition}
+                >
+                  {label}
+                </motion.span>
+              </AnimatePresence>
             </span>
           )
         }
       />
 
       {/* Always present — Figma measures the line inset 4px from both the
-       * top and bottom of the 32px row (`16231:7040`: y=4, height=24). */}
-      <ButtonGroupSeparator
+       * top and bottom of the 32px row (`16231:7040`: y=4, height=24).
+       * `layout` only — no opacity/color/scale motion of its own, so it
+       * stays visually stable and just glides smoothly to its new
+       * position alongside the bookmark segment's resize. */}
+      <MotionButtonGroupSeparator
+        layout
+        transition={layoutTransition}
         className="my-[length:var(--spacing-2xs)]! bg-[var(--theme-alpha-black-switch-5)]!"
       />
 
@@ -203,8 +246,11 @@ function GatherBookmarkButton({
        * footprint, so width/height/padding are overridden to match exactly
        * in Gather. Roam gets 6px horizontal padding instead and hugs to
        * that (no fixed width — a fixed width would just re-center the
-       * glyph inside itself and silently swallow the padding change). */}
-      <IconButton
+       * glyph inside itself and silently swallow the padding change).
+       * `layout` only, same as the divider — stays visually stable. */}
+      <MotionIconButton
+        layout
+        transition={layoutTransition}
         variant="ghost"
         aria-label="More options"
         onClick={onMenuClick}
@@ -219,8 +265,8 @@ function GatherBookmarkButton({
         )}
       >
         <ChevronDownGlyph />
-      </IconButton>
-    </ButtonGroup>
+      </MotionIconButton>
+    </MotionButtonGroup>
   );
 }
 

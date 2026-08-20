@@ -145,6 +145,45 @@ selectors (same shape as `ButtonGroup`'s own compound-variant classes, just
 targeting `--rounded-md`) so the `!important` join classes get superseded
 rather than fought.
 
+**The Gather↔Roam label change is animated as one persistent button, not a
+swap.** `ButtonGroup`, `BookmarkButton`, `ButtonGroupSeparator`, and the
+chevron `IconButton` are each wrapped with `motion.create(...)` — an
+untouched ref pass-through to each primitive's own root element (the same
+pattern already proven by `MotionIconButton` in Highlight Action Menu), so
+none of the four primitives themselves changed. Three coordinated pieces:
+
+1. **Layout/FLIP width** — all four motion-wrapped elements carry `layout`
+   with the same `transition`, so when the label's width changes, the
+   segment resizes smoothly (verified live: interpolates frame-by-frame,
+   not an instant jump) and the divider + chevron glide to their new
+   position alongside it rather than snapping — "visually stable" here
+   means *no animation of their own* (no color/opacity/scale), not that
+   they're pinned in place; they physically have to move as their neighbor
+   resizes, and `layout` is what makes that move smooth instead of abrupt.
+2. **Label crossfade** — the label span wraps an `AnimatePresence
+   mode="popLayout"` around a `motion.span key={label}`: opacity fade +
+   2–3px vertical shift, `initial={false}` so a fresh mount (a new
+   component instance, e.g. Storybook's Playground remounting via `key`)
+   never animates in on first render. `popLayout` pulls the *exiting*
+   string out of flow immediately, so the parent's own `layout` FLIP
+   resizes against just the *entering* string's width, not both at once —
+   without it, the segment would briefly overshoot to fit both strings
+   simultaneously.
+3. **Icon scale** — lives in [Bookmark Button](../../../atoms/bookmark-button/README.md)
+   itself (a subtle `1` → `1.08` Motion scale on `pressed`), not
+   reimplemented here — this composite only adds the label crossfade and
+   the group-level layout tracking around that shared, unmodified atom.
+
+All three use `TRANSITION_EMPHASIZED_FAST` from `@/lib/motion` — Foundations'
+own `--duration-fast` (200ms) / `--ease-emphasized`
+(`cubic-bezier(0.22, 1, 0.36, 1)`) resolved into a value Motion can consume
+directly (it can't read a CSS `var()`), deliberately not a spring — a
+short eased transition reads as controlled and precise for a label/width
+change, where a spring's overshoot would read as bouncy/playful. Respects
+`prefers-reduced-motion` throughout (`useReducedMotion()` collapses every
+`transition` here to `duration: 0`, verified live: width jumps directly to
+its final value with no intermediate frames).
+
 ## API
 
 | Prop | Default | Notes |

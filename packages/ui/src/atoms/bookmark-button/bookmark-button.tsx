@@ -15,9 +15,11 @@
 
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
 import { BookmarkIcon } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 
+import { TRANSITION_EMPHASIZED_FAST } from '@/lib/motion';
 import { useSuperscript } from '@/hooks/use-superscript';
 import { cn } from '@/lib/utils';
 
@@ -77,6 +79,7 @@ function BookmarkButton({
     ariaLabelProp ?? (pressed ? 'Remove bookmark' : 'Bookmark');
 
   const superscriptVisible = useSuperscript({ show: showSuperscript, active: pressed });
+  const prefersReducedMotion = useReducedMotion();
 
   return (
     <TogglePrimitive
@@ -105,13 +108,25 @@ function BookmarkButton({
       )}
     >
       <span className="relative inline-flex">
-        <BookmarkIcon
-          aria-hidden
-          className={ICON_SIZE[size]}
-          fill={pressed ? 'currentColor' : 'none'}
-          stroke="currentColor"
-          strokeWidth={pressed ? 0 : 2}
-        />
+        {/* Scale only — color/fill still comes from the CSS `transition-colors`
+         * above (unchanged), not from Motion. Kept subtle and spring-free
+         * (ease-emphasized, same curve as the color transition) so it
+         * reads as one coherent settle, not two competing animations. */}
+        <motion.span
+          className="inline-flex"
+          animate={{ scale: pressed ? 1.08 : 1 }}
+          transition={
+            prefersReducedMotion ? { duration: 0 } : TRANSITION_EMPHASIZED_FAST
+          }
+        >
+          <BookmarkIcon
+            aria-hidden
+            className={ICON_SIZE[size]}
+            fill={pressed ? 'currentColor' : 'none'}
+            stroke="currentColor"
+            strokeWidth={pressed ? 0 : 2}
+          />
+        </motion.span>
         {superscriptVisible && (
           <span
             aria-hidden

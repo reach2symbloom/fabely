@@ -41,6 +41,17 @@ Color transition uses Foundations `--duration-fast` / `--ease-emphasized`.
 Hover-only color step is scoped with `not-data-pressed:not-aria-pressed:hover:`
 so it never fights the selected-state color rule.
 
+The glyph also carries a subtle Motion scale (`1` unselected → `1.08`
+selected, `TRANSITION_EMPHASIZED_FAST` from `@/lib/motion` — the same
+resolved `--duration-fast`/`--ease-emphasized` curve as the color
+transition, not a spring) via a `motion.span` wrapping just the icon —
+color/fill still comes entirely from the CSS `transition-colors` above,
+untouched; Motion only owns the scale. Respects
+`prefers-reduced-motion` (`useReducedMotion()` collapses it to
+`duration: 0`). This benefits every consumer of this atom automatically,
+including [Gather Bookmark Button](../../features/note-retrieved/gather-bookmark-button/README.md),
+which layers its own label-crossfade and layout/FLIP animation on top.
+
 The optional count badge (Figma `Show superscript`, `16231:7082`/`7091`) sits
 absolute at `-top-2 left-4` of the Icon box, `paragraph-mini-medium`
 typography at a `10px` override, `--muted-foreground` text, `--spacing-2xs` /
