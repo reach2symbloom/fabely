@@ -33,9 +33,11 @@ could desync whenever the prop and the actual app theme disagreed. Figma's
 
 Removed. Now:
 
-- **"Parse here"** uses `--muted-foreground` (quieter than Figma's flat
-  black/white — a background affordance, not a primary action), already
-  flips light/dark on its own (see colors.css), so it needs no override.
+- **"Parse here"** rests at 0.6 alpha over `--foreground` (quieter than
+  Figma's flat black/white — a background affordance, not a primary
+  action; visually identical to `--muted-foreground`, see the hover
+  section below for why it's expressed as opacity instead), already flips
+  light/dark on its own (see colors.css), so it needs no override.
 - **"Note parsed"** uses `--tw-raw-pantones-ginseng` with a `dark:` override
   to `--tw-raw-pantones-ginseng-light` (Figma's exact two swatches —
   `16095:250` Light, `16095:262` Dark) — Ginseng has no switch-token
@@ -55,17 +57,48 @@ background on a thin (`--stroke-thin`) strip: exact 6px/6px, and a
 gradient's segments are naturally flat-ended, matching Figma's butt cap
 with no extra config.
 
-## Hover on the dashed rule (not in Figma)
+## Hover: a directional activation sweep (not in Figma)
 
 Figma exports a single `Default & hover` variant for the clickable row —
-no distinct hover swatch. A hover state was added anyway: the row's own
-`group` class deepens both dashed rules from `--theme-alpha-black-switch-10`
-to full alpha (`-100`) on hover, via a second `group-hover:` gradient (swapped instead of
-animated — animating a `background-image` gradient's color stops doesn't
-tween in CSS, so `transition-[background-image]` is present but has
-nothing to interpolate; the visible change is an instant swap). Only the
-`default`-state row gets `group`/hover — `split-created`'s rules are a
-static status display.
+no distinct hover swatch. `useSplitParseHover` (component file, above
+`useSplitParseTransition`) drives a left-to-right "activation sweep"
+instead of a static brighten, entirely separate from the click transition
+below — different Motion values, never reading or writing them, and
+firing only for the `default`-state row (`split-created`'s rules are a
+static status display, no hover wiring at all).
+
+Hover-in (~360ms, inside the requested 300-450ms):
+
+1. **0–100ms** — the scissors icon brightens first (opacity 0.6 → 1).
+2. **60–210ms** — the left rule lights left-to-right.
+3. **170–280ms** — "Parse here" brightens, as the left sweep nears its end
+   ("reaching the center").
+4. **200–360ms** — the right rule lights left-to-right in turn, completing
+   the path all the way to the row's right edge — the right side always
+   finishes fully lit, never left dim.
+
+Hover-out (~200ms, inside the requested 180-260ms) retreats faster and in
+the opposite order (right rule, then label, then left rule, then icon) —
+since each sweep's own `clip-path` formula un-reveals from the same edge
+it grew from, animating the same values back to 0 reads as the activation
+reversing, not a different animation.
+
+**Implementation** — each rule (`TransformingLine`) gets a third,
+nested layer: a full-alpha copy of the same dash pattern, revealed by its
+own `clip-path` driven by a hover-specific progress value (`leftSweep`/
+`rightSweep`). Nested *inside* the existing dashed layer, so it's
+automatically cropped by that layer's own clip too — it can never show
+through once the click transition has moved a row past its dashed state.
+The icon and label use the same "opaque color + animated opacity"
+technique the click-transition's icon fix already established (see
+`useSplitParseHover`'s own comment for why opacity, not a `color` tween,
+is what's animated throughout — Motion can't interpolate between two
+different CSS custom properties, and doesn't need to here since
+`--muted-foreground` **is** `--foreground` at 60% alpha).
+
+**`prefers-reduced-motion`** — every hover value jumps straight to its
+target, no sweep, no stagger; verified live (Playwright, `reducedMotion:
+'reduce'`) to reach full alpha within one render frame of hovering.
 
 ## `split-created`-state rule is solid Fia brand color, not dashed (not in Figma)
 
@@ -168,7 +201,7 @@ target with no keyframes, no `pathLength` draw, no snip; verified live
 | Row gap | `--spacing-xs` (8px) |
 | Icon-to-line gap | `--spacing-3xs` (2px) |
 | Label typography | `--text-paragraph-mini-medium-*` |
-| Text color ("Parse here") | `--muted-foreground` |
+| Text color ("Parse here") | `--foreground` at 0.6→1 opacity (hover sweep) |
 | Text color ("Note parsed") | `--tw-raw-pantones-ginseng` / `dark:` `--tw-raw-pantones-ginseng-light` |
-| Dashed line, `default` (rest / hover) | `--theme-alpha-black-switch-10` / `-100` |
+| Dashed line, `default` (rest / hover-lit) | `--theme-alpha-black-switch-10` / `-100` |
 | Solid line, `split-created` | `--tw-raw-fia-200` |

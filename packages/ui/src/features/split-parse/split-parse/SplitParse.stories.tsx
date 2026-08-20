@@ -135,9 +135,11 @@ export const Overview: Story = {
             padding-free footprint.
           </li>
           <li>
-            The dashed rule deepens on hover of the <code>default</code>-state
-            row — not in Figma (which shows no distinct hover swatch), added
-            as a legible affordance for an otherwise-inert-looking row.
+            Hovering (or keyboard-focusing) the <code>default</code>-state
+            row plays a left-to-right activation sweep — icon, then the left
+            rule, then the label, then the right rule — rather than a static
+            brighten. Not in Figma (which shows no distinct hover swatch).
+            Hover the row in the Overview playground or Demo to see it.
           </li>
           <li>
             The <code>default</code> ↔ <code>split-created</code> flip is

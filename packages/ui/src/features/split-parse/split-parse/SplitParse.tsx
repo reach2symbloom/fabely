@@ -14,24 +14,28 @@
  * the two could desync depending on which prop value a caller picked vs.
  * the app's actual theme. Removed.
  *
- * `default`-state ("Parse here") text/icon rest at `--muted-foreground`
- * (quieter than Figma's flat black/white — this row is a background
- * affordance, not a primary action), going to full alpha (`--foreground`)
- * on hover/focus — same hover-to-full-alpha treatment as the dashed rule,
- * so text and rule read as one control brightening together. The scissors
- * icon can't just inherit that translucent color via `currentColor` like
- * the label does, though: its blade paths cross at the pivot, and a
- * translucent stroke double-darkens wherever a shape overlaps itself.
- * Opaque `--foreground` + a separate `opacity-60→100` on the `<svg>`
- * instead — same fix Icon Button's `fade` variant uses for Plus/X (see its
- * comment) — flattens the glyph to one shape before fading it.
+ * `default`-state ("Parse here") text/icon rest at 0.6 alpha over
+ * `--foreground` (quieter than Figma's flat black/white — this row is a
+ * background affordance, not a primary action), going to full alpha on
+ * hover/focus via a directional left-to-right activation sweep (not in
+ * Figma, which shows no distinct hover swatch for this row) — see
+ * `useSplitParseHover` below for the full choreography. The scissors icon
+ * can't just carry that alpha on a translucent `currentColor` like a plain
+ * `<g opacity>` swap would suggest, though: its blade paths cross at the
+ * pivot, and a translucent stroke double-darkens wherever a shape overlaps
+ * itself. Opaque `--foreground` + a separate animated `opacity` on a
+ * nested `<g>` instead — same fix Icon Button's `fade` variant uses for
+ * Plus/X (see its comment) — flattens the glyph to one shape before fading
+ * it. Same reasoning gives the label its own explicit
+ * `--foreground` + animated opacity, rather than inheriting a `color`
+ * swap from the row (text has no self-overlap problem, but Motion can't
+ * tween between two different CSS custom-property colors either way — see
+ * `useSplitParseHover`'s comment for why opacity, not color, is the
+ * animated value throughout).
  *
  * The dashed rule itself is a `repeating-linear-gradient`, not
  * `border-dashed` (CSS's native dashed border can't hit an exact dash/gap
- * length) — 6px dash / 6px gap per Figma's stroke settings. Hover state
- * itself isn't in Figma (which shows no distinct hover swatch for this
- * row) — reasoned as a legible affordance an inert-looking row shouldn't
- * lack.
+ * length) — 6px dash / 6px gap per Figma's stroke settings.
  *
  * `split-created`-state ("Note parsed") rule is solid, not dashed — also
  * not in Figma (which keeps the same dash there) — in the Fia brand color
@@ -88,9 +92,132 @@ const LABEL_TYPE = [
  * segments); `border-dashed` cannot hit a specific dash/gap length. */
 const LINE_REST =
   'bg-[image:repeating-linear-gradient(to_right,var(--theme-alpha-black-switch-10)_0,var(--theme-alpha-black-switch-10)_6px,transparent_6px,transparent_12px)]';
-/** Deepens to full alpha on hover of the interactive (`default`-state) row only. */
-const LINE_HOVER =
-  'group-hover:bg-[image:repeating-linear-gradient(to_right,var(--theme-alpha-black-switch-100)_0,var(--theme-alpha-black-switch-100)_6px,transparent_6px,transparent_12px)]';
+/** Same dash geometry at full alpha — the hover sweep reveals this over the rest layer, left-to-right (see `useSplitParseHover`). */
+const LINE_BRIGHT =
+  'bg-[image:repeating-linear-gradient(to_right,var(--theme-alpha-black-switch-100)_0,var(--theme-alpha-black-switch-100)_6px,transparent_6px,transparent_12px)]';
+
+/* ---------------------------------------------------------------------- */
+/* Hover choreography (default-state row only)                            */
+/* ---------------------------------------------------------------------- */
+/*
+ * A directional activation sweep, not a static hover swap — separate from,
+ * and never touching, the click transition above. Hover-in (~360ms, inside
+ * the requested 300-450ms):
+ *
+ *   0-100ms     scissors icon brightens (opacity 0.6 -> 1)
+ *   60-210ms    left rule lights left-to-right
+ *   170-280ms   "Parse here" brightens, as the left sweep nears its end
+ *   200-360ms   right rule lights left-to-right in turn, completing the
+ *               path all the way to the row's right edge
+ *
+ * Hover-out (~200ms, inside the requested 180-260ms) retreats faster and
+ * in reverse — right rule first, then label, then left rule, then icon —
+ * which, since each sweep's own clip-path formula unwinds from the same
+ * edge it grew from, reads as the same activation reversing rather than a
+ * different animation.
+ */
+const HOVER_IN_ICON_DURATION = 0.1;
+const HOVER_IN_LEFT_SWEEP_DELAY = 0.06;
+const HOVER_IN_LEFT_SWEEP_DURATION = 0.15;
+const HOVER_IN_LABEL_DELAY = 0.17;
+const HOVER_IN_LABEL_DURATION = 0.11;
+const HOVER_IN_RIGHT_SWEEP_DELAY = 0.2;
+const HOVER_IN_RIGHT_SWEEP_DURATION = 0.16;
+
+const HOVER_OUT_RIGHT_SWEEP_DURATION = 0.09;
+const HOVER_OUT_LABEL_DELAY = 0.03;
+const HOVER_OUT_LABEL_DURATION = 0.08;
+const HOVER_OUT_LEFT_SWEEP_DELAY = 0.05;
+const HOVER_OUT_LEFT_SWEEP_DURATION = 0.09;
+const HOVER_OUT_ICON_DELAY = 0.12;
+const HOVER_OUT_ICON_DURATION = 0.08;
+
+/**
+ * Owns the `default`-state row's hover/focus activation sweep — entirely
+ * separate from `useSplitParseTransition` above (different motion values,
+ * never reads or writes them). `runIn`/`runOut` are wired to mouse
+ * enter/leave and focus/blur by the caller, guarded there against firing
+ * `runOut` while still hovered *or* focused (leaving one shouldn't drop
+ * the lit state the other is holding up).
+ *
+ * `iconGlow`/`labelGlow` end up mapped to `opacity` (0.6 -> 1), not a
+ * `color` tween between `--muted-foreground` and `--foreground` — Motion
+ * can't interpolate between two different CSS custom properties (it
+ * doesn't resolve `var()`s to compute in-between values), and it wouldn't
+ * even need to here: `--muted-foreground` *is* `--foreground` at 60%
+ * alpha (`color-mix(... 60%, transparent)` vs. the same base color
+ * opaque), so rendering the opaque color at `opacity: 0.6` produces the
+ * identical pixels — animatable, and still exactly the theme-correct
+ * (auto light/dark) color either way.
+ */
+function useSplitParseHover() {
+  const prefersReducedMotion = useReducedMotion();
+  const iconGlow = useMotionValue(0);
+  const leftSweep = useMotionValue(0);
+  const labelGlow = useMotionValue(0);
+  const rightSweep = useMotionValue(0);
+  const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const clearPending = () => {
+    timeoutsRef.current.forEach(clearTimeout);
+    timeoutsRef.current = [];
+  };
+  useEffect(() => clearPending, []);
+
+  const after = (fn: () => void, delaySeconds: number) => {
+    timeoutsRef.current.push(setTimeout(fn, delaySeconds * 1000));
+  };
+
+  const runIn = () => {
+    clearPending();
+    if (prefersReducedMotion) {
+      iconGlow.jump(1);
+      leftSweep.jump(1);
+      labelGlow.jump(1);
+      rightSweep.jump(1);
+      return;
+    }
+    animate(iconGlow, 1, { duration: HOVER_IN_ICON_DURATION, ease: EASE_EMPHASIZED });
+    after(
+      () => animate(leftSweep, 1, { duration: HOVER_IN_LEFT_SWEEP_DURATION, ease: EASE_EMPHASIZED }),
+      HOVER_IN_LEFT_SWEEP_DELAY
+    );
+    after(
+      () => animate(labelGlow, 1, { duration: HOVER_IN_LABEL_DURATION, ease: EASE_EMPHASIZED }),
+      HOVER_IN_LABEL_DELAY
+    );
+    after(
+      () => animate(rightSweep, 1, { duration: HOVER_IN_RIGHT_SWEEP_DURATION, ease: EASE_EMPHASIZED }),
+      HOVER_IN_RIGHT_SWEEP_DELAY
+    );
+  };
+
+  const runOut = () => {
+    clearPending();
+    if (prefersReducedMotion) {
+      iconGlow.jump(0);
+      leftSweep.jump(0);
+      labelGlow.jump(0);
+      rightSweep.jump(0);
+      return;
+    }
+    animate(rightSweep, 0, { duration: HOVER_OUT_RIGHT_SWEEP_DURATION, ease: EASE_EMPHASIZED });
+    after(
+      () => animate(labelGlow, 0, { duration: HOVER_OUT_LABEL_DURATION, ease: EASE_EMPHASIZED }),
+      HOVER_OUT_LABEL_DELAY
+    );
+    after(
+      () => animate(leftSweep, 0, { duration: HOVER_OUT_LEFT_SWEEP_DURATION, ease: EASE_EMPHASIZED }),
+      HOVER_OUT_LEFT_SWEEP_DELAY
+    );
+    after(
+      () => animate(iconGlow, 0, { duration: HOVER_OUT_ICON_DURATION, ease: EASE_EMPHASIZED }),
+      HOVER_OUT_ICON_DELAY
+    );
+  };
+
+  return { iconGlow, leftSweep, labelGlow, rightSweep, runIn, runOut };
+}
 
 /* ---------------------------------------------------------------------- */
 /* Transition choreography                                                */
@@ -217,32 +344,41 @@ function useSplitParseTransition(state: SplitParseState) {
  * for both resting states and the transition between them: at rest
  * `progress` just sits at 0 or 1, no different from the plain dashed/solid
  * rules this replaced.
+ *
+ * A third layer, `hoverSweep`, nests *inside* the dashed one — a
+ * full-alpha copy of the same dash pattern, revealed left-to-right by its
+ * own `clip-path` (see `useSplitParseHover`). Nesting (rather than a
+ * sibling layer) means it's automatically cropped by the dashed layer's
+ * own clip too, so it can never show through once `progress` has moved
+ * the row past the dashed state. Always rendered, on every row this
+ * component draws — at `hoverSweep=0` (its resting value whenever hover
+ * isn't wired, e.g. the `split-created` row's lines) it's fully clipped
+ * away and costs nothing visually.
  */
 function TransformingLine({
   progress,
-  interactive = false,
+  hoverSweep,
 }: {
   progress: MotionValue<number>;
-  interactive?: boolean;
+  hoverSweep: MotionValue<number>;
 }) {
   const dashedClip = useTransform(progress, (p) => `inset(0 0 0 ${p * 100}%)`);
   const solidClip = useTransform(progress, (p) => `inset(0 ${(1 - p) * 100}% 0 0)`);
+  const hoverClip = useTransform(hoverSweep, (p) => `inset(0 ${(1 - p) * 100}% 0 0)`);
 
   return (
     <span
       data-slot="split-parse-line"
       className="relative h-[length:var(--stroke-thin)] min-w-0 flex-1"
     >
-      <motion.span
-        aria-hidden
-        style={{ clipPath: dashedClip }}
-        className={cn(
-          'absolute inset-0',
-          'transition-[background-image] duration-[var(--duration-fast)] ease-[var(--ease-emphasized)]',
-          LINE_REST,
-          interactive && LINE_HOVER
-        )}
-      />
+      <motion.span aria-hidden style={{ clipPath: dashedClip }} className="absolute inset-0">
+        <span aria-hidden className={cn('absolute inset-0', LINE_REST)} />
+        <motion.span
+          aria-hidden
+          style={{ clipPath: hoverClip }}
+          className={cn('absolute inset-0', LINE_BRIGHT)}
+        />
+      </motion.span>
       <motion.span
         aria-hidden
         style={{ clipPath: solidClip }}
@@ -310,6 +446,16 @@ type SplitParseProps = {
 function SplitParse({ state = 'default', onParse, onUndo, className }: SplitParseProps) {
   const { leftProgress, rightProgress, icon, label, showUndo, prefersReducedMotion, isParsed } =
     useSplitParseTransition(state);
+  const {
+    iconGlow,
+    leftSweep,
+    labelGlow,
+    rightSweep,
+    runIn: runHoverIn,
+    runOut: runHoverOut,
+  } = useSplitParseHover();
+  const iconGlowOpacity = useTransform(iconGlow, [0, 1], [0.6, 1]);
+  const labelGlowOpacity = useTransform(labelGlow, [0, 1], [0.6, 1]);
 
   const rowClassName = cn(
     'flex w-full items-center gap-[var(--spacing-xs)]',
@@ -341,6 +487,23 @@ function SplitParse({ state = 'default', onParse, onUndo, className }: SplitPars
     onParse?.();
   };
 
+  /*
+   * Hover-in should fire once, on the first of (pointer over, keyboard
+   * focus) — and hover-out only once *neither* still applies, so tabbing
+   * onto an already-pointer-hovered row (or the reverse) doesn't drop the
+   * lit state early. A plain count, not two booleans, so either source
+   * leaving/entering is handled the same way.
+   */
+  const hoverActiveRef = useRef(0);
+  const handleActivate = () => {
+    hoverActiveRef.current += 1;
+    if (hoverActiveRef.current === 1) runHoverIn();
+  };
+  const handleDeactivate = () => {
+    hoverActiveRef.current = Math.max(0, hoverActiveRef.current - 1);
+    if (hoverActiveRef.current === 0) runHoverOut();
+  };
+
   return (
     <div
       data-slot="split-parse"
@@ -350,12 +513,14 @@ function SplitParse({ state = 'default', onParse, onUndo, className }: SplitPars
       aria-label={state === 'default' ? 'Parse here' : undefined}
       onClick={state === 'default' ? onParse : undefined}
       onKeyDown={state === 'default' ? handleKeyDown : undefined}
+      onMouseEnter={state === 'default' ? handleActivate : undefined}
+      onMouseLeave={state === 'default' ? handleDeactivate : undefined}
+      onFocus={state === 'default' ? handleActivate : undefined}
+      onBlur={state === 'default' ? handleDeactivate : undefined}
       className={cn(
-        'group',
         state === 'default' && 'cursor-pointer',
-        'transition-colors duration-[var(--duration-fast)] ease-[var(--ease-emphasized)]',
         state === 'default'
-          ? 'text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)] focus-visible:text-[color:var(--foreground)]'
+          ? 'text-[color:var(--muted-foreground)]'
           : 'text-[color:var(--tw-raw-pantones-ginseng)] dark:text-[color:var(--tw-raw-pantones-ginseng-light)]',
         rowClassName
       )}
@@ -376,19 +541,20 @@ function SplitParse({ state = 'default', onParse, onUndo, className }: SplitPars
                 {/*
                  * Rest/hover muting lives on this inner `<g>`, not the
                  * `motion.svg` above — that element's own `opacity` is
-                 * already Motion-controlled (mount/exit, 0<->1); CSS
-                 * opacity on a nested `<g>` composes multiplicatively
-                 * with it instead of fighting over the same inline style
-                 * (an inline style always beats a CSS `:hover` rule on
-                 * the same element, so the two can't share one node).
+                 * already Motion-controlled (mount/exit, 0<->1); an inline
+                 * style always beats a CSS rule on the *same* element, so
+                 * the two can't share one node. `iconGlowOpacity` (part of
+                 * the hover sweep, `useSplitParseHover`) composes with the
+                 * outer opacity multiplicatively instead — rest = 1×0.6,
+                 * hovered = 1×1, mid-exit = (fading)×0.6.
                  */}
-                <g className="opacity-60 transition-opacity duration-[var(--duration-fast)] ease-[var(--ease-emphasized)] group-hover:opacity-100 group-focus-visible:opacity-100">
+                <motion.g style={{ opacity: iconGlowOpacity }}>
                   <circle cx={6} cy={6} r={3} />
                   <path d="M8.12 8.12 12 12" />
                   <path d="M20 4 8.12 15.88" />
                   <circle cx={6} cy={18} r={3} />
                   <path d="M14.8 14.8 20 20" />
-                </g>
+                </motion.g>
               </motion.svg>
             ) : (
               <motion.svg
@@ -409,7 +575,7 @@ function SplitParse({ state = 'default', onParse, onUndo, className }: SplitPars
             )}
           </AnimatePresence>
         </span>
-        <TransformingLine progress={leftProgress} interactive={state === 'default'} />
+        <TransformingLine progress={leftProgress} hoverSweep={leftSweep} />
       </span>
 
       <span className="relative grid shrink-0 place-items-center">
@@ -426,13 +592,29 @@ function SplitParse({ state = 'default', onParse, onUndo, className }: SplitPars
             }
             transition={labelCrossfade}
           >
-            {label === 'parse' ? 'Parse here' : 'Note parsed'}
+            {label === 'parse' ? (
+              /*
+               * Same nested-opacity composition as the scissors' `<g>`
+               * above: this span's own opacity is the hover glow
+               * (0.6->1), independent of the outer crossfade span's own
+               * mount/unmount opacity (0<->1) — the two multiply rather
+               * than fight over one property.
+               */
+              <motion.span
+                className="text-[color:var(--foreground)]"
+                style={{ opacity: labelGlowOpacity }}
+              >
+                Parse here
+              </motion.span>
+            ) : (
+              'Note parsed'
+            )}
           </motion.span>
         </AnimatePresence>
       </span>
 
       <span className="flex min-w-0 flex-1 items-center gap-[var(--spacing-xs)]">
-        <TransformingLine progress={rightProgress} />
+        <TransformingLine progress={rightProgress} hoverSweep={rightSweep} />
         <AnimatePresence>
           {showUndo && (
             <MotionIconButton
