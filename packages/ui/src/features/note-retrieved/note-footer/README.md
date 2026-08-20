@@ -2,9 +2,9 @@
 
 Bottom-edge scrim over scrollable note content, with a `prev`/`next`
 [Lateral Toggles](../../../atoms/lateral-toggles/README.md) pair docked at
-its left/right edges. Fades from transparent to the card's own background
+its left/right edges. Fades from transparent to the theme's own surface
 color, signalling more content beneath while keeping chapter navigation
-reachable.
+reachable. No rounded corners — Figma's own root frame has none.
 
 ## Sources
 
@@ -12,22 +12,31 @@ reachable.
 | --- | --- |
 | Figma [Note Footer](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16091-10278) (`16091:10278`) | Visual — Mode × two Lateral Toggles instances |
 | [Lateral Toggles](../../../atoms/lateral-toggles/README.md) atom | Both `prev`/`next` controls, including the live `⌘←`/`⌘→` shortcut |
+| [Gradients](../../../foundations/effects/gradients/README.md) foundation | `--effect-gradient-fade-up` — the scrim itself |
+
+## The scrim is a Foundations token, not a one-off gradient
+
+Figma names this exact background style `gradients/fade/fade up`. Rather
+than inlining a one-off `bg-gradient-to-b`, it's lifted into
+`--effect-gradient-fade-up` in the new
+[Gradients](../../../foundations/effects/gradients/README.md) Effects
+foundation — Foundations didn't have a gradients concept before this
+component needed one, so `fade-down`/`fade-left`/`fade-right` were added
+alongside it (the same two-stop fade rotated to the other three edges) so
+future top-edge / horizontal-scroll use cases don't repeat the derivation.
 
 ## No `mode` prop
 
 Figma authors this as two separate variants, `Mode=Dark` and `Mode=Light` —
 but the Dark variant's own generated markup hardcodes white-on-charcoal
 `rgba(...)` values instead of referencing a switch token; it's a manual
-simulation of dark mode, not something structurally different. The scrim
-gradient here fades to `--card` — the semantic token, so it always matches
-the real card background rather than a raw alpha-switch value that happens
-to equal `--card` in light mode but diverges from it in dark mode (`--card`
-is Foundations' `--theme-neutrals-900`, not 100%-mixed black). Lateral
-Toggles' own text already uses `--theme-alpha-black-switch-85`, which
-flips automatically with the app's light/dark theme. Nothing left for a
-`mode` prop to control — rendering this in a `.dark` tree reproduces
-Figma's `Mode=Dark` for free; rendering it outside one reproduces
-`Mode=Light`.
+simulation of dark mode, not something structurally different.
+`--effect-gradient-fade-up`'s two stops are both
+`--theme-alpha-white-switch-*` (see Gradients), and Lateral Toggles' own
+text already uses `--theme-alpha-black-switch-85` — both flip automatically
+with the app's light/dark theme. Nothing left for a `mode` prop to control
+— rendering this in a `.dark` tree reproduces Figma's `Mode=Dark` for free;
+rendering it outside one reproduces `Mode=Light`.
 
 ## No outer `opacity-50`
 
@@ -61,4 +70,4 @@ than re-centering it.
 | Concern | Foundations |
 | --- | --- |
 | Padding | `--spacing-md` (16px) |
-| Scrim gradient | `transparent` → `--card` |
+| Scrim gradient | `--effect-gradient-fade-up` |

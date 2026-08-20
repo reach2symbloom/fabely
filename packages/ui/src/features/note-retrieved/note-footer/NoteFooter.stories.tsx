@@ -4,7 +4,6 @@
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
-import type { ReactNode } from 'react';
 
 import { PlaygroundPanel } from '../../../../stories/PlaygroundPanel';
 import {
@@ -28,44 +27,31 @@ type Story = StoryObj<typeof meta>;
 const FIGMA_PREV = 'The dragon of the Eldergrove';
 const FIGMA_NEXT = 'The Wand that Would Not Fall';
 
-/** Matches Figma's own 495px specimen frame. */
-const DEMO_FRAME = 'w-[495px]';
-
-function CardBehind({ children }: { children: ReactNode }) {
-  return (
-    <div
-      className={`${DEMO_FRAME} relative overflow-hidden rounded-[length:var(--rounded-lg)] bg-[color:var(--card)]`}
-    >
-      <div className="h-32 overflow-hidden p-[var(--spacing-md)] text-[length:var(--text-paragraph-small-regular-font-size)] text-[color:var(--muted-foreground)]">
-        Scrollable note content sits behind the footer&apos;s scrim — this
-        block just stands in for it.
-      </div>
-      <div className="absolute inset-x-0 bottom-0">{children}</div>
-    </div>
-  );
-}
+/** Matches Figma's own 495px specimen frame. No rounded corners — Figma's
+ * own root frame has none, and this wrapper is just a width constraint. */
+const DEMO_FRAME = 'w-[495px] bg-[color:var(--card)]';
 
 function DemoExample() {
   return (
-    <CardBehind>
+    <div className={DEMO_FRAME}>
       <NoteFooter prevTitle={FIGMA_PREV} nextTitle={FIGMA_NEXT} />
-    </CardBehind>
+    </div>
   );
 }
 
 function FirstChapterExample() {
   return (
-    <CardBehind>
+    <div className={DEMO_FRAME}>
       <NoteFooter nextTitle={FIGMA_NEXT} />
-    </CardBehind>
+    </div>
   );
 }
 
 function LastChapterExample() {
   return (
-    <CardBehind>
+    <div className={DEMO_FRAME}>
       <NoteFooter prevTitle={FIGMA_PREV} />
-    </CardBehind>
+    </div>
   );
 }
 
@@ -74,14 +60,14 @@ function ShortcutExample() {
 
   return (
     <div className="flex flex-col items-center gap-[var(--spacing-sm)]">
-      <CardBehind>
+      <div className={DEMO_FRAME}>
         <NoteFooter
           prevTitle={FIGMA_PREV}
           nextTitle={FIGMA_NEXT}
           onPrevClick={() => setCount((n) => n - 1)}
           onNextClick={() => setCount((n) => n + 1)}
         />
-      </CardBehind>
+      </div>
       <span className="text-xs text-muted-foreground">
         Press ⌘←/⌘→ (or Ctrl+←/→) — count: {count}
       </span>
@@ -97,12 +83,12 @@ function NoteFooterPlayground() {
     <PlaygroundPanel
       preview={
         <div className="flex min-h-40 items-center justify-center">
-          <CardBehind>
+          <div className={DEMO_FRAME}>
             <NoteFooter
               prevTitle={hasPrev ? FIGMA_PREV : undefined}
               nextTitle={hasNext ? FIGMA_NEXT : undefined}
             />
-          </CardBehind>
+          </div>
         </div>
       }
       controls={

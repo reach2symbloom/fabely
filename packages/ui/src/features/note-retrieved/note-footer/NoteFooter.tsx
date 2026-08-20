@@ -1,18 +1,23 @@
 /**
  * Note Footer — a bottom-edge scrim over scrollable note content, with a
  * `prev`/`next` [Lateral Toggles](../../../atoms/lateral-toggles/README.md)
- * pair docked at its left/right edges. Fades from transparent to the card's
- * own background color, signalling more content beneath while still
- * surfacing chapter navigation.
+ * pair docked at its left/right edges. Fades from transparent to the
+ * theme's own surface color, signalling more content beneath while still
+ * surfacing chapter navigation. No rounded corners — Figma's own root
+ * frame has none.
+ *
+ * The scrim is Foundations' `--effect-gradient-fade-up`
+ * ([Gradients](../../../foundations/effects/gradients/README.md)),
+ * lifted out of this component into its own Effects token — Figma names
+ * this exact style "gradients/fade/fade up".
  *
  * Figma authors "Mode=Dark"/"Mode=Light" as two separate variants, each
  * hand-simulating the other theme's colors (the Dark variant hardcodes
  * white-on-charcoal rgba values rather than referencing a switch token).
- * Not reproduced as a prop here — the scrim fades to `--card` (so it always
- * matches the real card background, light or dark) and Lateral Toggles'
- * own text uses `--theme-alpha-black-switch-85`, which flips automatically
- * with the app's light/dark theme — nothing left for a `mode` prop to
- * control.
+ * Not reproduced as a prop here — `--effect-gradient-fade-up` and Lateral
+ * Toggles' own text (`--theme-alpha-black-switch-85`) both consume switch
+ * tokens, which flip automatically with the app's light/dark theme —
+ * nothing left for a `mode` prop to control.
  *
  * Visual source: Figma **Note Footer**
  * ([node](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16091-10278)
@@ -49,11 +54,7 @@ function NoteFooter({
       className={cn(
         'flex w-full items-center justify-between',
         'p-[var(--spacing-md)]',
-        /* Figma "fade up": transparent at the top edge (where card content
-         * scrolls under it) to `--card` at the bottom — the semantic
-         * token, not a raw alpha-switch value, so this matches whatever
-         * the real card background is (light or dark) without a mode prop. */
-        'bg-gradient-to-b from-transparent to-[color:var(--card)]',
+        'bg-[image:var(--effect-gradient-fade-up)]',
         className
       )}
     >
