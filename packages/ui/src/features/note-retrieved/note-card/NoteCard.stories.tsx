@@ -412,9 +412,9 @@ export const Overview: Story = {
           </li>
           <li>
             Footer Expand / more actions are hover-revealed only. Expand
-            only renders when body is truncated, and reuses{' '}
-            <code>onOpenNote</code> — the same hook the truncated body
-            itself calls. The 3-dot button opens a real{' '}
+            is available in every mode, short or long body alike, and
+            reuses <code>onOpenNote</code> — the same hook the truncated
+            body itself calls. The 3-dot button opens a real{' '}
             <code>DropdownMenu</code> (Copy note to clipboard / Copy all
             highlights / Delete note) — wire{' '}
             <code>onCopyNote</code> / <code>onCopyHighlights</code> /{' '}

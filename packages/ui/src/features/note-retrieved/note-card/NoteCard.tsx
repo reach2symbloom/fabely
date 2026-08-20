@@ -514,11 +514,12 @@ function NoteCard({
             <Badge variant={NOTE_TAG_BADGE_VARIANT[tag]}>{NOTE_TAG_LABEL[tag]}</Badge>
           </div>
 
-          {/* Expand / more — revealed on card hover, never at rest. Expand
-           * only appears when body is actually truncated — a short body is
-           * already fully visible and editable inline, nothing to expand
-           * into. Both share the row's hover reveal; expand reuses the same
-           * onOpenNote hook the truncated body button itself calls. */}
+          {/* Expand / more — revealed on card hover, never at rest.
+           * Available in every mode, short or long body alike — even a
+           * short, already-editable-inline note can still open the
+           * full-width view. Both share the row's hover reveal; expand
+           * reuses the same onOpenNote hook the truncated body button
+           * itself calls. */}
           <div
             className={cn(
               'flex shrink-0 items-center gap-[length:var(--spacing-3xs)] pl-[length:var(--spacing-xs)]',
@@ -526,17 +527,15 @@ function NoteCard({
               'group-hover/card:opacity-100 group-data-[force-hover=true]/card:opacity-100'
             )}
           >
-            {showReadOnlyBody && (
-              <IconButton
-                variant="ghost"
-                roundness="round"
-                size="sm"
-                aria-label="Expand note"
-                onClick={onOpenNote}
-              >
-                <ChevronsUpDownIcon aria-hidden />
-              </IconButton>
-            )}
+            <IconButton
+              variant="ghost"
+              roundness="round"
+              size="sm"
+              aria-label="Expand note"
+              onClick={onOpenNote}
+            >
+              <ChevronsUpDownIcon aria-hidden />
+            </IconButton>
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={

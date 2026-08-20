@@ -35,7 +35,7 @@ NoteCard (group/card, hover:bg-alpha-333)
         ├── title row (justify-between) — title Textarea (flex-1) — PinIconButton (optional) + GatherBookmarkButton
         ├── annotation Textarea (own row, full card width)
         ├── body — editable Textarea (short) OR truncated read-only button (long, calls onOpenNote)
-        └── footer: index. · date · wordcount · Badge — Expand (long body only) / more IconButtons (hover-revealed)
+        └── footer: index. · date · wordcount · Badge — Expand (every mode) / more DropdownMenu (hover-revealed)
 ```
 
 **Title and annotation are decoupled, on separate rows.** An earlier pass
@@ -116,11 +116,13 @@ named state, they decode into content state plus real CSS `:hover`:
 **The footer's first icon is "Expand," not "Reorder."** An earlier pass
 mislabeled Figma's `chevrons-up-down` icon as a drag-reorder handle. Figma's
 own component description for that exact icon (`1463:191`... `1463:194`) is
-literally "expand, unfold, vertical" — it's an expand affordance, and it
-only makes sense once there's something to expand *into*. It's now wired
-directly to the same `onOpenNote` hook the truncated body button itself
-calls, and only renders when body is actually truncated — a short body is
-already fully visible and editable inline, so there's nothing to expand.
+literally "expand, unfold, vertical" — it's an expand affordance. It's
+wired directly to the same `onOpenNote` hook the truncated body button
+itself calls, and renders in every mode — short or long body alike (an
+earlier pass gated it to long-body-only, reasoning a short note was
+"already fully visible, nothing to expand into"; that read too literally —
+opening the full-width view is a generally useful action regardless of
+body length, not just an escape hatch for truncation).
 
 **`mode` is the surrounding page context, not derived from `title`.** An
 earlier pass derived the bookmark control's `mode` from whether the note had
