@@ -133,31 +133,57 @@ const GAP_HYSTERESIS_PX = 4;
  *
  * A row this list is currently dragging has already collapsed to ~0
  * height (see `ParagraphList.tsx`), so it never meaningfully "contains"
- * any pointer position — it's skipped over on the way past, same as if
- * its former geometry weren't in this calculation at all. Rows with no
- * live node yet (shouldn't happen post-mount, but `getRowNode` is a plain
- * lookup, not a guarantee) are skipped the same way.
+ * any pointer position — it's skipped by id, not by measuring a
+ * near-zero `rect.height`: the collapsing wrapper's own grid track does
+ * shrink to `0px`, but `ParagraphBlock` inside it keeps reporting its
+ * full, un-shrunk `getBoundingClientRect()` regardless (the ancestor's
+ * `overflow-hidden` clips it from view, it doesn't shrink the child's own
+ * box) — so a height check here would silently never fire, leaving the
+ * dragged row's stale rect competing for gap resolution the entire drag.
+ * Rows with no live node yet (shouldn't happen post-mount, but
+ * `getRowNode` is a plain lookup, not a guarantee) are skipped the same
+ * way as a missing rect always was.
  */
 function nearestGapIndex(
   items: ParagraphListItem[],
   pointerY: number,
   getRowNode: (id: string) => HTMLElement | null,
   currentGapIndex: ParagraphGapIndex | null,
+  draggedId: string,
 ): ParagraphGapIndex | null {
   if (items.length === 0) return null;
 
   let resolved: ParagraphGapIndex | null = null;
   for (let i = 0; i < items.length; i++) {
+    if (items[i].id === draggedId) continue;
     const rect = getRowNode(items[i].id)?.getBoundingClientRect();
-    if (!rect || rect.height <= 0) continue; // the collapsing dragged row itself
+    if (!rect) continue;
 
     if (pointerY <= rect.top) {
       resolved = i;
       break;
     }
     if (pointerY < rect.bottom) {
-      const rowMidY = rect.top + rect.height / 2;
-      resolved = pointerY < rowMidY ? i : i + 1;
+      // Ascending (the active gap is currently below this row, i.e. the
+      // pointer arrived from beneath and is moving up through this row's
+      // body without yet reaching its own top): stay at `i + 1` rather
+      // than jumping to `i` at the row's midpoint. `i`'s own `DropTarget`
+      // renders at `rect.top`, not the midpoint — resolving to `i` here
+      // would light it up while the pointer is still up to half a row
+      // away from where it's drawn. The clause above already resolves to
+      // `i` the instant `pointerY` actually reaches `rect.top`, so this
+      // only delays the switch until the divider and the pointer meet.
+      // Descending (no established "coming from below" state) keeps the
+      // row's own midpoint — that direction already matches the pointer
+      // correctly, since entering a row from above is caught by the
+      // clause above right as it happens.
+      const risingFromBelow = currentGapIndex !== null && currentGapIndex > i;
+      if (risingFromBelow) {
+        resolved = i + 1;
+      } else {
+        const rowMidY = rect.top + rect.height / 2;
+        resolved = pointerY < rowMidY ? i : i + 1;
+      }
       break;
     }
     // Past this row entirely — keep walking; if nothing else matches,
@@ -222,7 +248,13 @@ export function useParagraphListDragAndDrop({
   function resolveGapIndex(event: DragMoveEvent | DragEndEvent): ParagraphGapIndex | null {
     const pointerY = currentPointerY(event);
     if (pointerY !== null) {
-      return nearestGapIndex(itemsRef.current, pointerY, getRowNode, dropGapIndexRef.current);
+      return nearestGapIndex(
+        itemsRef.current,
+        pointerY,
+        getRowNode,
+        dropGapIndexRef.current,
+        String(event.active.id),
+      );
     }
     const overId = event.over ? String(event.over.id) : null;
     const overIndex = overId ? itemsRef.current.findIndex((item) => item.id === overId) : -1;
