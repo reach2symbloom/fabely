@@ -45,6 +45,23 @@ function DemoExample() {
   );
 }
 
+function ChevronExample() {
+  return (
+    <div className={`${DEMO_WIDTH} flex flex-col gap-[var(--spacing-lg)]`}>
+      <div>
+        <MockRow label="Paragraph one" />
+        <DropTarget active />
+        <MockRow label="Paragraph two" />
+      </div>
+      <div>
+        <MockRow label="Paragraph one" />
+        <DropTarget active chevron />
+        <MockRow label="Paragraph two" />
+      </div>
+    </div>
+  );
+}
+
 function GapPositionExample() {
   const [activeGap, setActiveGap] = useState(1);
 
@@ -70,6 +87,7 @@ function GapPositionExample() {
 
 function DropTargetPlayground() {
   const [active, setActive] = useState(true);
+  const [chevron, setChevron] = useState(false);
 
   return (
     <PlaygroundPanel
@@ -77,7 +95,7 @@ function DropTargetPlayground() {
         <div className="flex min-h-40 w-full items-center justify-center p-[var(--spacing-lg)]">
           <div className={DEMO_WIDTH}>
             <MockRow label="Paragraph one" />
-            <DropTarget active={active} />
+            <DropTarget active={active} chevron={chevron} />
             <MockRow label="Paragraph two" />
           </div>
         </div>
@@ -91,6 +109,17 @@ function DropTargetPlayground() {
             options={[
               { value: 'true', label: 'Active' },
               { value: 'false', label: 'Inactive' },
+            ]}
+            fullWidth
+            className="col-span-2"
+          />
+          <InlineSegmentedControl
+            label="Chevron"
+            value={chevron ? 'true' : 'false'}
+            onChange={(v) => setChevron(v === 'true')}
+            options={[
+              { value: 'false', label: 'No' },
+              { value: 'true', label: 'Yes' },
             ]}
             fullWidth
             className="col-span-2"
@@ -116,6 +145,9 @@ export const Overview: Story = {
           <PrimitiveGalleryItem label="Gap position" fill>
             <GapPositionExample />
           </PrimitiveGalleryItem>
+          <PrimitiveGalleryItem label="Chevron" fill>
+            <ChevronExample />
+          </PrimitiveGalleryItem>
         </div>
       }
       usageGuidance={
@@ -137,6 +169,11 @@ export const Overview: Story = {
             component README) rather than Paragraph List growing a second
             copy of the same Figma component.
           </li>
+          <li>
+            <code>chevron</code> adds Figma&apos;s <code>Chevron=Yes</code>{' '}
+            down-glyph centered under the rail — off by default, matching
+            both current callers. See "Chevron" above.
+          </li>
         </ul>
       }
       accessibility={
@@ -157,6 +194,10 @@ export const Demo: Story = {
 
 export const GapPosition: Story = {
   render: () => <GapPositionExample />,
+};
+
+export const Chevron: Story = {
+  render: () => <ChevronExample />,
 };
 
 export const Playground: Story = {

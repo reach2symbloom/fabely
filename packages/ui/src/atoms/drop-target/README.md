@@ -9,11 +9,26 @@ computing *which* gap is currently active and re-renders this in that gap.
 
 | Source | Role |
 | --- | --- |
-| Figma [Paragraph drop line](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16372-4438) (`16372:4438`), `Chevron=No, Orientation=H` variant | Visual |
+| Figma [Paragraph drop line](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16372-4438) (`16372:4438`), `Orientation=H` | Rail, both `Chevron` values |
+| Figma [Chevron=Yes, Orientation=H](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16372-4419) (`16372:4419`) | The down-glyph's exact vector + glow |
 
-The `Chevron=Yes` and `Orientation=V` variants in that Figma component
-aren't implemented — neither current caller (Paragraph List, Chapter Menu's
-outline drag) uses them. Add them if/when a caller actually needs one.
+The `Orientation=V` variant in that Figma component isn't implemented —
+neither current caller (Paragraph List, Chapter Menu's outline drag) uses
+it. Add it if/when a caller actually needs one.
+
+## Chevron glyph is hand-built SVG, not a Lucide icon
+
+`chevron` renders Figma's own vector verbatim (filled shape, not a Lucide
+stroke icon — no `ChevronDown` in that set is pixel-equivalent), same
+"copy the exact export" precedent Split & Parse's hand-built check-circle
+sets. Its drop-shadow glow can't reuse the rail's `linear-gradient`
+technique — it's an SVG `<filter>` (`feGaussianBlur` + `feColorMatrix`),
+and `feColorMatrix` can't consume a CSS custom property the way `fill`
+can — so the matrix's color values are `--tw-raw-secondary-200` hand-
+converted to the 0–1 decimals it requires, literal, same as how the
+Foundations glows are documented as bypassing tokens for invariant visual
+treatments. Each `<filter id>` gets a `useId()` suffix — a bare, literal
+id copied onto two `DropTarget`s on the same page would collide.
 
 ## Promoted from Chapter Menu, not duplicated
 
@@ -49,6 +64,7 @@ happens not to need it (see its README).
 | Prop | Default | Notes |
 | --- | --- | --- |
 | `active` | `false` | Whether this is the live prospective insertion point right now |
+| `chevron` | `false` | Figma's `Chevron=Yes` variant — adds the down-glyph centered under the rail |
 | `className` | — | Merged onto the root — e.g. a caller's own gap-compensation margin |
 
 `SecondaryGlowRail` (the rail with no open/close animation) is also
@@ -63,3 +79,4 @@ Add Section Inline Button's proximity-revealed divider.
 | Rail thickness | `--stroke-thin` (solid) / `--stroke-regular` (glow) |
 | Slot min-height | `--spacing-xl` |
 | Open/close motion | `--duration-normal`, `ease-emphasized` |
+| Chevron size | `--icon-sm` (16px, matches its own 16×16 viewBox) |

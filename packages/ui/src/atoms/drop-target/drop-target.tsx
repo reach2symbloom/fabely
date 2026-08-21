@@ -7,9 +7,9 @@
  * Promoted from Chapter Menu's own `DropIndicatorDivider`/`DropIndicatorSlot`
  * (originally `ChapterMenu.stories.tsx`) into a shared atom rather than
  * duplicating it for Paragraph List — both are the same Figma component,
- * **Paragraph drop line** (`Chevron=No, Orientation=H` variant; the
- * `Chevron=Yes` and `Orientation=V` variants aren't used by either caller
- * yet). `SecondaryGlowRail` itself moved here too (was previously defined in
+ * **Paragraph drop line** (`Orientation=H`; the `Orientation=V` variant
+ * isn't used by either caller yet). `SecondaryGlowRail` itself moved here
+ * too (was previously defined in
  * `features/chapter-nav/add-section-inline-button/AddSectionInlineButton.tsx`,
  * which now imports it back) — an atom can't reach into a feature for a
  * piece it depends on.
@@ -27,10 +27,16 @@
  * a Drop Target concern. Pass it (or an equivalent) via `className` if a
  * caller's own row gap needs the same treatment.
  *
+ * `chevron` adds the **Chevron=Yes** variant's centered down-glyph below
+ * the rail — see `DropLineChevron` below for why its glow can't be
+ * tokenized the way the rail's can.
+ *
  * Visual source: Figma **Paragraph drop line**
  * ([node](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16372-4438)
  * `16372:4438`).
  */
+import { useId } from 'react';
+
 import { cn } from '@/lib/utils';
 
 const SECONDARY_GLOW_LINE =
@@ -60,13 +66,83 @@ export function SecondaryGlowRail({ className }: { className?: string }) {
   );
 }
 
+/**
+ * The `Chevron=Yes` variant's down-glyph, centered under the rail. A filled
+ * shape, not a Lucide stroke icon (Figma's own vector, copied verbatim —
+ * same "hand-built from the exact export" precedent Split & Parse's
+ * check-circle sets) — with its own drop-shadow glow, distinct from the
+ * rail's `linear-gradient` glow because an SVG `<filter>`'s
+ * `feColorMatrix` can't consume a CSS custom property the way `fill` can;
+ * the matrix values below are `--tw-raw-secondary-200` (`#BDB7EA`)
+ * hand-converted to the 0–1 decimals `feColorMatrix` requires. Same
+ * "invariant visual treatment bypasses tokens" precedent as the
+ * Foundations glows.
+ *
+ * `filterId` is a per-instance suffix (`useId()` in `DropTarget`) — a
+ * `<filter id>` is a document-wide id; two `DropTarget`s both rendering
+ * `filter0_d_16372_4423` verbatim would collide and one would silently
+ * lose its glow.
+ */
+function DropLineChevron({ filterId }: { filterId: string }) {
+  return (
+    <svg
+      aria-hidden
+      className="pointer-events-none size-[length:var(--icon-sm)]"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g filter={`url(#${filterId})`}>
+        <path
+          d="M11.5286 5.52864C11.789 5.26829 12.211 5.26829 12.4713 5.52864C12.7317 5.78899 12.7317 6.211 12.4713 6.47134L8.47134 10.4713C8.211 10.7317 7.78899 10.7317 7.52864 10.4713L3.52864 6.47134C3.26829 6.211 3.26829 5.78899 3.52864 5.52864C3.78899 5.26829 4.211 5.26829 4.47134 5.52864L7.00004 8.00004H9.00004L11.5286 5.52864Z"
+          fill="var(--tw-raw-secondary-200)"
+        />
+      </g>
+      <defs>
+        <filter
+          id={filterId}
+          x="1.33337"
+          y="3.33337"
+          width="13.3333"
+          height="9.33325"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset />
+          <feGaussianBlur stdDeviation="1" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0.741176 0 0 0 0 0.717647 0 0 0 0 0.917647 0 0 0 1 0"
+          />
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
+          <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
+        </filter>
+      </defs>
+    </svg>
+  );
+}
+
 export type DropTargetProps = {
   /** Whether this is the live prospective insertion point right now. */
   active?: boolean;
+  /** Figma's `Chevron=Yes` variant — adds the down-glyph centered under
+   * the rail. Default `false` (`Chevron=No`), matching both current
+   * callers (Paragraph List, Chapter Menu). */
+  chevron?: boolean;
   className?: string;
 };
 
-export function DropTarget({ active = false, className }: DropTargetProps) {
+export function DropTarget({ active = false, chevron = false, className }: DropTargetProps) {
+  const filterId = `drop-target-chevron-glow-${useId()}`;
+
   return (
     <div
       aria-hidden={!active}
@@ -79,8 +155,11 @@ export function DropTarget({ active = false, className }: DropTargetProps) {
       )}
     >
       <div className="min-h-0 overflow-hidden">
-        <div className="pointer-events-none relative z-20 flex min-h-[length:var(--spacing-xl)] items-center">
-          <SecondaryGlowRail />
+        <div className="pointer-events-none relative z-20 flex flex-col items-center">
+          <div className="flex min-h-[length:var(--spacing-xl)] w-full items-center">
+            <SecondaryGlowRail />
+          </div>
+          {chevron ? <DropLineChevron filterId={filterId} /> : null}
         </div>
       </div>
     </div>
