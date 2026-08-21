@@ -75,8 +75,11 @@ export type UseParagraphListDragAndDropOptions = {
   items: ParagraphListItem[];
   onItemsChange: (items: ParagraphListItem[]) => void;
   /** Fires once a drag resolves to a real move, with the id that just
-   * moved — callers use this to keep it `selected` after the drop. */
-  onMoved?: (id: string) => void;
+   * moved and its index before/after — callers use the id to keep it
+   * `selected` after the drop, and the indices to emit a `moveParagraph`
+   * history event (see `paragraph-list-history.ts`). Both indices are
+   * captured at commit time, not re-derived later. */
+  onMoved?: (id: string, fromIndex: number, toIndex: number) => void;
   /** Live DOM node for a row, keyed by item id — Paragraph List's own ref
    * map. Measured fresh on every move; see module doc comment for why
    * dnd-kit's own rect cache isn't used instead. */
@@ -284,8 +287,11 @@ export function useParagraphListDragAndDrop({
       return;
     }
 
-    onItemsChange(reorderParagraphs(itemsRef.current, activeIdStr, gapIndex));
-    onMoved?.(activeIdStr);
+    const fromIndex = itemsRef.current.findIndex((item) => item.id === activeIdStr);
+    const next = reorderParagraphs(itemsRef.current, activeIdStr, gapIndex);
+    const toIndex = next.findIndex((item) => item.id === activeIdStr);
+    onItemsChange(next);
+    onMoved?.(activeIdStr, fromIndex, toIndex);
   }
 
   function onDragCancel() {

@@ -130,6 +130,13 @@ export type ParagraphBlockProps = React.HTMLAttributes<HTMLDivElement> & {
    * re-renders — only an actual new request (a changed value) re-fires it. */
   autoFocus?: boolean;
   autoFocusOffset?: number;
+  /** Purely presentational vertical nudge (px, `0` default) on an inner
+   * wrapper around the handle + text — never on the root this component
+   * forwards `ref` to. A caller (Paragraph List) uses this to visually
+   * separate a block from an active `DropTarget` divider adjacent to it
+   * without moving this block's own measured rect, which drag targeting
+   * reads directly off the root. See that caller for why. */
+  contentOffsetY?: number;
 };
 
 /** Movement past this distance (px) turns a press into a drag rather than a
@@ -281,6 +288,7 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
       onBackspaceAtStart,
       autoFocus,
       autoFocusOffset = 0,
+      contentOffsetY = 0,
       className,
       children,
       style,
@@ -324,6 +332,20 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
     // of focus this is and only show the ring for the real keyboard case.
     const pointerFocusRef = React.useRef(false);
     const [showFocusRing, setShowFocusRing] = React.useState(false);
+    // Suppresses *both* the handle's `group-hover` and `group-focus-within`
+    // visibility triggers while the paragraph text itself holds focus
+    // (typing). `focus-within` alone can't distinguish "the text is
+    // focused" from "the handle itself is Tab-focused" — and the handle
+    // does still need to stay visible for the latter (keyboard users
+    // tabbing to it shouldn't land on an invisible button) — so this only
+    // ever suppresses the rule, on the one element it shouldn't apply to.
+    // Hover needs suppressing too, not just focus-within: clicking into
+    // the text leaves the pointer sitting right where it clicked, so
+    // `:hover` alone would keep the handle visible until the pointer
+    // physically moved away — a lingering, distracting handle right after
+    // the click that actually focused the text, not a stale hover from
+    // before it.
+    const [isTextFocused, setIsTextFocused] = React.useState(false);
 
     // Reduced motion keeps the glow (it's not a bounce or a translation,
     // just a fade) but drops the "very slight scale" — scale is the part
@@ -341,125 +363,168 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
         data-state={state}
         style={style}
         className={cn(
-          'group/paragraph-block flex w-full items-start gap-[length:var(--spacing-sm)]',
-          'border border-solid p-[length:var(--spacing-sm)]',
+          // `group/paragraph-block` lives here, not on the inner
+          // transform wrapper below — the handle's hover reveal
+          // (`group-hover/paragraph-block`) needs to cover this root's
+          // own `p-sm` padding too (the gutter between the card's border
+          // and the handle/text), which is outside the inner wrapper's
+          // own box. Purely a CSS hover-scope marker; doesn't interact
+          // with `contentOffsetY`'s transform, which stays on the inner
+          // wrapper for its own, separate reason (see that prop's doc
+          // comment).
+          'group/paragraph-block border border-solid p-[length:var(--spacing-sm)]',
           'transition-[border-color,border-radius,background-color,box-shadow] duration-fast ease-emphasized',
           CONTAINER_STATE_STYLES[state],
           className,
         )}
         {...props}
       >
-        <motion.button
-          type="button"
-          aria-label="Drag to reorder paragraph"
-          initial="rest"
-          whileHover="hover"
-          className={cn(
-            // Anchored to the first line's own line-height geometry, not a
-            // hand-tuned constant: `(line-height - icon size) / 2` is the
-            // offset that centers a --icon-lg glyph against a line box of
-            // --text-paragraph-serif-regular-line-height — so this stays
-            // correct if either token changes, and holds regardless of how
-            // many lines follow (only the *first* line's own box matters).
-            // +1px on top is a deliberate optical nudge past that exact
-            // math, not a rounding fix.
-            'relative flex shrink-0 cursor-grab items-center justify-center',
-            'pt-[calc((var(--text-paragraph-serif-regular-line-height)-var(--icon-lg))/2+1px)]',
-            'text-[color:var(--muted-foreground)] opacity-0',
-            'rounded-[length:var(--rounded-xs)] outline-none',
-            'transition-[opacity,color,box-shadow] duration-fast ease-emphasized',
-            'active:cursor-grabbing',
-            // Same switch-token family as the rest text/muted-foreground,
-            // one alpha stop up — deepens (more black) in light mode,
-            // lightens (more white) in dark mode, automatically, since
-            // it's the theme flip already baked into the token, not two
-            // separate color values to keep in sync. Secondary to the
-            // glow below — a slight brighten, not the main hover cue.
-            'hover:text-[color:var(--theme-alpha-black-switch-80)]',
-            showFocusRing && 'shadow-[var(--effect-focus-ring-secondary)]',
-            'group-hover/paragraph-block:opacity-100 group-focus-within/paragraph-block:opacity-100',
-            forceHandleVisible && 'opacity-100',
-          )}
-          onPointerDown={(event) => {
-            pointerFocusRef.current = true;
-            handlePointerDown?.(event);
-            detectPress(event);
-          }}
-          onFocus={(event) => {
-            if (pointerFocusRef.current) {
-              pointerFocusRef.current = false;
-            } else {
-              setShowFocusRing(true);
+        {/* Presentational only — `contentOffsetY` nudges handle + text as
+            a unit, never the root above (what drag targeting measures).
+            See the prop's own doc comment. */}
+        <motion.div
+          className="flex w-full items-start gap-[length:var(--spacing-sm)]"
+          animate={{ y: contentOffsetY }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
+        >
+          {/* Expanded hover/click target, reaching into the root's own
+              padding on three sides (negative margin) while an equal
+              padding keeps the button's own rendered position unchanged
+              — same "bigger hit zone, same visuals" technique as the
+              root's `group/paragraph-block` extension, just narrower in
+              scope. `group/handle` is deliberately separate from
+              `group/paragraph-block`: hovering here should reveal the
+              handle even while `isTextFocused` (typing) suppresses the
+              whole-card hover/focus-within triggers below — moving the
+              pointer specifically toward the handle reads as intent to
+              grab the block, not the ambient "mouse happens to be
+              somewhere on the card" that made the whole-card trigger
+              distracting mid-edit. Not extended rightward — that's the
+              text's own space, gap-sm already separates them. */}
+          <div className="group/handle -mt-[length:var(--spacing-sm)] -mb-[length:var(--spacing-sm)] -ml-[length:var(--spacing-sm)] shrink-0 pt-[length:var(--spacing-sm)] pb-[length:var(--spacing-sm)] pl-[length:var(--spacing-sm)]">
+            <motion.button
+              type="button"
+              aria-label="Drag to reorder paragraph"
+              initial="rest"
+              whileHover="hover"
+              className={cn(
+                // Anchored to the first line's own line-height geometry, not a
+                // hand-tuned constant: `(line-height - icon size) / 2` is the
+                // offset that centers a --icon-lg glyph against a line box of
+                // --text-paragraph-serif-regular-line-height — so this stays
+                // correct if either token changes, and holds regardless of how
+                // many lines follow (only the *first* line's own box matters).
+                // +1px on top is a deliberate optical nudge past that exact
+                // math, not a rounding fix.
+                'relative flex shrink-0 cursor-grab items-center justify-center',
+                'pt-[calc((var(--text-paragraph-serif-regular-line-height)-var(--icon-lg))/2+1px)]',
+                // `-20`, not `--muted-foreground` (`-60`) — fainter at rest
+                // than the rest of the app's muted text, since this icon
+                // only exists to hint "draggable" once the row's already
+                // hovered; it doesn't need to compete with actual content.
+                'text-[color:var(--theme-alpha-black-switch-20)] opacity-0',
+                'rounded-[length:var(--rounded-xs)] outline-none',
+                'transition-[opacity,color,box-shadow] duration-fast ease-emphasized',
+                'active:cursor-grabbing',
+                // Same switch-token family as the rest color above, two
+                // alpha stops up — deepens (more black) in light mode,
+                // lightens (more white) in dark mode, automatically, since
+                // it's the theme flip already baked into the token, not two
+                // separate color values to keep in sync. Secondary to the
+                // glow below — a slight brighten, not the main hover cue.
+                'hover:text-[color:var(--theme-alpha-black-switch-80)]',
+                showFocusRing && 'shadow-[var(--effect-focus-ring-secondary)]',
+                !isTextFocused &&
+                  'group-hover/paragraph-block:opacity-100 group-focus-within/paragraph-block:opacity-100',
+                // Never gated on `isTextFocused` — see `group/handle`'s own
+                // comment above for why hovering specifically toward the
+                // handle should still reveal it even mid-edit.
+                'group-hover/handle:opacity-100',
+                forceHandleVisible && 'opacity-100',
+              )}
+              onPointerDown={(event) => {
+                pointerFocusRef.current = true;
+                handlePointerDown?.(event);
+                detectPress(event);
+              }}
+              onFocus={(event) => {
+                if (pointerFocusRef.current) {
+                  pointerFocusRef.current = false;
+                } else {
+                  setShowFocusRing(true);
+                }
+                handleFocus?.(event);
+              }}
+              onBlur={(event) => {
+                setShowFocusRing(false);
+                handleBlur?.(event);
+              }}
+              {...(restHandleProps as React.ComponentProps<typeof motion.button>)}
+            >
+              {/* Tightly bounds just the dots (exactly `--icon-lg`), independent
+                  of the button's own `pt-xs` padding — the glow below centers
+                  on *this* box, not the button's, so padding can't throw its
+                  alignment off. */}
+              <span className="relative inline-flex size-[length:var(--icon-lg)] items-center justify-center">
+                <motion.span
+                  aria-hidden
+                  variants={glowVariants}
+                  transition={TRANSITION_EMPHASIZED_FAST}
+                  // 14×22 — narrower than tall, matching the dots' own 2×3
+                  // cluster (roughly 10×18 within the 24×24 icon, per its
+                  // `inset-[12.5%_29.17%]` dot layout), not the icon's own
+                  // square footprint.
+                  className="pointer-events-none absolute top-1/2 left-1/2 h-[22px] w-[14px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+                  style={{ background: HANDLE_GLOW }}
+                />
+                <GripVerticalIcon className="relative size-[length:var(--icon-lg)]" />
+              </span>
+            </motion.button>
+          </div>
+          <p
+            ref={textRef}
+            contentEditable={onTextChange !== undefined}
+            suppressContentEditableWarning
+            onClick={onTextClick}
+            onFocus={() => setIsTextFocused(true)}
+            onBlur={(event) => {
+              setIsTextFocused(false);
+              onTextChange?.(event.currentTarget.textContent ?? '');
+            }}
+            onKeyDown={
+              (onEnter || onBackspaceAtStart) &&
+              ((event) => {
+                // Shift+Enter isn't handled at all — falls through to the
+                // browser's own contentEditable behavior, which inserts a
+                // soft line break in place. Only plain Enter splits.
+                if (onEnter && event.key === 'Enter' && !event.shiftKey) {
+                  event.preventDefault();
+                  onEnter(getCaretOffset(event.currentTarget));
+                  return;
+                }
+                // Only a *collapsed* caret genuinely at offset 0 — a real
+                // selection starting at 0 should delete that selection first,
+                // the browser's own default, not merge into the previous
+                // block.
+                if (
+                  onBackspaceAtStart &&
+                  event.key === 'Backspace' &&
+                  window.getSelection()?.isCollapsed &&
+                  getCaretOffset(event.currentTarget) === 0
+                ) {
+                  event.preventDefault();
+                  onBackspaceAtStart();
+                }
+              })
             }
-            handleFocus?.(event);
-          }}
-          onBlur={(event) => {
-            setShowFocusRing(false);
-            handleBlur?.(event);
-          }}
-          {...(restHandleProps as React.ComponentProps<typeof motion.button>)}
-        >
-          {/* Tightly bounds just the dots (exactly `--icon-lg`), independent
-              of the button's own `pt-xs` padding — the glow below centers
-              on *this* box, not the button's, so padding can't throw its
-              alignment off. */}
-          <span className="relative inline-flex size-[length:var(--icon-lg)] items-center justify-center">
-            <motion.span
-              aria-hidden
-              variants={glowVariants}
-              transition={TRANSITION_EMPHASIZED_FAST}
-              // 14×22 — narrower than tall, matching the dots' own 2×3
-              // cluster (roughly 10×18 within the 24×24 icon, per its
-              // `inset-[12.5%_29.17%]` dot layout), not the icon's own
-              // square footprint.
-              className="pointer-events-none absolute top-1/2 left-1/2 h-[22px] w-[14px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-              style={{ background: HANDLE_GLOW }}
-            />
-            <GripVerticalIcon className="relative size-[length:var(--icon-lg)]" />
-          </span>
-        </motion.button>
-        <p
-          ref={textRef}
-          contentEditable={onTextChange !== undefined}
-          suppressContentEditableWarning
-          onClick={onTextClick}
-          onBlur={
-            onTextChange &&
-            ((event) => onTextChange(event.currentTarget.textContent ?? ''))
-          }
-          onKeyDown={
-            (onEnter || onBackspaceAtStart) &&
-            ((event) => {
-              // Shift+Enter isn't handled at all — falls through to the
-              // browser's own contentEditable behavior, which inserts a
-              // soft line break in place. Only plain Enter splits.
-              if (onEnter && event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                onEnter(getCaretOffset(event.currentTarget));
-                return;
-              }
-              // Only a *collapsed* caret genuinely at offset 0 — a real
-              // selection starting at 0 should delete that selection first,
-              // the browser's own default, not merge into the previous
-              // block.
-              if (
-                onBackspaceAtStart &&
-                event.key === 'Backspace' &&
-                window.getSelection()?.isCollapsed &&
-                getCaretOffset(event.currentTarget) === 0
-              ) {
-                event.preventDefault();
-                onBackspaceAtStart();
-              }
-            })
-          }
-          className={cn(
-            'min-w-px flex-1 [word-break:break-word] outline-none',
-            TEXT_STYLE,
-          )}
-        >
-          {children}
-        </p>
+            className={cn(
+              'min-w-px flex-1 [word-break:break-word] outline-none',
+              TEXT_STYLE,
+            )}
+          >
+            {children}
+          </p>
+        </motion.div>
       </div>
     );
   },

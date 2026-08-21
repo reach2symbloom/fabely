@@ -70,6 +70,7 @@ import { cn } from '@/lib/utils';
 import { ParagraphBlock } from '@/molecules/paragraph-block';
 
 import { moveParagraphByOffset, type ParagraphListItem } from './paragraph-list-dnd';
+import type { ParagraphHistoryEvent } from './paragraph-list-history';
 import {
   paragraphCollisionDetection,
   useParagraphListDragAndDrop,
@@ -77,10 +78,19 @@ import {
 } from './use-paragraph-list-dnd-kit';
 
 export type { ParagraphListItem };
+export type { ParagraphHistoryEvent } from './paragraph-list-history';
 
 export type ParagraphListProps = {
   items: ParagraphListItem[];
   onItemsChange: (items: ParagraphListItem[]) => void;
+  /** Fires once per completed user action — edit (on blur), split
+   * (Enter), merge (Backspace), or move (drag drop / keyboard reorder
+   * step) — with enough before/after data for a caller to undo and redo
+   * it deterministically. Optional and additive: omitting it changes
+   * nothing about how this component behaves. See
+   * `paragraph-list-history.ts` for the full contract and why it stops
+   * at *reporting* rather than owning an undo/redo stack itself. */
+  onHistoryEvent?: (event: ParagraphHistoryEvent) => void;
   className?: string;
 };
 
@@ -95,6 +105,60 @@ const ROW_GAP = '0px';
 /** Each row is pulled up by half of this, top and bottom, so two adjacent
  * rows end up `ROW_OVERLAP` closer than the bare 0px `ROW_GAP` alone. */
 const ROW_OVERLAP = 4;
+
+/** `contentOffsetY` for the row immediately above an active *middle* gap
+ * (`distance` `1` in `contentOffsetForRow` below, gap before some other
+ * row) — negative pulls it up, away from the gap, opening breathing room.
+ * Rows farther above fall off from this. */
+const NEAREST_ABOVE_OFFSET_MIDDLE = -22;
+/** Same, but for the row immediately above the *tail* gap specifically
+ * (the last row, only when the active gap is `items.length`) — smaller
+ * magnitude than `NEAREST_ABOVE_OFFSET_MIDDLE`: a middle gap also has a
+ * row *below* it nudging closer via `NEAREST_BELOW_OFFSET`, balancing the
+ * space around the divider from the other side; the tail gap has no row
+ * below it to do that, so the same magnitude as the middle case reads as
+ * noticeably more air above it than any middle gap has. */
+const NEAREST_ABOVE_OFFSET_TAIL = -6;
+/** `contentOffsetY` for the row the active gap renders against (`distance`
+ * `1` below it) — small and negative, nudging it up toward the divider
+ * rather than leaving it hugging the gap from below. Rows farther below
+ * fall off from this. The tail gap has no row here (nothing follows it). */
+const NEAREST_BELOW_OFFSET = -2;
+/** Weight applied to the nearest-row offset above at each step of
+ * index-distance from the active gap — index `0` is `distance` `1` (the
+ * nearest row on that side), tapering out by the 4th. A local displacement
+ * falloff (same feel as macOS Dock magnification) rather than only the
+ * immediate neighbor moving while everything past it stays rigid and gets
+ * visually crowded. Distances beyond this array's length get no offset
+ * (`0`). */
+const OFFSET_FALLOFF = [1, 0.6, 0.3, 0.12];
+
+/** `contentOffsetY` for the row at `index`, given the currently active gap
+ * (`null` when no drag is in progress) and the list's current `itemCount`
+ * (to tell a middle gap from the tail gap, `dropGapIndex === itemCount`).
+ * Rows above the gap (`index < dropGapIndex`) taper from
+ * `NEAREST_ABOVE_OFFSET_MIDDLE` or `_TAIL`; the gap's own row and rows
+ * below it (`index >= dropGapIndex`) taper from `NEAREST_BELOW_OFFSET` —
+ * two separate falloff series, not one continuous one, since the two sides
+ * move by different amounts even at distance `1` (see those constants).
+ * Purely presentational: never read by `nearestGapIndex` or any row's own
+ * measured rect, only passed to `ParagraphBlock`'s `contentOffsetY` prop. */
+function contentOffsetForRow(
+  index: number,
+  dropGapIndex: number | null,
+  itemCount: number,
+): number {
+  if (dropGapIndex === null) return 0;
+  const distance = index < dropGapIndex ? dropGapIndex - index : index - dropGapIndex + 1;
+  const weight = OFFSET_FALLOFF[distance - 1];
+  if (weight === undefined) return 0;
+  if (index < dropGapIndex) {
+    const nearestAbove =
+      dropGapIndex === itemCount ? NEAREST_ABOVE_OFFSET_TAIL : NEAREST_ABOVE_OFFSET_MIDDLE;
+    return nearestAbove * weight;
+  }
+  return NEAREST_BELOW_OFFSET * weight;
+}
 
 /** Dragged-block-in-`DragOverlay` background: translucent + blurred
  * rather than `drag` chrome's normal opaque `--card` fill, so the
@@ -112,6 +176,7 @@ function ParagraphListRow({
   item,
   isSelected,
   isDropBefore,
+  contentOffsetY,
   isAnyDragging,
   autoFocus,
   autoFocusOffset,
@@ -126,6 +191,7 @@ function ParagraphListRow({
   item: ParagraphListItem;
   isSelected: boolean;
   isDropBefore: boolean;
+  contentOffsetY: number;
   isAnyDragging: boolean;
   autoFocus: boolean;
   autoFocusOffset: number;
@@ -181,7 +247,20 @@ function ParagraphListRow({
         <DropTarget active={isDropBefore} chevron />
       </div>
       <div
-        className="grid overflow-hidden transition-[grid-template-rows,opacity] duration-normal ease-emphasized"
+        // `overflow-hidden` only while this row has no falloff offset —
+        // it exists to hide this row's own collapse/grow-back tween
+        // (`gridTemplateRows` below), which needs it, but with zero slack
+        // beyond the content's natural size it also clips a lifted
+        // neighbor's translated content at the top. Safe to drop for a
+        // nonzero `contentOffsetY`: a drop always clears `dropGapIndex`
+        // (zeroing every row's offset) in the same tick `isDragging`
+        // clears for the just-dropped row, so its own grow-back tween
+        // never runs with clipping off — this condition and that one
+        // never overlap.
+        className={cn(
+          'grid transition-[grid-template-rows,opacity] duration-normal ease-emphasized',
+          contentOffsetY === 0 && 'overflow-hidden',
+        )}
         style={{ gridTemplateRows: isDragging ? '0fr' : '1fr', opacity: isDragging ? 0 : 1 }}
       >
         <div className="min-h-0">
@@ -219,6 +298,14 @@ function ParagraphListRow({
             onBackspaceAtStart={() => onBackspaceAtStart(item.id)}
             autoFocus={autoFocus}
             autoFocusOffset={autoFocusOffset}
+            // Purely visual separation from an active DropTarget somewhere
+            // nearby — the divider itself never moves (still fixed to
+            // whichever row's own measured top it renders against), only
+            // this block's *rendered* content nudges toward/away from it.
+            // Precomputed per-row (`contentOffsetForRow`) so the falloff
+            // across several rows on either side of the gap is one shared
+            // function, not a per-row special case.
+            contentOffsetY={contentOffsetY}
           >
             {item.text}
           </ParagraphBlock>
@@ -228,7 +315,12 @@ function ParagraphListRow({
   );
 }
 
-export function ParagraphList({ items, onItemsChange, className }: ParagraphListProps) {
+export function ParagraphList({
+  items,
+  onItemsChange,
+  onHistoryEvent,
+  className,
+}: ParagraphListProps) {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [announcement, setAnnouncement] = React.useState('');
   // Which row should grab focus (and at what text offset) right now — a
@@ -258,9 +350,10 @@ export function ParagraphList({ items, onItemsChange, className }: ParagraphList
     useParagraphListDragAndDrop({
       items,
       onItemsChange,
-      onMoved: (id) => {
+      onMoved: (id, fromIndex, toIndex) => {
         setSelectedId(id);
         announceMove(id, itemsRef.current);
+        onHistoryEvent?.({ type: 'moveParagraph', id, fromIndex, toIndex });
       },
       getRowNode,
     });
@@ -286,14 +379,24 @@ export function ParagraphList({ items, onItemsChange, className }: ParagraphList
   }, [selectedId]);
 
   function handleKeyReorder(id: string, direction: -1 | 1) {
+    const fromIndex = itemsRef.current.findIndex((item) => item.id === id);
     const next = moveParagraphByOffset(itemsRef.current, id, direction);
     if (next === itemsRef.current) return; // boundary no-op
+    const toIndex = next.findIndex((item) => item.id === id);
     onItemsChange(next);
     announceMove(id, next);
+    onHistoryEvent?.({ type: 'moveParagraph', id, fromIndex, toIndex });
   }
 
+  // Coalesced to one event per edit session, not per keystroke — this
+  // only fires on blur (see `ParagraphBlock.onTextChange`'s own doc
+  // comment), same as the DOM commit itself.
   function handleTextChange(id: string, text: string) {
+    const before = itemsRef.current.find((item) => item.id === id)?.text;
     onItemsChange(itemsRef.current.map((item) => (item.id === id ? { ...item, text } : item)));
+    if (before !== undefined && before !== text) {
+      onHistoryEvent?.({ type: 'editParagraph', id, before, after: text });
+    }
   }
 
   // Enter always creates a genuinely empty new block right after this one
@@ -314,6 +417,16 @@ export function ParagraphList({ items, onItemsChange, className }: ParagraphList
     setAutoFocusId(newItem.id);
     setAutoFocusOffset(0);
     setSelectedId(null);
+    onHistoryEvent?.({
+      type: 'splitParagraph',
+      sourceId: id,
+      sourceTextBefore: current.text,
+      newId: newItem.id,
+      index: index + 1,
+      caretOffset,
+      textBefore,
+      textAfter,
+    });
   }
 
   // Backspace at offset 0 merges this block into the previous one — the
@@ -340,16 +453,25 @@ export function ParagraphList({ items, onItemsChange, className }: ParagraphList
       !/\s$/.test(previous.text) &&
       !/^\s/.test(current.text);
     const joinOffset = previous.text.length;
+    const survivingTextAfter = previous.text + (needsSpace ? ' ' : '') + current.text;
     const next = itemsRef.current.slice();
-    next[index - 1] = {
-      ...previous,
-      text: previous.text + (needsSpace ? ' ' : '') + current.text,
-    };
+    next[index - 1] = { ...previous, text: survivingTextAfter };
     next.splice(index, 1);
     onItemsChange(next);
     setAutoFocusId(previous.id);
     setAutoFocusOffset(joinOffset);
     setSelectedId(null);
+    onHistoryEvent?.({
+      type: 'mergeParagraphs',
+      survivingId: previous.id,
+      survivingTextBefore: previous.text,
+      survivingTextAfter,
+      removedId: current.id,
+      removedText: current.text,
+      removedIndex: index,
+      insertedSpace: needsSpace,
+      joinOffset,
+    });
   }
 
   const activeItem = activeId ? items.find((item) => item.id === activeId) : null;
@@ -370,6 +492,7 @@ export function ParagraphList({ items, onItemsChange, className }: ParagraphList
             item={item}
             isSelected={selectedId === item.id}
             isDropBefore={dropGapIndex === index}
+            contentOffsetY={contentOffsetForRow(index, dropGapIndex, items.length)}
             isAnyDragging={activeId !== null}
             autoFocus={autoFocusId === item.id}
             autoFocusOffset={autoFocusOffset}
@@ -382,11 +505,27 @@ export function ParagraphList({ items, onItemsChange, className }: ParagraphList
             registerRef={registerRef}
           />
         ))}
-        <DropTarget
-          active={dropGapIndex === items.length}
-          chevron
-          className={cn(dropGapIndex === items.length && 'relative z-10')}
-        />
+        {/* `h-0` wrapper, not a plain flex sibling — every *other* gap's
+            `DropTarget` is absolutely positioned and contributes zero
+            height to the list; this one, having no following row to
+            anchor `bottom-full` against, used to render as a genuine flex
+            child instead, so activating it actually grew the list's own
+            rendered height (confirmed: ~29px). In a page that responds to
+            that (a centered story, a container that reflows around its
+            content), every row silently shifts while this is active —
+            harmless while hovering it, but the shift doesn't reverse
+            until this collapses back, so an upward sweep started right
+            after leaving the tail gap was judging thresholds against
+            geometry that was still mid-shift. Zero-height + `absolute
+            top-0` makes it match every other gap's footprint exactly:
+            visually unchanged, but it can never move anything else. */}
+        <div className={cn('relative h-0', dropGapIndex === items.length && 'z-10')}>
+          <DropTarget
+            active={dropGapIndex === items.length}
+            chevron
+            className="absolute inset-x-0 top-0"
+          />
+        </div>
       </div>
       <DragOverlay>
         {activeItem ? (

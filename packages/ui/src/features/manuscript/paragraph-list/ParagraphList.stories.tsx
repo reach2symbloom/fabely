@@ -6,8 +6,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
 import { PrimitiveGalleryItem, PrimitivePage } from '../../../../stories/PrimitivePage';
+import { cn } from '@/lib/utils';
 
-import { ParagraphList, type ParagraphListItem } from './ParagraphList';
+import { ParagraphList, type ParagraphHistoryEvent, type ParagraphListItem } from './ParagraphList';
 
 const DEMO_WIDTH = 'w-full max-w-[720px]';
 
@@ -137,4 +138,39 @@ export const Overview: Story = {
 
 export const Demo: Story = {
   render: () => <ParagraphListDemo />,
+};
+
+/** Not a real undo/redo stack — just enough to see `onHistoryEvent` fire
+ * once per completed action (edit on blur, split on Enter, merge on
+ * Backspace, move on drop/keyboard reorder) rather than a stream of
+ * intermediate states. No keyboard shortcuts wired here; a future
+ * Manuscript Editor owns Cmd+Z/Cmd+Shift+Z against this same event shape
+ * — see `paragraph-list-history.ts`. */
+function ParagraphListHistoryDemo() {
+  const [items, setItems] = useState<ParagraphListItem[]>(INITIAL_ITEMS);
+  const [events, setEvents] = useState<ParagraphHistoryEvent[]>([]);
+
+  return (
+    <div className={cn(DEMO_WIDTH, 'flex flex-col gap-[var(--spacing-lg)]')}>
+      <ParagraphList
+        items={items}
+        onItemsChange={setItems}
+        onHistoryEvent={(event) => setEvents((prev) => [...prev, event])}
+      />
+      <div className="flex flex-col gap-[var(--spacing-2xs)] rounded-[length:var(--radius)] border border-solid border-[color:var(--border)] p-[length:var(--spacing-sm)]">
+        <p className="text-sm font-medium text-foreground">
+          Last history event ({events.length} total)
+        </p>
+        <pre className="max-h-40 overflow-auto text-xs text-muted-foreground">
+          {events.length === 0
+            ? 'None yet — edit, split (Enter), merge (Backspace), or reorder a paragraph.'
+            : JSON.stringify(events[events.length - 1], null, 2)}
+        </pre>
+      </div>
+    </div>
+  );
+}
+
+export const History: Story = {
+  render: () => <ParagraphListHistoryDemo />,
 };
