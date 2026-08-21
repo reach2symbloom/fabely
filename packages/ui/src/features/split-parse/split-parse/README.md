@@ -131,6 +131,10 @@ directly into either state renders it at rest, nothing animates in.
 Forward (click "Parse here"), ~580ms total, inside the requested
 450–600ms window:
 
+0. **0ms** — the undo icon's `16px` + gap footprint is reserved in the
+   right rule's flex row immediately (`reserveUndoSlot`) — not the icon
+   itself, just its layout space. See "No overshoot on the right rule"
+   below for why.
 1. **0–180ms** — the scissors icon "snips": a quick rotate/scale/fade
    baked into its own `AnimatePresence` `exit` keyframes (not a separate
    imperative animation) as it starts leaving.
@@ -144,14 +148,20 @@ Forward (click "Parse here"), ~580ms total, inside the requested
 5. **200–420ms** — the right rule wipes in turn, continuing the same
    travelling cut through to the row's right edge — not simultaneous with
    the left rule, so the cut reads as passing *through* the label rather
-   than two rules changing independently.
-6. **420–580ms** — the undo icon fades/slides in, only once the rule has
-   fully resolved to solid (not fading in against a still-wiping line).
+   than two rules changing independently. Grows directly to its resting
+   length (the space from step 0 is already final-width) — no
+   overshoot-and-retract when the icon appears next.
+6. **420–580ms** — the undo icon fades/slides in (its space already
+   exists), only once the rule has fully resolved to solid (not fading in
+   against a still-wiping line), and doesn't move the rule when it does.
 
-Reverse (undo) is deliberately simpler and quicker — ~300ms, a "cancel,"
-not a re-parse: no snip, both rules retreat together rather than
-travelling in sequence, and the undo icon fades out immediately rather
-than lingering.
+Reverse (undo) is deliberately simpler and quicker — ~280ms, a "cancel,"
+not a re-parse: no snip, but still one continuous cascade, not two rules
+retreating in parallel — the solid rule un-resolves as a single sequence,
+right side first (where the forward cut finished), then left (picking up
+before right is fully done, so the two read as one continuous unwind back
+to the scissors, not two separate moves) — and the undo icon fades out
+immediately rather than lingering.
 
 **Rule wipe** — `TransformingLine` stacks two layers (the dashed
 `repeating-linear-gradient` and the solid Fia line) with complementary
@@ -182,6 +192,33 @@ instead, so `rest = 1 × 0.6`, `hover = 1 × 1`, `mid-exit = (fading) × 0.6`
 **`prefers-reduced-motion`** — every animated value jumps straight to its
 target with no keyframes, no `pathLength` draw, no snip; verified live
 (Playwright, `reducedMotion: 'reduce'`) to settle within one render frame.
+
+**No overshoot on the right rule** — the right rule's `flex-1` share used
+to have the whole row's remaining width to itself until `showUndo` flipped
+true near the end, at which point the icon's `16px` + gap suddenly ate
+into that space and the rule's own final edge snapped backward. Fixed by
+splitting "is the icon's *space* reserved" (`reserveUndoSlot`, true for
+the whole transition) from "is the icon itself *visible*" (`showUndo`,
+still only true near the end) — a fixed-size wrapper span reserves the
+footprint from step 0 regardless of whether the icon inside it is
+currently rendered, so `rightProgress` always animates against the same
+final width and grows directly to it.
+
+**Undo returns to rest, not "still hovering"** — clicking Undo puts the
+mouse cursor right where the button used to be; the DOM swap back to
+`default` content at that same screen position fires a real `mouseenter`
+on the row with no actual pointer motion behind it (Chromium was observed
+firing this more than once across the reverse transition's ~280ms run,
+not just once at the very start). Left unhandled, the row would replay
+the hover-in sweep the instant it returns to rest. `useSplitParseHover`
+suppresses activation for a window sized to outlast the whole reverse
+transition — see its own comment, and the `SUPPRESS_PHANTOM_HOVER_MS`
+comment specifically, for why this is a time window rather than an event
+check (`event.movementX`/`movementY` looked like a cleaner fix but proved
+unreliable — see that comment) and for why hover tracks two independent
+booleans (pointer-over, focused) rather than a shared counter (a counter
+desyncs the moment a source's activate/deactivate calls aren't 1:1, which
+these synthesized re-hovers aren't).
 
 ## API
 

@@ -135,34 +135,100 @@ const HOVER_OUT_ICON_DURATION = 0.08;
 /**
  * Owns the `default`-state row's hover/focus activation sweep — entirely
  * separate from `useSplitParseTransition` above (different motion values,
- * never reads or writes them). `runIn`/`runOut` are wired to mouse
- * enter/leave and focus/blur by the caller, guarded there against firing
- * `runOut` while still hovered *or* focused (leaving one shouldn't drop
- * the lit state the other is holding up).
+ * never reads or writes them). Returns `handlePointerActivate`/
+ * `handlePointerDeactivate` (wire to `onMouseEnter`/`onMouseLeave`) and
+ * `handleFocusActivate`/`handleFocusDeactivate` (wire to `onFocus`/
+ * `onBlur`) — kept as four separate handlers, not two shared ones, because
+ * pointer and focus are tracked as independent booleans internally (see
+ * `pointerOverRef`'s own comment for why), each only ever touching its own
+ * flag; `syncActive` is what actually decides whether the sweep should be
+ * running, from `pointerOver || focused`, so releasing one source doesn't
+ * drop the lit state the other is still holding up.
  *
- * `iconGlow`/`labelGlow` end up mapped to `opacity` (0.6 -> 1), not a
- * `color` tween between `--muted-foreground` and `--foreground` — Motion
- * can't interpolate between two different CSS custom properties (it
- * doesn't resolve `var()`s to compute in-between values), and it wouldn't
- * even need to here: `--muted-foreground` *is* `--foreground` at 60%
- * alpha (`color-mix(... 60%, transparent)` vs. the same base color
- * opaque), so rendering the opaque color at `opacity: 0.6` produces the
- * identical pixels — animatable, and still exactly the theme-correct
- * (auto light/dark) color either way.
+ * `active` is `state === 'default'` — while it's false, an effect jumps
+ * every value straight to 0 (no animation) and resets both flags.
+ * Without this, hovering the row, then clicking straight through to
+ * `split-created` without the mouse ever leaving it, orphans the sweep
+ * mid-flight: `default`'s hover handlers unmount with the click (they're
+ * only wired in that state), so nothing ever calls a deactivate handler to
+ * unwind it. `leftProgress`/`rightProgress` clip the whole sweep away
+ * regardless while `split-created`, so it isn't visible *then* — but the
+ * stale values were still sitting at ~1, so undo-ing back to `default`
+ * rendered it already fully lit, as if still hovered.
+ *
+ * That mount-time reset only covers the *forward* edge, though. A second,
+ * different cause of the same symptom sits on the *reverse* edge: undo
+ * removes the button the pointer was resting on, and every further DOM
+ * change the reverse transition makes at that same screen position over
+ * its ~280ms run (the icon crossfading back to scissors, the label
+ * crossfading back, either rule's layer swapping) can fire a real
+ * `mouseenter` on the row with no actual pointer motion behind it —
+ * empirically, more than one across that window, not a single event right
+ * at the start. `handlePointerActivate` can't just check
+ * `event.movementX`/`movementY` to catch these (a tempting first idea): a
+ * browser-synthesized re-hover carries the *same* zero-movement signature
+ * as a genuine one landing exactly where the cursor was already sitting —
+ * real usage is dominated by the latter (the cursor moving onto the row,
+ * not already resting on it), so the two aren't reliably distinguishable
+ * event-by-event. Instead, a window right after `active` flips *true* —
+ * set below, alongside the reset for flipping *false* — suppresses
+ * activation entirely, sized to comfortably outlast the whole reverse
+ * transition rather than just its first frame.
  */
-function useSplitParseHover() {
+/** Comfortably past the reverse transition's own ~280ms run (`REVERSE_LEFT_WIPE_DELAY` + `REVERSE_LEFT_WIPE_DURATION`, defined further down) — see the comment above for why it needs to span the whole thing, not just its first frame. */
+const SUPPRESS_PHANTOM_HOVER_MS = 400;
+
+function useSplitParseHover(active: boolean) {
   const prefersReducedMotion = useReducedMotion();
   const iconGlow = useMotionValue(0);
   const leftSweep = useMotionValue(0);
   const labelGlow = useMotionValue(0);
   const rightSweep = useMotionValue(0);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  /*
+   * Pointer-over and focused are tracked as two independent, idempotent
+   * booleans — *not* a shared increment/decrement counter. The phantom
+   * re-hover this hook works around (see the comment above
+   * `SUPPRESS_PHANTOM_HOVER_MS`) doesn't reliably fire exactly once per
+   * genuine mouseleave; Chromium was observed firing it *twice* for a
+   * single Undo click. A counter desyncs the moment activate/deactivate
+   * calls for one source aren't 1:1 — e.g. two suppressed phantom
+   * `mouseenter`s followed by one real `mouseleave` left a counter-based
+   * version stuck at a nonzero count forever, silently swallowing every
+   * hover after the first Undo for the rest of the row's life. Setting a
+   * boolean `true` twice has no such failure mode.
+   */
+  const pointerOverRef = useRef(false);
+  const focusedRef = useRef(false);
+  const sweepActiveRef = useRef(false);
+  const suppressPointerUntilRef = useRef(0);
+  const hasMountedRef = useRef(false);
 
   const clearPending = () => {
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
   };
   useEffect(() => clearPending, []);
+
+  useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
+    if (active) {
+      suppressPointerUntilRef.current = Date.now() + SUPPRESS_PHANTOM_HOVER_MS;
+      return;
+    }
+    clearPending();
+    pointerOverRef.current = false;
+    focusedRef.current = false;
+    sweepActiveRef.current = false;
+    iconGlow.jump(0);
+    leftSweep.jump(0);
+    labelGlow.jump(0);
+    rightSweep.jump(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
 
   const after = (fn: () => void, delaySeconds: number) => {
     timeoutsRef.current.push(setTimeout(fn, delaySeconds * 1000));
@@ -216,7 +282,52 @@ function useSplitParseHover() {
     );
   };
 
-  return { iconGlow, leftSweep, labelGlow, rightSweep, runIn, runOut };
+  /** Fires `runIn`/`runOut` only on a genuine false->true / true->false edge of `pointerOver || focused` — never twice in a row regardless of how many redundant activate/deactivate calls land on either source. */
+  const syncActive = () => {
+    const next = pointerOverRef.current || focusedRef.current;
+    if (next === sweepActiveRef.current) return;
+    sweepActiveRef.current = next;
+    if (next) runIn();
+    else runOut();
+  };
+
+  /*
+   * See the `SUPPRESS_PHANTOM_HOVER_MS` comment above for why this is a
+   * time window rather than an event-property check. Keyboard focus has
+   * no such ambiguity — it's always genuine — so only this pointer path
+   * checks it. Suppressed calls still record `pointerOverRef = true` (so
+   * a later genuine `mouseleave` correctly clears it) but skip `syncActive`
+   * entirely, rather than letting it run and then immediately reversing —
+   * that would still flash the sweep on for one frame.
+   */
+  const handlePointerActivate = () => {
+    pointerOverRef.current = true;
+    if (Date.now() < suppressPointerUntilRef.current) return;
+    syncActive();
+  };
+  const handleFocusActivate = () => {
+    focusedRef.current = true;
+    syncActive();
+  };
+  const handlePointerDeactivate = () => {
+    pointerOverRef.current = false;
+    syncActive();
+  };
+  const handleFocusDeactivate = () => {
+    focusedRef.current = false;
+    syncActive();
+  };
+
+  return {
+    iconGlow,
+    leftSweep,
+    labelGlow,
+    rightSweep,
+    handlePointerActivate,
+    handleFocusActivate,
+    handlePointerDeactivate,
+    handleFocusDeactivate,
+  };
 }
 
 /* ---------------------------------------------------------------------- */
@@ -226,6 +337,11 @@ function useSplitParseHover() {
  * All values in seconds. Forward (Parse here -> Note parsed) sequence,
  * measured from click at t=0:
  *
+ *   0.00       the undo icon's `16px` + gap footprint is reserved in the
+ *              right rule's flex row immediately (`reserveUndoSlot`) —
+ *              *not* the icon itself, just its layout space, so the right
+ *              rule's flex-1 share is final-width for the rest of this
+ *              sequence and never has to reflow narrower later
  *   0.00-0.18  scissors "snip" (its own AnimatePresence `exit` keyframes)
  *              + left rule begins wiping/cutting left-to-right
  *   0.00-0.22  left rule finishes; feeds directly into
@@ -233,13 +349,21 @@ function useSplitParseHover() {
  *              draw on the checkmark only)
  *   0.20       label crossfades "Parse here" -> "Note parsed"
  *   0.20-0.42  right rule wipes left-to-right in turn, continuing the same
- *              travelling cut through to the row's right edge
- *   0.42-0.58  undo icon fades/slides in, once the rule has fully resolved
- *              to solid so it isn't fading in against a mid-wipe line
+ *              travelling cut through to the row's right edge — growing
+ *              directly to its resting length with no overshoot, since
+ *              the space it's animating within has been final-width
+ *              since 0.00
+ *   0.42-0.58  undo icon fades/slides in (now that its space already
+ *              exists), once the rule has fully resolved to solid so it
+ *              isn't fading in against a mid-wipe line, and doesn't move
+ *              the rule when it appears
  *
  * Total ~0.58s, inside the requested 450-600ms window. Reverse (undo) is
- * deliberately simpler/quicker — a "cancel," not a re-parse — with no snip
- * and both rules retreating together rather than travelling in sequence.
+ * deliberately simpler/quicker — a "cancel," not a re-parse — with no
+ * snip, but still one continuous cascade, not two rules retreating in
+ * parallel: the solid line un-resolves as a single sequence, right side
+ * first (where the cut finished), then left (back to where it started at
+ * the scissors) — the same travelling-cut continuity as forward, reversed.
  */
 const SNIP_EXIT_DURATION = 0.18;
 const ICON_SWAP_DURATION = 0.22;
@@ -254,7 +378,11 @@ const RIGHT_WIPE_DELAY_FWD = 0.2;
 const UNDO_DELAY_FWD = 0.42;
 const UNDO_DURATION = 0.18;
 
-const REVERSE_WIPE_DURATION = 0.28;
+/** Right retreats first (cascade starts where the forward cut finished)... */
+const REVERSE_RIGHT_WIPE_DURATION = 0.16;
+/** ...then left picks up before right fully finishes, so the cascade reads as one continuous unwind rather than two separate moves. */
+const REVERSE_LEFT_WIPE_DELAY = 0.12;
+const REVERSE_LEFT_WIPE_DURATION = 0.16;
 const REVERSE_CROSSFADE_DURATION = 0.16;
 const REVERSE_CROSSFADE_DELAY = 0.04;
 const REVERSE_UNDO_DURATION = 0.1;
@@ -280,6 +408,19 @@ function useSplitParseTransition(state: SplitParseState) {
   const [icon, setIcon] = useState<IconKind>(isParsed ? 'check' : 'scissors');
   const [label, setLabel] = useState<LabelKind>(isParsed ? 'parsed' : 'parse');
   const [showUndo, setShowUndo] = useState(isParsed);
+  /**
+   * Whether the undo icon's `16px` + gap footprint is reserved in the
+   * right rule's flex row — *not* the same thing as `showUndo` (which
+   * gates the icon's own visibility). Forward: true from the first
+   * instant of the click (`isParsed` itself already flips synchronously
+   * then, so this just mirrors it), so the right rule's flex-1 share is
+   * final-width from the start and never has to reflow narrower once the
+   * icon actually fades in near the end. Reverse: stays true until the
+   * cascade (both rules) has fully settled back to rest, rather than
+   * dropping the instant `isParsed` goes false — dropping it early would
+   * widen the rule out from under the icon mid-exit.
+   */
+  const [reserveUndoSlot, setReserveUndoSlot] = useState(isParsed);
 
   const hasMountedRef = useRef(false);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -307,10 +448,12 @@ function useSplitParseTransition(state: SplitParseState) {
       setIcon(isParsed ? 'check' : 'scissors');
       setLabel(isParsed ? 'parsed' : 'parse');
       setShowUndo(isParsed);
+      setReserveUndoSlot(isParsed);
       return;
     }
 
     if (isParsed) {
+      setReserveUndoSlot(true);
       animate(leftProgress, 1, { duration: LEFT_WIPE_DURATION, ease: EASE_EMPHASIZED });
       after(() => setIcon('check'), ICON_SWAP_DELAY_FWD);
       after(() => setLabel('parsed'), LABEL_SWAP_DELAY_FWD);
@@ -320,10 +463,19 @@ function useSplitParseTransition(state: SplitParseState) {
       after(() => setShowUndo(true), UNDO_DELAY_FWD);
     } else {
       setShowUndo(false);
-      animate(leftProgress, 0, { duration: REVERSE_WIPE_DURATION, ease: EASE_EMPHASIZED });
-      animate(rightProgress, 0, { duration: REVERSE_WIPE_DURATION, ease: EASE_EMPHASIZED });
+      // Cascade, not parallel: right retreats first (where the forward
+      // cut finished), left picks up before right is fully done so the
+      // two read as one continuous unwind back to the scissors.
+      animate(rightProgress, 0, { duration: REVERSE_RIGHT_WIPE_DURATION, ease: EASE_EMPHASIZED });
+      after(() => {
+        animate(leftProgress, 0, { duration: REVERSE_LEFT_WIPE_DURATION, ease: EASE_EMPHASIZED });
+      }, REVERSE_LEFT_WIPE_DELAY);
       after(() => setIcon('scissors'), REVERSE_CROSSFADE_DELAY);
       after(() => setLabel('parse'), REVERSE_CROSSFADE_DELAY);
+      after(
+        () => setReserveUndoSlot(false),
+        REVERSE_LEFT_WIPE_DELAY + REVERSE_LEFT_WIPE_DURATION
+      );
     }
 
     return () => {
@@ -332,7 +484,16 @@ function useSplitParseTransition(state: SplitParseState) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  return { leftProgress, rightProgress, icon, label, showUndo, prefersReducedMotion, isParsed };
+  return {
+    leftProgress,
+    rightProgress,
+    icon,
+    label,
+    showUndo,
+    reserveUndoSlot,
+    prefersReducedMotion,
+    isParsed,
+  };
 }
 
 /**
@@ -444,16 +605,26 @@ type SplitParseProps = {
 };
 
 function SplitParse({ state = 'default', onParse, onUndo, className }: SplitParseProps) {
-  const { leftProgress, rightProgress, icon, label, showUndo, prefersReducedMotion, isParsed } =
-    useSplitParseTransition(state);
+  const {
+    leftProgress,
+    rightProgress,
+    icon,
+    label,
+    showUndo,
+    reserveUndoSlot,
+    prefersReducedMotion,
+    isParsed,
+  } = useSplitParseTransition(state);
   const {
     iconGlow,
     leftSweep,
     labelGlow,
     rightSweep,
-    runIn: runHoverIn,
-    runOut: runHoverOut,
-  } = useSplitParseHover();
+    handlePointerActivate,
+    handleFocusActivate,
+    handlePointerDeactivate,
+    handleFocusDeactivate,
+  } = useSplitParseHover(state === 'default');
   const iconGlowOpacity = useTransform(iconGlow, [0, 1], [0.6, 1]);
   const labelGlowOpacity = useTransform(labelGlow, [0, 1], [0.6, 1]);
 
@@ -487,23 +658,6 @@ function SplitParse({ state = 'default', onParse, onUndo, className }: SplitPars
     onParse?.();
   };
 
-  /*
-   * Hover-in should fire once, on the first of (pointer over, keyboard
-   * focus) — and hover-out only once *neither* still applies, so tabbing
-   * onto an already-pointer-hovered row (or the reverse) doesn't drop the
-   * lit state early. A plain count, not two booleans, so either source
-   * leaving/entering is handled the same way.
-   */
-  const hoverActiveRef = useRef(0);
-  const handleActivate = () => {
-    hoverActiveRef.current += 1;
-    if (hoverActiveRef.current === 1) runHoverIn();
-  };
-  const handleDeactivate = () => {
-    hoverActiveRef.current = Math.max(0, hoverActiveRef.current - 1);
-    if (hoverActiveRef.current === 0) runHoverOut();
-  };
-
   return (
     <div
       data-slot="split-parse"
@@ -513,10 +667,10 @@ function SplitParse({ state = 'default', onParse, onUndo, className }: SplitPars
       aria-label={state === 'default' ? 'Parse here' : undefined}
       onClick={state === 'default' ? onParse : undefined}
       onKeyDown={state === 'default' ? handleKeyDown : undefined}
-      onMouseEnter={state === 'default' ? handleActivate : undefined}
-      onMouseLeave={state === 'default' ? handleDeactivate : undefined}
-      onFocus={state === 'default' ? handleActivate : undefined}
-      onBlur={state === 'default' ? handleDeactivate : undefined}
+      onMouseEnter={state === 'default' ? handlePointerActivate : undefined}
+      onMouseLeave={state === 'default' ? handlePointerDeactivate : undefined}
+      onFocus={state === 'default' ? handleFocusActivate : undefined}
+      onBlur={state === 'default' ? handleFocusDeactivate : undefined}
       className={cn(
         state === 'default' && 'cursor-pointer',
         state === 'default'
@@ -615,28 +769,44 @@ function SplitParse({ state = 'default', onParse, onUndo, className }: SplitPars
 
       <span className="flex min-w-0 flex-1 items-center gap-[var(--spacing-xs)]">
         <TransformingLine progress={rightProgress} hoverSweep={rightSweep} />
-        <AnimatePresence>
-          {showUndo && (
-            <MotionIconButton
-              key="undo"
-              variant="fade"
-              size="mini"
-              aria-label="Undo split"
-              onClick={onUndo}
-              initial={prefersReducedMotion ? false : { opacity: 0, x: 4 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={
-                prefersReducedMotion
-                  ? { opacity: 0, transition: { duration: 0 } }
-                  : { opacity: 0, x: 4, transition: undoTransition }
-              }
-              transition={undoTransition}
-              className="size-[length:var(--icon-sm)] shrink-0 rounded-[length:var(--rounded-lg)] p-0"
-            >
-              <Undo2Icon aria-hidden className="size-[length:var(--icon-sm)]" />
-            </MotionIconButton>
-          )}
-        </AnimatePresence>
+        {/*
+         * Fixed-size reservation, present for the whole transition (see
+         * `reserveUndoSlot`'s own comment) — not just while `showUndo` is
+         * true. Without this, the right rule's `flex-1` share had the
+         * *entire* row width to itself while wiping, then had to give up
+         * this box's width the instant the icon appeared, snapping the
+         * rule's own final edge backward. Reserving it from the start
+         * means `rightProgress` animates against the *same* final width
+         * throughout, so the rule grows directly to its resting length
+         * with no overshoot-and-retract. The icon itself still only
+         * fades/slides in late (`showUndo`) — only the space is early.
+         */}
+        {reserveUndoSlot && (
+          <span className="relative size-[length:var(--icon-sm)] shrink-0">
+            <AnimatePresence>
+              {showUndo && (
+                <MotionIconButton
+                  key="undo"
+                  variant="fade"
+                  size="mini"
+                  aria-label="Undo split"
+                  onClick={onUndo}
+                  initial={prefersReducedMotion ? false : { opacity: 0, x: 4 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={
+                    prefersReducedMotion
+                      ? { opacity: 0, transition: { duration: 0 } }
+                      : { opacity: 0, x: 4, transition: undoTransition }
+                  }
+                  transition={undoTransition}
+                  className="absolute inset-0 size-[length:var(--icon-sm)] rounded-[length:var(--rounded-lg)] p-0"
+                >
+                  <Undo2Icon aria-hidden className="size-[length:var(--icon-sm)]" />
+                </MotionIconButton>
+              )}
+            </AnimatePresence>
+          </span>
+        )}
       </span>
     </div>
   );
