@@ -230,10 +230,15 @@ export function useParagraphListDragAndDrop({
   }
 
   function onDragMove(event: DragMoveEvent) {
-    const activeIdStr = String(event.active.id);
-    const next = resolveGapIndex(event);
-    const resolved =
-      next !== null && !isParagraphMoveNoOp(itemsRef.current, activeIdStr, next) ? next : null;
+    // Not filtered through `isParagraphMoveNoOp` here — the two gaps
+    // touching the dragged item's own current position are exactly the
+    // block's original spot, and hovering back over it should still light
+    // up a `DropTarget` there ("drop it back where it was" is a valid,
+    // indicated choice, not a dead zone with no feedback). The no-op guard
+    // stays in `onDragEnd`/`reorderParagraphs` below, where it belongs —
+    // actually dropping there is still skipped as the zero-effect move it
+    // is, just not hidden from the pointer on the way there.
+    const resolved = resolveGapIndex(event);
     setDropGapIndex((current) => (current === resolved ? current : resolved));
   }
 

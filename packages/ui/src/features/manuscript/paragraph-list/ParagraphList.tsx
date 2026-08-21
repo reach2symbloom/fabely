@@ -157,8 +157,22 @@ function ParagraphListRow({
     // CSS `transform` on every animating row, and `transform` creates a
     // stacking context on its own, so DOM order alone can't be trusted to
     // keep the active rail above a mid-reflow neighbor.
+    //
+    // `layout="position"`, not plain `layout` — a Backspace-merge can
+    // change *this* row's own height (the previous block gaining the
+    // merged-in text, possibly wrapping an extra line) on the same render
+    // that removes the row below it. Plain `layout` FLIPs size changes too,
+    // which means Motion puts a live `scaleY` transform on this row while
+    // its height tweens to the new value — and everything inside stretches
+    // with it, including the plain (non-motion) contentEditable text, which
+    // isn't part of Motion's own descendant-unscaling correction. A row
+    // whose own content just grew should show the new text at its real
+    // size immediately, not visibly stretched mid-animation.
+    // `layout="position"` still FLIPs the x/y shift a sibling insert/remove
+    // causes (the actual "glide to new position" this list wants) without
+    // touching size, so a height change lands instantly instead.
     <motion.div
-      layout
+      layout="position"
       transition={LAYOUT_REFLOW}
       className={cn('relative flex flex-col', isDropBefore && 'z-10')}
       style={{ marginBlock: -(ROW_OVERLAP / 2) }}
