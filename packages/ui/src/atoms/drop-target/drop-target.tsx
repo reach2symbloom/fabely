@@ -29,14 +29,19 @@
  *
  * `chevron` adds the **Chevron=Yes** variant's centered down-glyph below
  * the rail — see `DropLineChevron` below for why its glow can't be
- * tokenized the way the rail's can.
+ * tokenized the way the rail's can, and for the slow vertical float it
+ * plays for as long as `active` stays true.
  *
  * Visual source: Figma **Paragraph drop line**
  * ([node](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16372-4438)
  * `16372:4438`).
  */
-import { useId } from 'react';
+'use client';
 
+import { useId } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
+
+import { FLOAT_LOOP } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
 const SECONDARY_GLOW_LINE =
@@ -83,16 +88,38 @@ export function SecondaryGlowRail({ className }: { className?: string }) {
  * `filter0_d_16372_4423` verbatim would collide and one would silently
  * lose its glow.
  *
- * Figma's own `16x16` frame, uncropped — "0px from the line" means this
- * frame's own edge sits flush against the actual rendered line, not that
- * the glyph's ink touches it. The glyph is drawn with headroom inside its
- * 16x16 box (ink starts around y=5, not y=0); that headroom is part of the
- * icon as designed, left alone. What *does* get closed, in `DropTarget`
- * (`-mt-[spacing-xs]`), is `SecondaryGlowRail`'s own bottom `py-xs` —
- * padding intrinsic to that shared component, not part of "the line"
- * either, and the only thing actually separating the two frames.
+ * Figma's own `16x16` frame, uncropped — sits `spacing-2xs` (4px) below
+ * the rendered line, not touching it. Without any margin here, the gap
+ * would be `SecondaryGlowRail`'s own bottom `py-xs` (8px) — `DropTarget`
+ * cancels 4px of that (`-mt-[spacing-2xs]`) to land on the target 4px
+ * rather than that padding's own value. The glyph is also drawn with
+ * headroom inside its own 16x16 box on top of that (ink starts around
+ * y=5, not y=0) — part of the icon as designed, not this component's to
+ * adjust either way.
+ *
+ * `active` drives a slow, continuous vertical float (`FLOAT_LOOP`,
+ * `@/lib/motion`) — a calm positional cue that this gap is the live
+ * insertion point, not feedback for an action, so it deliberately isn't
+ * the snappy spring/emphasized-ease presets the rest of this codebase's
+ * Motion reaches for. Only `y` animates — no scale/rotate/opacity — and
+ * the `[0, -3, 0]` keyframe array is one full cycle, so each repeat starts
+ * exactly where the last one ended rather than snapping back. Animates
+ * the `<g>`, not the outer `<svg>`, so the filter's glow travels with the
+ * glyph. `useReducedMotion` (Motion's own media-query hook, already this
+ * codebase's pattern — see Split & Parse) holds it at rest instead.
  */
-function DropLineChevron({ filterId, className }: { filterId: string; className?: string }) {
+function DropLineChevron({
+  filterId,
+  active,
+  className,
+}: {
+  filterId: string;
+  active: boolean;
+  className?: string;
+}) {
+  const prefersReducedMotion = useReducedMotion();
+  const floating = active && !prefersReducedMotion;
+
   return (
     <svg
       aria-hidden
@@ -101,12 +128,16 @@ function DropLineChevron({ filterId, className }: { filterId: string; className?
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g filter={`url(#${filterId})`}>
+      <motion.g
+        filter={`url(#${filterId})`}
+        animate={{ y: floating ? [0, -3, 0] : 0 }}
+        transition={floating ? FLOAT_LOOP : { duration: 0.2, ease: 'easeOut' }}
+      >
         <path
           d="M11.5286 5.52864C11.789 5.26829 12.211 5.26829 12.4713 5.52864C12.7317 5.78899 12.7317 6.211 12.4713 6.47134L8.47134 10.4713C8.211 10.7317 7.78899 10.7317 7.52864 10.4713L3.52864 6.47134C3.26829 6.211 3.26829 5.78899 3.52864 5.52864C3.78899 5.26829 4.211 5.26829 4.47134 5.52864L7.00004 8.00004H9.00004L11.5286 5.52864Z"
           fill="var(--tw-raw-secondary-200)"
         />
-      </g>
+      </motion.g>
       <defs>
         <filter
           id={filterId}
@@ -174,7 +205,11 @@ export function DropTarget({ active = false, chevron = false, className }: DropT
             <SecondaryGlowRail />
           </div>
           {chevron ? (
-            <DropLineChevron filterId={filterId} className="-mt-[length:var(--spacing-xs)]" />
+            <DropLineChevron
+              filterId={filterId}
+              active={active}
+              className="-mt-[length:var(--spacing-2xs)]"
+            />
           ) : null}
         </div>
       </div>

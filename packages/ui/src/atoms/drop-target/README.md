@@ -30,11 +30,26 @@ Foundations glows are documented as bypassing tokens for invariant visual
 treatments. Each `<filter id>` gets a `useId()` suffix — a bare, literal
 id copied onto two `DropTarget`s on the same page would collide.
 
-Sits with its own `16x16` frame flush against the rail — 0px of *added*
-margin between them. The glyph is drawn with headroom inside that frame
-(ink starts around a third of the way down, not at the very top edge), so
-the visible space between the line and the ink is the icon as designed,
-not something to trim.
+Sits with its own `16x16` frame `spacing-2xs` (4px) below the rail, not
+touching it — without any margin at all the gap would default to
+`SecondaryGlowRail`'s own bottom `py-xs` (8px), so `DropTarget` cancels
+4px of that to land on 4px net rather than that padding's own value. On
+top of that, the glyph is drawn with headroom inside its own frame (ink
+starts around a third of the way down, not at the very top edge) — part
+of the icon as designed, not something to trim further.
+
+## The chevron floats while `active`
+
+A slow, continuous vertical drift (`FLOAT_LOOP`, `@/lib/motion`) — 3px of
+travel, ease-in-out, ~1.5s per cycle — plays for as long as the gap this
+`DropTarget` renders is the live insertion point, and stops the moment it
+isn't. A calm positional cue, not feedback for an action, so it
+deliberately isn't the snappy spring/emphasized-ease presets the rest of
+this codebase's Motion reaches for — no bounce, no scale/rotate/opacity,
+just `y`. `useReducedMotion` holds it at rest instead. Any future
+draggable block type that reuses `DropTarget` gets this for free, from one
+shared implementation — no reason for a second block type to hand-roll its
+own loop.
 
 ## Promoted from Chapter Menu, not duplicated
 
@@ -86,3 +101,5 @@ Add Section Inline Button's proximity-revealed divider.
 | Slot min-height | `--spacing-xl` |
 | Open/close motion | `--duration-normal`, `ease-emphasized` |
 | Chevron size | `--icon-sm` (16px, matches its own 16×16 viewBox) |
+| Chevron-to-rail gap | `--spacing-2xs` (4px, net of `SecondaryGlowRail`'s own `--spacing-xs` padding) |
+| Chevron float | `FLOAT_LOOP` (`@/lib/motion`) — 3px, ease-in-out, 1.5s/cycle |

@@ -47,3 +47,21 @@ export const TRANSITION_EMPHASIZED_FAST: Transition = {
  * than "floating" (e.g. small particles drifting outward).
  */
 export const EASE_OUT: Transition['ease'] = [0, 0, 0.58, 1];
+
+/**
+ * Calm, continuous vertical float — an ambient positional cue while
+ * something is visible, not feedback for a user action. Contrast with
+ * `SPRING_BLOOM`/`EASE_EMPHASIZED`, both tuned to respond snappily to a
+ * press or hover; this instead has no start or end to feel snappy
+ * about — a smooth symmetric ease-in-out both ways, no spring, no
+ * overshoot. Pair with a keyframe array shaped `[0, -amplitude, 0]`
+ * (amplitude 2–4px reads as "calm," not attention-grabbing) so each
+ * repeat starts exactly where the last one ended, never snapping back to
+ * a start position. Used by Drop Target's chevron; reuse this rather than
+ * a one-off duration/ease pair for any other ambient loop.
+ */
+export const FLOAT_LOOP: Transition = {
+  duration: 1.5,
+  repeat: Infinity,
+  ease: 'easeInOut',
+};
