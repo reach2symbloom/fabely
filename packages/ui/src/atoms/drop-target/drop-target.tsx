@@ -174,8 +174,12 @@ export type DropTargetProps = {
   /** Whether this is the live prospective insertion point right now. */
   active?: boolean;
   /** Figma's `Chevron=Yes` variant — adds the down-glyph centered under
-   * the rail. Default `false` (`Chevron=No`), matching both current
-   * callers (Paragraph List, Chapter Menu). */
+   * the rail, with `--spacing-md` (16px) of top padding ahead of the rail
+   * (Chapter Menu's plain rail, `chevron` off, keeps its own
+   * `min-h-[spacing-xl]` centering instead — the two aren't the same
+   * layout, so this isn't unified into one rule for both). Default
+   * `false` (`Chevron=No`) — Chapter Menu still renders the plain rail;
+   * Paragraph List is the one caller that turns this on. */
   chevron?: boolean;
   className?: string;
 };
@@ -198,7 +202,9 @@ export function DropTarget({ active = false, chevron = false, className }: DropT
         <div
           className={cn(
             'pointer-events-none relative z-20 flex flex-col items-center',
-            !chevron && 'min-h-[length:var(--spacing-xl)] justify-center',
+            chevron
+              ? 'pt-[length:var(--spacing-md)]'
+              : 'min-h-[length:var(--spacing-xl)] justify-center',
           )}
         >
           <div className="w-full">

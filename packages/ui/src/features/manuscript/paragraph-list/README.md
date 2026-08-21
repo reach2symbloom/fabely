@@ -56,9 +56,12 @@ rendered as a plain flex sibling, at the very end of the list.
 ## Sibling reflow is `layout`, not a manual y-offset
 
 Each row wrapper is `motion.div layout` (Motion's FLIP tracking, timed
-with `LAYOUT_REFLOW` from `@/lib/motion` — plain ease-out tween, no
-spring, ~220ms). When the array reorders — drag-drop or keyboard, same
-`onItemsChange` either way — every displaced row's wrapper measures its
+with `LAYOUT_REFLOW` from `@/lib/motion` — `EASE_EMPHASIZED`, no spring,
+180ms; front-loaded so most of the motion reads in the first beat rather
+than decelerating evenly the whole way, which is what makes it read as
+both faster and smoother than a generic ease-out). When the array
+reorders — drag-drop or keyboard, same `onItemsChange` either way — every
+displaced row's wrapper measures its
 own old vs. new position across the render and glides between them
 automatically; nothing here computes a translateY by hand. This depends
 on rows keeping a stable `key={item.id}` (never index) through the
@@ -113,6 +116,8 @@ block-opacity one. Since the anchored original (dimmed at its own
 position) and the `DropTarget` overlay both render in normal page flow,
 underneath the portal-rendered `DragOverlay`, the insertion rail — chevron
 included — stays visible through the floating block as it passes over it.
+Both `DropTarget`s here render with `chevron` — see that atom's README for
+why it's off by default (Chapter Menu doesn't use it) but on here.
 
 ## The anchored row dims; the `DragOverlay` copy carries `drag` chrome
 

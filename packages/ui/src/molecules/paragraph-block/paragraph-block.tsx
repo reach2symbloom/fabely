@@ -87,6 +87,12 @@ export type ParagraphBlockProps = React.HTMLAttributes<HTMLDivElement> & {
    * selected one (clicking into text to edit it isn't "still selected as
    * a block"), and ignores it otherwise. */
   onTextClick?: () => void;
+  /** Fires with the edited text once editing the paragraph blurs. The
+   * text is natively editable in place (`contentEditable`) — this
+   * component doesn't own the text's source of truth any more than it
+   * owns `state`; a caller writes the result back into `children` for the
+   * next render. Omit to render read-only, plain text. */
+  onTextChange?: (text: string) => void;
 };
 
 /** Movement past this distance (px) turns a press into a drag rather than a
@@ -135,11 +141,9 @@ function useHandlePressDetection(onDragStart?: () => void, onSelect?: () => void
       // avoid a stray `:focus-visible` ring flashing on the next
       // unrelated keydown. Removed: a selected row now needs to *keep*
       // focus for ArrowUp/ArrowDown reordering (Paragraph List's
-      // `onKeyDown`) to reach this button at all, and a keydown that
-      // reorders the row it's focused on isn't "unrelated" anymore — the
-      // ring showing during that interaction is correct feedback, not a
-      // glitch. `focus-visible:shadow-[...]` below replaces the raw
-      // default outline so it reads as intentional either way.
+      // `onKeyDown`) to reach this button at all. The ring itself is
+      // still suppressed for this pointer-driven focus, just not by
+      // blurring — see `pointerFocusRef`/`showFocusRing` below.
     }
 
     window.addEventListener('pointermove', handlePointerMove);
@@ -179,6 +183,7 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
       onDragStart,
       onSelect,
       onTextClick,
+      onTextChange,
       className,
       children,
       style,
@@ -188,7 +193,25 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
   ) => {
     const forceHandleVisible = state !== 'default';
     const detectPress = useHandlePressDetection(onDragStart, onSelect);
-    const { onPointerDown: handlePointerDown, ...restHandleProps } = handleProps ?? {};
+    const {
+      onPointerDown: handlePointerDown,
+      onFocus: handleFocus,
+      onBlur: handleBlur,
+      ...restHandleProps
+    } = handleProps ?? {};
+
+    // A mouse click legitimately focuses the handle (needed for
+    // ArrowUp/ArrowDown reordering to reach it at all — see "Press vs.
+    // drag" in the README), but shouldn't *show* a focus ring: the
+    // block's own `selected` chrome already says "this one's active."
+    // `:focus-visible` alone can't tell "pointer-focused, then an arrow
+    // key made the browser reconsider" apart from "genuinely Tab-focused"
+    // — both end up `:focus-visible`. Track it explicitly instead:
+    // `pointerFocusRef` is set the instant a pointer press starts (before
+    // the resulting native focus fires), so `onFocus` can tell which kind
+    // of focus this is and only show the ring for the real keyboard case.
+    const pointerFocusRef = React.useRef(false);
+    const [showFocusRing, setShowFocusRing] = React.useState(false);
 
     return (
       <div
@@ -212,23 +235,51 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
             'flex shrink-0 cursor-grab items-center justify-center pt-[length:var(--spacing-xs)]',
             'text-[color:var(--muted-foreground)] opacity-0',
             'rounded-[length:var(--rounded-xs)] outline-none',
-            'transition-[opacity,box-shadow] duration-fast ease-emphasized',
+            'transition-[opacity,color,box-shadow] duration-fast ease-emphasized',
             'active:cursor-grabbing',
-            'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+            // Same switch-token family as the rest text/muted-foreground,
+            // one alpha stop up — deepens (more black) in light mode,
+            // lightens (more white) in dark mode, automatically, since
+            // it's the theme flip already baked into the token, not two
+            // separate color values to keep in sync.
+            'hover:text-[color:var(--theme-alpha-black-switch-80)]',
+            showFocusRing && 'shadow-[var(--effect-focus-ring-secondary)]',
             'group-hover/paragraph-block:opacity-100 group-focus-within/paragraph-block:opacity-100',
             forceHandleVisible && 'opacity-100',
           )}
           onPointerDown={(event) => {
+            pointerFocusRef.current = true;
             handlePointerDown?.(event);
             detectPress(event);
+          }}
+          onFocus={(event) => {
+            if (pointerFocusRef.current) {
+              pointerFocusRef.current = false;
+            } else {
+              setShowFocusRing(true);
+            }
+            handleFocus?.(event);
+          }}
+          onBlur={(event) => {
+            setShowFocusRing(false);
+            handleBlur?.(event);
           }}
           {...restHandleProps}
         >
           <GripVerticalIcon className="size-[length:var(--icon-lg)]" />
         </button>
         <p
+          contentEditable={onTextChange !== undefined}
+          suppressContentEditableWarning
           onClick={onTextClick}
-          className={cn('min-w-px flex-1 [word-break:break-word]', TEXT_STYLE)}
+          onBlur={
+            onTextChange &&
+            ((event) => onTextChange(event.currentTarget.textContent ?? ''))
+          }
+          className={cn(
+            'min-w-px flex-1 [word-break:break-word] outline-none',
+            TEXT_STYLE,
+          )}
         >
           {children}
         </p>

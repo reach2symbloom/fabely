@@ -69,14 +69,17 @@ export const FLOAT_LOOP: Transition = {
 /**
  * Sibling reflow when a list's array order changes (drag-drop or keyboard
  * reorder) — paired with Motion's own `layout` prop for automatic FLIP
- * repositioning; this is only its timing. Plain ease-out tween, no
- * spring — this should read as "the list making room," controlled and
- * precise, not a physical settle with any give to it. `SPRING_BLOOM`'s
- * ~0.71 damping ratio still carries a slight overshoot (right for a
- * hover/press bloom); this preset is for callers that explicitly want
- * zero bounce instead.
+ * repositioning; this is only its timing. `EASE_EMPHASIZED`, not a plain
+ * `easeOut` string — its own doc comment above already calls out
+ * layout/FLIP as the case it's for, front-loaded so most of the motion
+ * reads in the first beat (feels faster) and glides to rest rather than
+ * decelerating evenly the whole way (feels smoother than a generic
+ * ease-out's more linear-ish middle). No spring — this should read as
+ * "the list making room," controlled and precise, not a physical settle
+ * with any give to it; `SPRING_BLOOM`'s ~0.71 damping ratio still carries
+ * a slight overshoot (right for a hover/press bloom), not this.
  */
 export const LAYOUT_REFLOW: Transition = {
-  duration: 0.22,
-  ease: 'easeOut',
+  duration: 0.18,
+  ease: EASE_EMPHASIZED,
 };

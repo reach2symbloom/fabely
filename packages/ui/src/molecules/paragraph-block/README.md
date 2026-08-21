@@ -73,10 +73,21 @@ Release used to blur the handle (avoiding a stray native focus-visible
 ring on the next unrelated keydown), back when a keypress genuinely had
 nothing to do with this button. It doesn't blur anymore — Paragraph List
 reorders the *selected* row with `ArrowUp`/`ArrowDown`, which needs the
-handle to still hold focus for its `onKeyDown` to fire at all, and a ring
-appearing while an arrow key is actively doing something to this element
-is correct feedback now, not noise. `focus-visible:shadow-[var(--effect-focus-ring-secondary)]`
-replaces the raw default outline so it still reads as intentional.
+handle to still hold focus for its `onKeyDown` to fire at all.
+
+The ring itself still doesn't show for this pointer-driven focus, though —
+just not via blurring. `:focus-visible` alone can't tell "pointer-focused,
+then an arrow key made the browser reconsider" apart from "genuinely
+Tab-focused"; both end up matching it. `pointerFocusRef` is set the
+instant a pointer press starts on the handle (before the resulting native
+focus fires) so the `onFocus` that follows can tell which kind of focus
+this is: pointer-driven → consume the flag, ring stays hidden (the row's
+own `selected` chrome already says "this one's active"); genuine
+keyboard-Tab → `showFocusRing` state flips true, ring shows normally,
+`focus-visible:shadow-[...]`'s replaced by an explicit conditional class
+driven by that state rather than the pseudo-class. Reordering itself
+never depended on the ring being visible — only on focus actually being
+there — so both keep working regardless of which one shows it.
 
 ## Clicking the text fires `onTextClick`, not gated on `state`
 
@@ -86,6 +97,26 @@ firing regardless of the current `state` prop. Paragraph List uses it to
 drop selection specifically when the clicked block was already selected
 (clicking into text to edit it shouldn't leave block-level `selected`
 chrome showing) and ignores it otherwise.
+
+## The handle deepens on hover, one alpha stop up the same switch-token
+
+`hover:text-[color:var(--theme-alpha-black-switch-80)]` over the resting
+`--muted-foreground` (`--theme-alpha-black-switch-60`) — both are the same
+switch-token family, so this one rule deepens (more black) in light mode
+and lightens (more white) in dark mode simultaneously; there's no second
+dark-mode color value to keep in sync, since the theme flip is already
+baked into what "black-switch" resolves to.
+
+## Text is editable — `contentEditable`, gated on `onTextChange`
+
+Passing `onTextChange` makes the paragraph natively `contentEditable`;
+omitting it renders plain, read-only text — this also means the
+`DragOverlay` copy (which never receives `onTextChange`, see Paragraph
+List) is never accidentally editable. No controlled-value dance while
+typing (that fights `contentEditable` and drops the caret): text stays
+whatever the DOM has until `onBlur` reads `textContent` and reports it
+once. A caller (Paragraph List) writes that back into `children` for the
+next render — same "doesn't own its own value" shape as `state`.
 
 ## Card fill is the container's own `background`, not a separate layer
 
@@ -122,6 +153,7 @@ built out.
 | `onDragStart` | — | Fires once a press on the grip handle crosses the drag threshold |
 | `onSelect` | — | Fires on releasing the grip handle — plain click or letting go mid-drag |
 | `onTextClick` | — | Fires on clicking the paragraph text — not gated on `state` |
+| `onTextChange` | — | Fires with the edited text on blur; also what makes the text `contentEditable` at all — omit for read-only |
 | `children` | — | The paragraph's text content |
 | `className` | — | Merged onto the root |
 | `ref` | — | Forwarded to the root `<div>` — dnd-kit `setNodeRef` |

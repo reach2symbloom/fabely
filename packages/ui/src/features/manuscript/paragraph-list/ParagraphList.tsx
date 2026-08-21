@@ -70,7 +70,7 @@ export type ParagraphListProps = {
 /** Modest resting rhythm between blocks — the actual inter-block spacing
  * now that `DropTarget` no longer occupies a flex slot for the gaps
  * before each row (see module doc comment). */
-const ROW_GAP = 'var(--spacing-xs)';
+const ROW_GAP = 'var(--spacing-2xs)';
 
 /** Dragged-block-in-`DragOverlay` background: translucent + blurred
  * rather than `drag` chrome's normal opaque `--card` fill, so the
@@ -92,6 +92,7 @@ function ParagraphListRow({
   onSelect,
   onDeselect,
   onKeyReorder,
+  onTextChange,
   registerRef,
 }: {
   item: ParagraphListItem;
@@ -101,6 +102,7 @@ function ParagraphListRow({
   onSelect: (id: string) => void;
   onDeselect: () => void;
   onKeyReorder: (id: string, direction: -1 | 1) => void;
+  onTextChange: (id: string, text: string) => void;
   registerRef: (id: string, node: HTMLElement | null) => void;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useParagraphRow(item.id);
@@ -116,7 +118,7 @@ function ParagraphListRow({
   return (
     <motion.div layout transition={LAYOUT_REFLOW} className="relative">
       <div className="pointer-events-none absolute inset-x-0 bottom-full z-10">
-        <DropTarget active={isDropBefore} />
+        <DropTarget active={isDropBefore} chevron />
       </div>
       <ParagraphBlock
         ref={setRefs}
@@ -147,6 +149,7 @@ function ParagraphListRow({
         onTextClick={() => {
           if (isSelected) onDeselect();
         }}
+        onTextChange={(text) => onTextChange(item.id, text)}
         className={cn(isDragging && 'opacity-40')}
       >
         {item.text}
@@ -209,6 +212,10 @@ export function ParagraphList({ items, onItemsChange, className }: ParagraphList
     announceMove(id, next);
   }
 
+  function handleTextChange(id: string, text: string) {
+    onItemsChange(itemsRef.current.map((item) => (item.id === id ? { ...item, text } : item)));
+  }
+
   const activeItem = activeId ? items.find((item) => item.id === activeId) : null;
 
   return (
@@ -231,10 +238,11 @@ export function ParagraphList({ items, onItemsChange, className }: ParagraphList
             onSelect={setSelectedId}
             onDeselect={() => setSelectedId(null)}
             onKeyReorder={handleKeyReorder}
+            onTextChange={handleTextChange}
             registerRef={registerRef}
           />
         ))}
-        <DropTarget active={dropGapIndex === items.length} />
+        <DropTarget active={dropGapIndex === items.length} chevron />
       </div>
       <DragOverlay>
         {activeItem ? (
