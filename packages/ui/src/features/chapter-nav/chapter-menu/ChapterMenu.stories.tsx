@@ -34,13 +34,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/primitives/alert-dialog';
+import { DropTarget } from '@/atoms/drop-target';
 import { RadioGroup, RadioGroupItem } from '@/primitives/radio-group';
 
-import {
-  AddSectionInlineButton,
-  AddSectionInlineGap,
-  SecondaryGlowRail,
-} from '../add-section-inline-button';
+import { AddSectionInlineButton, AddSectionInlineGap } from '../add-section-inline-button';
 import { ChapterMenuHeader } from '../chapter-menu-header';
 import { ChapterMenuListItem } from '../chapter-menu-list-item';
 import { ChapterMenu } from './ChapterMenu';
@@ -1315,46 +1312,30 @@ function OutlineDragRow({
 }
 
 /**
- * Glowing drop-target divider — the restored SecondaryGlowRail treatment
- * from the original Add Section Inline Button. Renders wherever the live
- * `dropIndicator` says a drop would land right now. Callers
- * place it either as a sibling ahead of a row (`placement: 'before'`) or as
- * the first entry inside a container's own `children` (`placement:
- * 'nest'`) — in the nest case it inherits that container's existing
- * scene/subscene indent for free, so it needs no indent of its own.
+ * Renders wherever the live `dropIndicator` says a drop would land right
+ * now. Callers place it either as a sibling ahead of a row (`placement:
+ * 'before'`) or as the first entry inside a container's own `children`
+ * (`placement: 'nest'`) — in the nest case it inherits that container's
+ * existing scene/subscene indent for free, so it needs no indent of its
+ * own.
+ *
+ * Thin wrapper around the shared `DropTarget` atom (`@/atoms/drop-target`)
+ * — this outline drag-and-drop is one of two callers that Figma component
+ * serves (Paragraph List is the other); only the `--outline-row-gap`
+ * compensation margin below is specific to this list's own row spacing, not
+ * a Drop Target concern, so it's applied via `className` rather than baked
+ * into the atom.
  */
-function DropIndicatorDivider() {
-  return (
-    <div
-      aria-hidden
-      data-slot="outline-drop-indicator"
-      className="pointer-events-none relative z-20 flex min-h-[length:var(--spacing-xl)] items-center"
-    >
-      <SecondaryGlowRail />
-    </div>
-  );
-}
-
-/** Persistent zero-height slot that smoothly opens around the live divider. */
 function DropIndicatorSlot({
   active,
 }: {
   active: boolean;
 }) {
   return (
-    <div
-      aria-hidden={!active}
-      data-slot="outline-drop-indicator-slot"
-      className={cn(
-        '[margin-block:calc(var(--outline-row-gap,0px)*-0.5)]',
-        'grid transition-[grid-template-rows,opacity] duration-normal ease-emphasized',
-        active ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-      )}
-    >
-      <div className="min-h-0 overflow-hidden">
-        <DropIndicatorDivider />
-      </div>
-    </div>
+    <DropTarget
+      active={active}
+      className="[margin-block:calc(var(--outline-row-gap,0px)*-0.5)]"
+    />
   );
 }
 

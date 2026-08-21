@@ -5,14 +5,20 @@ visual states: `default` (no chrome, handle hidden), `drag` (lifted —
 border, card fill, inner shadow), `selected` (same lifted treatment in the
 secondary/lavender border color).
 
-Presentational only — this component owns the four Figma visual states
-(Figma's `Hover` collapses into `default`'s real `:hover`/`:focus-within`,
-same as [Split & Parse](../../split-parse/split-parse/README.md)), not a
-drag engine. It forwards `ref`/`style` and exposes `handleProps` (spread
-onto the grip button) so it drops straight into `@dnd-kit/sortable`'s
-`useSortable()` — `setNodeRef` on the ref, `transform`/`transition` via
-`style`, `listeners`/`attributes` via `handleProps` — without this
-component knowing dnd-kit exists.
+Owns the four Figma visual states (Figma's `Hover` collapses into
+`default`'s real `:hover`/`:focus-within`, same as
+[Split & Parse](../../features/split-parse/split-parse/README.md)) and telling the
+caller which state to move to next, but not the `state` value itself — see
+"Press vs. drag on the grip handle" below. Not a drag engine beyond that:
+it doesn't move itself, decide where it sits relative to other blocks, or
+reorder anything — that's
+[Paragraph List](../../features/manuscript/paragraph-list/README.md)'s job
+entirely. It forwards `ref`/`style` and exposes `handleProps` (composed
+with, not overwritten by, the internal press handler) so a caller can wire
+in whatever drag adapter it uses without this component knowing dnd-kit
+exists. Paragraph List uses `@dnd-kit/core`'s `useDraggable`/`useDroppable`,
+not `@dnd-kit/sortable`'s `useSortable` — see that component's README for
+why.
 
 ## Sources
 
@@ -36,6 +42,32 @@ actual pointer/focus, never a prop to remember to set.
 genuinely driven by something other than this row's own pointer state — a
 drag library's `isDragging` flag, or a selection model elsewhere in the
 editor — so they can't be recovered from CSS pseudo-classes alone.
+
+## Press vs. drag on the grip handle
+
+Both a click and a drag start the same way — `pointerdown` on the handle —
+so which one it turns out to be can only be known after the fact, once the
+pointer has (or hasn't) moved. `useHandlePressDetection` (component file)
+watches `pointermove` after a press and fires `onDragStart` the moment
+movement exceeds `DRAG_THRESHOLD_PX` (4px); `onSelect` fires on
+`pointerup` regardless of whether that happened — a plain click never
+crosses the threshold, so `onSelect` is the only callback it gets, while a
+drag gets `onDragStart` first and `onSelect` on release. Both end at
+`selected`: a release always leaves this block as the active one, whether
+the pointer moved on the way there or not.
+
+The move/up/cancel listeners live on `window`, not the button — attached
+imperatively inside the `pointerdown` handler and torn down on release —
+so letting go after the pointer has left the handle (or the block
+entirely) mid-drag still resolves to `onSelect`. A `pointercancel` (e.g. a
+touch gesture the browser reinterprets as a scroll) tears the listeners
+down without firing `onSelect`, since that's neither a completed click nor
+a deliberate release.
+
+Neither callback touches `state` — the caller decides what `drag`/
+`selected` actually mean (e.g. writing into a dnd-kit sort or a selection
+model) and passes the result back down, same as Split & Parse's
+`onParse`/`onUndo`.
 
 ## Card fill is the container's own `background`, not a separate layer
 
@@ -69,6 +101,8 @@ built out.
 | --- | --- | --- |
 | `state` | `'default'` | `'default'` \| `'drag'` \| `'selected'` |
 | `handleProps` | — | Spread onto the grip `<button>` — dnd-kit `listeners` + `attributes` go here |
+| `onDragStart` | — | Fires once a press on the grip handle crosses the drag threshold |
+| `onSelect` | — | Fires on releasing the grip handle — plain click or letting go mid-drag |
 | `children` | — | The paragraph's text content |
 | `className` | — | Merged onto the root |
 | `ref` | — | Forwarded to the root `<div>` — dnd-kit `setNodeRef` |

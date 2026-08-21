@@ -17,3 +17,4 @@ Vendor-derived wrappers live under [`../primitives/`](../primitives/) — not he
 | [Status](./status/README.md) | Colored dot + label state readout |
 | [Brand Link](./brand-link/README.md) | Service logo + name lockup |
 | [Lateral Toggles](./lateral-toggles/README.md) | Prev/Next chapter nav — shortcut hint, label, truncated title |
+| [Drop Target](./drop-target/README.md) | Glowing insertion-line indicator for drag-reorderable lists (Figma `16372:4438`) |

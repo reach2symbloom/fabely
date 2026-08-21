@@ -5,3 +5,4 @@ export * from './book-cover';
 export * from './status';
 export * from './brand-link';
 export * from './lateral-toggles';
+export * from './drop-target';
