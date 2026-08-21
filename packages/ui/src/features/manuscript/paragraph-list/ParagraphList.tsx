@@ -25,20 +25,25 @@
  * across a reorder and layout tracking would break) and animates the
  * difference. Nothing here manually computes a sibling's y-offset.
  *
- * The `DropTarget` for the gap *before* a row is a normal flex sibling
- * inside that row's own `motion.div layout` wrapper (not absolutely
- * positioned — an earlier version tried that, to keep it from adding
- * height to the resting list, but an active `DropTarget` needs real
- * height for its rail/chevron, and positioning it out of flow just made
- * it overlap whatever was above it instead of making room). In flow, its
- * own 0-height collapse (`grid-template-rows: 0fr`, in the atom itself)
- * still costs nothing at rest, and `active` growing it genuinely reflows
- * the list — every row's `layout` tracking picks up the resulting size
- * change and glides to its new position, so "surrounding blocks make
- * room for the target" falls out of the same FLIP mechanism as sibling
- * reflow on drop, not a second animation system. The tail gap (after the
- * last row) has no following row to live inside, so it's the one
- * `DropTarget` rendered as a top-level flex sibling instead.
+ * The `DropTarget` for the gap *before* a row is absolutely positioned
+ * (`bottom-full`) inside that row's own `relative` wrapper, not a normal
+ * flex sibling — it was briefly made a physically-pushing flex sibling to
+ * get "surrounding blocks make room for the target," but that turned out
+ * to fight the pointer-driven gap resolution below: an in-flow
+ * `DropTarget` pushing the next row down changes that row's own measured
+ * rect, which is exactly what decides whether the gap should still be
+ * active, which can flip it back, closing the space, moving the row back,
+ * flipping the gap again — a feedback loop between the thing being
+ * measured and the thing doing the measuring (see
+ * `use-paragraph-list-dnd-kit.ts`'s doc comment for the full story).
+ * Absolutely positioned, it can render at any height without moving
+ * anything it sits on top of, which is what actually removes the loop.
+ * "Making room" still happens — just entirely from the *dragged* row's
+ * own collapse and the sibling `layout` reflow that follows it (next
+ * paragraph), neither of which has this problem, since `isDragging` is a
+ * plain boolean this same calculation never reads back. The tail gap
+ * (after the last row, no following row to live inside) is the one
+ * `DropTarget` rendered as a plain flex sibling at the very end.
  *
  * The row actively being dragged collapses its own `ParagraphBlock` (a
  * `grid-template-rows` `1fr` → `0fr` tween, same technique `DropTarget`
