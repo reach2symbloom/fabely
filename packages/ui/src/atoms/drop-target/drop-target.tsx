@@ -83,19 +83,21 @@ export function SecondaryGlowRail({ className }: { className?: string }) {
  * `filter0_d_16372_4423` verbatim would collide and one would silently
  * lose its glow.
  *
- * `viewBox` is cropped to `0 3 16 13`, not Figma's own `0 0 16 16` — the
- * glyph's ink starts around y=5 in the original box, so the top ~3px is
- * dead space that would otherwise show as a gap between the rail and the
- * chevron even at zero margin. `DropTarget` still nudges it up
- * (`-mt-[spacing-xs]`) to close the rest — the two together are what get
- * the chevron flush against the line, not either alone.
+ * Figma's own `16x16` frame, uncropped — "0px from the line" means this
+ * frame's own edge sits flush against the actual rendered line, not that
+ * the glyph's ink touches it. The glyph is drawn with headroom inside its
+ * 16x16 box (ink starts around y=5, not y=0); that headroom is part of the
+ * icon as designed, left alone. What *does* get closed, in `DropTarget`
+ * (`-mt-[spacing-xs]`), is `SecondaryGlowRail`'s own bottom `py-xs` —
+ * padding intrinsic to that shared component, not part of "the line"
+ * either, and the only thing actually separating the two frames.
  */
 function DropLineChevron({ filterId, className }: { filterId: string; className?: string }) {
   return (
     <svg
       aria-hidden
-      className={cn('pointer-events-none h-auto w-[length:var(--icon-sm)]', className)}
-      viewBox="0 3 16 13"
+      className={cn('pointer-events-none size-[length:var(--icon-sm)]', className)}
+      viewBox="0 0 16 16"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -171,7 +173,9 @@ export function DropTarget({ active = false, chevron = false, className }: DropT
           <div className="w-full">
             <SecondaryGlowRail />
           </div>
-          {chevron ? <DropLineChevron filterId={filterId} className="-mt-[length:var(--spacing-xs)]" /> : null}
+          {chevron ? (
+            <DropLineChevron filterId={filterId} className="-mt-[length:var(--spacing-xs)]" />
+          ) : null}
         </div>
       </div>
     </div>
