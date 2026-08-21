@@ -30,6 +30,11 @@ Foundations glows are documented as bypassing tokens for invariant visual
 treatments. Each `<filter id>` gets a `useId()` suffix — a bare, literal
 id copied onto two `DropTarget`s on the same page would collide.
 
+Sits flush against the rail (0px gap), not with Figma's own breathing room
+between them — the glyph's viewBox is cropped to trim the dead space above
+its ink, plus a small negative margin in `DropTarget`, together closing
+the gap completely.
+
 ## Promoted from Chapter Menu, not duplicated
 
 Chapter Menu's own outline drag-and-drop already rendered this exact

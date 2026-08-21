@@ -82,13 +82,20 @@ export function SecondaryGlowRail({ className }: { className?: string }) {
  * `<filter id>` is a document-wide id; two `DropTarget`s both rendering
  * `filter0_d_16372_4423` verbatim would collide and one would silently
  * lose its glow.
+ *
+ * `viewBox` is cropped to `0 3 16 13`, not Figma's own `0 0 16 16` — the
+ * glyph's ink starts around y=5 in the original box, so the top ~3px is
+ * dead space that would otherwise show as a gap between the rail and the
+ * chevron even at zero margin. `DropTarget` still nudges it up
+ * (`-mt-[spacing-xs]`) to close the rest — the two together are what get
+ * the chevron flush against the line, not either alone.
  */
-function DropLineChevron({ filterId }: { filterId: string }) {
+function DropLineChevron({ filterId, className }: { filterId: string; className?: string }) {
   return (
     <svg
       aria-hidden
-      className="pointer-events-none size-[length:var(--icon-sm)]"
-      viewBox="0 0 16 16"
+      className={cn('pointer-events-none h-auto w-[length:var(--icon-sm)]', className)}
+      viewBox="0 3 16 13"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -155,11 +162,16 @@ export function DropTarget({ active = false, chevron = false, className }: DropT
       )}
     >
       <div className="min-h-0 overflow-hidden">
-        <div className="pointer-events-none relative z-20 flex flex-col items-center">
-          <div className="flex min-h-[length:var(--spacing-xl)] w-full items-center">
+        <div
+          className={cn(
+            'pointer-events-none relative z-20 flex flex-col items-center',
+            !chevron && 'min-h-[length:var(--spacing-xl)] justify-center',
+          )}
+        >
+          <div className="w-full">
             <SecondaryGlowRail />
           </div>
-          {chevron ? <DropLineChevron filterId={filterId} /> : null}
+          {chevron ? <DropLineChevron filterId={filterId} className="-mt-[length:var(--spacing-xs)]" /> : null}
         </div>
       </div>
     </div>
