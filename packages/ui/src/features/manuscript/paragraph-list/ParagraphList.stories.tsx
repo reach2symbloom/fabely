@@ -60,7 +60,7 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Paragraph List"
-      description="Composes Paragraph Block and Drop Target into a drag-reorderable manuscript. Pick a row up by its grip handle to reorder; a plain click selects it instead."
+      description="Composes Paragraph Block and Drop Target into a drag-reorderable manuscript. Pick a row up by its grip handle to reorder; a plain click selects it instead. Resting blocks sit at the natural manuscript rhythm — the Drop Target only takes up space while actively showing an insertion point."
       playground={
         <div className="flex min-h-40 w-full items-center justify-center p-[var(--spacing-lg)]">
           <ParagraphListDemo />
@@ -85,23 +85,49 @@ export const Overview: Story = {
           <li>
             A plain click on the handle (no movement) selects the row
             directly, without ever starting a drag — try it on a row that
-            isn&apos;t already selected.
+            isn&apos;t already selected. Clicking into the selected
+            row&apos;s own text drops selection (you&apos;re editing now,
+            not reordering); clicking anywhere else — another row&apos;s
+            text, blank space — also clears it.
+          </li>
+          <li>
+            While dragging, the floating copy is translucent
+            (50%-alpha background + a light blur, not a faded block) so the{' '}
+            <code>Drop Target</code> rail and its chevron stay visible
+            underneath it as it passes over them.
+          </li>
+          <li>
+            Every displaced sibling glides to its new position on drop
+            (Motion&apos;s <code>layout</code> tracking) rather than
+            snapping — try dragging the first row down past a few others
+            and watch the ones in between.
           </li>
           <li>
             Ordering lives entirely in this component — Paragraph Block
             itself only reports clicks/drags via callbacks, it never knows
             its own position in the list. See the component README for the
             full architecture (why <code>@dnd-kit/core</code> rather than{' '}
-            <code>@dnd-kit/sortable</code>, how the active gap is resolved).
+            <code>@dnd-kit/sortable</code>, how the active gap is resolved,
+            why <code>DropTarget</code> is absolutely positioned instead of
+            a flex sibling).
           </li>
         </ul>
       }
       accessibility={
         <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
           <li>
-            dnd-kit&apos;s <code>KeyboardSensor</code> is wired alongside the
-            pointer sensor — Tab to a row&apos;s grip handle, Space to pick
-            it up, arrow keys to move it, Space again to drop.
+            Select a row (click its handle), then <code>ArrowUp</code>/
+            <code>ArrowDown</code> move it one position at a time — no
+            separate "pick up" step, and it stays selected and focused so
+            repeated presses keep moving the same row. Does nothing past
+            the first/last position. An <code>aria-live</code> region
+            announces each move.
+          </li>
+          <li>
+            dnd-kit&apos;s <code>KeyboardSensor</code> is also wired
+            alongside the pointer sensor, as a separate path — Tab to a
+            row&apos;s grip handle, Space to pick it up, arrow keys to move
+            it, Space again to drop.
           </li>
         </ul>
       }

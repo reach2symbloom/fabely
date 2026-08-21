@@ -54,3 +54,28 @@ export function reorderParagraphs(
   next.splice(insertAt, 0, moved);
   return next;
 }
+
+/**
+ * Moves `id` one position earlier (`direction: -1`) or later (`direction:
+ * 1`) — keyboard reordering's entry point into the exact same
+ * `reorderParagraphs` pointer-drag uses, just computing the adjacent gap
+ * directly instead of from pointer geometry. `activeIndex - 1` (one
+ * earlier) and `activeIndex + 2` (one later, i.e. past the gap
+ * immediately after `id` itself — `activeIndex + 1` would be a no-op, see
+ * `isParagraphMoveNoOp`) are the two gap indices immediately outside the
+ * pair that touch `id`'s own current position. No-op past either
+ * boundary, same `items` reference back, same as `reorderParagraphs`.
+ */
+export function moveParagraphByOffset(
+  items: ParagraphListItem[],
+  id: string,
+  direction: -1 | 1,
+): ParagraphListItem[] {
+  const activeIndex = items.findIndex((item) => item.id === id);
+  if (activeIndex === -1) return items;
+
+  const gapIndex = direction === -1 ? activeIndex - 1 : activeIndex + 2;
+  if (gapIndex < 0 || gapIndex > items.length) return items;
+
+  return reorderParagraphs(items, id, gapIndex);
+}

@@ -19,6 +19,13 @@
  * letting go after dragging the pointer away from the handle still fires
  * `onSelect`.
  *
+ * Clicking the paragraph text itself fires `onTextClick` — deliberately
+ * not gated on `state` here, since this component doesn't track whether
+ * it's "the selected one." A caller (Paragraph List) drops selection on
+ * this when the clicked block was already selected — the same click that
+ * lets you start editing shouldn't also leave the block-level `selected`
+ * chrome showing.
+ *
  * Still not a drag engine, though: it doesn't move itself, decide where it
  * sits relative to other blocks, or reorder anything — that's
  * [Paragraph List](../../features/manuscript/paragraph-list/README.md)'s
@@ -74,6 +81,12 @@ export type ParagraphBlockProps = React.HTMLAttributes<HTMLDivElement> & {
   /** Fires on releasing the grip handle — a plain click, or letting go
    * mid-drag. Either way the block should end up `selected`. */
   onSelect?: () => void;
+  /** Fires on clicking the paragraph text itself — not gated on `state`,
+   * since this component doesn't know if it's "the selected one." A
+   * caller typically drops selection here when this block was the
+   * selected one (clicking into text to edit it isn't "still selected as
+   * a block"), and ignores it otherwise. */
+  onTextClick?: () => void;
 };
 
 /** Movement past this distance (px) turns a press into a drag rather than a
@@ -97,7 +110,6 @@ function useHandlePressDetection(onDragStart?: () => void, onSelect?: () => void
 
     const originX = event.clientX;
     const originY = event.clientY;
-    const button = event.currentTarget;
     let dragging = false;
 
     function handlePointerMove(moveEvent: PointerEvent) {
@@ -118,16 +130,16 @@ function useHandlePressDetection(onDragStart?: () => void, onSelect?: () => void
     function handlePointerUp() {
       cleanup();
       callbacksRef.current.onSelect?.();
-      // A click/drag leaves the handle holding DOM focus (clicking a button
-      // focuses it in most browsers). Once this row sits in a real list,
-      // ArrowUp/ArrowDown reorder the selected block — pressing one while
-      // the handle still has focus makes the browser reconsider its
-      // `:focus-visible` heuristic (pointer-granted focus was invisible;
-      // a keydown while still focused flips it visible) and flash a native
-      // focus ring for a keypress that has nothing to do with this button.
-      // Blurring on release avoids it without touching real Tab-driven
-      // keyboard focus, which never reaches this handler at all.
-      button.blur();
+      // A click/drag leaves the handle holding DOM focus (clicking a
+      // button focuses it in most browsers) — previously blurred here to
+      // avoid a stray `:focus-visible` ring flashing on the next
+      // unrelated keydown. Removed: a selected row now needs to *keep*
+      // focus for ArrowUp/ArrowDown reordering (Paragraph List's
+      // `onKeyDown`) to reach this button at all, and a keydown that
+      // reorders the row it's focused on isn't "unrelated" anymore — the
+      // ring showing during that interaction is correct feedback, not a
+      // glitch. `focus-visible:shadow-[...]` below replaces the raw
+      // default outline so it reads as intentional either way.
     }
 
     window.addEventListener('pointermove', handlePointerMove);
@@ -166,6 +178,7 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
       handleProps,
       onDragStart,
       onSelect,
+      onTextClick,
       className,
       children,
       style,
@@ -198,8 +211,10 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
           className={cn(
             'flex shrink-0 cursor-grab items-center justify-center pt-[length:var(--spacing-xs)]',
             'text-[color:var(--muted-foreground)] opacity-0',
-            'transition-opacity duration-fast ease-emphasized',
+            'rounded-[length:var(--rounded-xs)] outline-none',
+            'transition-[opacity,box-shadow] duration-fast ease-emphasized',
             'active:cursor-grabbing',
+            'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
             'group-hover/paragraph-block:opacity-100 group-focus-within/paragraph-block:opacity-100',
             forceHandleVisible && 'opacity-100',
           )}
@@ -211,7 +226,12 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
         >
           <GripVerticalIcon className="size-[length:var(--icon-lg)]" />
         </button>
-        <p className={cn('min-w-px flex-1 [word-break:break-word]', TEXT_STYLE)}>{children}</p>
+        <p
+          onClick={onTextClick}
+          className={cn('min-w-px flex-1 [word-break:break-word]', TEXT_STYLE)}
+        >
+          {children}
+        </p>
       </div>
     );
   },

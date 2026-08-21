@@ -69,6 +69,24 @@ Neither callback touches `state` — the caller decides what `drag`/
 model) and passes the result back down, same as Split & Parse's
 `onParse`/`onUndo`.
 
+Release used to blur the handle (avoiding a stray native focus-visible
+ring on the next unrelated keydown), back when a keypress genuinely had
+nothing to do with this button. It doesn't blur anymore — Paragraph List
+reorders the *selected* row with `ArrowUp`/`ArrowDown`, which needs the
+handle to still hold focus for its `onKeyDown` to fire at all, and a ring
+appearing while an arrow key is actively doing something to this element
+is correct feedback now, not noise. `focus-visible:shadow-[var(--effect-focus-ring-secondary)]`
+replaces the raw default outline so it still reads as intentional.
+
+## Clicking the text fires `onTextClick`, not gated on `state`
+
+This component doesn't track whether it's "the selected one" — `onTextClick`
+fires on every text click regardless, same as `onDragStart`/`onSelect`
+firing regardless of the current `state` prop. Paragraph List uses it to
+drop selection specifically when the clicked block was already selected
+(clicking into text to edit it shouldn't leave block-level `selected`
+chrome showing) and ignores it otherwise.
+
 ## Card fill is the container's own `background`, not a separate layer
 
 Figma's export puts the `drag`/`selected` fill (`shadcn/general/background
@@ -103,6 +121,7 @@ built out.
 | `handleProps` | — | Spread onto the grip `<button>` — dnd-kit `listeners` + `attributes` go here |
 | `onDragStart` | — | Fires once a press on the grip handle crosses the drag threshold |
 | `onSelect` | — | Fires on releasing the grip handle — plain click or letting go mid-drag |
+| `onTextClick` | — | Fires on clicking the paragraph text — not gated on `state` |
 | `children` | — | The paragraph's text content |
 | `className` | — | Merged onto the root |
 | `ref` | — | Forwarded to the root `<div>` — dnd-kit `setNodeRef` |
@@ -125,3 +144,4 @@ Standard `HTMLAttributes<HTMLDivElement>` (e.g. `style`, for dnd-kit's
 | Text | `--text-paragraph-serif-regular-*` |
 | Text color | `--theme-alpha-black-switch-75` |
 | Handle color (rest) | `--muted-foreground` |
+| Handle focus ring | `--effect-focus-ring-secondary` |
