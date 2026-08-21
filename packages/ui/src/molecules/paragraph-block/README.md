@@ -49,7 +49,7 @@ Both a click and a drag start the same way — `pointerdown` on the handle —
 so which one it turns out to be can only be known after the fact, once the
 pointer has (or hasn't) moved. `useHandlePressDetection` (component file)
 watches `pointermove` after a press and fires `onDragStart` the moment
-movement exceeds `DRAG_THRESHOLD_PX` (4px); `onSelect` fires on
+movement exceeds `DRAG_THRESHOLD_PX` (8px); `onSelect` fires on
 `pointerup` regardless of whether that happened — a plain click never
 crosses the threshold, so `onSelect` is the only callback it gets, while a
 drag gets `onDragStart` first and `onSelect` on release. Both end at
@@ -98,14 +98,28 @@ drop selection specifically when the clicked block was already selected
 (clicking into text to edit it shouldn't leave block-level `selected`
 chrome showing) and ignores it otherwise.
 
-## The handle deepens on hover, one alpha stop up the same switch-token
+## The handle deepens on hover, one alpha stop up the same switch-token — plus a soft glow behind the dots
 
 `hover:text-[color:var(--theme-alpha-black-switch-80)]` over the resting
 `--muted-foreground` (`--theme-alpha-black-switch-60`) — both are the same
 switch-token family, so this one rule deepens (more black) in light mode
 and lightens (more white) in dark mode simultaneously; there's no second
 dark-mode color value to keep in sync, since the theme flip is already
-baked into what "black-switch" resolves to.
+baked into what "black-switch" resolves to. That alpha shift is secondary
+now, though — the main hover cue is `HANDLE_GLOW`, a faint white
+`radial-gradient(ellipse, ...)` behind the dots (not `circle`, which would
+force a round shape regardless of the box's own proportions) on a
+box shaped like the dots' own 2×3 cluster (narrower than tall), so it
+reads as the dots themselves emitting a little light rather than a
+spotlight sitting behind an unrelated round shape. Motion variant
+propagation (`whileHover="hover"` on the button, `variants` on the glow
+`motion.span`) drives it, not plain CSS `:hover`, since "very slight
+scale" needs an actual animated value; `useReducedMotion` keeps the fade
+but drops the scale. The glow centers on a wrapper sized exactly to the
+icon (`size-[length:var(--icon-lg)]`), not the button itself — the button
+has its own `pt-*` offset (see below), and centering on the *button*
+would have put the glow visibly off from the dots it's supposed to be
+coming from.
 
 ## Text is editable — `contentEditable`, gated on `onTextChange`
 
@@ -117,6 +131,39 @@ typing (that fights `contentEditable` and drops the caret): text stays
 whatever the DOM has until `onBlur` reads `textContent` and reports it
 once. A caller (Paragraph List) writes that back into `children` for the
 next render — same "doesn't own its own value" shape as `state`.
+
+`Enter` (not `Shift+Enter`, left alone entirely so it falls through to a
+normal soft line break) fires `onEnter(caretOffset)` — a plain-text
+character offset, via the standard "clone a range from the start of the
+element to the caret, measure its stringified length" trick
+(`getCaretOffset`). `Backspace` with the caret *collapsed* (not a real
+selection) at exactly offset `0` fires `onBackspaceAtStart`. Both prevent
+their default browser behavior only once this component has decided to
+fire; neither touches the array itself — see Paragraph List's README for
+what a split/merge actually does to it.
+
+`autoFocus`/`autoFocusOffset` place the caret at a specific offset
+(`setCaretOffset`, `getCaretOffset`'s inverse) rather than always the
+start — necessary because refocusing isn't only for freshly-mounted
+blocks (a just-split new block) but also an *already-mounted* one (the
+previous block after a merge, landing at the exact join point). The
+effect driving this depends on `[autoFocus, autoFocusOffset]`, not `[]`,
+specifically so a caller re-requesting focus on a block that's been
+mounted the whole time still re-fires it.
+
+## The handle's top offset is derived from line-height, not a hand-tuned constant
+
+`pt-[calc((var(--text-paragraph-serif-regular-line-height)-var(--icon-lg))/2+1px)]`
+— `(line-height − icon size) / 2` is exactly the offset that centers a
+`--icon-lg` glyph against a line box of
+`--text-paragraph-serif-regular-line-height` (the `+1px` on top is a
+deliberate optical nudge past that exact math, not a rounding fix). Both
+the button and the `<p>` share the same `items-start` row and the same
+`--spacing-sm` container padding, so this offset is measured from the
+same top edge the text's first line starts from — it holds regardless of
+how many lines follow, since only the *first* line's own box matters, and
+stays correct if either token's value ever changes instead of drifting
+out of sync with a separately-hand-tuned pixel value.
 
 ## Card fill is the container's own `background`, not a separate layer
 
@@ -154,6 +201,9 @@ built out.
 | `onSelect` | — | Fires on releasing the grip handle — plain click or letting go mid-drag |
 | `onTextClick` | — | Fires on clicking the paragraph text — not gated on `state` |
 | `onTextChange` | — | Fires with the edited text on blur; also what makes the text `contentEditable` at all — omit for read-only |
+| `onEnter` | — | Fires with the caret's text offset on plain `Enter` (not `Shift+Enter`) |
+| `onBackspaceAtStart` | — | Fires on `Backspace` with a collapsed caret at offset `0` |
+| `autoFocus` / `autoFocusOffset` | `false` / `0` | Focuses the text and places the caret at that offset — re-fires on any *new* request, mount or not |
 | `children` | — | The paragraph's text content |
 | `className` | — | Merged onto the root |
 | `ref` | — | Forwarded to the root `<div>` — dnd-kit `setNodeRef` |
@@ -166,8 +216,9 @@ Standard `HTMLAttributes<HTMLDivElement>` (e.g. `style`, for dnd-kit's
 | Concern | Foundations |
 | --- | --- |
 | Row padding / gap | `--spacing-sm` (12px) |
-| Handle icon-to-top offset | `--spacing-xs` (8px) |
+| Handle icon-to-top offset | `(line-height − icon size) / 2 + 1px` — see above |
 | Handle icon size | `--icon-lg` (24px) |
+| Handle hover glow | `HANDLE_GLOW` — white ellipse, 14×22px, peaks ~22% opacity |
 | Radius, `default` | `--rounded-lg` (12px) |
 | Radius, `drag` / `selected` | `--radius` (16px) |
 | Border, `drag` | `--border` |

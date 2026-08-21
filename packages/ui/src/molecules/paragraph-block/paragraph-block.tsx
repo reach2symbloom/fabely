@@ -19,6 +19,13 @@
  * letting go after dragging the pointer away from the handle still fires
  * `onSelect`.
  *
+ * The grip handle also blooms a soft white radial glow behind its dots on
+ * hover (`HANDLE_GLOW`) — restrained, diffuse, no hard edge, and secondary
+ * to the dots' own slight alpha-deepen; Motion variant propagation
+ * (`whileHover="hover"` on the button, `variants` on the glow span) drives
+ * it rather than plain CSS `:hover`, since "very slight scale" needs an
+ * actual animated value, not just an opacity transition.
+ *
  * Clicking the paragraph text itself fires `onTextClick` — deliberately
  * not gated on `state` here, since this component doesn't track whether
  * it's "the selected one." A caller (Paragraph List) drops selection on
@@ -62,7 +69,9 @@
 
 import * as React from 'react';
 import { GripVerticalIcon } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 
+import { TRANSITION_EMPHASIZED_FAST } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
 export type ParagraphBlockState = 'default' | 'drag' | 'selected';
@@ -93,11 +102,95 @@ export type ParagraphBlockProps = React.HTMLAttributes<HTMLDivElement> & {
    * owns `state`; a caller writes the result back into `children` for the
    * next render. Omit to render read-only, plain text. */
   onTextChange?: (text: string) => void;
+  /** Fires when `Enter` (not `Shift+Enter`, which inserts a normal soft
+   * line break instead — not intercepted at all) is pressed while editing
+   * the text, with the caret's plain-text offset at that moment. This
+   * component only reports *where* the split happened, same as it only
+   * ever reports raw interaction elsewhere — a caller (Paragraph List)
+   * owns deciding what a split means for the array: which text stays,
+   * which moves to a new block, and that new block's id. Only relevant
+   * alongside `onTextChange` (read-only text isn't focusable to receive
+   * it). The default newline is prevented either way. */
+  onEnter?: (caretOffset: number) => void;
+  /** Fires when `Backspace` is pressed with the caret collapsed at offset
+   * `0` — never for a non-empty selection starting at `0`, which deletes
+   * that selection instead, browser-default. Same "report where, caller
+   * decides what" shape as `onEnter`: this component doesn't know whether
+   * there's a previous block to merge into, only that the caret is at its
+   * own start. The default backspace is prevented only when this fires
+   * (`onBackspaceAtStart` returning without doing anything, e.g. because
+   * this is the first block, is on the caller — see Paragraph List). */
+  onBackspaceAtStart?: () => void;
+  /** Focuses the paragraph text and places the caret at `autoFocusOffset`
+   * (default the very start) — fires whenever `autoFocus`/`autoFocusOffset`
+   * *change* to a new request, not just on mount, since a caller (Paragraph
+   * List) sometimes needs to refocus a block that was already mounted
+   * (e.g. the previous block after a Backspace-merge), not only a
+   * freshly-inserted one. Doesn't repeatedly steal focus on unrelated
+   * re-renders — only an actual new request (a changed value) re-fires it. */
+  autoFocus?: boolean;
+  autoFocusOffset?: number;
 };
 
 /** Movement past this distance (px) turns a press into a drag rather than a
  * click. */
-const DRAG_THRESHOLD_PX = 4;
+const DRAG_THRESHOLD_PX = 8;
+
+/** Faint white bioluminescence behind the grip dots on hover — an
+ * `ellipse` gradient (not `circle`, which would force a round shape
+ * regardless of its box's own proportions) on a box shaped like the
+ * dots' own 2×3 cluster — narrower than tall — so the glow reads as
+ * coming from the dots themselves, not a spotlight placed behind an
+ * unrelated round shape. Peaks at a modest 22% opacity (well short of a
+ * "lit disc") and fades across several intermediate stops so the falloff
+ * itself does most of the work, with no point along it that reads as a
+ * hard edge. Deliberately not a Foundations token: same "invariant visual
+ * treatment" precedent as the Foundations glows and Drop Target's chevron
+ * glow — a literal value, not one derived from the current theme, since
+ * the point is a fixed warm catch-light regardless of light/dark mode. */
+const HANDLE_GLOW = [
+  'radial-gradient(ellipse,',
+  'rgba(255,255,255,0.22) 0%,',
+  'rgba(255,255,255,0.1) 40%,',
+  'rgba(255,255,255,0.03) 70%,',
+  'rgba(255,255,255,0) 100%)',
+].join(' ');
+
+/** Caret position as a plain-text character offset into `root` — the
+ * standard "clone a range from the start of the element to the caret,
+ * measure its stringified length" trick, which works regardless of how
+ * many text nodes the caret's container is split across. Only ever
+ * called on a plain-text `contentEditable` (no nested elements here), so
+ * there's no risk of counting a non-text node's own markup as text. */
+function getCaretOffset(root: HTMLElement): number {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) return 0;
+  const liveRange = selection.getRangeAt(0);
+  const preCaretRange = document.createRange();
+  preCaretRange.selectNodeContents(root);
+  preCaretRange.setEnd(liveRange.endContainer, liveRange.endOffset);
+  return preCaretRange.toString().length;
+}
+
+/** Inverse of `getCaretOffset` — places a collapsed caret at a plain-text
+ * character offset into `root`. Only ever called on a plain-text
+ * `contentEditable` (a single text node, or none at all when empty), so
+ * there's no multi-node offset math to do: clamp into that one text node,
+ * or just focus the (empty) root itself if there isn't one. */
+function setCaretOffset(root: HTMLElement, offset: number) {
+  const range = document.createRange();
+  const textNode = root.firstChild;
+  if (textNode?.nodeType === Node.TEXT_NODE) {
+    const clamped = Math.max(0, Math.min(offset, textNode.textContent?.length ?? 0));
+    range.setStart(textNode, clamped);
+  } else {
+    range.selectNodeContents(root);
+  }
+  range.collapse(true);
+  const selection = window.getSelection();
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+}
 
 /**
  * Distinguishes a click from a drag on the grip handle by watching pointer
@@ -184,6 +277,10 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
       onSelect,
       onTextClick,
       onTextChange,
+      onEnter,
+      onBackspaceAtStart,
+      autoFocus,
+      autoFocusOffset = 0,
       className,
       children,
       style,
@@ -192,6 +289,21 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
     ref,
   ) => {
     const forceHandleVisible = state !== 'default';
+    const textRef = React.useRef<HTMLParagraphElement>(null);
+
+    React.useEffect(() => {
+      if (!autoFocus) return;
+      const node = textRef.current;
+      if (!node) return;
+      node.focus();
+      setCaretOffset(node, autoFocusOffset);
+      // Deliberately depends on the request, not `[]` — this needs to
+      // re-fire for an *already-mounted* block (the previous block after
+      // a Backspace-merge is never freshly mounted the way a
+      // just-inserted block is), not just once at mount. It still won't
+      // fire on an unrelated re-render, since `autoFocus`/`autoFocusOffset`
+      // only change value when a caller makes an actual new request.
+    }, [autoFocus, autoFocusOffset]);
     const detectPress = useHandlePressDetection(onDragStart, onSelect);
     const {
       onPointerDown: handlePointerDown,
@@ -213,6 +325,15 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
     const pointerFocusRef = React.useRef(false);
     const [showFocusRing, setShowFocusRing] = React.useState(false);
 
+    // Reduced motion keeps the glow (it's not a bounce or a translation,
+    // just a fade) but drops the "very slight scale" — scale is the part
+    // that reads as movement.
+    const prefersReducedMotion = useReducedMotion();
+    const glowVariants = {
+      rest: { opacity: 0, scale: prefersReducedMotion ? 1 : 0.85 },
+      hover: { opacity: 1, scale: 1 },
+    };
+
     return (
       <div
         ref={ref}
@@ -228,11 +349,22 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
         )}
         {...props}
       >
-        <button
+        <motion.button
           type="button"
           aria-label="Drag to reorder paragraph"
+          initial="rest"
+          whileHover="hover"
           className={cn(
-            'flex shrink-0 cursor-grab items-center justify-center pt-[length:var(--spacing-xs)]',
+            // Anchored to the first line's own line-height geometry, not a
+            // hand-tuned constant: `(line-height - icon size) / 2` is the
+            // offset that centers a --icon-lg glyph against a line box of
+            // --text-paragraph-serif-regular-line-height — so this stays
+            // correct if either token changes, and holds regardless of how
+            // many lines follow (only the *first* line's own box matters).
+            // +1px on top is a deliberate optical nudge past that exact
+            // math, not a rounding fix.
+            'relative flex shrink-0 cursor-grab items-center justify-center',
+            'pt-[calc((var(--text-paragraph-serif-regular-line-height)-var(--icon-lg))/2+1px)]',
             'text-[color:var(--muted-foreground)] opacity-0',
             'rounded-[length:var(--rounded-xs)] outline-none',
             'transition-[opacity,color,box-shadow] duration-fast ease-emphasized',
@@ -241,7 +373,8 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
             // one alpha stop up — deepens (more black) in light mode,
             // lightens (more white) in dark mode, automatically, since
             // it's the theme flip already baked into the token, not two
-            // separate color values to keep in sync.
+            // separate color values to keep in sync. Secondary to the
+            // glow below — a slight brighten, not the main hover cue.
             'hover:text-[color:var(--theme-alpha-black-switch-80)]',
             showFocusRing && 'shadow-[var(--effect-focus-ring-secondary)]',
             'group-hover/paragraph-block:opacity-100 group-focus-within/paragraph-block:opacity-100',
@@ -264,17 +397,61 @@ export const ParagraphBlock = React.forwardRef<HTMLDivElement, ParagraphBlockPro
             setShowFocusRing(false);
             handleBlur?.(event);
           }}
-          {...restHandleProps}
+          {...(restHandleProps as React.ComponentProps<typeof motion.button>)}
         >
-          <GripVerticalIcon className="size-[length:var(--icon-lg)]" />
-        </button>
+          {/* Tightly bounds just the dots (exactly `--icon-lg`), independent
+              of the button's own `pt-xs` padding — the glow below centers
+              on *this* box, not the button's, so padding can't throw its
+              alignment off. */}
+          <span className="relative inline-flex size-[length:var(--icon-lg)] items-center justify-center">
+            <motion.span
+              aria-hidden
+              variants={glowVariants}
+              transition={TRANSITION_EMPHASIZED_FAST}
+              // 14×22 — narrower than tall, matching the dots' own 2×3
+              // cluster (roughly 10×18 within the 24×24 icon, per its
+              // `inset-[12.5%_29.17%]` dot layout), not the icon's own
+              // square footprint.
+              className="pointer-events-none absolute top-1/2 left-1/2 h-[22px] w-[14px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+              style={{ background: HANDLE_GLOW }}
+            />
+            <GripVerticalIcon className="relative size-[length:var(--icon-lg)]" />
+          </span>
+        </motion.button>
         <p
+          ref={textRef}
           contentEditable={onTextChange !== undefined}
           suppressContentEditableWarning
           onClick={onTextClick}
           onBlur={
             onTextChange &&
             ((event) => onTextChange(event.currentTarget.textContent ?? ''))
+          }
+          onKeyDown={
+            (onEnter || onBackspaceAtStart) &&
+            ((event) => {
+              // Shift+Enter isn't handled at all — falls through to the
+              // browser's own contentEditable behavior, which inserts a
+              // soft line break in place. Only plain Enter splits.
+              if (onEnter && event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                onEnter(getCaretOffset(event.currentTarget));
+                return;
+              }
+              // Only a *collapsed* caret genuinely at offset 0 — a real
+              // selection starting at 0 should delete that selection first,
+              // the browser's own default, not merge into the previous
+              // block.
+              if (
+                onBackspaceAtStart &&
+                event.key === 'Backspace' &&
+                window.getSelection()?.isCollapsed &&
+                getCaretOffset(event.currentTarget) === 0
+              ) {
+                event.preventDefault();
+                onBackspaceAtStart();
+              }
+            })
           }
           className={cn(
             'min-w-px flex-1 [word-break:break-word] outline-none',

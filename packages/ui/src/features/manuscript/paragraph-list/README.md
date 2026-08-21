@@ -26,32 +26,53 @@ apart. Built on `useDraggable`/`useDroppable` instead, with the actual
 reorder computed by a small pure reducer (`paragraph-list-dnd.ts`) that
 never imports dnd-kit — same split as `outline-dnd.ts`.
 
-## Which gap is active comes from row geometry, not a droppable per gap
+## Which gap is active: live pointer position, live row rects — not dnd-kit's cache, not the dragged item's own geometry
 
-Every gap in the list mounts a `DropTarget`, but making each one its own
-`useDroppable` zone doesn't work well at rest — an inactive `DropTarget` is
-visually (and hit-box-wise) close to 0px tall, a near-impossible pointer
-target. Instead, each *row* is both draggable and droppable (`useParagraphRow`),
-and `onDragMove` resolves a gap index from geometry — the dragged ghost's
-top edge vs. the vertical midpoint of whatever row it's currently over: top
-half → the gap ahead of that row, bottom half → the gap after it. `N` rows
-this way cover all `N + 1` gaps (the tail gap, after the last row, is just
-that row's bottom half) without needing an `N + 1`th droppable.
+`onDragMove` resolves a gap index by walking the *current* rows in order
+(`nearestGapIndex`, `use-paragraph-list-dnd-kit.ts`) and finding the one
+whose freshly-measured `getBoundingClientRect()` actually contains the
+pointer, splitting at *that row's own* vertical midpoint — top half → the
+gap ahead of it, bottom half → the gap after. Two things this deliberately
+isn't:
 
-## `DropTarget` is absolutely positioned, not a flex sibling
+- **Not `active.rect.current.translated`** (the dragged item's own ghost
+  rect, translated by dnd-kit's drag delta). That rect's *top* edge is the
+  top of the whole dragged block — for anything taller than a few px, well
+  above wherever the pointer actually is inside it, which put the resolved
+  gap however far that edge sat above the cursor. The real pointer
+  position (`activatorEvent.clientY + delta.y` — dnd-kit's `delta` is
+  cumulative since drag start, not per-frame) has no such offset.
+- **Not dnd-kit's own droppable `rect` cache** (`event.over.rect`).
+  Droppable rects only re-measure on specific triggers, not every
+  animation frame — comparing against them while a row is mid-`layout`
+  reflow (e.g. right after the source row's own collapse moves its
+  neighbors) can read a pre-reflow position. Each row's own live DOM node
+  (`getRowNode`, refs Paragraph List already owns) is measured fresh on
+  every move instead.
 
-An earlier version put every `DropTarget` in normal flex flow between
-rows, with a negative-margin trick to cancel out double-counting the row
-gap. That math actually netted out correctly, but the *resting* list still
-looked too spread out — each `DropTarget`, however compensated, still ate
-its own share of the flex layout's gap budget just by being a flex item at
-all. Now each row's own wrapper is `position: relative`, and the
-`DropTarget` for the gap *before* that row lives inside it,
-`position: absolute; bottom-full` — at rest it contributes zero height to
-the row's own box; expanding it while `active` overlays the gap visually
-without moving any row's actual layout position. The tail gap (after the
-last row, no following row to attach to) is the one `DropTarget` still
-rendered as a plain flex sibling, at the very end of the list.
+A row this list is currently dragging has already collapsed to ~0 height
+(see below), so it never meaningfully "contains" the pointer — it's walked
+past on the way, same as if its former geometry weren't part of this
+calculation at all.
+
+## `DropTarget` is absolutely positioned — a live-measuring feedback loop, not a design preference
+
+A more literal reading of "surrounding blocks make room for the target"
+would make `DropTarget` a normal flex sibling that physically grows and
+pushes the next row down while active — genuinely tried. It doesn't work
+together with the pointer-driven resolution above: activating a gap
+push-opens real space above the next row, which moves that row, which
+changes what the *very next* `getBoundingClientRect()` reads for it, which
+can flip the resolved gap back, closing the space, moving the row back,
+flipping the gap again — a feedback loop between the thing being measured
+and the thing doing the measuring. An absolutely positioned `DropTarget`
+(`bottom-full` inside each row's own `relative` wrapper) can render at any
+height without moving anything it sits on top of, which is what actually
+removes the loop — a smarter hysteresis value doesn't, since the geometry
+itself is what's unstable. "Making room" instead comes entirely from the
+*dragged* row's own collapse (below) plus the sibling `layout` reflow that
+follows it — genuinely stable, since `isDragging` is a plain boolean, not
+a value this same calculation reads back.
 
 ## Sibling reflow is `layout`, not a manual y-offset
 
@@ -112,21 +133,33 @@ resolves same-group `bg-[...]` utilities to the later one). Border and
 shadow are untouched, so the lifted-card edge reads exactly as readable as
 any other `drag`-state block; only the surface is translucent, and the
 text itself stays full-opacity — this is a background treatment, not a
-block-opacity one. Since the anchored original (dimmed at its own
-position) and the `DropTarget` overlay both render in normal page flow,
-underneath the portal-rendered `DragOverlay`, the insertion rail — chevron
-included — stays visible through the floating block as it passes over it.
+block-opacity one. The `DropTarget` rail sits in normal page flow,
+underneath the portal-rendered `DragOverlay`, so the insertion rail —
+chevron included — stays visible through the floating block as it passes
+over it.
 Both `DropTarget`s here render with `chevron` — see that atom's README for
 why it's off by default (Chapter Menu doesn't use it) but on here.
 
-## The anchored row dims; the `DragOverlay` copy carries `drag` chrome
+## The dragged row's own slot collapses; the `DragOverlay` copy carries `drag` chrome
 
-Also matching Chapter Menu: the dragged row's original stays in place
-(`selected`/`default`, whichever it already was) and only dims
-(`opacity-40`) while `isDragging` — it doesn't itself switch to `drag`
-chrome. A separate `ParagraphBlock state="drag"` renders inside dnd-kit's
-`DragOverlay` and follows the pointer instead. Showing `drag` chrome in
-both places at once would read as two lifted cards for one gesture.
+The row actually being dragged doesn't stay in place as a dimmed
+placeholder — its `ParagraphBlock` collapses to zero height the instant
+`isDragging` flips true (a `grid-template-rows` `1fr` → `0fr` tween, same
+technique `DropTarget` itself uses — chosen over animating `height`
+directly, or trusting `layout`'s own size-interpolation, so the paragraph
+text doesn't visibly squish mid-collapse), and its neighbors close that
+space immediately via the same `layout` tracking everything else uses.
+Nothing here waits for the pointer to travel the block's own height first
+— `isDragging` becomes true right at dnd-kit's activation distance (`8px`,
+below), so the "this block just got picked up" feedback is close to
+instant, closer to how a block editor like Notion detaches a block from
+its slot than to a placeholder that lingers until drop. A separate
+`ParagraphBlock state="drag"` renders inside dnd-kit's `DragOverlay` and
+follows the pointer instead — that's the only place `drag` chrome shows;
+the collapsing original never switches to it. Canceling a drag (`Escape`,
+or dropping somewhere invalid) flips `isDragging` back to `false` on its
+own, so the collapse just reverses — no separate "restore" path to keep in
+sync.
 
 ## `onDragStart`/`onSelect` (Paragraph Block) vs. dnd-kit's own drag
 
@@ -134,7 +167,7 @@ These answer different questions and both fire for the same gesture on
 purpose. Paragraph Block's own press-vs-drag detector (composed with
 dnd-kit's `listeners` via `handleProps`, see that component's README)
 drives what the row should visually *look like* (`selected` after any
-click or drop); dnd-kit's `PointerSensor` — activation distance `4`,
+click or drop); dnd-kit's `PointerSensor` — activation distance `8`,
 matching Paragraph Block's own threshold so the two never disagree about
 whether a given press became a drag — separately drives whether an actual
 reorder is in progress. A plain click never crosses either threshold, so
@@ -142,23 +175,61 @@ dnd-kit's own `onDragStart` never fires for one; Paragraph Block's
 `onSelect` firing directly is the only signal this list gets for "the
 handle was clicked" in that case.
 
+## Enter splits a block; Backspace at offset 0 merges it into the previous one
+
+Both go through Paragraph Block's own callbacks (`onEnter(caretOffset)`,
+`onBackspaceAtStart`) — that component only ever reports *where* the
+caret was, never touches the array itself; `handleEnter`/
+`handleBackspaceAtStart` here own the actual mutation, same "report the
+interaction, caller decides what it means" shape as everything else in
+this list.
+
+**Split**: the current block keeps its id and everything before the
+caret; a new block (`crypto.randomUUID()`) gets everything from the caret
+onward and is spliced in right after. Caret-at-offset-0 (nothing before
+it) and caret-at-the-end (nothing after it) both fall out of the same
+slice logic without special-casing — an "empty before" or "empty after"
+half is just a valid, boring slice result.
+
+**Merge**: the previous block keeps its id and gains the current block's
+text appended (with exactly one space inserted if neither side of the
+join already has whitespace there, so two words never run together and a
+merge never lands straight after the previous block's own closing
+punctuation); the current block's id is removed from the array entirely.
+First block in the list: no previous block to merge into, so this is a
+structural no-op — Paragraph Block already didn't touch the text either,
+since it only calls `onBackspaceAtStart` for a *collapsed* caret genuinely
+at `0` (a real selection starting at `0` deletes that selection instead,
+the browser's own default).
+
+**Refocusing an existing, already-mounted block**: the split's new block
+is freshly created, so Paragraph Block's own mount-time focus effect
+handles it for free — but the merge's target (the *previous* block) was
+already mounted before the merge, same React instance throughout. Its
+`autoFocus`/`autoFocusOffset` props are read by a `useEffect` keyed on
+those two values, not `[]`, specifically so a caller can re-request focus
+on a block that never unmounted (see Paragraph Block's own README). The
+offset lands exactly at the join point — the previous block's own former
+length — regardless of whether a joining space got inserted, so the caret
+sits right at the seam either way.
+
 ## API
 
 | Prop | Notes |
 | --- | --- |
 | `items` | `{ id, text }[]` |
-| `onItemsChange` | Fires with the reordered array on a real drop; this list doesn't own array state itself |
+| `onItemsChange` | Fires with the reordered array on a real drop, split, or merge; this list doesn't own array state itself |
 | `className` | Merged onto the row container |
 
-Selection (`selectedId`) is internal, not a prop — nothing outside this
-list needs to know or set which row is selected today. Lift it if that
-changes.
+Selection (`selectedId`) and the pending focus request (`autoFocusId`/
+`autoFocusOffset`) are internal, not props — nothing outside this list
+needs to know or set them today. Lift them if that changes.
 
 ## Tokens
 
 | Concern | Foundations |
 | --- | --- |
-| Row gap (resting) | `--spacing-xs` (8px) |
-| Drag activation distance | `4px` (matches Paragraph Block's own click/drag threshold) |
-| Sibling reflow | `LAYOUT_REFLOW` (`@/lib/motion`) — ease-out, ~220ms, no spring |
+| Row gap (resting) | `-4px` (`ROW_OVERLAP`) — a deliberate slight overlap into each block's own transparent border/padding, not visible content |
+| Drag activation distance | `8px` (matches Paragraph Block's own click/drag threshold) |
+| Sibling reflow | `LAYOUT_REFLOW` (`@/lib/motion`) — `EASE_EMPHASIZED`, 180ms, no spring |
 | Drag overlay background | `color-mix(in srgb, var(--card) 50%, transparent)` + `backdrop-blur-[3px]` |

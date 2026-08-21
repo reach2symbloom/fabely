@@ -99,7 +99,8 @@ Add Section Inline Button's proximity-revealed divider.
 | Rail color | `--tw-raw-secondary-200` |
 | Rail thickness | `--stroke-thin` (solid) / `--stroke-regular` (glow) |
 | Slot min-height (`chevron` off) | `--spacing-xl` |
-| Top padding ahead of the rail (`chevron` on) | `--spacing-md` (16px) |
+| Top padding ahead of the rail (`chevron` on) | `--spacing-xs` (8px) |
+| Bottom pull toward whatever follows (`chevron` on) | `-4px` |
 | Open/close motion | `--duration-normal`, `ease-emphasized` |
 | Chevron size | `--icon-sm` (16px, matches its own 16×16 viewBox) |
 | Chevron-to-rail gap | `--spacing-2xs` (4px, net of `SecondaryGlowRail`'s own `--spacing-xs` padding) |
