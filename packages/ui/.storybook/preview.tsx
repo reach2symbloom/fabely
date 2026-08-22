@@ -112,6 +112,7 @@ const preview: Preview = {
                 ['Lucide', 'Solar', 'Fabely Icons'],
                 'Best Practices',
               ],
+              'Images',
             ],
             // Primitives: wrapped vendor components (flat, alphabetical).
             // Nested families (e.g. Button) must be listed explicitly — otherwise
@@ -697,7 +698,18 @@ const preview: Preview = {
             'Atoms',
             'Molecules',
             'Organisms',
-            'Templates',
+            'Features',
+            [
+              'Overview',
+              'Chapter Nav Organism',
+              [
+                'Chapter Menu',
+                'Chapter Menu List Item',
+                'Add Section Inline Button',
+                'Chapter Nav Button',
+                'Chapter Menu Header',
+              ],
+            ],
           ],
         ],
       },

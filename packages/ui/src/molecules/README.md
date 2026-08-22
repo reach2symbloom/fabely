@@ -1,7 +1,16 @@
 # Molecules
 
-Simple groups of atoms functioning together as a single unit — a labeled input, a search field, a menu item with an icon and a label.
+Simple groups of atoms/primitives functioning together as a unit — a labeled
+input, a search field, an avatar with a name.
 
-Per `docs/DESIGN.md`: Foundations → Primitives → Atoms → Molecules → Organisms → Templates. Molecules compose atoms rather than duplicating their implementation, and should consume semantic tokens once a reusable role emerges rather than being invented prematurely.
+Per `docs/DESIGN.md`: Foundations → Primitives → Atoms → Molecules → Organisms →
+Templates. Molecules compose rather than duplicating implementation, and should
+consume semantic tokens once a reusable role emerges.
 
-No components exist yet — this directory is scaffolding for future molecule-level composition.
+## Components
+
+| Molecule | Notes |
+| --- | --- |
+| [Avatar with Label](./avatar-with-label/README.md) | Avatar + name; optional second-line action (Figma `12044:25610`) |
+| [Controls](./controls/README.md) | Label, Dropdown, Slider, Icon Button Group, Rich Divider (Figma `16301:20374`) |
+| [Paragraph Block](./paragraph-block/README.md) | Manuscript text + drag handle + selection/drag interaction (Figma `16129:377`) |

@@ -6,10 +6,11 @@
  * Button Group Figma). Interaction model matches Text Button (see README).
  *
  * Size slots share vocabulary with Text Button (`mini` / `default`); values
- * are Icon Button’s own (24 / 32 / 36 / 40). See docs/DESIGN.md “Size slots”.
+ * are Icon Button’s own (28 / 32 / 36 / 40). See docs/DESIGN.md “Size slots”.
  *
  * Shared variants: `../shared` (`buttonVariantClasses`), plus Icon-only
- * `fade` from Figma Fade button (`12042:25189`).
+ * `fade` / `fadeGold` from Figma Fade button (`12042:25189`), and `glow`
+ * (lavender halo — Resume Writing Button go-control).
  */
 import { Button as ButtonPrimitive } from '@base-ui/react/button';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -20,10 +21,31 @@ import {
 } from '../shared';
 
 /**
- * Shared Button variants plus Icon-only `fade` (Figma Fade button).
- * Fade is not on Text Button — rest is a quieter icon, not a labeled face.
+ * Shared Button variants plus Icon-only `fade` / `fadeGold` (Figma Fade button)
+ * and `glow` (lavender halo).
  */
-export type IconButtonVariant = keyof typeof buttonVariantClasses | 'fade';
+export type IconButtonVariant =
+  | keyof typeof buttonVariantClasses
+  | 'subtleFilled'
+  | 'fade'
+  | 'fadeGold'
+  | 'glow';
+
+/**
+ * Quiet filled face for icon affordances that must remain visibly distinct
+ * from bare glyphs at rest. Unlike Ghost, the circular/roundrect surface is
+ * always present; direct interaction deepens that same semantic alpha fill.
+ */
+const subtleFilledVariantClasses = [
+  'bg-[color:var(--theme-alpha-black-switch-333)] border-transparent',
+  'text-[color:var(--muted-foreground)]',
+  'hover:bg-[color:var(--theme-alpha-black-switch-5)] hover:text-[color:var(--foreground)]',
+  'active:bg-[color:var(--theme-alpha-black-switch-10)] active:text-[color:var(--foreground)]',
+  'data-[pressed]:bg-[color:var(--theme-alpha-black-switch-10)] data-[pressed]:text-[color:var(--foreground)]',
+  'focus-visible:bg-[color:var(--theme-alpha-black-switch-5)] focus-visible:text-[color:var(--foreground)]',
+  'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+  'disabled:opacity-50',
+];
 
 /**
  * Figma Fade button (`12042:25189`) — rest is Figma alpha-40, hover alpha-100.
@@ -32,18 +54,71 @@ export type IconButtonVariant = keyof typeof buttonVariantClasses | 'fade';
  * composite as one glyph. Painting alpha-40 as `currentColor` would darken
  * the crossing. No hover fill (unlike Ghost). Face fill is Ghost’s
  * near-invisible `--theme-alpha-white-switch-001`.
+ *
+ * `fadeGold` is the same rest; hover / pressed / focus paint the glyph
+ * `--primary` at full opacity.
  */
-const fadeVariantClasses = [
+const fadeFaceClasses = [
   'bg-[var(--theme-alpha-white-switch-001)] border-transparent',
-  'text-[color:var(--theme-alpha-black-switch-100)]',
   '[&_svg]:opacity-[var(--opacity-fade)]',
-  '[&_svg]:transition-opacity [&_svg]:duration-fast [&_svg]:ease-emphasized',
+  '[&_svg]:transition-[opacity,color] [&_svg]:duration-fast [&_svg]:ease-emphasized',
   'hover:[&_svg]:opacity-100',
   'active:[&_svg]:opacity-100',
   'data-[pressed]:[&_svg]:opacity-100',
   'focus-visible:[&_svg]:opacity-100',
   'disabled:[&_svg]:opacity-100',
   'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+];
+
+const fadeVariantClasses = [
+  ...fadeFaceClasses,
+  'text-[color:var(--theme-alpha-black-switch-100)]',
+];
+
+const fadeGoldVariantClasses = [
+  ...fadeFaceClasses,
+  'text-[color:var(--theme-alpha-black-switch-100)]',
+  'hover:text-[color:var(--primary)]',
+  'active:text-[color:var(--primary)]',
+  'data-[pressed]:text-[color:var(--primary)]',
+  'focus-visible:text-[color:var(--primary)]',
+];
+
+/**
+ * Icon-only `glow` — opaque face, hairline secondary ring, lavender halo.
+ * Halo is a drop-shadow so the secondary focus ring can still use
+ * `box-shadow`. `overflow-visible` so the halo is not clipped.
+ *
+ * `group-hover` / `group-data-[force-hover=true]` let a parent hit-target
+ * (Resume Writing Button) widen the halo without nesting a real button.
+ */
+const glowVariantClasses = [
+  'overflow-visible',
+  'bg-[color:var(--background)]',
+  'border-[length:var(--stroke-hairline)]',
+  'border-[color:color-mix(in_srgb,var(--tw-raw-secondary-200)_42%,transparent)]',
+  'text-[color:var(--tw-raw-secondary-200)]',
+  'drop-shadow-[0_0_4px_color-mix(in_srgb,var(--tw-raw-pantones-lavendar)_50%,transparent)]',
+  'hover:drop-shadow-[0_0_12px_color-mix(in_srgb,var(--tw-raw-pantones-lavendar)_40%,transparent)]',
+  'active:drop-shadow-[0_0_12px_color-mix(in_srgb,var(--tw-raw-pantones-lavendar)_40%,transparent)]',
+  'data-[pressed]:drop-shadow-[0_0_12px_color-mix(in_srgb,var(--tw-raw-pantones-lavendar)_40%,transparent)]',
+  'group-hover:drop-shadow-[0_0_12px_color-mix(in_srgb,var(--tw-raw-pantones-lavendar)_40%,transparent)]',
+  'group-data-[force-hover=true]:drop-shadow-[0_0_12px_color-mix(in_srgb,var(--tw-raw-pantones-lavendar)_40%,transparent)]',
+  '[&_svg]:origin-center [&_svg]:transition-transform [&_svg]:duration-fast [&_svg]:ease-emphasized',
+  'hover:[&_svg]:scale-125',
+  'active:[&_svg]:scale-125',
+  'data-[pressed]:[&_svg]:scale-125',
+  'group-hover:[&_svg]:scale-125',
+  'group-data-[force-hover=true]:[&_svg]:scale-125',
+  'motion-reduce:[&_svg]:transition-none',
+  'motion-reduce:hover:[&_svg]:scale-100 motion-reduce:active:[&_svg]:scale-100',
+  'motion-reduce:data-[pressed]:[&_svg]:scale-100',
+  'motion-reduce:group-hover:[&_svg]:scale-100',
+  'motion-reduce:group-data-[force-hover=true]:[&_svg]:scale-100',
+  'transition-[color,background-color,border-color,opacity,box-shadow,filter]',
+  'duration-fast ease-emphasized',
+  'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
+  'disabled:opacity-50',
 ];
 
 /** Shared size vocabulary — slots this control implements. */
@@ -53,7 +128,7 @@ export type IconButtonRoundness = ButtonRoundness;
 
 const iconButtonVariants = cva(
   [
-    'group/icon-button inline-flex shrink-0 items-center justify-center',
+    'group/icon-button inline-flex shrink-0 cursor-pointer items-center justify-center',
     /*
      * `min-h-0` + `overflow-hidden` — flex min-content otherwise grows past
      * `size-*` when pad+glyph+border exceed the box (Button Group rows).
@@ -69,11 +144,18 @@ const iconButtonVariants = cva(
     variants: {
       variant: {
         ...buttonVariantClasses,
+        subtleFilled: subtleFilledVariantClasses,
         fade: fadeVariantClasses,
+        fadeGold: fadeGoldVariantClasses,
+        glow: glowVariantClasses,
       },
       size: {
+        /* 28, not the `--spacing-xl` (24) rest of the scale would suggest —
+           4+4+16+border(2) = 26 doesn't fit 24 for a 16px (`--icon-sm`)
+           glyph, the size used whenever a caller opts out of this size's
+           own forced `--icon-xs` (12px) via a `size-` className. */
         mini: [
-          'size-[length:var(--spacing-xl)]',
+          'size-[length:var(--spacing-7)]',
           'p-[var(--spacing-2xs)]',
           "[&_svg:not([class*='size-'])]:size-[length:var(--icon-xs)]",
         ],

@@ -13,6 +13,6 @@
 
 // export * from './primitives';
 export * from './atoms';
-// export * from './molecules';
+export * from './molecules';
 // export * from './organisms';
 // export * from './templates';

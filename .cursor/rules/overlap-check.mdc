@@ -53,3 +53,12 @@ primitives/atoms/molecules via composition.
 
 State which answer applies and why before deciding where a new
 file goes.
+
+## Conflicting Figma variants
+
+Figma variants of a single component are not always different
+states — sometimes they're conflicting structural explorations from
+before a decision was made. When variants disagree on structure (not
+just visual state), do not average them or guess which is correct.
+The person will designate the authoritative variant explicitly. Build
+only that one.

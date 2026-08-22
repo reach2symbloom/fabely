@@ -144,6 +144,7 @@ Current foundations include:
 - Spacing
 - Motion
 - Iconography
+- Images
 
 Foundations should remain implementation-agnostic.
 
@@ -155,9 +156,15 @@ Foundations should remain implementation-agnostic.
 
 - Lucide — primary system UI
 - Solar Bold Duotone — illustration accents only
-- Fabely Icons — brand-specific custom glyphs (catalog empty until designed)
+- Fabely Icons — brand-specific custom glyphs (`packages/ui/src/foundations/icons`)
 
 Do not mix sets in the same interface. Full catalogs live in Storybook under Foundations → Iconography → Icon Library.
+
+### Images
+
+Multi-color rasters (file-type marks, photos, illustrations) live in `packages/ui/src/foundations/images/`. They keep their own colors and lighting — they are not `currentColor` glyphs and do not belong in the Icon Library.
+
+When a raster sits at icon scale, size the **frame** with `--icon-*`. Catalog: Storybook → Foundations → Images.
 
 ---
 
@@ -446,6 +453,8 @@ both bypass the system.
 
 Icon glyphs come from approved libraries only: Lucide for system UI,
 Solar Bold Duotone for illustrative accents, Fabely Icons for brand
-marks. Never mix sets within one interface.
+marks. Never mix sets within one interface. Multi-color file-type
+rasters (PDF / Doc / Docx) are Images, not glyphs — see Foundations →
+Images.
 
     <Icon className="size-[var(--icon-sm)]" />

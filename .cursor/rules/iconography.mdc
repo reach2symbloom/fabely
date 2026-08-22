@@ -47,6 +47,7 @@ Solar secondary (lighter) duotone layers use `--icon-solar-secondary-opacity`
 `data-fabely-solar` — Storybook preview already does.
 
 Catalog: Storybook → Foundations → Iconography → Icon Library → Lucide | Solar | Fabely Icons.
+Brand glyphs live in `packages/ui/src/foundations/icons` (e.g. `FiaSilcrow`).
 
 Do not mix Lucide and Solar in the same interface. Prefer `currentColor` so icons inherit text / disabled styles.
 

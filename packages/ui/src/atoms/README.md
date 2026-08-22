@@ -11,3 +11,10 @@ Vendor-derived wrappers live under [`../primitives/`](../primitives/) — not he
 | Atom | Notes |
 | --- | --- |
 | [Bookmark Button](./bookmark-button/README.md) | Toggle + Lucide Bookmark — fill in/out when pressed |
+| [Add Section Button](./add-section-button/README.md) | Icon + label pill; always paired with dividers in product |
+| [Cycle Switch](./cycle-switch/README.md) | One-way cycle through options; not a binary Switch |
+| [Book Cover](./book-cover/README.md) | Portrait cover + hover/focus edit scrim |
+| [Status](./status/README.md) | Colored dot + label state readout |
+| [Brand Link](./brand-link/README.md) | Service logo + name lockup |
+| [Lateral Toggles](./lateral-toggles/README.md) | Prev/Next chapter nav — shortcut hint, label, truncated title |
+| [Drop Target](./drop-target/README.md) | Glowing insertion-line indicator for drag-reorderable lists (Figma `16372:4438`) |

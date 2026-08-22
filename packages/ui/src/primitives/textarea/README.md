@@ -20,8 +20,10 @@ Input Group (`InputGroupTextarea`).
 
 | Prop | Values | Notes |
 | --- | --- | --- |
+| `variant` | `default` \| `filled` \| `ghost` \| `quiet` \| `invisible` | Filled = surface-only hover; Quiet = inline / in-chrome; Invisible = zero chrome ever (no Figma axis) |
+| `textStyle` | `body` \| `heading` | Body = Paragraph Small; Heading = Heading 2, wraps, `field-sizing-content` |
 | `roundness` | `default` \| `round` | Figma Roundness; Round → `--radius` (16; Figma is 18) |
-| `resizable` | `boolean` (default `true`) | CSS `resize-y` / `resize-none`; insets grip from the border |
+| `resizable` | `boolean` (default `true`) | CSS `resize-y` / `resize-none`; insets grip from the border. Off for heading titles. |
 | `showCharacterCount` | `boolean` (default `false`) | Needs `maxLength`; Figma “Show character count” |
 | native | `disabled`, `aria-invalid`, `maxLength`, … | HTML textarea |
 
@@ -30,6 +32,7 @@ Input Group (`InputGroupTextarea`).
 | Role | Token |
 | --- | --- |
 | Default fill | `--theme-alpha-black-switch-333` |
+| Filled hover | `--theme-alpha-black-switch-5` (no border) |
 | Value | `--foreground` |
 | Placeholder / count | `--muted-foreground` |
 | Focus ring | `--effect-focus-ring-secondary` |
@@ -37,7 +40,7 @@ Input Group (`InputGroupTextarea`).
 | Invalid border / focus ring | `--destructive` / `--effect-focus-ring-error` |
 | Invalid / disabled fill | `--background` |
 | Disabled border / shadow | `--input` / `--shadow-xs-black`; opacity `30` |
-| Type | Paragraph Small Regular; count → Mini Regular |
+| Type | Body: Paragraph Small Regular; Heading: Heading 2; count → Mini Regular |
 | Radius | `--rounded-lg` (Default), `--radius` (Round) |
 | Pad | `--spacing-xs` (Default), `--spacing-sm` (Round) |
 | Resize grip inset | `--spacing-1-25` (Default), `--spacing-1-75` (Round) — shell `pr`/`pb` when `resizable` |
@@ -45,7 +48,21 @@ Input Group (`InputGroupTextarea`).
 ## Deferred
 
 - **Round 18px** — Figma uses 18; Foundations has no 18 step → `--radius` (16).
-- **Custom resize grip** — Figma vector; we use the browser resize handle.
+- **Inline heading titles** — `variant="quiet"` + `textStyle="heading"` +
+  `resizable={false}` (Chapter Menu Header book title). Grows with wrap;
+  no resize grip.
+- **Invisible** — no hover/focus decoration at all (not even `quiet`'s faint
+  border), `rounded-none`, and no built-in growth cap of its own — a
+  consumer that lets content grow past some length while editing (see
+  [Note Card](../../features/note-retrieved/note-card/README.md)'s body
+  field) is expected to cap it themselves via `max-h-*`/`overflow-y-auto`.
+  Added specifically for [Note Card](../../features/note-retrieved/note-card/README.md)'s
+  title/annotation/body fields, which need to read as plain text at rest
+  with the only affordance being the native cursor on hover. The caret
+  itself is colored `--primary` (`caret-color`) rather than the browser
+  default — there's no standard CSS property to control caret *thickness*
+  across browsers (no `caret-width` exists in any spec), so only the color
+  is themeable.
 - **Input Group demos** — re-verify once partners settle (shell already bare-hosts
   this control). See Input Group README / docket.
 

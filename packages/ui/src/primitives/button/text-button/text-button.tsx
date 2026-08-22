@@ -20,7 +20,7 @@ import { buttonVariantClasses } from '../shared';
 export type ButtonSize = 'mini' | 'small' | 'default' | 'large' | 'extraLarge';
 const buttonVariants = cva(
   [
-    'group/button inline-flex shrink-0 items-center justify-center',
+    'group/button inline-flex shrink-0 cursor-pointer items-center justify-center',
     'border border-transparent',
     'font-[family-name:var(--font-family-body)] [font-weight:var(--font-weight-paragraph-medium)]',
     'whitespace-nowrap transition-[color,background-color,border-color,opacity,box-shadow]',

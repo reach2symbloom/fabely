@@ -1,0 +1,230 @@
+# Paragraph Block
+
+A single manuscript paragraph rendered as a draggable list row. Three
+visual states: `default` (no chrome, handle hidden), `drag` (lifted —
+border, card fill, inner shadow), `selected` (same lifted treatment in the
+secondary/lavender border color).
+
+Owns the four Figma visual states (Figma's `Hover` collapses into
+`default`'s real `:hover`/`:focus-within`, same as
+[Split & Parse](../../features/split-parse/split-parse/README.md)) and telling the
+caller which state to move to next, but not the `state` value itself — see
+"Press vs. drag on the grip handle" below. Not a drag engine beyond that:
+it doesn't move itself, decide where it sits relative to other blocks, or
+reorder anything — that's
+[Paragraph List](../../features/manuscript/paragraph-list/README.md)'s job
+entirely. It forwards `ref`/`style` and exposes `handleProps` (composed
+with, not overwritten by, the internal press handler) so a caller can wire
+in whatever drag adapter it uses without this component knowing dnd-kit
+exists. Paragraph List uses `@dnd-kit/core`'s `useDraggable`/`useDroppable`,
+not `@dnd-kit/sortable`'s `useSortable` — see that component's README for
+why.
+
+## Sources
+
+| Source | Role |
+| --- | --- |
+| Figma [Paragraph block](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16129-377) (`16129:377`) | Visual — 4 states: Default, Hover, Drag, Selected |
+
+## Figma's `Hover` is `default`'s real hover, not a fourth prop value
+
+Same reasoning as Split & Parse's own removed `surface` prop (see its
+README): Figma exports `Hover` as a static swatch, but nothing about it is
+state that needs to persist or be driven externally — it is exactly what
+the row looks like while a pointer is over it or it holds keyboard focus.
+Modeling it as a `state="hover"` value would let a caller show the hover
+look with no pointer over the row and let a real hover go unrepresented if
+the caller forgot to flip the prop. `default`'s handle reveals itself via
+`group-hover`/`group-focus-within` instead — always in sync with the
+actual pointer/focus, never a prop to remember to set.
+
+`drag` and `selected` stay as explicit `state` values because both are
+genuinely driven by something other than this row's own pointer state — a
+drag library's `isDragging` flag, or a selection model elsewhere in the
+editor — so they can't be recovered from CSS pseudo-classes alone.
+
+## Press vs. drag on the grip handle
+
+Both a click and a drag start the same way — `pointerdown` on the handle —
+so which one it turns out to be can only be known after the fact, once the
+pointer has (or hasn't) moved. `useHandlePressDetection` (component file)
+watches `pointermove` after a press and fires `onDragStart` the moment
+movement exceeds `DRAG_THRESHOLD_PX` (8px); `onSelect` fires on
+`pointerup` regardless of whether that happened — a plain click never
+crosses the threshold, so `onSelect` is the only callback it gets, while a
+drag gets `onDragStart` first and `onSelect` on release. Both end at
+`selected`: a release always leaves this block as the active one, whether
+the pointer moved on the way there or not.
+
+The move/up/cancel listeners live on `window`, not the button — attached
+imperatively inside the `pointerdown` handler and torn down on release —
+so letting go after the pointer has left the handle (or the block
+entirely) mid-drag still resolves to `onSelect`. A `pointercancel` (e.g. a
+touch gesture the browser reinterprets as a scroll) tears the listeners
+down without firing `onSelect`, since that's neither a completed click nor
+a deliberate release.
+
+Neither callback touches `state` — the caller decides what `drag`/
+`selected` actually mean (e.g. writing into a dnd-kit sort or a selection
+model) and passes the result back down, same as Split & Parse's
+`onParse`/`onUndo`.
+
+Release used to blur the handle (avoiding a stray native focus-visible
+ring on the next unrelated keydown), back when a keypress genuinely had
+nothing to do with this button. It doesn't blur anymore — Paragraph List
+reorders the *selected* row with `ArrowUp`/`ArrowDown`, which needs the
+handle to still hold focus for its `onKeyDown` to fire at all.
+
+The ring itself still doesn't show for this pointer-driven focus, though —
+just not via blurring. `:focus-visible` alone can't tell "pointer-focused,
+then an arrow key made the browser reconsider" apart from "genuinely
+Tab-focused"; both end up matching it. `pointerFocusRef` is set the
+instant a pointer press starts on the handle (before the resulting native
+focus fires) so the `onFocus` that follows can tell which kind of focus
+this is: pointer-driven → consume the flag, ring stays hidden (the row's
+own `selected` chrome already says "this one's active"); genuine
+keyboard-Tab → `showFocusRing` state flips true, ring shows normally,
+`focus-visible:shadow-[...]`'s replaced by an explicit conditional class
+driven by that state rather than the pseudo-class. Reordering itself
+never depended on the ring being visible — only on focus actually being
+there — so both keep working regardless of which one shows it.
+
+## Clicking the text fires `onTextClick`, not gated on `state`
+
+This component doesn't track whether it's "the selected one" — `onTextClick`
+fires on every text click regardless, same as `onDragStart`/`onSelect`
+firing regardless of the current `state` prop. Paragraph List uses it to
+drop selection specifically when the clicked block was already selected
+(clicking into text to edit it shouldn't leave block-level `selected`
+chrome showing) and ignores it otherwise.
+
+## The handle deepens on hover, one alpha stop up the same switch-token — plus a soft glow behind the dots
+
+`hover:text-[color:var(--theme-alpha-black-switch-80)]` over the resting
+`--muted-foreground` (`--theme-alpha-black-switch-60`) — both are the same
+switch-token family, so this one rule deepens (more black) in light mode
+and lightens (more white) in dark mode simultaneously; there's no second
+dark-mode color value to keep in sync, since the theme flip is already
+baked into what "black-switch" resolves to. That alpha shift is secondary
+now, though — the main hover cue is `HANDLE_GLOW`, a faint white
+`radial-gradient(ellipse, ...)` behind the dots (not `circle`, which would
+force a round shape regardless of the box's own proportions) on a
+box shaped like the dots' own 2×3 cluster (narrower than tall), so it
+reads as the dots themselves emitting a little light rather than a
+spotlight sitting behind an unrelated round shape. Motion variant
+propagation (`whileHover="hover"` on the button, `variants` on the glow
+`motion.span`) drives it, not plain CSS `:hover`, since "very slight
+scale" needs an actual animated value; `useReducedMotion` keeps the fade
+but drops the scale. The glow centers on a wrapper sized exactly to the
+icon (`size-[length:var(--icon-lg)]`), not the button itself — the button
+has its own `pt-*` offset (see below), and centering on the *button*
+would have put the glow visibly off from the dots it's supposed to be
+coming from.
+
+## Text is editable — `contentEditable`, gated on `onTextChange`
+
+Passing `onTextChange` makes the paragraph natively `contentEditable`;
+omitting it renders plain, read-only text — this also means the
+`DragOverlay` copy (which never receives `onTextChange`, see Paragraph
+List) is never accidentally editable. No controlled-value dance while
+typing (that fights `contentEditable` and drops the caret): text stays
+whatever the DOM has until `onBlur` reads `textContent` and reports it
+once. A caller (Paragraph List) writes that back into `children` for the
+next render — same "doesn't own its own value" shape as `state`.
+
+`Enter` (not `Shift+Enter`, left alone entirely so it falls through to a
+normal soft line break) fires `onEnter(caretOffset)` — a plain-text
+character offset, via the standard "clone a range from the start of the
+element to the caret, measure its stringified length" trick
+(`getCaretOffset`). `Backspace` with the caret *collapsed* (not a real
+selection) at exactly offset `0` fires `onBackspaceAtStart`. Both prevent
+their default browser behavior only once this component has decided to
+fire; neither touches the array itself — see Paragraph List's README for
+what a split/merge actually does to it.
+
+`autoFocus`/`autoFocusOffset` place the caret at a specific offset
+(`setCaretOffset`, `getCaretOffset`'s inverse) rather than always the
+start — necessary because refocusing isn't only for freshly-mounted
+blocks (a just-split new block) but also an *already-mounted* one (the
+previous block after a merge, landing at the exact join point). The
+effect driving this depends on `[autoFocus, autoFocusOffset]`, not `[]`,
+specifically so a caller re-requesting focus on a block that's been
+mounted the whole time still re-fires it.
+
+## The handle's top offset is derived from line-height, not a hand-tuned constant
+
+`pt-[calc((var(--text-paragraph-serif-regular-line-height)-var(--icon-lg))/2+1px)]`
+— `(line-height − icon size) / 2` is exactly the offset that centers a
+`--icon-lg` glyph against a line box of
+`--text-paragraph-serif-regular-line-height` (the `+1px` on top is a
+deliberate optical nudge past that exact math, not a rounding fix). Both
+the button and the `<p>` share the same `items-start` row and the same
+`--spacing-sm` container padding, so this offset is measured from the
+same top edge the text's first line starts from — it holds regardless of
+how many lines follow, since only the *first* line's own box matters, and
+stays correct if either token's value ever changes instead of drifting
+out of sync with a separately-hand-tuned pixel value.
+
+## Card fill is the container's own `background`, not a separate layer
+
+Figma's export puts the `drag`/`selected` fill (`shadcn/general/background
+(white)`) on an absolute `inset-0` div behind the text, existing only
+because Figma's own layer model can't put a solid fill and a border on the
+same object cleanly. Nothing sits between the border and that fill here,
+so it's applied directly as the bordered container's own
+`background-color` — same result, one fewer layer, and lets the inset
+shadow live on that same element too.
+
+## Radius changes with state, not just border/fill
+
+`default` uses `--rounded-lg` (12px), `drag`/`selected` use `--radius`
+(16px) — both Foundations tokens share Figma's own local variable names
+for these exact values, so no re-derivation was needed; the row's corners
+visibly grow when it lifts off the page.
+
+## Inner shadow has no Foundations token yet
+
+`foundations/shadows/raw` and `/semantic` are still empty scaffolding (see
+their READMEs) — the `drag`/`selected` inset shadow
+(`0 0 7px rgba(148, 140, 134, 0.3)`) is reproduced as Figma's literal
+value, the same way Split & Parse's own not-in-Figma additions used raw
+values ahead of a token existing. Revisit once the shadows foundation is
+built out.
+
+## API
+
+| Prop | Default | Notes |
+| --- | --- | --- |
+| `state` | `'default'` | `'default'` \| `'drag'` \| `'selected'` |
+| `handleProps` | — | Spread onto the grip `<button>` — dnd-kit `listeners` + `attributes` go here |
+| `onDragStart` | — | Fires once a press on the grip handle crosses the drag threshold |
+| `onSelect` | — | Fires on releasing the grip handle — plain click or letting go mid-drag |
+| `onTextClick` | — | Fires on clicking the paragraph text — not gated on `state` |
+| `onTextChange` | — | Fires with the edited text on blur; also what makes the text `contentEditable` at all — omit for read-only |
+| `onEnter` | — | Fires with the caret's text offset on plain `Enter` (not `Shift+Enter`) |
+| `onBackspaceAtStart` | — | Fires on `Backspace` with a collapsed caret at offset `0` |
+| `autoFocus` / `autoFocusOffset` | `false` / `0` | Focuses the text and places the caret at that offset — re-fires on any *new* request, mount or not |
+| `children` | — | The paragraph's text content |
+| `className` | — | Merged onto the root |
+| `ref` | — | Forwarded to the root `<div>` — dnd-kit `setNodeRef` |
+
+Standard `HTMLAttributes<HTMLDivElement>` (e.g. `style`, for dnd-kit's
+`transform`/`transition`) pass through to the root as well.
+
+## Tokens
+
+| Concern | Foundations |
+| --- | --- |
+| Row padding / gap | `--spacing-sm` (12px) |
+| Handle icon-to-top offset | `(line-height − icon size) / 2 + 1px` — see above |
+| Handle icon size | `--icon-lg` (24px) |
+| Handle hover glow | `HANDLE_GLOW` — white ellipse, 14×22px, peaks ~22% opacity |
+| Radius, `default` | `--rounded-lg` (12px) |
+| Radius, `drag` / `selected` | `--radius` (16px) |
+| Border, `drag` | `--border` |
+| Border, `selected` | `--tw-raw-secondary-200` |
+| Fill, `drag` / `selected` | `--card` |
+| Text | `--text-paragraph-serif-regular-*` |
+| Text color | `--theme-alpha-black-switch-75` |
+| Handle color (rest) | `--muted-foreground` |
+| Handle focus ring | `--effect-focus-ring-secondary` |

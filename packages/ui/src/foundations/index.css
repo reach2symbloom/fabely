@@ -2,6 +2,7 @@
 @import './opacity.css';
 @import './effects/focus-rings/focus-rings.css';
 @import './effects/glows/glows.css';
+@import './effects/gradients/gradients.css';
 @import './fonts.css';
 @import './iconography.css';
 @import './motion/index.css';

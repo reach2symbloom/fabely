@@ -370,6 +370,7 @@ function VariantsExample() {
     <div className="flex w-full max-w-sm flex-col gap-3">
       <Input variant="default" placeholder="Default style" />
       <Input variant="ghost" placeholder="Ghost style" />
+      <Input variant="quiet" placeholder="Quiet style" />
     </div>
   );
 }
@@ -444,6 +445,7 @@ function InputPlayground() {
             options={[
               { value: 'default', label: 'Default' },
               { value: 'ghost', label: 'Ghost' },
+              { value: 'quiet', label: 'Quiet' },
             ]}
           />
           <InlineSegmentedControl
@@ -507,7 +509,7 @@ export const Overview: Story = {
   render: () => (
     <PrimitivePage
       title="Input"
-      description="Text field from Figma Input — sizes, roundness, and Default / Ghost style — with the shadcn Input API."
+      description="Text field from Figma Input — sizes, roundness, and Default / Ghost / Quiet style — with the shadcn Input API."
       playground={<InputPlayground />}
       variants={
         <div className="flex flex-col gap-8">
@@ -543,6 +545,13 @@ export const Overview: Story = {
             and <code>Input Group</code> for prepend / append text.
           </p>
           <p>
+            <code>variant=&quot;quiet&quot;</code> is the in-chrome field: rest
+            transparent, hover fills{' '}
+            <code>--theme-alpha-black-switch-333</code>, focus is{' '}
+            <code>--border</code> with no ring and no extra fill. Ghost fills
+            only on focus and keeps the secondary ring.
+          </p>
+          <p>
             Mark validation with <code>aria-invalid</code> on the input (and{' '}
             <code>data-invalid</code> on Field when composing). Prefer{' '}
             <code>size=&quot;default&quot;</code> (Figma Regular) in forms.
@@ -558,8 +567,10 @@ export const Overview: Story = {
             <code>aria-describedby</code>.
           </p>
           <p>
-            Focus uses the secondary focus ring; invalid focus uses the error
-            ring. File inputs keep native file UI with Foundations type.
+            Default and Ghost use the secondary focus ring; Quiet uses a
+            semantic <code>--border</code> with no ring and no extra fill.
+            Invalid focus uses the error ring. File inputs keep native file UI
+            with Foundations type.
           </p>
         </>
       }

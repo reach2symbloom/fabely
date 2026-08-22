@@ -31,6 +31,17 @@ export default defineConfig({
           },
         },
       },
+      {
+        extends: true,
+        test: {
+          // Plain unit tests for pure, dependency-free logic (e.g. the
+          // outline drag-and-drop reducer) — no browser, no Storybook
+          // story discovery, just node + the file(s) under test.
+          name: 'unit',
+          environment: 'node',
+          include: ['src/**/*.test.ts'],
+        },
+      },
     ],
   },
 });

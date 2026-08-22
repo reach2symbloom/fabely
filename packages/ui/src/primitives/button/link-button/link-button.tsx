@@ -17,7 +17,7 @@ import { cn } from '../../../lib/utils';
  */
 const buttonLinkVariants = cva(
   [
-    'inline-flex shrink-0 items-center justify-center gap-[length:var(--spacing-xs)]',
+    'inline-flex shrink-0 cursor-pointer items-center justify-center gap-[length:var(--spacing-xs)]',
     'font-[family-name:var(--font-family-body)]',
     'whitespace-nowrap transition-all outline-none',
     'underline-offset-4 hover:underline data-[pressed]:underline',

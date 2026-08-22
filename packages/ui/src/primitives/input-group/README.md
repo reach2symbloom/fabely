@@ -8,7 +8,8 @@ Import from this primitive rather than `src/components/ui/input-group`. Public
 API matches [shadcn Input Group](https://ui.shadcn.com/docs/components/base/input-group).
 
 The **group shell** owns Figma [Input](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16-1738)
-(`16:1738`) Style=Default chrome (fill, focus, invalid, radius, height, pad).
+(`16:1738`) chrome (fill, focus, invalid, radius, height, pad) — same
+`variant` / `size` / `roundness` axes as Input, including Quiet.
 Use `InputGroupInput` / `InputGroupTextarea` so the control stays bare inside
 the shell.
 
@@ -56,8 +57,9 @@ Place Addon **after** the control in the DOM; use `align` for visual position.
 
 | Role | Foundations |
 | --- | --- |
-| Shell fill | `--theme-alpha-black-switch-333` (Default) |
-| Focus | `--effect-focus-ring-secondary` + focus border |
+| Shell fill | `--theme-alpha-black-switch-333` (Default); Ghost / Quiet rest transparent |
+| Quiet hover fill | `--theme-alpha-black-switch-333` |
+| Focus | Default / Ghost: `--effect-focus-ring-secondary` + focus border; Quiet: `--border`, no ring, no fill |
 | Invalid | `--destructive` / `--effect-focus-ring-error` / `--background`; addon icons → `--destructive` |
 | Radius | `--rounded-lg` / `--rounded-full` / Mini `--rounded-md` |
 | Heights | Input size ladder (`--spacing-xl` … `4xl`) |

@@ -13,7 +13,7 @@ import {
   UnderlineIcon,
 } from 'lucide-react';
 
-import { BookmarkButton } from '../../atoms/bookmark-button';
+import { BookmarkIconButton } from '../../atoms/bookmark-icon-button';
 import { InlineSegmentedControl } from '../../../stories/InlineSegmentedControl';
 import { PlaygroundPanel } from '../../../stories/PlaygroundPanel';
 import {
@@ -42,9 +42,9 @@ const VARIANTS: Variant[] = ['ghost', 'outline'];
 const SIZES: Size[] = ['sm', 'default', 'lg'];
 const ROUNDNESSES: ToggleRoundness[] = ['default', 'round'];
 
-/** Demo — Bookmark Button atom (fill in/out on pressed). */
+/** Demo — Bookmark Button atom (outline unselected, filled on pressed). */
 function DemoExample() {
-  return <BookmarkButton defaultPressed />;
+  return <BookmarkIconButton defaultPressed />;
 }
 
 function OutlineExample() {
@@ -136,12 +136,7 @@ function TogglePlayground() {
     <PlaygroundPanel
       preview={
         <div className="flex min-h-40 items-center justify-center gap-[var(--spacing-md)]">
-          <BookmarkButton
-            variant={variant}
-            size={size}
-            roundness={roundness}
-            defaultPressed
-          />
+          <BookmarkIconButton size={size} defaultPressed />
           <Toggle
             variant={variant}
             size={size}
@@ -223,8 +218,10 @@ export const Overview: Story = {
             <code>Toggle Group</code> when options toggle as a cluster.
           </li>
           <li>
-            For a bookmark / save affordance with glyph fill in/out, use the{' '}
-            <code>BookmarkButton</code> atom (see Demo) — it composes Toggle.
+            For a bookmark / save affordance, use the{' '}
+            <code>BookmarkIconButton</code> atom (see Demo) — it composes Base
+            UI&apos;s headless Toggle directly, without this component&apos;s
+            chrome.
           </li>
           <li>
             Figma Skin=Ghost → <code>variant=&quot;ghost&quot;</code>; Skin=Outline

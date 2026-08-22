@@ -101,6 +101,7 @@
   --spacing-3-875: var(--tw-raw-spacing-3-875);
   /* Promoted for control heights — Figma spacing absolute names.
      Same odd-scale pattern as above. */
+  --spacing-7: var(--tw-raw-spacing-7); /* 28 — Icon Button mini */
   --spacing-9: var(--tw-raw-spacing-9); /* 36 — Icon Button default */
   --spacing-11: var(--tw-raw-spacing-11); /* 44 — Button large */
   --spacing-13: var(--tw-raw-spacing-13); /* 52 — Button extraLarge */

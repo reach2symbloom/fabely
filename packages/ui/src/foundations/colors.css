@@ -120,6 +120,10 @@
   --tw-raw-pantones-muted-olive: #ACC18A;
   --tw-raw-pantones-ginseng: #749674;
   --tw-raw-pantones-ginseng-2: #749674; /* 16% opacity per Figma */
+  /* Lighter Ginseng tint — Split & Parse "Note parsed" text/icon on a
+     --primary-filled surface (16095:262). Not a tint formula off Ginseng
+     (channel deltas aren't uniform); a distinct swatch Figma authored. */
+  --tw-raw-pantones-ginseng-light: #C2E1C2;
   /* TODO: the Pantones screenshot appears cut off after Ginseng 2 — confirm
      whether more entries exist below it in Figma before this list is considered complete. */
 

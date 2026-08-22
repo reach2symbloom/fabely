@@ -37,7 +37,10 @@ const VARIANTS: { variant: IconButtonVariant; label: string }[] = [
   { variant: 'secondary', label: 'Secondary' },
   { variant: 'tertiary', label: 'Tertiary' },
   { variant: 'ghost', label: 'Ghost' },
+  { variant: 'subtleFilled', label: 'Subtle filled' },
   { variant: 'fade', label: 'Fade' },
+  { variant: 'fadeGold', label: 'Fade gold' },
+  { variant: 'glow', label: 'Glow' },
   { variant: 'destructive', label: 'Destructive' },
   { variant: 'fiaFilled', label: 'Fia filled' },
   { variant: 'fiaOutline', label: 'Fia Outline' },
@@ -195,6 +198,7 @@ function IconButtonPlayground() {
               options={VARIANTS.map(({ variant: v, label }) => ({ value: v, label }))}
               onChange={setVariant}
               fullWidth
+              optionClassName="min-w-[length:var(--spacing-8xl)] flex-none whitespace-nowrap"
             />
           </div>
 
@@ -287,9 +291,12 @@ export const Overview: Story = {
             <code>--icon-*</code> token; do not hardcode icon px.
           </li>
           <li>
-            Shared Button variants plus Icon-only <code>fade</code> (Figma Fade
-            button): rest icon at switch-40, hover/pressed switch-100, no fill.
-            Quiet hover/pressed and Destructive match Button (library master).
+            Shared Button variants plus Icon-only <code>fade</code> /{' '}
+            <code>fadeGold</code> (Figma Fade button) and <code>glow</code>{' '}
+            (lavender halo, hairline secondary ring). <code>fade</code> rest
+            icon at switch-40, hover/pressed full opacity, no fill.{' '}
+            <code>fadeGold</code> paints <code>--primary</code> on hover. Quiet
+            hover/pressed and Destructive match Button (library master).
           </li>
           <li>
             Size names align with Button where slots overlap (<code>mini</code>,{' '}

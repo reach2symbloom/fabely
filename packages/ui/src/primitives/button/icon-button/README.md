@@ -36,7 +36,7 @@ library supersedes that:
 
 | Axis | Values | Primitive API |
 | --- | --- | --- |
-| Variant | Shared nine + Fade | `variant`: `primary` \| `primaryOutline` \| `secondary` \| `tertiary` \| `outline` \| `ghost` \| `fade` \| `destructive` \| `fiaFilled` \| `fiaOutline` |
+| Variant | Shared nine + Fade / Fade gold / Glow | `variant`: `primary` \| `primaryOutline` \| `secondary` \| `tertiary` \| `outline` \| `ghost` \| `fade` \| `fadeGold` \| `glow` \| `destructive` \| `fiaFilled` \| `fiaOutline` |
 | Size | Mini · Small · Default · Large | `size`: `mini` \| `sm` \| `default` \| `lg` |
 | Roundness | Default · Round | `roundness`: `default` \| `round` |
 | Label | — | `aria-label` (required) |
@@ -49,14 +49,20 @@ Button’s own** (see `docs/DESIGN.md` “Size slots”).
 
 | `size` | Box | Padding | Icon | Default radius |
 | --- | --- | --- | --- | --- |
-| `mini` | `--spacing-xl` (24) | `--spacing-2xs` (4) | `--icon-xs` (12) | `--rounded-sm` (5) |
+| `mini` | `--spacing-7` (28) | `--spacing-2xs` (4) | `--icon-xs` (12) | `--rounded-sm` (5) |
 | `sm` | `--spacing-2xl` (32) | `--spacing-xs` (8) | `--icon-sm` (16) | `--rounded-lg` (12) |
 | `default` | `--spacing-9` (36) | `--spacing-1-5` (6) | `--icon-md` (20) | `--rounded-lg` (12) |
 | `lg` | `--spacing-3xl` (40) | `--spacing-1-5` (6) | `--icon-lg` (24) | `--rounded-lg` (12) |
 
 **Round** roundness is `--rounded-full` at every size. Mini Default uses
-`--rounded-sm` so Default vs Round stays distinguishable at 24px (flat 12px
+`--rounded-sm` so Default vs Round stays distinguishable at 28px (flat 12px
 would read nearly circular).
+
+`mini` was 24px until a real 16px (`--icon-sm`) glyph was used inside it
+(Highlight Color Menu) — 4+4+16+border(2) = 26 doesn't fit a 24px box.
+Bumped to 28 (`--spacing-7`, promoted in `foundations/spacing.css`
+alongside the other control-height odd values) so the box holds either
+the forced 12px icon or a caller-supplied 16px one without clipping.
 
 ### Variant `outline` (shared)
 
@@ -89,11 +95,39 @@ switch-100 at `--opacity-fade` (0.4) on the SVG; hover is opacity 1.
 | Focus | — | opacity 1 + secondary ring |
 | Disabled | layer opacity 0.5 (glyph opacity reset to 1) | — |
 
+### Variant `fadeGold` (Icon-only)
+
+Same rest as `fade`. Hover / pressed / focus keep opacity 1 and paint the
+glyph `--primary`. Still no fill.
+
+| State | Fill | Icon |
+| --- | --- | --- |
+| Default | `--theme-alpha-white-switch-001` | switch-100 @ `--opacity-fade` |
+| Hover / pressed / focus | unchanged (no fill) | `--primary` @ 1 |
+
 Figma Size=Small / Medium map to `mini` (`--icon-xs`) / `sm` (`--icon-sm`).
 `default` / `lg` continue the Icon Button icon ladder. Hit target stays that
 ladder (24–40), not Figma’s 16×16 hug.
 
 **Deferred:** Figma `Show superscript` boolean (count badge on the glyph).
+
+### Variant `glow` (Icon-only)
+
+Opaque `--background` face, hairline `--tw-raw-secondary-200` ring at 42%,
+lavender drop-shadow halo (`--tw-raw-pantones-lavendar`). Hover / pressed /
+ancestor `group` hover widen the halo. Focus keeps the secondary ring
+(`box-shadow`; the halo is `drop-shadow` so they do not collide).
+
+Authored for the Resume Writing Button go-control; reusable anywhere a
+round secondary action needs a lavender bloom. Face size stays the Icon
+Button ladder — 56px on that card is a call-site override, not a new slot.
+
+| State | Fill | Border | Icon | Halo |
+| --- | --- | --- | --- | --- |
+| Default | `--background` | hairline secondary-200 @ 42% | `--tw-raw-secondary-200` | drop-shadow 0/0/4, lavender @ 50% |
+| Hover / pressed | unchanged | unchanged | `scale-125` | drop-shadow 0/0/12, lavender @ 40% |
+| Focus | — | — | — | halo + secondary ring |
+| Disabled | layer opacity 0.5 | — | — | — |
 
 ### Foundations
 
@@ -115,5 +149,9 @@ ladder (24–40), not Figma’s 16×16 hug.
    larger glyph fits the box (xs pad + stepped icon overflows).
 7. Radius Option B: Mini Default `--rounded-sm`; other Default sizes `--rounded-lg`.
 8. `outline` fill is Button Group Figma (`alpha-333`), not opaque `--background`.
-9. `fade` is Icon-only (Figma Fade button). Hit target stays the Icon Button
+9. `fade` / `fadeGold` are Icon-only (Figma Fade button). Hit target stays the Icon Button
    size ladder, not Figma’s 16×16 hug. Superscript axis not implemented.
+   `fadeGold` hover glyph is `--primary` (not in the Figma Fade set).
+10. `glow` is Icon-only (Resume Writing Button go-control). Halo is
+    `drop-shadow` so it can sit next to the secondary focus `box-shadow`.
+    Not on Text Button.

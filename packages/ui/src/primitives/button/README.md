@@ -40,8 +40,10 @@ Text and Icon Button consume **`buttonVariantClasses`** from [`shared.ts`](./sha
 
 `primary` · `primaryOutline` · `secondary` · `tertiary` · `outline` · `ghost` · `destructive` · `fiaFilled` · `fiaOutline`
 
-Icon Button also exposes **`fade`** (Figma Fade button) — quieter rest icon,
-hover to full switch-100, no fill. Not on Text Button.
+Icon Button also exposes **`fade`** / **`fadeGold`** (Figma Fade button) —
+quieter rest icon, hover to full opacity (`fadeGold` paints `--primary`) —
+and **`glow`** (lavender halo + hairline secondary ring).
+Not on Text Button.
 
 Hover / pressed / focus / disabled follow the same library-authored model
 (quiet `@5` / `@10`, filled opacity ladder, Primary always-on rest ring).
@@ -57,7 +59,7 @@ Size prop names are **shared vocabulary**; each sibling owns its values
 
 | Slot idea | Text Button | Icon Button | Link Button |
 | --- | --- | --- | --- |
-| Smallest | `mini` → 24 tall | `mini` → 24×24 | `mini` → type hug |
+| Smallest | `mini` → 24 tall | `mini` → 28×28 | `mini` → type hug |
 | Small | `small` → 32 | `sm` → 32×32 | — (Figma Small → `default`; see [Link Button](./link-button/README.md)) |
 | Default | `default` → 40 | `default` → 36×36 | `default` → type hug |
 | Large | `large` → 44 | `lg` → 40×40 | `lg` → type hug |
@@ -69,7 +71,7 @@ Same name ≠ same pixels. Do not “fix” one scale to the other.
 
 Text and Icon expose `default` | `round`. Text Button Default is flat
 `--rounded-lg` (12) at every size. Icon Button Default uses `--rounded-sm`
-(5) on `mini` so Default vs Round stays distinguishable at 24px; other
+(5) on `mini` so Default vs Round stays distinguishable at 28px; other
 sizes use `--rounded-lg`. Link Button has no roundness axis (text chrome only).
 
 ## Docs per sibling
