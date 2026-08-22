@@ -21,8 +21,18 @@
  * positions: dnd-kit's droppable rects only re-measure on specific
  * triggers, not every animation frame, so comparing against them mid-FLIP
  * could still read a pre-reflow position), and the pointer position comes
- * from `activatorEvent.clientY + delta.y` (dnd-kit's `delta` is
- * cumulative since drag start), not `active.rect.current.translated` (the
+ * from a raw `pointermove` listener kept live for the duration of the drag
+ * (see `latestPointerYRef` below) — not dnd-kit's `event.delta`, which is
+ * `activatorEvent` position plus `scrollAdjustedTranslate` (dnd-kit adds
+ * back however much any scrollable ancestor has scrolled since drag start,
+ * so its own overlay tracks a fixed point in scrolled content). Every row
+ * rect here is re-measured fresh via `getBoundingClientRect()` each move,
+ * which already reflects that same scroll on its own — stacking dnd-kit's
+ * scroll-adjusted delta on top double-counts it, and since auto-scroll
+ * (on by default) triggers the instant the pointer nears the top/bottom of
+ * a scrollable ancestor, that double-counted offset is exactly what
+ * survives a drag that overshoots the list's own top or bottom edge. Nor
+ * is it `active.rect.current.translated` (the
  * dragged item's own ghost rect — whatever's tall about the dragged block
  * carries into that rect's *top* edge, putting the resolved gap however
  * far that edge sits above wherever the pointer actually is inside it).
@@ -103,15 +113,10 @@ export const paragraphCollisionDetection: CollisionDetection = (args) => {
   return pointerCollisions.length > 0 ? pointerCollisions : rectIntersection(args);
 };
 
-/** Current pointer Y for a pointer-driven drag; `null` for a
- * keyboard-driven one (`activatorEvent` is a `KeyboardEvent`, no real
- * pointer position to read). */
-function currentPointerY(event: DragMoveEvent | DragEndEvent): number | null {
-  const activator = event.activatorEvent;
-  if (typeof (activator as Partial<PointerEvent>).clientY === 'number') {
-    return (activator as PointerEvent).clientY + event.delta.y;
-  }
-  return null;
+/** Whether a drag's `activatorEvent` is a real pointer (vs. `KeyboardEvent`,
+ * which has no pointer position to read). */
+function isPointerDriven(event: { activatorEvent: Event }): boolean {
+  return typeof (event.activatorEvent as Partial<PointerEvent>).clientY === 'number';
 }
 
 /** A few px of stickiness around the currently-active gap so hovering
@@ -236,8 +241,26 @@ export function useParagraphListDragAndDrop({
   const dropGapIndexRef = React.useRef(dropGapIndex);
   dropGapIndexRef.current = dropGapIndex;
 
+  /** Live pointer Y for the drag in progress, updated straight from raw
+   * `pointermove` events rather than dnd-kit's own `delta` — see module
+   * doc comment for why `delta` can't be trusted here once auto-scroll has
+   * touched it. `null` whenever no pointer-driven drag is active. */
+  const latestPointerYRef = React.useRef<number | null>(null);
+  const handlePointerMove = React.useRef((event: PointerEvent) => {
+    latestPointerYRef.current = event.clientY;
+  }).current;
+
   function onDragStart(event: DragStartEvent) {
     setActiveId(String(event.active.id));
+    if (isPointerDriven(event)) {
+      latestPointerYRef.current = (event.activatorEvent as PointerEvent).clientY;
+      window.addEventListener('pointermove', handlePointerMove);
+    }
+  }
+
+  function stopTrackingPointer() {
+    window.removeEventListener('pointermove', handlePointerMove);
+    latestPointerYRef.current = null;
   }
 
   /** Pointer-driven: nearest live gap to the actual cursor. Keyboard-
@@ -249,7 +272,7 @@ export function useParagraphListDragAndDrop({
    * lifecycle at all; this only covers dnd-kit's own supplementary
    * Space-to-pick-up flow. */
   function resolveGapIndex(event: DragMoveEvent | DragEndEvent): ParagraphGapIndex | null {
-    const pointerY = currentPointerY(event);
+    const pointerY = latestPointerYRef.current;
     if (pointerY !== null) {
       return nearestGapIndex(
         itemsRef.current,
@@ -283,6 +306,7 @@ export function useParagraphListDragAndDrop({
 
     const activeIdStr = String(event.active.id);
     const gapIndex = resolveGapIndex(event);
+    stopTrackingPointer();
     if (gapIndex === null || isParagraphMoveNoOp(itemsRef.current, activeIdStr, gapIndex)) {
       return;
     }
@@ -297,6 +321,7 @@ export function useParagraphListDragAndDrop({
   function onDragCancel() {
     setActiveId(null);
     setDropGapIndex(null);
+    stopTrackingPointer();
   }
 
   return { sensors, activeId, dropGapIndex, onDragStart, onDragMove, onDragEnd, onDragCancel };
