@@ -41,7 +41,7 @@
   --tw-raw-neutral-950: #0F0F10;
 
   /* tw-raw / Fia */
-  --tw-raw-fia-ghost: #ABCEB0; /* 12% opacity per Figma */
+  --tw-raw-fia-ghost: #ABCEB01F; /* 12% opacity per Figma */
   --tw-raw-fia-50: #C1DFCA;
   --tw-raw-fia-100: #B0D6BA;
   --tw-raw-fia-200: #ABCEB0; /* Main */
@@ -55,7 +55,7 @@
   --tw-raw-fia-950: #112316;
 
   /* tw-raw / secondary */
-  --tw-raw-secondary-ghost: #BDB7EA; /* 12% opacity per Figma */
+  --tw-raw-secondary-ghost: #BDB7EA1F; /* 12% opacity per Figma */
   --tw-raw-secondary-50: #CCC9F1;
   --tw-raw-secondary-100: #C5C2EF;
   --tw-raw-secondary-200: #BDB7EA; /* Main */
@@ -142,7 +142,7 @@
   --tw-raw-blue-messaging-950: #092127;
 
   /* tw-raw / scene-desk */
-  --tw-raw-scene-desk-ghost: #9DACEA; /* 12% opacity per Figma */
+  --tw-raw-scene-desk-ghost: #9DACEA1F; /* 12% opacity per Figma */
   --tw-raw-scene-desk-500: #9DACEA; /* main */
 }
 

@@ -3,6 +3,10 @@
  * notes.svg"), recolored to `currentColor` so it follows the Icon
  * Button's own text color (muted-foreground at rest, foreground on
  * hover/active) instead of the original hardcoded `#080B0C`.
+ *
+ * Promoted here from `features/highlight/assets/` once AI Mode Toggle
+ * became a second consumer — same reasoning as `FiaSilcrow` living in
+ * Foundations rather than one feature's own folder.
  */
 
 import * as React from 'react';

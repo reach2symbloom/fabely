@@ -2,7 +2,7 @@ import type { ComponentType } from 'react';
 import { icons, type LucideIcon } from 'lucide-react';
 import * as SolarIcons from '@solar-icons/react';
 
-import { FiaSilcrow } from '../src/foundations/icons';
+import { FiaSilcrow, GatherSearchNotesIcon } from '../src/foundations/icons';
 
 /**
  * Icon Library data.
@@ -56,6 +56,11 @@ export const fabelyAll: {
     name: 'FiaSilcrow',
     Icon: FiaSilcrow,
     usage: 'Upgrade / Fia lockup — Chapter Menu Header',
+  },
+  {
+    name: 'GatherSearchNotesIcon',
+    Icon: GatherSearchNotesIcon,
+    usage: 'Gather & Search Notes — Highlight Color Menu, AI Mode Toggle',
   },
 ];
 

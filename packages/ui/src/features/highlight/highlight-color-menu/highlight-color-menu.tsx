@@ -13,7 +13,8 @@
  * User highlight's 4 leading actions, confirmed against a live render:
  * Copy, Ask Fia (the brand silcrow), Gather & Search Notes (exported
  * Figma asset — stacked pages + sparkle + magnifying glass, no Lucide
- * equivalent — see `./assets/gather-search-notes.tsx`), and Comment.
+ * equivalent — see `@/foundations/icons/gather-search-notes.tsx`), and
+ * Comment.
  * The trailing action (right of the color swatches) is "Remove
  * highlight" (`Icon / circle-x`). Figma's own source (`16317:987`) has
  * exactly one Separator, before the swatches — not a second one after

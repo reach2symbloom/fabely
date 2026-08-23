@@ -23,6 +23,30 @@
  * semantic state color — it's the same invariant visual-treatment neutral
  * the Glows foundation uses (see ../glows/glows.css), so it deliberately
  * stays pegged to --theme-neutrals-600 rather than switching per theme.
+ *
+ * "neutral" is the one exception to the semantic-state-color rule above,
+ * by design: Figma's AI Mode Toggle "Alt active state" reference frame
+ * specifies a ring pegged to "Neutrals (New)/200" itself, not any
+ * interaction-feedback state color — there's no existing --ring-*
+ * semantic token that resolves to it (--ring, the closest, is
+ * Neutrals-300 light / Neutrals-700 dark), so this one intentionally
+ * references the theme layer directly rather than force-fitting a
+ * semantic token that doesn't match. Added as its own token instead of
+ * changing --effect-focus-ring-secondary itself, which ~45 other files
+ * across the design system already consume as the default ring for
+ * ordinary interactive elements — this stays scoped to call sites that
+ * explicitly want this exact color.
+ *
+ * Consumes --neutrals-new-200, not --theme-neutrals-200 — confirmed via
+ * a live Figma variable query (not a JSX codegen fallback, which read
+ * stale here once already) that "Neutrals (New)/200" resolves to
+ * #38383B in the dark canvas this component ships in. --theme-neutrals-
+ * 200 is a fixed value (--tw-raw-neutral-200, #E7E5E4) that never changes
+ * with theme — using it produced a visibly near-white ring against a
+ * dark background. --neutrals-new-200 is "Neutrals (New)"'s own
+ * theme-inverting scale (see the block below in this file's colors.css
+ * sibling): light mode resolves it to raw-200 (#E7E5E4), dark mode to
+ * raw-800 (#38383B) — exactly the live value Figma reported.
  */
 
 :root {
@@ -40,4 +64,5 @@
   --effect-focus-ring-success: 0px 0px 0px 3px var(--ring-success);
   --effect-focus-ring-alert: 0px 0px 0px 3px var(--ring-alert);
   --effect-focus-ring-error: 0px 0px 0px 3px var(--ring-error);
+  --effect-focus-ring-neutral: 0px 0px 0px 3px var(--neutrals-new-200);
 }

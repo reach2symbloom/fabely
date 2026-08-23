@@ -13,8 +13,7 @@
 import * as React from 'react';
 import { MessageSquare, Highlighter } from 'lucide-react';
 
-import { FiaSilcrow } from '@/foundations/icons';
-import { GatherSearchNotesIcon } from './assets/gather-search-notes';
+import { FiaSilcrow, GatherSearchNotesIcon } from '@/foundations/icons';
 
 export type SemanticCommand = 'fia' | 'gather' | 'comment' | 'highlight';
 

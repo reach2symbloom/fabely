@@ -21,4 +21,5 @@ it in a second feature folder.
 | [Highlight](./highlight/README.md) | Manuscript text-highlight chrome — pieces land on sub-branches |
 | [Library](./library/README.md) | Pieces land on sub-branches |
 | [Note Retrieved](./note-retrieved/README.md) | Fia search-result rows — pieces land on sub-branches |
+| [Promptbar](./promptbar/README.md) | Manuscript prompt/composer chrome — pieces land on sub-branches |
 | [Split & Parse](./split-parse/README.md) | Manuscript-editor split/parse row — pieces land on sub-branches |
