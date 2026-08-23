@@ -14,7 +14,8 @@ Vendor-derived wrappers live under [`../primitives/`](../primitives/) — not he
 | [Add Section Button](./add-section-button/README.md) | Icon + label pill; always paired with dividers in product |
 | [Cycle Switch](./cycle-switch/README.md) | One-way cycle through options; not a binary Switch |
 | [Book Cover](./book-cover/README.md) | Portrait cover + hover/focus edit scrim |
-| [Status](./status/README.md) | Colored dot + label state readout |
+| [Status](./status/README.md) | Colored-dot status readout — `'label'` (dot + text) or `'glyph'` (bare pulsing dot + ghost halo for another component's trailing slot) |
+| [Status Badge](./status-badge/README.md) | Composable icon/text/status pill on Badge — Promptbar status badges |
 | [Brand Link](./brand-link/README.md) | Service logo + name lockup |
 | [Lateral Toggles](./lateral-toggles/README.md) | Prev/Next chapter nav — shortcut hint, label, truncated title |
 | [Drop Target](./drop-target/README.md) | Glowing insertion-line indicator for drag-reorderable lists (Figma `16372:4438`) |

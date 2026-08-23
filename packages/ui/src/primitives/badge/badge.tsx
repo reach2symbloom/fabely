@@ -101,14 +101,14 @@ const badgeVariants = cva(
           'focus-visible:shadow-[var(--effect-focus-ring-primary)]',
           '[a&]:hover:bg-[var(--theme-alpha-black-switch-5)]',
         ],
-        /* Ghost raw tokens are solid hex in foundations/colors.css; Figma
-         * applies them at 12% (secondary/error/success) or 8% (alert)
-         * opacity for badge fills — color-mix reconstructs that soft tint
-         * without inventing a new token. Using the solid value as a fill
-         * would make Secondary/Success text invisible (text swatch equals
-         * the ghost hex). */
+        /* `--tw-raw-secondary-ghost` carries its own ~12% alpha directly
+         * (fixed in foundations/colors.css — it was a solid hex there
+         * before, which is what the `color-mix` reconstruction below is
+         * for on the variants that *are* still solid hex: error/success/
+         * alert). Consumed directly here, not wrapped in another
+         * `color-mix`, which would double the dilution to ~1.4%. */
         secondary: [
-          'bg-[color-mix(in_srgb,var(--tw-raw-secondary-ghost)_12%,transparent)] text-[color:var(--tw-raw-secondary-200)]',
+          'bg-[var(--tw-raw-secondary-ghost)] text-[color:var(--tw-raw-secondary-200)]',
           'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           '[a&]:hover:opacity-90',
         ],
@@ -136,16 +136,16 @@ const badgeVariants = cva(
           'focus-visible:shadow-[var(--effect-focus-ring-success)]',
           '[a&]:hover:opacity-90',
         ],
-        /* No Figma Badge axis for this — reuses the Fia brand ghost tint
-         * (`--tw-raw-fia-ghost`, same 12% pattern as destructive/success)
-         * and `--tw-raw-fia-200`, the actual Fia brand color (marked
-         * "Main" in foundations/colors.css — not a darker-for-contrast
-         * shade like alert/success/destructive use, Fia's own identity
-         * color is the text). No dedicated Fia focus ring token exists,
-         * so falls back to `--effect-focus-ring-secondary` like
-         * ghost/outline do. */
+        /* No Figma Badge axis for this — reuses the same neutral alpha-333
+         * fill as `default` (Figma's own Fia chips share that background;
+         * only the text shifts). Text is `--tw-raw-fia-200`, the actual Fia
+         * brand color (marked "Main" in foundations/colors.css — not a
+         * darker-for-contrast shade like alert/success/destructive use,
+         * Fia's own identity color is the text). No dedicated Fia focus
+         * ring token exists, so falls back to `--effect-focus-ring-secondary`
+         * like ghost/outline do. */
         fia: [
-          'bg-[color-mix(in_srgb,var(--tw-raw-fia-ghost)_12%,transparent)] text-[color:var(--tw-raw-fia-200)]',
+          'bg-[var(--theme-alpha-black-switch-333)] text-[color:var(--tw-raw-fia-200)]',
           'focus-visible:shadow-[var(--effect-focus-ring-secondary)]',
           '[a&]:hover:opacity-90',
         ],
