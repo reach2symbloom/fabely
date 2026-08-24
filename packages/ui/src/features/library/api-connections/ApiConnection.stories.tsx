@@ -31,7 +31,6 @@ const FIGMA_SET_URL =
   'https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16456-17857';
 
 const BRAND_LABEL: Record<ApiConnectionBrand, string> = {
-  apple: 'Apple',
   claude: 'Claude',
   dropbox: 'Dropbox',
   evernote: 'Evernote',
@@ -42,7 +41,6 @@ const BRAND_LABEL: Record<ApiConnectionBrand, string> = {
   obsidian: 'Obsidian',
   onedrive: 'OneDrive',
   openai: 'OpenAI',
-  'play-store': 'Play Store',
 };
 
 const ALL_BRANDS = (Object.keys(BRAND_LABEL) as ApiConnectionBrand[]).sort((a, b) =>

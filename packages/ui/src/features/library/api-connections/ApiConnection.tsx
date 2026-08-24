@@ -25,7 +25,7 @@ import { BrandLink } from '@/atoms/brand-link';
 import { Status } from '@/atoms/status';
 import { Button, IconButton } from '@/primitives/button';
 
-export type ApiConnectionBrand = Exclude<BrandLogoKey, 'openai-light' | 'openai-dark'> | 'openai';
+export type ApiConnectionBrand = Exclude<BrandLogoKey, 'openai-light' | 'openai-dark' | 'apple' | 'play-store'> | 'openai';
 
 export type ApiConnectionProps = {
   /** Defaults to `'google-drive'`. */
@@ -46,7 +46,6 @@ export type ApiConnectionProps = {
 };
 
 const DEFAULTS_BY_BRAND: Record<ApiConnectionBrand, { label: string; logoSrc: string }> = {
-  apple: { label: 'Apple', logoSrc: BRAND_LOGOS.apple },
   claude: { label: 'Claude', logoSrc: BRAND_LOGOS.claude },
   dropbox: { label: 'Dropbox', logoSrc: BRAND_LOGOS.dropbox },
   evernote: { label: 'Evernote', logoSrc: BRAND_LOGOS.evernote },
@@ -57,7 +56,6 @@ const DEFAULTS_BY_BRAND: Record<ApiConnectionBrand, { label: string; logoSrc: st
   obsidian: { label: 'Obsidian', logoSrc: BRAND_LOGOS.obsidian },
   onedrive: { label: 'OneDrive', logoSrc: BRAND_LOGOS.onedrive },
   openai: { label: 'OpenAI', logoSrc: BRAND_LOGOS['openai-dark'] },
-  'play-store': { label: 'Play Store', logoSrc: BRAND_LOGOS['play-store'] },
 };
 
 const paragraphMiniRegular = [
@@ -119,14 +117,7 @@ function ApiConnection({
       )}
     >
       <div className="flex min-w-0 items-center gap-[length:var(--spacing-xs)]">
-        <BrandLink
-          logoSrc={resolvedLogoSrc}
-          label={resolvedLabel}
-          /* Figma ships Apple as a single black mark (no light/dark ink
-           * pair like OpenAI) — invert it so it reads on Library's
-           * permanently dark rows, in both the app's light and dark theme. */
-          logoClassName={brand === 'apple' ? 'invert' : undefined}
-        />
+        <BrandLink logoSrc={resolvedLogoSrc} label={resolvedLabel} />
 
         <Status label={statusLabel} />
 
