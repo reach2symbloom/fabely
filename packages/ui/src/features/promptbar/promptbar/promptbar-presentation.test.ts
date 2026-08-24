@@ -82,7 +82,7 @@ describe('derivePromptbarPresentation — the 13 Figma Mode×Expanded states', (
     expect(result.shelf.statusRows[0][0]).toMatchObject({ leadingIcon: 'book-open-text', label: 'Scene desk' });
   });
 
-  it('Fia default, collapsed — two stacked context-chip rows, not expandable', () => {
+  it('Fia default, collapsed — one row, context chip and overflow badge side by side, not expandable', () => {
     const result = derivePromptbarPresentation(
       state({
         aiMode: 'fia',
@@ -96,9 +96,9 @@ describe('derivePromptbarPresentation — the 13 Figma Mode×Expanded states', (
     );
     expect(result.shelf).toMatchObject({ visible: true, expandable: false });
     if (!result.shelf.visible) return;
-    expect(result.shelf.statusRows).toHaveLength(2);
+    expect(result.shelf.statusRows).toHaveLength(1);
     expect(result.shelf.statusRows[0][0]).toMatchObject({ kind: 'generic', dismissible: true });
-    expect(result.shelf.statusRows[1][0]).toMatchObject({ kind: 'generic', dismissible: false });
+    expect(result.shelf.statusRows[0][1]).toMatchObject({ kind: 'generic', dismissible: false });
   });
 
   it('Gather for scene, expanded vs. Gather and roam, expanded — same shelf shape, different menu length', () => {
