@@ -89,6 +89,16 @@ export type PromptbarFiaState =
       fiaSubMode: 'workflows';
       chapterScene: ChapterSceneReference;
       paragraphSelection?: ParagraphSelectionReference;
+      /** Only `'topic-map'`/`'develop-scene'` ever read this — Figma's own
+       * trigger badge for those two kinds is the scene-link status badge
+       * (`sceneLinkStatusBadge`, same as Gather's), not the chapter/scene/
+       * paragraph-selection one every other workflow state shows
+       * (confirmed against `16337:7352`/`16337:7353` vs `16337:7354`).
+       * Optional because `'related-themes'`/no active workflow never need
+       * it — a host app not supporting Topic map/Develop scene yet can
+       * omit it. */
+      scene?: SceneConnectionInput;
+      sceneConnected?: boolean;
       suggestions: PromptbarWorkflowSuggestion[];
       activeWorkflow: PromptbarActiveWorkflow | null;
     };

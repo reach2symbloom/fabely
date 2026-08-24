@@ -39,6 +39,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
 import { cn } from '@/lib/utils';
 import { TRANSITION_EMPHASIZED_FAST } from '@/lib/motion';
+import { useLiveDictation, type LiveDictationAdapter } from '@/hooks/use-live-dictation';
 import type { AIMode } from '../ai-mode-toggle';
 import { PromptbarShelf } from '../shelf';
 
@@ -75,13 +76,41 @@ export type PromptbarProps = PromptbarActionHandlers & {
   onAIModeChange?: (mode: AIMode) => void;
   onStartRecording?: () => void;
   onCancelRecording?: () => void;
-  onConfirmRecording?: () => void;
+  /** `blob` is `null` if nothing was ever captured; `transcript` is only
+   * present when `onTranscribeRecording` succeeded — see
+   * `PromptbarAudioCard`'s own `onConfirm`/`onTranscribeRecording` doc
+   * comments. Whenever `transcript` is present, the textarea's own value
+   * is populated with it before this fires. */
+  onConfirmRecording?: (blob: Blob | null, transcript?: string) => void;
+  /** The actual speech-to-text call — passed straight through to
+   * `PromptbarAudioCard`; this organism makes no network calls of its own.
+   * See that component's own doc comment for the full contract. */
+  onTranscribeRecording?: (blob: Blob) => Promise<string>;
+  /** Realtime dictation boundary for the composer's own mic icon — a
+   * genuinely separate flow from `onTranscribeRecording` (see
+   * `use-live-dictation.ts`'s own doc comment for why). Omit to leave the
+   * mic icon inert, same as omitting `onTranscribeRecording` leaves Audio
+   * Card's confirm non-transcribing. */
+  onStartLiveDictation?: LiveDictationAdapter;
   onMute?: () => void;
   onSend?: () => void;
   onPlus?: () => void;
+  onUploadNotes?: () => void;
+  onImportNotesFromApp?: () => void;
+  onAddImage?: () => void;
+  onTokenCountClick?: () => void;
 
   className?: string;
 };
+
+/** Appends a dictation event's text onto whatever the composer already
+ * held before this session/utterance — never replaces it wholesale (see
+ * `PromptbarProps`'s own doc comment on why `value` had to be lifted). */
+function mergeDictationText(base: string, eventText: string): string {
+  if (!eventText) return base;
+  if (!base) return eventText;
+  return base.endsWith(' ') || base.endsWith('\n') ? base + eventText : `${base} ${eventText}`;
+}
 
 function Promptbar({
   state,
@@ -91,7 +120,7 @@ function Promptbar({
   open: openProp,
   defaultOpen = false,
   onOpenChange,
-  value,
+  value: valueProp,
   defaultValue,
   onValueChange,
   maxLength,
@@ -102,13 +131,20 @@ function Promptbar({
   onDisconnectScene,
   onSelectWorkflow,
   onDismissActiveWorkflow,
+  onDismissParagraphSelection,
   onAIModeChange,
   onStartRecording,
   onCancelRecording,
   onConfirmRecording,
+  onTranscribeRecording,
+  onStartLiveDictation,
   onMute,
   onSend,
   onPlus,
+  onUploadNotes,
+  onImportNotesFromApp,
+  onAddImage,
+  onTokenCountClick,
   className,
 }: PromptbarProps) {
   const isRecordingControlled = isRecordingProp !== undefined;
@@ -118,6 +154,16 @@ function Promptbar({
   const openControlled = openProp !== undefined;
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
   const open = openControlled ? openProp : uncontrolledOpen;
+
+  /* Lifted here (not left as a bare pass-through to `PromptbarComposer`/
+   * `Textarea`, each of which already has its own uncontrolled fallback)
+   * specifically so a finished transcription can *set* the field — with
+   * the value living only as far down as `Textarea`'s own internal state,
+   * nothing above it has a way to push a new value in after the fact. Same
+   * controlled/uncontrolled shape as `isRecording`/`open` above. */
+  const valueControlled = valueProp !== undefined;
+  const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue ?? '');
+  const value = valueControlled ? valueProp : uncontrolledValue;
 
   const reducedMotion = Boolean(useReducedMotion());
 
@@ -131,7 +177,55 @@ function Promptbar({
     onOpenChange?.(next);
   }
 
+  function setValue(next: string) {
+    if (!valueControlled) setUncontrolledValue(next);
+    onValueChange?.(next);
+  }
+
+  /* Mode 2 — realtime dictation. Fully separate from `useAudioRecording`/
+   * `PromptbarAudioCard` (Mode 1) — see `use-live-dictation.ts`'s own doc
+   * comment for why one hook doesn't cover both. Called here (not inside
+   * `PromptbarComposer`) specifically so exclusivity between the two modes
+   * — only one may own the mic — is just a function call to a sibling
+   * handler, not a ref bridged across components. */
+  const dictation = useLiveDictation(onStartLiveDictation);
+  /* Snapshot of `value` from just before the *current* session/utterance —
+   * `useLiveDictation` has no concept of composer text, so merging
+   * interim/final events into `value` and reverting on cancel are this
+   * component's own job. Updated to the merged text on every `isFinal`
+   * event, so a session with several spoken utterances appends each one
+   * after the last rather than overwriting it. */
+  const dictationBaseTextRef = React.useRef('');
+
+  React.useEffect(() => {
+    if (!dictation.event) return;
+    const merged = mergeDictationText(dictationBaseTextRef.current, dictation.event.text);
+    setValue(merged);
+    if (dictation.event.isFinal) dictationBaseTextRef.current = merged;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only `dictation.event` should re-run this; `setValue`'s own identity changes with every keystroke elsewhere.
+  }, [dictation.event]);
+
+  function handleStartDictation() {
+    dictationBaseTextRef.current = value;
+    void dictation.start();
+  }
+
+  function handleStopDictation() {
+    dictation.stop();
+  }
+
+  function handleCancelDictation() {
+    dictation.cancel();
+    setValue(dictationBaseTextRef.current);
+  }
+
+  /* Exclusivity — only one voice-input mode owns the mic. The reverse
+   * direction (dictation starting while Audio Card is up) can't happen:
+   * the mic icon lives inside `PromptbarComposer`, which isn't even
+   * mounted while `isRecording` is true (Audio Card replaces it). */
   function handleStartRecording() {
+    if (dictation.status === 'listening') dictation.stop();
+    else if (dictation.status !== 'idle') dictation.cancel();
     setRecording(true);
     onStartRecording?.();
   }
@@ -141,18 +235,61 @@ function Promptbar({
     onCancelRecording?.();
   }
 
-  function handleConfirmRecording() {
+  function handleConfirmRecording(blob: Blob | null, transcript?: string) {
     setRecording(false);
-    onConfirmRecording?.();
+    if (transcript !== undefined) setValue(transcript);
+    onConfirmRecording?.(blob, transcript);
   }
 
-  /** Selecting a workflow also collapses the shelf — mirrors
-   * `PromptbarShelf`'s own Fia-workflows reference story
-   * (`pickWorkflow` there does the same `setOpen(false)`), just lifted up
-   * a level since `open` itself is lifted here. */
+  /** Any selection made inside the expanded shelf menu — a workflow, or a
+   * scene-link change (Connect / Link to another scene / Create from
+   * search / Disconnect) — collapses the shelf afterward, but not
+   * instantly. The row's own checkmark draw-in (`ListItemCheckmark`,
+   * `CHECKMARK_DRAW_TRANSITION`, 200ms) needs to actually finish and be
+   * seen before the shelf collapses out from under it, or the selection
+   * never registers as having happened. ~400ms hold after that (600ms
+   * total from selection) is the "pause for a beat" — long enough to read
+   * as deliberate, short enough not to feel like a stall. Cleared on
+   * unmount so a selection right before navigating away never fires
+   * `setOpen` after this component is gone, and on every new call so two
+   * rapid selections don't collapse twice. */
+  const collapseTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  React.useEffect(
+    () => () => {
+      if (collapseTimeoutRef.current !== undefined) clearTimeout(collapseTimeoutRef.current);
+    },
+    []
+  );
+
+  function scheduleCollapse() {
+    if (collapseTimeoutRef.current !== undefined) clearTimeout(collapseTimeoutRef.current);
+    collapseTimeoutRef.current = setTimeout(() => setOpen(false), reducedMotion ? 0 : 600);
+  }
+
   function handleSelectWorkflow(kind: PromptbarWorkflowKind) {
     onSelectWorkflow?.(kind);
-    setOpen(false);
+    scheduleCollapse();
+  }
+
+  function handleConnectScene() {
+    onConnectScene?.();
+    scheduleCollapse();
+  }
+
+  function handleLinkAnotherScene() {
+    onLinkAnotherScene?.();
+    scheduleCollapse();
+  }
+
+  function handleCreateSceneFromSearch() {
+    onCreateSceneFromSearch?.();
+    scheduleCollapse();
+  }
+
+  function handleDisconnectScene() {
+    onDisconnectScene?.();
+    scheduleCollapse();
   }
 
   const presentation = React.useMemo(
@@ -161,12 +298,13 @@ function Promptbar({
         state,
         { isRecording },
         {
-          onConnectScene,
-          onLinkAnotherScene,
-          onCreateSceneFromSearch,
-          onDisconnectScene,
+          onConnectScene: handleConnectScene,
+          onLinkAnotherScene: handleLinkAnotherScene,
+          onCreateSceneFromSearch: handleCreateSceneFromSearch,
+          onDisconnectScene: handleDisconnectScene,
           onSelectWorkflow: handleSelectWorkflow,
           onDismissActiveWorkflow,
+          onDismissParagraphSelection,
         }
       ),
     [
@@ -178,11 +316,12 @@ function Promptbar({
       onDisconnectScene,
       onSelectWorkflow,
       onDismissActiveWorkflow,
+      onDismissParagraphSelection,
     ]
   );
 
   return (
-    <div data-slot="promptbar" className={cn('flex w-[455px] flex-col', className)}>
+    <div data-slot="promptbar" className={cn('flex w-full min-w-[350px] flex-col', className)}>
       {/*
        * `PromptbarShelf` has exactly one call site — not a ternary between
        * several differently-branched `<PromptbarShelf>` elements, and
@@ -209,6 +348,20 @@ function Promptbar({
         {presentation.shelf.visible ? (
           <motion.div
             key="shelf"
+            /* Pulls the composer up into the shelf's own
+             * `pb-[var(--spacing-4xl)]` reach-under padding (48px — see
+             * `PromptbarShelf.tsx`'s doc comment on `SHELF_BASE`, uniform
+             * across every mode/branch there) so that zone reads as
+             * covered rather than as dead space, leaving exactly 8px of it
+             * visible as the shelf peeking out from underneath — matching
+             * the shelf's own `pt-[var(--spacing-xs)]` (8px) top padding,
+             * so the reveal reads as the same padding on both sides of the
+             * content, not a mismatched sliver. `-40px` (not a spacing
+             * token) is that arithmetic (48 reach-under − 8 desired
+             * reveal), deliberately not chasing Figma's own literal
+             * auto-layout number here — visual balance won over exact
+             * parity. */
+            className={cn('px-[var(--spacing-2xs)]', '-mb-[40px]')}
             initial={reducedMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -235,17 +388,30 @@ function Promptbar({
           onAIModeChange={onAIModeChange}
           tokenCount={state.tokenCount}
           value={value}
-          defaultValue={defaultValue}
-          onValueChange={onValueChange}
+          onValueChange={setValue}
           maxLength={maxLength}
           showCharacterCount={showCharacterCount}
           onStartRecording={handleStartRecording}
+          dictationStatus={dictation.status}
+          dictationError={dictation.error}
+          onStartDictation={onStartLiveDictation ? handleStartDictation : undefined}
+          onStopDictation={handleStopDictation}
+          onCancelDictation={handleCancelDictation}
           onMute={onMute}
           onSend={onSend}
           onPlus={onPlus}
+          onUploadNotes={onUploadNotes}
+          onImportNotesFromApp={onImportNotesFromApp}
+          onAddImage={onAddImage}
+          onTokenCountClick={onTokenCountClick}
         />
       ) : (
-        <PromptbarAudioCard onPlus={onPlus} onCancel={handleCancelRecording} onConfirm={handleConfirmRecording} />
+        <PromptbarAudioCard
+          onPlus={onPlus}
+          onCancel={handleCancelRecording}
+          onConfirm={handleConfirmRecording}
+          onTranscribeRecording={onTranscribeRecording}
+        />
       )}
     </div>
   );

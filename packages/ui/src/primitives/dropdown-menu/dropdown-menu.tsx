@@ -21,6 +21,7 @@ import {
   ListItemMedia,
   ListItemTitle,
   ListItemTrailing,
+  type ListItemSize,
 } from '../list-item';
 
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
@@ -281,12 +282,14 @@ function DropdownMenuItem({
   className,
   inset,
   variant = 'default',
+  size = 'default',
   children,
   disabled,
   ...props
 }: MenuPrimitive.Item.Props & {
   inset?: boolean;
   variant?: 'default' | 'destructive';
+  size?: ListItemSize;
 }) {
   return (
     <MenuPrimitive.Item
@@ -298,6 +301,7 @@ function DropdownMenuItem({
       render={
         <ListItem
           variant={variant === 'destructive' ? 'destructive' : 'default'}
+          size={size}
           disabled={disabled}
         />
       }
@@ -315,11 +319,13 @@ function DropdownMenuSub({ ...props }: MenuPrimitive.SubmenuRoot.Props) {
 function DropdownMenuSubTrigger({
   className,
   inset,
+  size = 'default',
   children,
   disabled,
   ...props
 }: MenuPrimitive.SubmenuTrigger.Props & {
   inset?: boolean;
+  size?: ListItemSize;
 }) {
   return (
     <MenuPrimitive.SubmenuTrigger
@@ -327,7 +333,7 @@ function DropdownMenuSubTrigger({
       data-inset={inset}
       disabled={disabled}
       className={cn('cursor-default', className)}
-      render={<ListItem disabled={disabled} />}
+      render={<ListItem size={size} disabled={disabled} />}
       {...props}
     >
       {toListItemSlots(children, {
@@ -364,10 +370,12 @@ function DropdownMenuCheckboxItem({
   children,
   checked,
   inset,
+  size = 'default',
   disabled,
   ...props
 }: MenuPrimitive.CheckboxItem.Props & {
   inset?: boolean;
+  size?: ListItemSize;
 }) {
   return (
     <MenuPrimitive.CheckboxItem
@@ -383,6 +391,7 @@ function DropdownMenuCheckboxItem({
          * visibility would look fully “hovered”).
          */
         <ListItem
+          size={size}
           disabled={disabled}
           className="data-checked:bg-transparent data-checked:data-highlighted:bg-[var(--theme-alpha-black-switch-5)]"
         />
@@ -412,10 +421,12 @@ function DropdownMenuRadioItem({
   className,
   children,
   inset,
+  size = 'default',
   disabled,
   ...props
 }: MenuPrimitive.RadioItem.Props & {
   inset?: boolean;
+  size?: ListItemSize;
 }) {
   return (
     <MenuPrimitive.RadioItem
@@ -423,7 +434,7 @@ function DropdownMenuRadioItem({
       data-inset={inset}
       disabled={disabled}
       className={cn('cursor-default', className)}
-      render={<ListItem disabled={disabled} />}
+      render={<ListItem size={size} disabled={disabled} />}
       {...props}
     >
       <ListItemMedia data-slot="dropdown-menu-radio-item-indicator">

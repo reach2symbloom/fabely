@@ -14,6 +14,8 @@ import { InlineSegmentedControl } from '../../../../stories/InlineSegmentedContr
 import { PlaygroundPanel } from '../../../../stories/PlaygroundPanel';
 import { PRIMITIVE_PLAYGROUND_CONTROL_GRID, PrimitivePage } from '../../../../stories/PrimitivePage';
 
+import type { LiveDictationAdapter } from '@/hooks/use-live-dictation';
+
 import { Promptbar } from './Promptbar';
 import type {
   PromptbarActiveWorkflow,
@@ -147,13 +149,24 @@ function FiaWorkflowsExample({
   defaultOpen: boolean;
 }) {
   const [activeWorkflow, setActiveWorkflow] = useState<PromptbarActiveWorkflow | null>(initialActiveWorkflow);
+  const [paragraphSelection, setParagraphSelection] = useState<typeof PARAGRAPH_SELECTION | undefined>(
+    PARAGRAPH_SELECTION
+  );
 
   const state: PromptbarState = {
     mode: {
       aiMode: 'fia',
       fiaSubMode: 'workflows',
       chapterScene: CHAPTER_SCENE,
-      paragraphSelection: PARAGRAPH_SELECTION,
+      paragraphSelection,
+      // Only "Topic map"/"Develop scene" ever render this (the trigger
+      // badge swaps to scene-link status for those two — see
+      // `promptbar-presentation.ts`) — supplied unconditionally since it's
+      // cheap and keeps every activeWorkflow value demoable from one state
+      // object, matching this file's own "parametrized by initial state,
+      // not near-duplicate blobs" convention.
+      sceneConnected: true,
+      scene: { sceneTitle: SCENE_TITLE },
       suggestions: WORKFLOW_SUGGESTIONS,
       activeWorkflow,
     },
@@ -166,23 +179,198 @@ function FiaWorkflowsExample({
       defaultOpen={defaultOpen}
       onSelectWorkflow={(kind) => setActiveWorkflow({ kind, label: WORKFLOW_LABEL[kind] })}
       onDismissActiveWorkflow={() => setActiveWorkflow(null)}
+      onDismissParagraphSelection={() => setParagraphSelection(undefined)}
     />
   );
 }
 
-/** Audio — the whole card replaced by the waveform/cancel/confirm card;
- * confirming or cancelling returns to whatever mode was active before. */
-function RecordingExample() {
+/** Storybook-only stand-in for a real speech-to-text backend — there isn't
+ * one anywhere in this repo (confirmed by searching before building this
+ * flow at all). Exists purely so the loading/error/retry states in
+ * `PromptbarAudioCard` are actually exercisable here; a host app supplies
+ * its own real implementation via `onTranscribeRecording`, never this one. */
+function mockTranscribeRecording(shouldFail: boolean): (blob: Blob) => Promise<string> {
+  return () =>
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (shouldFail) reject(new Error('Mock transcription service unavailable.'));
+        else resolve('This is a simulated transcript — wire a real speech-to-text backend to replace this.');
+      }, 1200);
+    });
+}
+
+/** Storybook-only stand-in for a realtime dictation backend — same
+ * reasoning as `mockTranscribeRecording` above, no production transport
+ * lives in this package (see `use-live-dictation.ts`). Emits a few interim
+ * events (one word at a time, mimicking growing best-guess text) then a
+ * final event, so the composer's own append/replace-current-utterance
+ * behavior is visible without a real provider. `stop()` (returned to
+ * `useLiveDictation`) tears the interval down, covering rapid start/stop —
+ * clicking the mic again mid-sequence just cancels the timer, nothing
+ * lingers. */
+function mockLiveDictationAdapter(shouldFail: boolean): LiveDictationAdapter {
+  return ({ onTranscript, onError }) => {
+    if (shouldFail) {
+      const timeoutId = setTimeout(
+        () => onError({ type: 'unknown', message: 'Mock dictation service unavailable.' }),
+        700
+      );
+      return { stop: () => clearTimeout(timeoutId) };
+    }
+
+    const words = ['Once', 'upon', 'a', 'time', 'in', 'the', 'Eldergrove…'];
+    let index = 0;
+    const intervalId = setInterval(() => {
+      index += 1;
+      const isFinal = index >= words.length;
+      onTranscript({ text: words.slice(0, index).join(' '), isFinal });
+      if (isFinal) clearInterval(intervalId);
+    }, 350);
+
+    return { stop: () => clearInterval(intervalId) };
+  };
+}
+
+/** Live dictation — the composer's own mic icon, entirely separate from
+ * the Audio Card flow above (`RecordingExample`). Starts/stops via the mic
+ * button itself; existing composer text is preserved and dictation appends
+ * after it. */
+function LiveDictationExample() {
+  const [simulateFailure, setSimulateFailure] = useState(false);
+  const [value, setValue] = useState('');
   const state: PromptbarState = {
     mode: { aiMode: 'gather', sceneConnected: false, scene: { sceneTitle: SCENE_TITLE } },
     tokenCount: TOKEN_COUNT,
   };
-  return <Promptbar state={state} defaultIsRecording />;
+  return (
+    <div className="flex flex-col gap-[var(--spacing-sm)]">
+      <InlineSegmentedControl
+        label="Mock dictation"
+        value={simulateFailure ? 'fail' : 'succeed'}
+        onChange={(v) => setSimulateFailure(v === 'fail')}
+        options={[
+          { value: 'succeed', label: 'Succeeds' },
+          { value: 'fail', label: 'Fails' },
+        ]}
+      />
+      <Promptbar
+        state={state}
+        value={value}
+        onValueChange={setValue}
+        onStartLiveDictation={mockLiveDictationAdapter(simulateFailure)}
+      />
+    </div>
+  );
 }
+
+/** Audio — the whole card replaced by the waveform/cancel/confirm card;
+ * confirming or cancelling returns to whatever mode was active before.
+ * Confirming also runs the mock transcription above, then hands the result
+ * back into the (also-shown) composer's own text. */
+function RecordingExample() {
+  const [simulateFailure, setSimulateFailure] = useState(false);
+  const [value, setValue] = useState('');
+  const state: PromptbarState = {
+    mode: { aiMode: 'gather', sceneConnected: false, scene: { sceneTitle: SCENE_TITLE } },
+    tokenCount: TOKEN_COUNT,
+  };
+  return (
+    <div className="flex flex-col gap-[var(--spacing-sm)]">
+      <InlineSegmentedControl
+        label="Mock transcription"
+        value={simulateFailure ? 'fail' : 'succeed'}
+        onChange={(v) => setSimulateFailure(v === 'fail')}
+        options={[
+          { value: 'succeed', label: 'Succeeds' },
+          { value: 'fail', label: 'Fails (test retry)' },
+        ]}
+      />
+      <Promptbar
+        state={state}
+        defaultIsRecording
+        value={value}
+        onValueChange={setValue}
+        onTranscribeRecording={mockTranscribeRecording(simulateFailure)}
+      />
+    </div>
+  );
+}
+
+// ---- Overview ----
+
+export const Overview: Story = {
+  parameters: { layout: 'fullscreen' },
+  render: () => (
+    <PrimitivePage
+      title="Promptbar"
+      description="The largest organism in the design system — Figma Promptbar organism (16042:5539). Composes PromptbarShelf, AIModeToggle, Kbd, IconButton, StatusBadge/Status, and Textarea rather than recreating any of them; owns only the domain-state → presentation derivation and the top-level layout that keeps those components mounted at stable identities across state changes."
+      playground={<PromptbarPlayground />}
+      variants={
+        <div className="flex flex-col gap-[var(--spacing-lg)]">
+          <div>
+            <p className="mb-2 text-sm font-medium">Gather — disconnected / connected, collapsed / expanded</p>
+            <div className="flex flex-col gap-[var(--spacing-md)]">
+              <GatherExample initialSceneConnected={false} defaultOpen={false} />
+              <GatherExample initialSceneConnected defaultOpen={false} />
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium">Scene Desk — always connected, not expandable</p>
+            <SceneDeskExample />
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium">Fia default — static context chips</p>
+            <FiaDefaultExample />
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium">Fia speak — no shelf, mute + End controls</p>
+            <FiaSpeakExample />
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium">Fia workflows — suggestions / active workflow</p>
+            <FiaWorkflowsExample initialActiveWorkflow={null} defaultOpen={false} />
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium">Audio — recording</p>
+            <RecordingExample />
+          </div>
+        </div>
+      }
+      usageGuidance={
+        <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
+          <li>
+            <code>state</code> is the one domain-state prop a host app constructs — chapter/scene, scene-link connection,
+            active workflow, and AI mode all live inside <code>state.mode</code> (a discriminated union on{' '}
+            <code>aiMode</code>, and on <code>fiaSubMode</code> within Fia). See <code>promptbar-state.ts</code>.
+          </li>
+          <li>
+            <code>isRecording</code>/<code>open</code>/the textarea&apos;s own <code>value</code> are local interaction
+            state — controlled/uncontrolled exactly like <code>AIModeToggle</code>&apos;s own{' '}
+            <code>value</code>/<code>defaultValue</code>/<code>onValueChange</code>.
+          </li>
+          <li>
+            <code>PromptbarShelf</code> is composed unmodified — its own expand/collapse, hover, chevron, cascade, and
+            checkmark-draw behavior all keep working exactly as shipped.
+          </li>
+        </ul>
+      }
+      accessibility={
+        <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
+          <li>Every icon-only control (plus, mic, mute, send, cancel/confirm) carries a real accessible name via <code>aria-label</code>.</li>
+          <li>The textarea preserves native keyboard/focus behavior — no custom key handling beyond what <code>Textarea</code> already provides.</li>
+        </ul>
+      }
+    />
+  ),
+};
 
 // ---- Named stories — one per Figma symbol ----
 
 export const AudioRecording: Story = { render: () => <RecordingExample /> };
+// Not a Figma Mode×Expanded symbol (dictation is a composer-level
+// interaction, not a distinct visual state) — kept here anyway since it's
+// the one place `onStartLiveDictation` is exercisable in isolation.
+export const LiveDictation: Story = { render: () => <LiveDictationExample /> };
 export const FiaSpeak: Story = { render: () => <FiaSpeakExample /> };
 export const GatherRoamCollapsed: Story = {
   render: () => <GatherExample initialSceneConnected={false} defaultOpen={false} />,
@@ -276,6 +464,8 @@ function buildPlaygroundState(params: {
       fiaSubMode: 'workflows',
       chapterScene: CHAPTER_SCENE,
       paragraphSelection: PARAGRAPH_SELECTION,
+      sceneConnected: true,
+      scene: { sceneTitle: SCENE_TITLE },
       suggestions: WORKFLOW_SUGGESTIONS,
       activeWorkflow: activeWorkflow === 'none' ? null : { kind: activeWorkflow, label: WORKFLOW_LABEL[activeWorkflow] },
     },
@@ -310,6 +500,7 @@ function PromptbarPlayground() {
           onIsRecordingChange={setIsRecording}
           open={isExpandable && open}
           onOpenChange={setOpen}
+          onAIModeChange={setAiMode}
           onConnectScene={() => setSceneLink('connected')}
           onDisconnectScene={() => setSceneLink('disconnected')}
           onSelectWorkflow={(kind) => setActiveWorkflow(kind)}
@@ -395,69 +586,3 @@ function PromptbarPlayground() {
     />
   );
 }
-
-export const Overview: Story = {
-  parameters: { layout: 'fullscreen' },
-  render: () => (
-    <PrimitivePage
-      title="Promptbar"
-      description="The largest organism in the design system — Figma Promptbar organism (16042:5539). Composes PromptbarShelf, AIModeToggle, Kbd, IconButton, StatusBadge/Status, and Textarea rather than recreating any of them; owns only the domain-state → presentation derivation and the top-level layout that keeps those components mounted at stable identities across state changes."
-      playground={<PromptbarPlayground />}
-      variants={
-        <div className="flex flex-col gap-[var(--spacing-lg)]">
-          <div>
-            <p className="mb-2 text-sm font-medium">Gather — disconnected / connected, collapsed / expanded</p>
-            <div className="flex flex-col gap-[var(--spacing-md)]">
-              <GatherExample initialSceneConnected={false} defaultOpen={false} />
-              <GatherExample initialSceneConnected defaultOpen={false} />
-            </div>
-          </div>
-          <div>
-            <p className="mb-2 text-sm font-medium">Scene Desk — always connected, not expandable</p>
-            <SceneDeskExample />
-          </div>
-          <div>
-            <p className="mb-2 text-sm font-medium">Fia default — static context chips</p>
-            <FiaDefaultExample />
-          </div>
-          <div>
-            <p className="mb-2 text-sm font-medium">Fia speak — no shelf, mute + End controls</p>
-            <FiaSpeakExample />
-          </div>
-          <div>
-            <p className="mb-2 text-sm font-medium">Fia workflows — suggestions / active workflow</p>
-            <FiaWorkflowsExample initialActiveWorkflow={null} defaultOpen={false} />
-          </div>
-          <div>
-            <p className="mb-2 text-sm font-medium">Audio — recording</p>
-            <RecordingExample />
-          </div>
-        </div>
-      }
-      usageGuidance={
-        <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
-          <li>
-            <code>state</code> is the one domain-state prop a host app constructs — chapter/scene, scene-link connection,
-            active workflow, and AI mode all live inside <code>state.mode</code> (a discriminated union on{' '}
-            <code>aiMode</code>, and on <code>fiaSubMode</code> within Fia). See <code>promptbar-state.ts</code>.
-          </li>
-          <li>
-            <code>isRecording</code>/<code>open</code>/the textarea&apos;s own <code>value</code> are local interaction
-            state — controlled/uncontrolled exactly like <code>AIModeToggle</code>&apos;s own{' '}
-            <code>value</code>/<code>defaultValue</code>/<code>onValueChange</code>.
-          </li>
-          <li>
-            <code>PromptbarShelf</code> is composed unmodified — its own expand/collapse, hover, chevron, cascade, and
-            checkmark-draw behavior all keep working exactly as shipped.
-          </li>
-        </ul>
-      }
-      accessibility={
-        <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
-          <li>Every icon-only control (plus, mic, mute, send, cancel/confirm) carries a real accessible name via <code>aria-label</code>.</li>
-          <li>The textarea preserves native keyboard/focus behavior — no custom key handling beyond what <code>Textarea</code> already provides.</li>
-        </ul>
-      }
-    />
-  ),
-};

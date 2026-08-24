@@ -10,6 +10,7 @@
  */
 import type * as React from 'react';
 import {
+  ArrowUp,
   AudioLines,
   BookOpenText,
   Check,
@@ -22,6 +23,7 @@ import {
   MicOff,
   Plus,
   Share2,
+  Square,
   Workflow,
   X,
   Zap,
@@ -45,6 +47,8 @@ export const PROMPTBAR_ICON: Record<PromptbarIconToken, React.ComponentType<{ cl
   mic: Mic,
   'mic-off': MicOff,
   'audio-lines': AudioLines,
+  'arrow-up': ArrowUp,
+  square: Square,
   plus: Plus,
   x: X,
 };

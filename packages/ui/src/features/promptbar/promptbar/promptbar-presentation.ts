@@ -47,6 +47,8 @@ export type PromptbarIconToken =
   | 'mic'
   | 'mic-off'
   | 'audio-lines'
+  | 'arrow-up'
+  | 'square'
   | 'plus'
   | 'x';
 
@@ -134,9 +136,10 @@ export type PromptbarShelfPresentation =
   | { visible: false }
   | {
       visible: true;
-      /** Rows of badges — an array so Fia-default's two *stacked* rows
-       * (main context chip + "+2" overflow, each its own row) and every
-       * other mode's single row share one shape. */
+      /** Rows of badges — every mode today renders exactly one row (Figma
+       * has no shelf variant with genuinely stacked status rows); kept as
+       * an array of rows, not a flat array, so a future mode that does
+       * need to stack doesn't require reshaping this type. */
       statusRows: PromptbarBadgeSpec[][];
       trigger?: PromptbarBadgeSpec;
       expandable: boolean;
@@ -290,6 +293,7 @@ export type PromptbarActionHandlers = {
   onDisconnectScene?: () => void;
   onSelectWorkflow?: (kind: PromptbarWorkflowKind) => void;
   onDismissActiveWorkflow?: () => void;
+  onDismissParagraphSelection?: () => void;
 };
 
 const NOOP = () => {};
@@ -332,17 +336,19 @@ export function deriveShelfPresentation(
           return {
             visible: true,
             expandable: false,
+            // One row — the context chip and its "+2" overflow badge sit
+            // side by side (Figma Fia default, 16220:1152), not stacked.
             statusRows: [
-              ...mode.contextBadges.map((badge: PromptbarFiaContextBadge): PromptbarBadgeSpec[] => [
-                {
+              mode.contextBadges.map(
+                (badge: PromptbarFiaContextBadge): PromptbarBadgeSpec => ({
                   kind: 'generic',
                   key: badge.id,
                   leadingIcon: 'book-open-text',
                   label: badge.label,
                   dismissible: badge.onDismiss !== undefined,
                   onDismiss: badge.onDismiss,
-                },
-              ]),
+                })
+              ),
             ],
           };
 
@@ -351,7 +357,6 @@ export function deriveShelfPresentation(
           return { visible: false };
 
         case 'workflows': {
-          const chapterSceneLabel = chapterSceneParagraphLabel(mode.chapterScene, mode.paragraphSelection);
           const trigger: PromptbarBadgeSpec = mode.activeWorkflow
             ? {
                 kind: 'generic',
@@ -372,20 +377,37 @@ export function deriveShelfPresentation(
                 tone: 'fia',
                 size: 'default',
               };
+
+          /* "Topic map" and "Develop scene" swap the left status badge to
+           * the scene-link one (same as Gather's) instead of the chapter/
+           * scene/paragraph-selection badge every other workflow state
+           * shows — confirmed against Figma (`16337:7352`/`16337:7353` vs
+           * `16337:7354`/the bare `16337:7351` default). Those two
+           * workflows operate on "the connected scene," not a text
+           * selection, so that's the context worth surfacing here. */
+          const usesSceneLinkStatus =
+            mode.activeWorkflow?.kind === 'topic-map' || mode.activeWorkflow?.kind === 'develop-scene';
+
+          const statusBadge: PromptbarBadgeSpec = usesSceneLinkStatus
+            ? sceneLinkStatusBadge(mode.sceneConnected ?? false, mode.scene ?? { sceneTitle: '' })
+            : {
+                kind: 'generic',
+                key: 'status',
+                leadingIcon: 'book-open-text',
+                label: chapterSceneParagraphLabel(mode.chapterScene, mode.paragraphSelection),
+                size: 'default',
+                // Dismissible only when there's an actual selection to
+                // clear — confirmed against Figma (the badge's own "Fade
+                // button" + Icon/x) — not the bare chapter/scene case.
+                dismissible: mode.paragraphSelection !== undefined,
+                dismissLabel: 'Clear text selection',
+                onDismiss: handlers.onDismissParagraphSelection,
+              };
+
           return {
             visible: true,
             expandable: true,
-            statusRows: [
-              [
-                {
-                  kind: 'generic',
-                  key: 'status',
-                  leadingIcon: 'book-open-text',
-                  label: chapterSceneLabel,
-                  size: 'default',
-                },
-              ],
-            ],
+            statusRows: [[statusBadge]],
             trigger,
             menuCaption: 'SUGGESTED WORKFLOWS',
             menuItems: deriveWorkflowMenuItems(mode.suggestions, mode.activeWorkflow, handlers.onSelectWorkflow ?? NOOP),
