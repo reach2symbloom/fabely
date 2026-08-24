@@ -33,6 +33,20 @@ export default defineConfig({
       },
       {
         extends: true,
+        resolve: {
+          // Mirrors .storybook/main.ts's own viteFinal alias — "pure,
+          // dependency-free" (see below) means no browser/story
+          // dependency, not that a unit-tested module can't import a
+          // shared `@/`-aliased type/util module the rest of the
+          // codebase already uses that way (e.g. promptbar-presentation.ts
+          // importing status-badge-content.ts's formatters). Without
+          // this, any such import fails at resolve time, not just for
+          // vendor components under src/components/ui like the
+          // Storybook project's own comment calls out.
+          alias: {
+            '@': path.resolve(dirname, 'src'),
+          },
+        },
         test: {
           // Plain unit tests for pure, dependency-free logic (e.g. the
           // outline drag-and-drop reducer) — no browser, no Storybook

@@ -698,6 +698,11 @@ const preview: Preview = {
             'Atoms',
             'Molecules',
             'Organisms',
+            // Feature folders alphabetical after 'Overview' (the Features
+            // category's own overview page, not a folder itself) — add new
+            // feature folders here in alphabetical position rather than
+            // leaving them to the default fallback, so the sidebar order
+            // doesn't depend on discovery/insertion order.
             'Features',
             [
               'Overview',
@@ -709,6 +714,36 @@ const preview: Preview = {
                 'Chapter Nav Button',
                 'Chapter Menu Header',
               ],
+              'Comments',
+              'Gather',
+              'Highlight',
+              'Library',
+              'Manuscript',
+              'Promptbar',
+              [
+                'AI Mode Toggle',
+                'Shelf',
+                'Promptbar',
+                [
+                  'Overview',
+                  'Audio Recording',
+                  'Fia Speak',
+                  'Gather Roam Collapsed',
+                  'Gather For Scene Collapsed',
+                  'Gather Roam Expanded',
+                  'Gather For Scene Expanded',
+                  'Scene Desk Collapsed',
+                  'Fia Default Collapsed',
+                  'Workflows Default Collapsed',
+                  'Workflows Expanded',
+                  'Workflow Related Themes',
+                  'Workflow Topic Map',
+                  'Workflow Develop Scene',
+                ],
+              ],
+              'Split & Parse',
+              'Theme Card',
+              'Topic Map Card',
             ],
           ],
         ],

@@ -17,6 +17,7 @@ primitives into this tree.
 | --- | --- | --- |
 | [AI Mode Toggle](./ai-mode-toggle/README.md) | `ai-mode-toggle/` | Landed |
 | [Shelf](./shelf/README.md) | `shelf/` | Landed |
+| [Promptbar](./promptbar/README.md) | `promptbar/` | Landed |
 
 ## Figma
 
@@ -24,4 +25,7 @@ primitives into this tree.
 page.
 
 [Promptbar shelf](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16199-2558)
+page.
+
+[Promptbar organism](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16042-5539)
 page.
