@@ -63,8 +63,17 @@ export type StatusBadgeProps = Omit<BadgeProps, 'variant' | 'size' | 'roundness'
   middleIcon?: React.ReactNode;
   /** Truncates at Figma's own literal 100px (unbound to any variable in
    * Figma's own source either — not a Foundations gap on this atom's
-   * part, there's genuinely no token for it). */
+   * part, there's genuinely no token for it). That 100px cap is sized for
+   * scene-title/context content specifically (Figma's own examples are
+   * all scene titles or excerpts) — a fixed system message (e.g. "Not
+   * connected to scene") isn't that kind of content and shouldn't inherit
+   * the same truncation; override via `secondaryTextClassName` for those. */
   secondaryText?: React.ReactNode;
+  /** Escape hatch onto `secondaryText`'s own wrapper — e.g. clearing the
+   * default `max-w-[100px] truncate` for a short fixed system message
+   * that should always read in full rather than the scene-title/context
+   * truncation this slot defaults to. */
+  secondaryTextClassName?: string;
   /** Generic trailing slot — `Status` in its glyph variant, another Fabely icon, or
    * nothing. Ignored when `onDismiss` is set (Figma never shows both at
    * once). This *is* the "trailing/status slot" — not a separate prop per
@@ -89,6 +98,7 @@ function StatusBadge({
   children,
   middleIcon,
   secondaryText,
+  secondaryTextClassName,
   trailing,
   onDismiss,
   dismissLabel = 'Remove',
@@ -114,7 +124,12 @@ function StatusBadge({
       <span className="shrink-0">{children}</span>
       {middleIcon}
       {secondaryText ? (
-        <span className="max-w-[100px] shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
+        <span
+          className={cn(
+            'max-w-[100px] shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+            secondaryTextClassName
+          )}
+        >
           {secondaryText}
         </span>
       ) : null}

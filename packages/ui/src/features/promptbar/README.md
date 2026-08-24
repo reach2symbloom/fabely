@@ -16,8 +16,12 @@ primitives into this tree.
 | Piece | Folder | Status |
 | --- | --- | --- |
 | [AI Mode Toggle](./ai-mode-toggle/README.md) | `ai-mode-toggle/` | Landed |
+| [Shelf](./shelf/README.md) | `shelf/` | Landed |
 
 ## Figma
 
 [AI Mode Toggle](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16133-4559)
+page.
+
+[Promptbar shelf](https://www.figma.com/design/gV94L0qCmvwQkddNbEktry/Fabely-Design-System?node-id=16199-2558)
 page.

@@ -40,6 +40,18 @@ export const TRANSITION_EMPHASIZED_FAST: Transition = {
 };
 
 /**
+ * Foundations' `--ease-emphasized-in` (`cubic-bezier(0.45, 1.005, 0, 1.005)`)
+ * resolved for Motion — documented in `foundations/motion/tokens.css` as
+ * "nested content opacity" (shadcn drawer content fading out as the
+ * drawer itself closes), which is exactly the shape of a staggered list
+ * exiting while its own container collapses: a touch sharper/quicker off
+ * the top than `EASE_EMPHASIZED`, reading as "getting out of the way"
+ * rather than "settling in." Pair with `EASE_EMPHASIZED`/`EASE_OUT` for
+ * the matching enter direction, not with each other.
+ */
+export const EASE_EMPHASIZED_IN: Transition['ease'] = [0.45, 1.005, 0, 1.005];
+
+/**
  * Foundations' `--ease-out` (`cubic-bezier(0, 0, 0.58, 1)`) resolved for
  * Motion. Starts at true rest (control point `(0, 0)`, no initial
  * velocity) rather than `EASE_EMPHASIZED`'s aggressive front-loaded burst —

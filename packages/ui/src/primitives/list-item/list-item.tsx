@@ -17,11 +17,15 @@
  * between media and content; title↔description gap `--spacing-2xs` (4;
  * one step above Figma’s unbound 2px).
  */
+'use client';
+
 import * as React from 'react';
 import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { AnimatePresence, motion, useReducedMotion, type Transition } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { EASE_OUT } from '@/lib/motion';
 
 export type ListItemVariant = 'default' | 'accent' | 'destructive';
 /** Shared size-slot vocabulary — values are ListItem’s own (32 / 40). */
@@ -246,10 +250,25 @@ function ListItemDescription({
   );
 }
 
+/** Enter/exit for a trailing selected/status indicator that mounts and
+ * unmounts as a row's state changes. Deliberately opacity-only, no
+ * scale — a `ListItemCheckmark` child draws its own check mark via stroke
+ * animation (see below) rather than scaling in, so the wrapper scaling it
+ * too would fight that "fixed size/position from the start" effect.
+ * Asymmetric on purpose: entering is slower and more deliberate (reads as
+ * "confirming" a choice), exiting is quicker and plainer (just a fade,
+ * not the drawing animation played backward) — matches `ListItemCheckmark`
+ * exit note below. Kept here, not per-call-site, so every
+ * `ListItemTrailing` consumer gets this for free. */
+const TRAILING_INDICATOR_ENTER_TRANSITION: Transition = { duration: 0.2, ease: EASE_OUT };
+const TRAILING_INDICATOR_EXIT_TRANSITION: Transition = { duration: 0.12, ease: EASE_OUT };
+
 function ListItemTrailing({
   className,
+  children,
   ...props
 }: React.ComponentProps<'div'>) {
+  const reducedMotion = Boolean(useReducedMotion());
   return (
     <div
       data-slot="list-item-trailing"
@@ -262,7 +281,73 @@ function ListItemTrailing({
         className
       )}
       {...props}
-    />
+    >
+      {/* `AnimatePresence` lives inside the fixed-size box above, not
+       * around it — the box itself always occupies its slot in the row
+       * (callers keep rendering `ListItemTrailing` even with no indicator
+       * to show), so a row's width/alignment never shifts when the
+       * indicator itself mounts or unmounts. */}
+      <AnimatePresence initial={false}>
+        {children ? (
+          <motion.span
+            key="list-item-trailing-indicator"
+            className="flex items-center justify-center"
+            initial={reducedMotion ? false : { opacity: 0.4 }}
+            animate={{ opacity: 1, transition: reducedMotion ? { duration: 0 } : TRAILING_INDICATOR_ENTER_TRANSITION }}
+            exit={{ opacity: 0, transition: reducedMotion ? { duration: 0 } : TRAILING_INDICATOR_EXIT_TRANSITION }}
+          >
+            {children}
+          </motion.span>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+const CHECKMARK_DRAW_TRANSITION: Transition = { duration: 0.2, ease: EASE_OUT };
+
+/**
+ * Trailing selected-state checkmark for `ListItemTrailing` — draws in via
+ * `stroke-dasharray`/`stroke-dashoffset` rather than scaling up, so its
+ * final size and position are fixed from the very first frame; only the
+ * stroke itself animates. `pathLength={1}` lets the dash values be
+ * unitless fractions of the path (0–1) instead of needing the path's real
+ * length from `getTotalLength()`.
+ *
+ * The path's own point order is deliberately reversed from Lucide's stock
+ * `Check` icon (`M20 6 9 17l-5-5`, which draws the long stroke first, top
+ * to bottom): this one starts at the short stroke's own tip and draws
+ * through the vertex into the long upward stroke, matching how a
+ * checkmark actually gets drawn by hand — begin low-left, finish
+ * high-right.
+ *
+ * No exit animation of its own — deselecting doesn't play this backward
+ * (that would read as "un-confirming" a choice, more ornamental than the
+ * interaction warrants); `ListItemTrailing`'s own wrapper fades the
+ * completed mark out instead. See that component's own doc comment.
+ */
+function ListItemCheckmark({ className }: { className?: string }) {
+  const reducedMotion = Boolean(useReducedMotion());
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <motion.path
+        d="M4 12 9 17 20 6"
+        pathLength={1}
+        strokeDasharray={1}
+        initial={reducedMotion ? false : { strokeDashoffset: 1 }}
+        animate={{ strokeDashoffset: 0 }}
+        transition={reducedMotion ? { duration: 0 } : CHECKMARK_DRAW_TRANSITION}
+      />
+    </svg>
   );
 }
 
@@ -351,6 +436,7 @@ export {
   ListItemTitle,
   ListItemDescription,
   ListItemTrailing,
+  ListItemCheckmark,
   listItemVariants,
 };
 export type { ListItemProps };
